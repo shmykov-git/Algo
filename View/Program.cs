@@ -17,7 +17,14 @@ namespace View
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new View());
+
+
+            var view = new View();
+            
+            var scene = new Scene(view);
+            scene.Show();
+
+            Application.Run(view);
         }
     }
 }

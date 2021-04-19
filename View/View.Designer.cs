@@ -31,13 +31,16 @@ namespace View
         {
             this.SuspendLayout();
             // 
-            // Form1
+            // View
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(673, 450);
-            this.Name = "Form1";
+            this.ClientSize = new System.Drawing.Size(785, 519);
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.Name = "View";
             this.Text = "View";
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.View_Paint);
+            this.Resize += new System.EventHandler(this.View_Resize);
             this.ResumeLayout(false);
 
         }

@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Model.Extensions
+{
+    public static class LinqExtensions
+    {
+        public static IEnumerable<TRes> SelectCirclePair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
+        {
+            var i = 0;
+            var prevT = default(T);
+            var first = default(T);
+            foreach (var t in list)
+            {
+                if (i++ == 0)
+                    first = t;
+                else
+                    yield return func(prevT, t);
+                prevT = t;
+            }
+            yield return func(prevT, first);
+        }
+    }
+}
