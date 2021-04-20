@@ -5,7 +5,7 @@ namespace Model.Extensions
 {
     public static class PoligonExtensions
     {
-        public static Poligon Transform(this Poligon poligon, Func<Point, Point> transformFn)
+        public static Poligon Transform(this Poligon poligon, Func<Vector2, Vector2> transformFn)
         {
             return new Poligon
             {

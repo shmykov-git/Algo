@@ -1,11 +1,11 @@
 ﻿namespace Model.Extensions
 {
 
-    public static class PointExtensions
+    public static class Vector2Extensions
     {
-        public static Point Scale(this Point a, Size aSize, Size bSize)
+        public static Vector2 Scale(this Vector2 a, Size aSize, Size bSize)
         {
-            return new Point
+            return new Vector2
             {
                 X = a.X * bSize.Width / aSize.Width,
                 Y = a.Y * bSize.Height / aSize.Height

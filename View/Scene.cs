@@ -19,7 +19,7 @@ namespace View
 
         private Poligon Poligon => new Poligon
         {
-            Points = new Point[]
+            Points = new Vector2[]
             {
                 (2, 2),
                 (4, 4),

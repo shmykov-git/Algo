@@ -5,6 +5,15 @@ namespace Model.Extensions
 {
     public static class LinqExtensions
     {
+
+        public static IEnumerable<int> Index<T>(this IEnumerable<T> list)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+            while (enumerator.MoveNext())
+                yield return ++i;
+        }
+
         public static IEnumerable<TRes> SelectCirclePair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
         {
             var i = 0;

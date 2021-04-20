@@ -6,7 +6,7 @@ namespace Model
 
     public class Poligon
     {
-        public Point[] Points;
-        public IEnumerable<Line> Lines => Points.SelectCirclePair((a, b) => new Line(a, b));
+        public Vector2[] Points;
+        public IEnumerable<Line2> Lines => Points.SelectCirclePair((a, b) => new Line2(a, b));
     }
 }
