@@ -1,3 +1,4 @@
+using Model.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +21,9 @@ namespace View
 
 
             var view = new View();
+            var fillEngine = new FillEngine();
             
-            var scene = new Scene(view);
+            var scene = new Scene(view, fillEngine);
             scene.Show();
 
             Application.Run(view);

@@ -8,14 +8,14 @@ namespace View
 {
     public partial class View : Form, IView
     {
-        private Poligon basePoligon;
+        private PoligonInfo basePoligon;
 
         public View()
         {
             InitializeComponent();
         }
 
-        public void DrawPoligon(Poligon poligon)
+        public void DrawPoligon(PoligonInfo poligon)
         {
             this.basePoligon = poligon;
 
@@ -34,10 +34,26 @@ namespace View
 
             var g = e.Graphics;
             Model.Size size = (Width, Height);
-            var poligon = basePoligon.Scale(size).MirrorY(size);
+            var poligon = basePoligon.Poligon.Scale(size).MirrorY(size);
+            var info = new PoligonInfo { Poligon = poligon, Trios = basePoligon.Trios };
 
-            DrawLines(g, poligon, Pens.Red);
+            DrawNet(g, info, Pens.Red);
+            //DrawLines(g, poligon, Pens.Red);
             DrawPoints(g, poligon, Brushes.DodgerBlue);
+        }
+
+        private void DrawNet(Graphics g, PoligonInfo info, Pen pen)
+        {
+            foreach (var trio in info.Trios)
+            {
+                var a = info.Poligon[trio.I];
+                var b = info.Poligon[trio.J];
+                var c = info.Poligon[trio.K];
+
+                g.DrawLine(pen, a.ToPoint(), b.ToPoint());
+                g.DrawLine(pen, b.ToPoint(), c.ToPoint());
+                g.DrawLine(pen, c.ToPoint(), a.ToPoint());
+            }
         }
 
         private void DrawLines(Graphics g, Poligon poligon, Pen pen)

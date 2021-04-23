@@ -2,6 +2,6 @@
 {
     public interface IView
     {
-        public void DrawPoligon(Poligon poligon);
+        public void DrawPoligon(PoligonInfo poligon);
     }
 }
