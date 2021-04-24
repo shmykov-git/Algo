@@ -1,4 +1,6 @@
-﻿using Model;
+﻿#define FILL
+
+using Model;
 using Model.Extensions;
 using Model.Tools;
 
@@ -15,11 +17,16 @@ namespace View
             this.fillEngine = fillEngine;
         }
 
+
         public void Show()
         {
+
             var poligon = Poligon;
-            //bool valid = true; Trio[] trios = null;
+#if FILL
             var (valid, trios) = fillEngine.FillPoligonByTriangles(Poligon);
+#else
+            var (valid, trios) = (true, (Trio[])null);
+#endif
 
             var info = new PoligonInfo
             {
@@ -32,6 +39,19 @@ namespace View
         }
 
         private Poligon Poligon => new Poligon
+        {
+            Points = new Vector2[]
+            {
+                (2, 2),
+                (4, 4),
+                (6, 7),
+                (3, 8),
+                (3, 5),
+                (5, 6),
+            }
+        }.Scale((10, 10), (1, 1));
+
+        private Poligon Poligon2 => new Poligon
         {
             Points = new Vector2[]
             {

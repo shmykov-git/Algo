@@ -14,10 +14,12 @@ namespace Model.Tools
         public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
             List<Trio> triangles = new();
-
             var vertices = poligon.Points.Index().ToList();
 
-            Trio ToVTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
+
+            #region Additional functions
+
+            Trio ToTriangleTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
 
             int CorrectInd(int i) => (i + vertices.Count) % vertices.Count;
             int NextInd(int i) => CorrectInd(i + 1);
@@ -39,8 +41,11 @@ namespace Model.Tools
             TrioInfo GetTrioInfo(Trio trio) => new TrioInfo
             {
                 Info = trio.SelectPairs()
-                .Select(t => ToPairInfo(ToVTrio(t))).ToArray()
+                .Select(t => ToPairInfo(ToTriangleTrio(t))).ToArray()
             };
+
+            #endregion
+
 
             bool IsValid(Trio trio)
             {
@@ -62,7 +67,7 @@ namespace Model.Tools
             {
                 if (IsValid(t))
                 {
-                    triangles.Add(ToVTrio(t));
+                    triangles.Add(ToTriangleTrio(t));
                     vertices.RemoveAt(t.J);
                     t.K = CorrectInd(t.K);
                 }

@@ -38,14 +38,26 @@ namespace View
 
             var poligon = basePoligonInfo.Poligon.Scale(size).MirrorY(size);
             var info = basePoligonInfo.ModifyPoligon(poligon);
-            var validPen = info.IsValid ? Pens.Green : Pens.Red;
 
             if (info.IsFilled)
-                DrawNet(g, info, validPen);
+                FillNet(g, info, info.IsValid ? Brushes.Green : Brushes.Red);
+                //DrawNet(g, info, info.IsValid ? Pens.Green : Pens.Red);
             else
                 DrawLines(g, poligon, Pens.Black);
 
             DrawPoints(g, poligon, Brushes.DodgerBlue);
+        }
+
+        private void FillNet(Graphics g, PoligonInfo info, Brush brush)
+        {
+            foreach (var trio in info.Trios)
+            {
+                var a = info.Poligon[trio.I];
+                var b = info.Poligon[trio.J];
+                var c = info.Poligon[trio.K];
+
+                g.FillPolygon(brush, new[] { a.ToPoint(), b.ToPoint(), c.ToPoint()});
+            }
         }
 
         private void DrawNet(Graphics g, PoligonInfo info, Pen pen)
