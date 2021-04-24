@@ -38,6 +38,9 @@ namespace Model.Tools
             var n = 0;
             while (vertices.Count > 2 && n++ < maxCircles)
             {
+                while(!IsLeftTrio(t))
+                    t = NextTrio(t);
+
                 var convexCount = vertices.Count;
                 while (convexCount-- > 0 && IsLeftTrio(t))
                     t = NextTrio(t);
@@ -61,6 +64,12 @@ namespace Model.Tools
 
                 for (var i = 1; i <= pointCount; i++)
                     convex.Add(vertices[NextInd(l, i)]);
+
+                var convexLines = convex.SelectCirclePair((j, k) => new Line2(poligon[j], poligon[k])).ToArray();
+                var hasInsidePoint = vertices.Except(convex).Select(i => poligon[i]).Any(p => convexLines.All(l => l.Fn(p) < 0));
+
+                if (hasInsidePoint)
+                    continue;
 
                 for (var i = 2; i < pointCount; i++)
                 {

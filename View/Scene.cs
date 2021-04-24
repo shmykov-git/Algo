@@ -23,7 +23,7 @@ namespace View
 
         public void Show()
         {
-            var poligon = Spiral(2, 67);
+            var poligon = Poligon;
 
 #if FILL
             var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
@@ -41,6 +41,16 @@ namespace View
             view.DrawPoligon(info);
         }
 
+        private Poligon Poligon => new Poligon
+        {
+            Points = new Vector2[]
+            {
+                (4, 0), (6.5, 2), (6,5), (2,7), (0.5,5), (0.5, 3.5), (1.5,2.5), (3,3.5), 
+                (3.5, 3.7), (4,2.5), (4.5, 3.5), (3.5, 4.5), (2.5, 4), (1.5, 3.3), (1,4.2), 
+                (2.5, 5.5), (5, 4.5), (5.3, 2.2)
+            }
+        }.ScaleToOne((10, 10));
+
         private Poligon Spiral(double n, int count) => new Poligon
         {
             Points = new Func2Info 
@@ -52,7 +62,7 @@ namespace View
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.8).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
-        private Poligon Poligon => new Poligon
+        private Poligon Poligon4 => new Poligon
         {
             Points = new Vector2[]
             {

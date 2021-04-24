@@ -28,14 +28,14 @@ namespace View
             Refresh();
         }
 
-        private void View_Paint(object sender, PaintEventArgs e)
+        private void pnlCanvas_Paint(object sender, PaintEventArgs e)
         {
             if (basePoligonInfo == null)
                 return;
 
             var g = e.Graphics;
             this.BackColor = Color.White;
-            Model.Size size = (Width, Height);
+            Model.Size size = (pnlCanvas.Width, pnlCanvas.Height);
             var poligon = basePoligonInfo.Poligon.Scale(size).MirrorY(size);
 
             if (basePoligonInfo.IsFilled)
