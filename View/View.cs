@@ -13,6 +13,7 @@ namespace View
         public View()
         {
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized;
         }
 
         public void DrawPoligon(PoligonInfo poligonInfo)
