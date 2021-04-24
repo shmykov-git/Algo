@@ -43,6 +43,20 @@ namespace View
             Points = new Vector2[]
             {
                 (2, 2),
+                (4, 3.5),
+                (4.5, 4),
+                (6, 7),
+                (3, 8),
+                (2.5, 5.5),
+                (3.5, 4.5),
+                (5, 6),
+            }
+        }.Scale((10, 10), (1, 1));
+        private Poligon Poligon3 => new Poligon
+        {
+            Points = new Vector2[]
+            {
+                (2, 2),
                 (4, 4),
                 (6, 7),
                 (3, 8),

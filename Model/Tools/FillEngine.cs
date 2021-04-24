@@ -72,9 +72,19 @@ namespace Model.Tools
                 t = new Trio(PrevInd(l, 2), PrevInd(l), l);
             }
 
-            IEnumerable<Trio> GetConvexTrios(List<int> convex)
+            List<Trio> GetConvexTrios(List<int> convex)
             {
-                return Enumerable.Range(0, convex.Count - 2).Select(i => new Trio(convex[0], convex[i + 1], convex[i + 2]));
+                int CorrectInd(int i) => (i + convex.Count) % convex.Count;
+
+                var halfLen = convex.Count / 2;
+
+                var shift = Enumerable.Range(0, convex.Count / 2)
+                    .Select(i => new { I = i, Len2 = (poligon[convex[CorrectInd(i)]] - poligon[convex[CorrectInd(i + halfLen)]]).Len2 })
+                    .OrderBy(v => v.Len2)
+                    .First()
+                    .I;
+
+                return Enumerable.Range(0, convex.Count - 2).Select(i => new Trio(convex[CorrectInd(shift)], convex[CorrectInd(shift + i + 1)], convex[CorrectInd(shift + i + 2)])).ToList();
             }
 
             return convexes.SelectMany(GetConvexTrios).ToArray();

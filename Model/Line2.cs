@@ -1,4 +1,6 @@
-﻿namespace Model
+﻿using System;
+
+namespace Model
 {
     public struct Line2
     {
@@ -11,6 +13,8 @@
         public Vector2 NOne => Normal.Normed;
 
         public double Fn(Vector2 x) => (x - A) * Normal;
+
+        public double Distance(Vector2 x) => Math.Abs(Fn(x));
 
         public Line2(Vector2 a, Vector2 b)
         {
