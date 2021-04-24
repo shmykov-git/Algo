@@ -18,12 +18,14 @@ namespace View
         {
             this.view = view;
             this.fillEngine = fillEngine;
+            fillEngine.OnDebug = view.DrawDebug;
         }
 
 
         public void Show()
         {
-            var poligon = Poligon;
+            var poligon = Sinus(3, 50);
+            //var poligon = Poligon3;
 
 #if FILL
             var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
@@ -40,6 +42,17 @@ namespace View
 
             view.DrawPoligon(info);
         }
+
+        private Poligon Sinus(double n, int count) => new Poligon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => (Math.Abs(t), (t < 0 ? -1 : 0) +  n * Math.Sin(Math.Abs(t))),
+                From = -n * 2 * Math.PI,
+                To = n * 2 * Math.PI,
+                N = count,
+            }.GetPoints().Reverse().ToArray()
+        }.Mult(0.9).Move((0, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI));
 
         private Poligon Poligon => new Poligon
         {
