@@ -9,8 +9,10 @@ namespace Model.Tools
 {
     public class FillEngine
     {
-        public Trio[] FillPoligonByTriangles(Poligon poligon)
+        public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
+            var maxCircles = poligon.Points.Length;
+
             var vertices = poligon.Points.Index().ToList();
             List<List<int>> convexes = new List<List<int>>();
 
@@ -33,8 +35,8 @@ namespace Model.Tools
             bool IsLeftTrio(Trio trio) => GetTrioPairInfo(trio).IsLeftPoint;
 
             var t = new Trio(0, 1, 2);
-
-            while (vertices.Count > 2)
+            var n = 0;
+            while (vertices.Count > 2 && n++ < maxCircles)
             {
                 var convexCount = vertices.Count;
                 while (convexCount-- > 0 && IsLeftTrio(t))
@@ -87,7 +89,7 @@ namespace Model.Tools
                 return Enumerable.Range(0, convex.Count - 2).Select(i => new Trio(convex[CorrectInd(shift)], convex[CorrectInd(shift + i + 1)], convex[CorrectInd(shift + i + 2)])).ToList();
             }
 
-            return convexes.SelectMany(GetConvexTrios).ToArray();
+            return (n < maxCircles, convexes.SelectMany(GetConvexTrios).ToArray());
         }
 
         struct TrioInfo

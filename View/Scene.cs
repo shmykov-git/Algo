@@ -2,7 +2,10 @@
 
 using Model;
 using Model.Extensions;
+using Model.Libraries;
 using Model.Tools;
+using System;
+using System.Linq;
 
 namespace View
 {
@@ -20,10 +23,10 @@ namespace View
 
         public void Show()
         {
+            var poligon = Spiral(2, 67);
 
-            var poligon = Poligon;
 #if FILL
-            var trios = fillEngine.FillPoligonByTriangles(Poligon);
+            var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
 #else
             var (valid, trios) = (true, (Trio[])null);
 #endif
@@ -32,11 +35,22 @@ namespace View
             {
                 Poligon = poligon,
                 Trios = trios,
-                IsValid = true
+                IsValid = valid
             };
 
             view.DrawPoligon(info);
         }
+
+        private Poligon Spiral(double n, int count) => new Poligon
+        {
+            Points = new Func2Info 
+            { 
+                Fn = t => (-Math.Abs(t) * Math.Sin(t), t * Math.Cos(t)),
+                From = n * 2 * Math.PI + Math.PI/2,
+                To = - n * 2 * Math.PI + Math.PI/2,
+                N = count,
+            }.GetPoints().Reverse().ToArray()
+        }.Mult(0.8).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
         private Poligon Poligon => new Poligon
         {

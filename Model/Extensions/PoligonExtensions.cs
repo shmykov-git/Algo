@@ -23,6 +23,11 @@ namespace Model.Extensions
             return poligon.Scale(Size.One, bSize);
         }
 
+        public static Poligon ScaleToOne(this Poligon poligon, Size aSize)
+        {
+            return poligon.Scale(aSize, Size.One);
+        }
+
         public static Poligon Scale(this Poligon poligon, Size aSize, Size bSize)
         {
             return poligon.Transform(p => p.Scale(aSize, bSize));
