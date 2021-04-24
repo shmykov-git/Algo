@@ -23,7 +23,7 @@ namespace View
 
             var poligon = Poligon;
 #if FILL
-            var (valid, trios) = fillEngine.FillPoligonByTriangles(Poligon);
+            var trios = fillEngine.FillPoligonByTriangles(Poligon);
 #else
             var (valid, trios) = (true, (Trio[])null);
 #endif
@@ -32,7 +32,7 @@ namespace View
             {
                 Poligon = poligon,
                 Trios = trios,
-                IsValid = valid
+                IsValid = true
             };
 
             view.DrawPoligon(info);

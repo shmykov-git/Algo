@@ -9,28 +9,18 @@ namespace Model.Tools
 {
     public class FillEngine
     {
-        private const int MaxCircles = 10;
-
-        public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
+        public Trio[] FillPoligonByTriangles(Poligon poligon)
         {
-            List<Trio> triangles = new();
             var vertices = poligon.Points.Index().ToList();
-
-
-            #region Additional functions
+            List<List<int>> convexes = new List<List<int>>();
 
             Trio ToTriangleTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
 
             int CorrectInd(int i) => (i + vertices.Count) % vertices.Count;
-            int NextInd(int i) => CorrectInd(i + 1);
-            int PrevInd(int i) => CorrectInd(i - 1);
+            int CorrectDelInd(int i, int delI) => i < delI ? i : CorrectInd(i);
+            int NextInd(int i, int count = 1) => CorrectInd(i + count);
+            int PrevInd(int i, int count = 1) => CorrectInd(i - count);
             Trio NextTrio(Trio trio) => new Trio(trio.J, trio.K, NextInd(trio.K));
-
-            IEnumerable<int> SelectSiblings(Trio trio) 
-            {
-                yield return NextInd(trio.K);
-                yield return PrevInd(trio.I);
-            }
 
             TrioPairInfo ToPairInfo(Trio trio) => new TrioPairInfo
             {
@@ -38,49 +28,56 @@ namespace Model.Tools
                 Point = poligon[trio.K]
             };
 
-            TrioInfo GetTrioInfo(Trio trio) => new TrioInfo
-            {
-                Info = trio.SelectPairs()
-                .Select(t => ToPairInfo(ToTriangleTrio(t))).ToArray()
-            };
+            Vector2 GetPoint(int i) => poligon[vertices[i]];
+            TrioPairInfo GetTrioPairInfo(Trio trio) => ToPairInfo(ToTriangleTrio(trio));
+            bool IsLeftTrio(Trio trio) => GetTrioPairInfo(trio).IsLeftPoint;
 
-            #endregion
-
-
-            bool IsValid(Trio trio)
-            {
-                var info = GetTrioInfo(trio);
-
-                if (!info.IsLeftTriangle)
-                    return false;
-
-                if (SelectSiblings(trio).Any(l => info.IsInsidePoint(poligon[vertices[l]])))
-                    return false;
-
-                return true;
-            }
-
-            var circleCount = 0;
             var t = new Trio(0, 1, 2);
 
             while (vertices.Count > 2)
             {
-                if (IsValid(t))
-                {
-                    triangles.Add(ToTriangleTrio(t));
-                    vertices.RemoveAt(t.J);
-                    t.K = CorrectInd(t.K);
-                }
-                else
-                {
+                var convexCount = vertices.Count;
+                while (convexCount-- > 0 && IsLeftTrio(t))
                     t = NextTrio(t);
 
-                    if (t.K == 0 && ++circleCount == MaxCircles)
-                        break;
+                if (convexCount == 0)
+                {
+                    convexes.Add(vertices);
+                    break;
                 }
+
+                var pairInfo = GetTrioPairInfo(t);
+                var convex = new List<int>();
+
+                var l = PrevInd(t.I);
+                var pointCount = 2;
+                while (pairInfo.CheckLeftPoint(GetPoint(l)))
+                {
+                    l = PrevInd(l);
+                    pointCount++;
+                }
+
+                for (var i = 1; i <= pointCount; i++)
+                    convex.Add(vertices[NextInd(l, i)]);
+
+                for (var i = 2; i < pointCount; i++)
+                {
+                    var delI = NextInd(l, 2);
+                    vertices.RemoveAt(delI);
+                    l = CorrectDelInd(l, delI);
+                }
+
+                convexes.Add(convex);
+
+                t = new Trio(PrevInd(l, 2), PrevInd(l), l);
             }
 
-            return (circleCount < MaxCircles, triangles.ToArray());
+            IEnumerable<Trio> GetConvexTrios(List<int> convex)
+            {
+                return Enumerable.Range(0, convex.Count - 2).Select(i => new Trio(convex[0], convex[i + 1], convex[i + 2]));
+            }
+
+            return convexes.SelectMany(GetConvexTrios).ToArray();
         }
 
         struct TrioInfo
