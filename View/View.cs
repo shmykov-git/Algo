@@ -8,16 +8,16 @@ namespace View
 {
     public partial class View : Form, IView
     {
-        private PoligonInfo basePoligon;
+        private PoligonInfo basePoligonInfo;
 
         public View()
         {
             InitializeComponent();
         }
 
-        public void DrawPoligon(PoligonInfo poligon)
+        public void DrawPoligon(PoligonInfo poligonInfo)
         {
-            this.basePoligon = poligon;
+            this.basePoligonInfo = poligonInfo;
 
             Refresh();
         }
@@ -29,16 +29,22 @@ namespace View
 
         private void View_Paint(object sender, PaintEventArgs e)
         {
-            if (basePoligon == null)
+            if (basePoligonInfo == null)
                 return;
 
             var g = e.Graphics;
+            this.BackColor = Color.White;
             Model.Size size = (Width, Height);
-            var poligon = basePoligon.Poligon.Scale(size).MirrorY(size);
-            var info = new PoligonInfo { Poligon = poligon, Trios = basePoligon.Trios };
 
-            DrawNet(g, info, Pens.Red);
-            //DrawLines(g, poligon, Pens.Red);
+            var poligon = basePoligonInfo.Poligon.Scale(size).MirrorY(size);
+            var info = basePoligonInfo.ModifyPoligon(poligon);
+            var validPen = info.IsValid ? Pens.Green : Pens.Red;
+
+            if (info.IsFilled)
+                DrawNet(g, info, validPen);
+            else
+                DrawLines(g, poligon, Pens.Black);
+
             DrawPoints(g, poligon, Brushes.DodgerBlue);
         }
 

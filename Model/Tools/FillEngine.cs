@@ -9,13 +9,26 @@ namespace Model.Tools
 {
     public class FillEngine
     {
-        public Trio[] FillPoligonByTriangles(Poligon poligon)
+        private const int MaxCircles = 10;
+
+        public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
-            List<Trio> res = new();
+            List<Trio> triangles = new();
 
             var vertices = poligon.Points.Index().ToList();
 
             Trio ToVTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
+
+            int CorrectInd(int i) => (i + vertices.Count) % vertices.Count;
+            int NextInd(int i) => CorrectInd(i + 1);
+            int PrevInd(int i) => CorrectInd(i - 1);
+            Trio NextTrio(Trio trio) => new Trio(trio.J, trio.K, NextInd(trio.K));
+
+            IEnumerable<int> SelectSiblings(Trio trio) 
+            {
+                yield return NextInd(trio.K);
+                yield return PrevInd(trio.I);
+            }
 
             TrioPairInfo ToPairInfo(Trio trio) => new TrioPairInfo
             {
@@ -23,32 +36,63 @@ namespace Model.Tools
                 Point = poligon[trio.K]
             };
 
-            bool IsValidT(Trio trio) =>
-                trio.SelectPairs()
-                .Select(t => ToPairInfo(ToVTrio(t)))
-                .All(v => v.Line.Fn(v.Point) < 0);
-
-            var t = new Trio(0, 1, 2);
-            while(vertices.Count > 2)
+            TrioInfo GetTrioInfo(Trio trio) => new TrioInfo
             {
-                if (IsValidT(t))
+                Info = trio.SelectPairs()
+                .Select(t => ToPairInfo(ToVTrio(t))).ToArray()
+            };
+
+            bool IsValid(Trio trio)
+            {
+                var info = GetTrioInfo(trio);
+
+                if (!info.IsLeftTriangle)
+                    return false;
+
+                if (SelectSiblings(trio).Any(l => info.IsInsidePoint(poligon[vertices[l]])))
+                    return false;
+
+                return true;
+            }
+
+            var circleCount = 0;
+            var t = new Trio(0, 1, 2);
+
+            while (vertices.Count > 2)
+            {
+                if (IsValid(t))
                 {
-                    res.Add(ToVTrio(t));
+                    triangles.Add(ToVTrio(t));
                     vertices.RemoveAt(t.J);
+                    t.K = CorrectInd(t.K);
                 }
                 else
                 {
-                    t.K = (t.K + 1) % vertices.Count;
+                    t = NextTrio(t);
+
+                    if (t.K == 0 && ++circleCount == MaxCircles)
+                        break;
                 }
             }
 
-            return res.ToArray();
+            return (circleCount < MaxCircles, triangles.ToArray());
         }
+
+        struct TrioInfo
+        {
+            public TrioPairInfo[] Info;
+
+            public bool IsInsidePoint(Vector2 point) => Info.All(v => v.CheckLeftPoint(point));
+            public bool IsLeftTriangle => Info.All(v => v.IsLeftPoint);
+        };
 
         struct TrioPairInfo
         {
             public Line2 Line;
             public Vector2 Point;
+
+            public bool CheckLeftPoint(Vector2 point) => Line.Fn(point) < 0;
+            public bool IsLeftPoint => CheckLeftPoint(Point);
         }
     }
 }
