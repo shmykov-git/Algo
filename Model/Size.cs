@@ -19,5 +19,13 @@
                 Height = a.Height * k
             };
         }
+        public static Size operator /(Size a, double k)
+        {
+            return new Size()
+            {
+                Width = a.Width / k,
+                Height = a.Height / k
+            };
+        }
     }
 }

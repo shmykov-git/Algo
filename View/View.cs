@@ -35,17 +35,33 @@ namespace View
             var g = e.Graphics;
             this.BackColor = Color.White;
             Model.Size size = (Width, Height);
-
             var poligon = basePoligonInfo.Poligon.Scale(size).MirrorY(size);
-            var info = basePoligonInfo.ModifyPoligon(poligon);
 
-            if (info.IsFilled)
-                FillNet(g, info, info.IsValid ? Brushes.Green : Brushes.Red);
-                //DrawNet(g, info, info.IsValid ? Pens.Green : Pens.Red);
+            if (basePoligonInfo.IsFilled)
+            {
+                Model.Size halfSize = size / 2;
+
+                var leftTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5));
+                var rightTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move((halfSize.Width, 0)));
+                var leftButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move((0, halfSize.Height)));
+                var rightButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move(halfSize));
+
+                DrawLines(g, leftTopInfo.Poligon, Pens.Black);
+                DrawPoints(g, leftTopInfo.Poligon, Brushes.DodgerBlue);
+
+                DrawNet(g, rightTopInfo, rightTopInfo.IsValid ? Pens.Green : Pens.Red);
+                DrawPoints(g, rightTopInfo.Poligon, Brushes.DodgerBlue);
+
+                FillNet(g, leftButtomInfo, leftButtomInfo.IsValid ? Brushes.Green : Brushes.Brown);
+                DrawNet(g, leftButtomInfo, Pens.Red);
+
+                FillNet(g, rightButtomInfo, rightButtomInfo.IsValid ? Brushes.Green : Brushes.Red);
+            }
             else
+            {
                 DrawLines(g, poligon, Pens.Black);
-
-            DrawPoints(g, poligon, Brushes.DodgerBlue);
+                DrawPoints(g, poligon, Brushes.DodgerBlue);
+            }
         }
 
         private void FillNet(Graphics g, PoligonInfo info, Brush brush)
