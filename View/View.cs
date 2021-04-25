@@ -53,11 +53,12 @@ namespace View
             if (basePoligonInfo.IsFilled)
             {
                 Model.Size halfSize = size / 2;
+                var border = halfSize * 0.025;
 
-                var leftTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5));
-                var rightTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move((halfSize.Width, 0)));
-                var leftButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move((0, halfSize.Height)));
-                var rightButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.5).Move(halfSize));
+                var leftTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move(border));
+                var rightTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move((halfSize.Width, 0)).Move(border));
+                var leftButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move((0, halfSize.Height)).Move(border));
+                var rightButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move(halfSize).Move(border));
 
                 DrawLines(g, leftTopInfo.Poligon, Pens.Black);
                 DrawPoints(g, leftTopInfo.Poligon, Brushes.DodgerBlue);
@@ -74,8 +75,11 @@ namespace View
             }
             else
             {
-                DrawLines(g, poligon, Pens.Black);
-                DrawPoints(g, poligon, Brushes.DodgerBlue);
+                var border = size * 0.025;
+                var info = basePoligonInfo.ModifyPoligon(poligon.Mult(0.95).Move(border));
+                DrawLines(g, info.Poligon, Pens.Black);
+                DrawPoints(g, info.Poligon, Brushes.DodgerBlue);
+                DrawPointLabels(g, info.Poligon, Brushes.Blue);
             }
         }
 
@@ -119,7 +123,6 @@ namespace View
         }
         private void DrawPointLabels(Graphics g, Poligon poligon, Brush brush)
         {
-            Vector2 shift = (5, 5);
             var font = new Font("Arial", 10);
             for (var i=0; i<poligon.Points.Length; i++)
             {
@@ -138,7 +141,10 @@ namespace View
         private void ShowInfo()
         {
             lblCount.Text = debugCount.ToString();
-            lblDebugInfo.Text = string.Join(", ", debugInfo[debugCount].Select(v => v.ToString()));
+            if (debugInfo.Count > 0)
+                lblDebugInfo.Text = string.Join(", ", debugInfo[debugCount].Select(v => v.ToString()));
+            else
+                lblDebugInfo.Text = "";
         }
 
         private void btnMinus_Click(object sender, System.EventArgs e)

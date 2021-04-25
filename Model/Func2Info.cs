@@ -9,10 +9,11 @@ namespace Model
         public double To;
         public int N;
         public Func<double, Vector2> Fn;
+        public bool Closed;
 
         public Vector2[] GetPoints()
         {
-            var step = (To - From) / (N - 1);
+            var step = (To - From) / (Closed ? N : (N - 1));
 
             return Enumerable.Range(0, N).Select(i => Fn(From + step * i)).ToArray();
         }

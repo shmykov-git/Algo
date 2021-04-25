@@ -1,6 +1,7 @@
 ﻿using Model.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace Model.Tools
             Trio ToTriangleTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
 
             int CorrectInd(int i) => (i + vertices.Count) % vertices.Count;
-            int CorrectDelInd(int i, int delI) => i < delI ? i : CorrectInd(i);
+            int CorrectDelInd(int i, int delI) => i < delI ? i : i - 1;
             int NextInd(int i, int count = 1) => CorrectInd(i + count);
             int PrevInd(int i, int count = 1) => CorrectInd(i - count);
             Trio NextTrio(Trio trio) => new Trio(trio.J, trio.K, NextInd(trio.K));
@@ -43,23 +44,23 @@ namespace Model.Tools
                 while(!IsLeftTrio(t))
                     t = NextTrio(t);
 
-                var minInd = PrevInd(t.I);
+                var convexStartOutInd = PrevInd(t.I);
 
-                var firstInfo = GetTrioPairInfo(t);
-                var convexCount = vertices.Count;
-                while (convexCount-- > 0)
+                var convexEndInfo = GetTrioPairInfo(t);
+                var convexCount = 0;
+                while (convexCount++ < vertices.Count)
                 {
                     var tInfo = GetTrioPairInfo(t);
                     if (!tInfo.IsLeftPoint)
                         break;
 
-                    if (!firstInfo.CheckLeftPoint(GetPoint(t.K)))
+                    if (!convexEndInfo.CheckLeftPoint(GetPoint(t.K)))
                         break;
 
                     t = NextTrio(t);
                 }
 
-                if (convexCount == 0)
+                if (convexCount == vertices.Count)
                 {
                     convexes.Add(vertices);
                     break;
@@ -70,7 +71,7 @@ namespace Model.Tools
 
                 var l = PrevInd(t.I);
                 var pointCount = 2;
-                while (l != minInd && pairInfo.CheckLeftPoint(GetPoint(l)))
+                while (l != convexStartOutInd && pairInfo.CheckLeftPoint(GetPoint(l)))
                 {
                     l = PrevInd(l);
                     pointCount++;
@@ -80,10 +81,13 @@ namespace Model.Tools
                     convex.Add(vertices[NextInd(l, i)]);
 
                 var convexLines = convex.SelectCirclePair((j, k) => new Line2(poligon[j], poligon[k])).ToArray();
-                var hasInsidePoint = vertices.Except(convex).Select(i => poligon[i]).Any(p => convexLines.All(l => l.Fn(p) < 0));
+                var hasInsidePoint = vertices.Except(convex).Select(i => poligon[i]).Any(p => convexLines.All(l => l.IsLeft(p)));
 
                 if (hasInsidePoint)
                     continue;
+
+                //if (convexes.Count == 5)
+                //    Debugger.Break();
 
                 for (var i = 2; i < pointCount; i++)
                 {
@@ -97,6 +101,7 @@ namespace Model.Tools
                     OnDebug(convex.ToArray());
 
                 t = new Trio(PrevInd(l, 2), PrevInd(l), l);
+                //var debugT = ToTriangleTrio(t);
             }
 
             List<Trio> GetConvexTrios(List<int> convex)

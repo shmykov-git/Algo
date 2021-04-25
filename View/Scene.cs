@@ -24,8 +24,13 @@ namespace View
 
         public void Show()
         {
-            var poligon = Sinus(3, 50);
+            //var poligon = Sinus(3, 50);
+            //var poligon = Spiral(3, 60);
             //var poligon = Poligon3;
+            //var poligon = Poligon5;
+            //var poligon = Elipse(1, 0.3, 30);
+            //var poligon = Elipse(0.4, 1, 10);
+            var poligon = Square.PutInside(Spiral(3, 60));
 
 #if FILL
             var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
@@ -43,6 +48,18 @@ namespace View
             view.DrawPoligon(info);
         }
 
+        private Poligon Elipse(double a, double b, int count) => new Poligon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => (a*Math.Sin(t), b*Math.Cos(t)),
+                From = 0,
+                To = 2 * Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        }.Mult(0.9).Move((1, 1)).ScaleToOne((2, 2));
+
         private Poligon Sinus(double n, int count) => new Poligon
         {
             Points = new Func2Info
@@ -54,7 +71,7 @@ namespace View
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.9).Move((0, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI));
 
-        private Poligon Poligon => new Poligon
+        private Poligon Poligon5 => new Poligon
         {
             Points = new Vector2[]
             {
@@ -124,5 +141,16 @@ namespace View
                 (3, 8)
             }
         }.Scale((10, 10), (1, 1));
+
+        private Poligon Square => new Poligon
+        {
+            Points = new Vector2[]
+            {
+                (0, 0),
+                (1, 0),
+                (1, 1),
+                (0, 1)
+            }
+        };
     }
 }

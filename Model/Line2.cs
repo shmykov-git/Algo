@@ -14,6 +14,8 @@ namespace Model
 
         public double Fn(Vector2 x) => (x - A) * Normal;
 
+        public bool IsLeft(Vector2 x) => Fn(x) < 0;
+
         public double Distance(Vector2 x) => Math.Abs(Fn(x));
 
         public Line2(Vector2 a, Vector2 b)

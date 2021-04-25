@@ -5,6 +5,30 @@ namespace Model.Extensions
 {
     public static class PoligonExtensions
     {
+        public static Poligon PutInside(this Poligon poligon, Poligon insidePoligon)
+        {
+            var points = poligon.Points;
+            var insidePoints = insidePoligon.Points.Reverse().ToArray();
+
+            var indexes = points.Index();
+            var insideIndexes = insidePoints.Index();
+
+            var (minI, minJ) = indexes.SelectMany(i => insideIndexes.Select(j => new
+            {
+                Pair = (i, j),
+                Len2 = (points[i] - insidePoints[j]).Len2
+            })).OrderBy(v => v.Len2).First().Pair;
+
+            return new Poligon
+            {
+                Points = points.Take(minI + 1)
+                .Concat(insidePoints.Skip(minJ))
+                .Concat(insidePoints.Take(minJ + 1))
+                .Concat(points.Skip(minI))
+                .ToArray()
+            };
+        }
+
         public static Poligon Transform(this Poligon poligon, Func<Vector2, Vector2> transformFn)
         {
             return new Poligon
