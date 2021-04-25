@@ -3,6 +3,7 @@
     public struct Size
     {
         public static readonly Size One = (1, 1);
+        public static readonly Size HalfOne = (0.5, 0.5);
 
         public double Width;
         public double Height;

@@ -14,7 +14,7 @@ namespace Model.Tools
 
         public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
-            var maxCircles = 10*poligon.Points.Length;
+            var maxCircles = poligon.Points.Length;
 
             var vertices = poligon.Points.Index().ToList();
             List<List<int>> convexes = new List<List<int>>();
@@ -41,8 +41,15 @@ namespace Model.Tools
             var n = 0;
             while (vertices.Count > 2 && n++ < maxCircles)
             {
-                while(!IsLeftTrio(t))
+                var validateCount = 0;
+                while(!IsLeftTrio(t) && validateCount++ < vertices.Count)
                     t = NextTrio(t);
+
+                if (validateCount == vertices.Count)
+                {
+                    n = maxCircles;
+                    break;
+                }
 
                 var convexStartOutInd = PrevInd(t.I);
 

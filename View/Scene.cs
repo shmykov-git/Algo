@@ -21,7 +21,6 @@ namespace View
             fillEngine.OnDebug = view.DrawDebug;
         }
 
-
         public void Show()
         {
             //var poligon = Sinus(3, 50);
@@ -30,7 +29,9 @@ namespace View
             //var poligon = Poligon5;
             //var poligon = Elipse(1, 0.3, 30);
             //var poligon = Elipse(0.4, 1, 10);
-            var poligon = Square.PutInside(Spiral(3, 60));
+            //var poligon = Square.PutInside(Spiral(3, 60));
+            //var poligon = Square.PutInside(Square.MultOne(0.9));
+            var poligon = Square.PutInside(Sinus(3, 100));
 
 #if FILL
             var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
@@ -64,12 +65,12 @@ namespace View
         {
             Points = new Func2Info
             {
-                Fn = t => (Math.Abs(t), (t < 0 ? -1 : 0) +  n * Math.Sin(Math.Abs(t))),
+                Fn = t => (Math.Abs(t), (t < 0 ? -1 : 1) +  n * Math.Sin(Math.Abs(t))),
                 From = -n * 2 * Math.PI,
                 To = n * 2 * Math.PI,
                 N = count,
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.9).Move((0, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI));
+        }.Mult(0.9).Move((Math.PI/4, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI));
 
         private Poligon Poligon5 => new Poligon
         {
@@ -90,7 +91,7 @@ namespace View
                 To = - n * 2 * Math.PI + Math.PI/2,
                 N = count,
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.8).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
+        }.Mult(0.7).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
         private Poligon Poligon4 => new Poligon
         {
