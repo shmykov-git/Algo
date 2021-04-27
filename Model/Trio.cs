@@ -23,5 +23,7 @@ namespace Model
         }
 
         public override string ToString() => $"({I}, {J}, {K})";
+
+        public int[] ToArray() => new[] { I, J, K };
     }
 }

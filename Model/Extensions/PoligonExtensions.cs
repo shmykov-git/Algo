@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Model.Tools;
+using System;
 using System.Linq;
 
 namespace Model.Extensions
 {
     public static class PoligonExtensions
     {
+        private static FillEngine fillEngine = new FillEngine();
+
         public static Poligon PutInside(this Poligon poligon, Poligon insidePoligon)
         {
             var points = poligon.Points;
@@ -70,6 +73,18 @@ namespace Model.Extensions
         public static Poligon MirrorY(this Poligon poligon, Size s)
         {
             return poligon.Transform(p => (p.X, s.Height - p.Y));
+        }
+
+        public static PoligonInfo Fill(this Poligon poligon)
+        {
+            var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
+            
+            return new PoligonInfo
+            {
+                Poligon = poligon,
+                Trios = trios,
+                IsValid = valid
+            };
         }
     }
 }
