@@ -32,7 +32,8 @@ namespace View
             //var poligon = Square.PutInside(Spiral(3, 60));
             //var poligon = Square.PutInside(Square.MultOne(0.9));
             //var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
-            var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
+            //var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
+            var poligon = Poligons.Square(1).PutInside(Poligons.Elipse(1, 1, 51).Mult(0.99)); // todo: check!
 
 #if FILL
             var (valid, convexes, trios) = fillEngine.FillPoligonByTriangles(poligon);

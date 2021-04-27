@@ -14,7 +14,7 @@ namespace Model.Tools
 
         public (bool, int[][], Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
-            var maxCircles = poligon.Points.Length;
+            var maxCircles = 10 * poligon.Points.Length;
 
             var vertices = poligon.Points.Index().ToList();
             List<List<int>> convexes = new List<List<int>>();

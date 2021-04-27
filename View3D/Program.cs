@@ -20,7 +20,10 @@ namespace View3D
             //var poligon = Square.PutInside(Spiral(3, 60));
             //var poligon = Square.PutInside(Square.MultOne(0.9));
             //var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
-            var poligon = Poligons.Square.PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
+            //var poligon = Poligons.Square.PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
+            //var poligon = Poligons.Square.PutInside(Poligons.Sinus(1.7, 1.2, 3, 300));
+            // var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Sinus(1.7, 1.2, 3, 300).Mult(0.8));
+            var poligon = Poligons.Square(1).PutInside(Poligons.Elipse(1, 1, 50).Mult(0.7));
 
             var settings = new Settings();
             var compounder = new Compounder();

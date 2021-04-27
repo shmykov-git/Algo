@@ -18,11 +18,11 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.9 * 0.5 / Math.Max(a, b));
 
-        public static Poligon Sinus(double n, int count) => new Poligon
+        public static Poligon Sinus(double amplitude, double thikness, double n, int count) => new Poligon
         {
             Points = new Func2Info
             {
-                Fn = t => (Math.Abs(t), (t < 0 ? -1 : 1) + n * Math.Sin(Math.Abs(t))),
+                Fn = t => (Math.Abs(t), amplitude * ((t < 0 ? -thikness : thikness) + n * Math.Sin(Math.Abs(t)))),
                 From = -n * 2 * Math.PI,
                 To = n * 2 * Math.PI,
                 N = count,
@@ -101,7 +101,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Poligon Square => new Poligon
+        public static Poligon Square(double size) => new Poligon
         {
             Points = new Vector2[]
             {
@@ -110,6 +110,6 @@ namespace Model.Libraries
                 (1, 1),
                 (0, 1)
             }
-        }.Move((-0.5, -0.5));
+        }.Move((-0.5, -0.5)).Mult(size);
     }
 }
