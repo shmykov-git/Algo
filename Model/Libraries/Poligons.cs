@@ -16,7 +16,7 @@ namespace Model.Libraries
                 N = count,
                 Closed = true
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.9).Move((1, 1)).ScaleToOne((2, 2)).Move((-0.5, -0.5));
+        }.Mult(0.9 * 0.5 / Math.Max(a, b));
 
         public static Poligon Sinus(double n, int count) => new Poligon
         {
@@ -48,7 +48,7 @@ namespace Model.Libraries
                 To = -n * 2 * Math.PI + Math.PI / 2,
                 N = count,
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.7).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI)).Move((-0.5, -0.5));
+        }.Mult(0.7).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
         public static Poligon Poligon4 => new Poligon
         {
