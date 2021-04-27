@@ -26,7 +26,7 @@ namespace View3D
 
             var scene = adapter.CreateScene(poligon.Fill());
 
-            scene.Save(settings.FbxFullFileName, FileFormat.FBX7500ASCII);
+            scene.Save(settings.FbxFullFileName, FileFormat.FBX7700Binary);
 
             var process = new Process();
             process.StartInfo.UseShellExecute = true;
