@@ -48,7 +48,7 @@ namespace View
             var g = e.Graphics;
             this.BackColor = Color.White;
             Model.Size size = (pnlCanvas.Width, pnlCanvas.Height);
-            var poligon = basePoligonInfo.Poligon.Scale(size).MirrorY(size);
+            var poligon = basePoligonInfo.Poligon.Move((0.5, 0.5)).Scale(size).MirrorY(size);
 
             if (basePoligonInfo.IsFilled)
             {

@@ -16,7 +16,7 @@ namespace Model.Libraries
                 N = count,
                 Closed = true
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.9).Move((1, 1)).ScaleToOne((2, 2));
+        }.Mult(0.9).Move((1, 1)).ScaleToOne((2, 2)).Move((-0.5, -0.5));
 
         public static Poligon Sinus(double n, int count) => new Poligon
         {
@@ -27,7 +27,7 @@ namespace Model.Libraries
                 To = n * 2 * Math.PI,
                 N = count,
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.9).Move((Math.PI / 4, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI));
+        }.Mult(0.9).Move((Math.PI / 4, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI)).Move((-0.5, -0.5));
 
         public static Poligon Poligon5 => new Poligon
         {
@@ -37,7 +37,7 @@ namespace Model.Libraries
                 (3.5, 3.7), (4,2.5), (4.5, 3.5), (3.5, 4.5), (2.5, 4), (1.5, 3.3), (1,4.2),
                 (2.5, 5.5), (5, 4.5), (5.3, 2.2)
             }
-        }.ScaleToOne((10, 10));
+        }.ScaleToOne((10, 10)).Move((-0.5, -0.5));
 
         public static Poligon Spiral(double n, int count) => new Poligon
         {
@@ -48,7 +48,7 @@ namespace Model.Libraries
                 To = -n * 2 * Math.PI + Math.PI / 2,
                 N = count,
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.7).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
+        }.Mult(0.7).Move((n * 2 * Math.PI, n * 2 * Math.PI)).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI)).Move((-0.5, -0.5));
 
         public static Poligon Poligon4 => new Poligon
         {
@@ -63,7 +63,7 @@ namespace Model.Libraries
                 (3.5, 4.5),
                 (5, 6),
             }
-        }.Scale((10, 10), (1, 1));
+        }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
         public static Poligon Poligon3 => new Poligon
         {
@@ -76,7 +76,7 @@ namespace Model.Libraries
                 (3, 5),
                 (5, 6),
             }
-        }.Scale((10, 10), (1, 1));
+        }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
         public static Poligon Poligon2 => new Poligon
         {
@@ -88,7 +88,7 @@ namespace Model.Libraries
                 (3, 8),
                 (3, 5),
             }
-        }.Scale((10, 10), (1, 1));
+        }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
         public static Poligon Poligon1 => new Poligon
         {
@@ -99,7 +99,7 @@ namespace Model.Libraries
                 (6, 7),
                 (3, 8)
             }
-        }.Scale((10, 10), (1, 1));
+        }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
         public static Poligon Square => new Poligon
         {
@@ -110,6 +110,6 @@ namespace Model.Libraries
                 (1, 1),
                 (0, 1)
             }
-        };
+        }.Move((-0.5, -0.5));
     }
 }

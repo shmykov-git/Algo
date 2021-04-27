@@ -65,11 +65,6 @@ namespace Model.Extensions
             return poligon.Transform(p => p * k);
         }
 
-        public static Poligon MultOne(this Poligon poligon, double k)
-        {
-            return poligon.Transform(p => (p - Size.HalfOne) * k + Size.HalfOne);
-        }
-
         public static Poligon MirrorY(this Poligon poligon, Size s)
         {
             return poligon.Transform(p => (p.X, s.Height - p.Y));
