@@ -19,7 +19,8 @@ namespace View3D
             //var poligon = Elipse(0.4, 1, 10);
             //var poligon = Square.PutInside(Spiral(3, 60));
             //var poligon = Square.PutInside(Square.MultOne(0.9));
-            var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
+            //var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
+            var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).MultOne(1.23));
 
             var settings = new Settings();
             var adapter = new SceneAdapter();
