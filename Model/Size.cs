@@ -1,5 +1,6 @@
 ﻿namespace Model
 {
+
     public struct Size
     {
         public static readonly Size One = (1, 1);

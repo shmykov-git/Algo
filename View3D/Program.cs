@@ -20,15 +20,16 @@ namespace View3D
             //var poligon = Square.PutInside(Spiral(3, 60));
             //var poligon = Square.PutInside(Square.MultOne(0.9));
             //var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
-            var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
+            var poligon = Poligons.Square.PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
 
             var settings = new Settings();
-            var adapter = new SceneAdapter();
+            var compounder = new Compounder();
             var poligonInfo = poligon.Fill();
 
             if (poligonInfo.IsValid)
             {
-                var scene = adapter.CreateScene(poligonInfo);
+                //var scene = compounder.Plane(poligonInfo);
+                var scene = compounder.Cube(poligonInfo);
 
                 scene.Save(settings.FbxFullFileName, FileFormat.FBX7700Binary);
 
