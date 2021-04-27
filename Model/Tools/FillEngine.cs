@@ -12,7 +12,7 @@ namespace Model.Tools
     {
         public Action<int[]> OnDebug;
 
-        public (bool, Trio[]) FillPoligonByTriangles(Poligon poligon)
+        public (bool, int[][], Trio[]) FillPoligonByTriangles(Poligon poligon)
         {
             var maxCircles = poligon.Points.Length;
 
@@ -126,7 +126,7 @@ namespace Model.Tools
                 return Enumerable.Range(0, convex.Count - 2).Select(i => new Trio(convex[CorrectInd(shift)], convex[CorrectInd(shift + i + 1)], convex[CorrectInd(shift + i + 2)])).ToList();
             }
 
-            return (n < maxCircles, convexes.SelectMany(GetConvexTrios).ToArray());
+            return (n < maxCircles, convexes.Select(list=>list.ToArray()).ToArray(), convexes.SelectMany(GetConvexTrios).ToArray());
         }
 
         struct TrioInfo

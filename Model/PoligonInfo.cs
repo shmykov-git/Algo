@@ -3,6 +3,7 @@
     public class PoligonInfo
     {
         public Poligon Poligon;
+        public int[][] Convexes;
         public Trio[] Trios;
         public bool IsValid;
 
@@ -12,7 +13,8 @@
         {
             Poligon = poligon,
             IsValid = this.IsValid,
-            Trios = this.Trios
+            Trios = this.Trios,
+            Convexes = this.Convexes
         };
     }
 }

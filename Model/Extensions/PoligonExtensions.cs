@@ -77,11 +77,12 @@ namespace Model.Extensions
 
         public static PoligonInfo Fill(this Poligon poligon)
         {
-            var (valid, trios) = fillEngine.FillPoligonByTriangles(poligon);
+            var (valid, convexes, trios) = fillEngine.FillPoligonByTriangles(poligon);
             
             return new PoligonInfo
             {
                 Poligon = poligon,
+                Convexes = convexes,
                 Trios = trios,
                 IsValid = valid
             };
