@@ -11,6 +11,18 @@ namespace Model
         public double Len => Math.Sqrt(Len2);
         public Vector2 Normed => this / Len;
 
+        public Vector2(double x, double y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public Vector2((int, int) a)
+        {
+            X = a.Item1;
+            Y = a.Item2;
+        }
+
         public static implicit operator Vector2((double, double) a)
         {
             return new Vector2 { X = a.Item1, Y = a.Item2 };

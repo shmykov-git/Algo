@@ -70,9 +70,13 @@ namespace Model.Extensions
             return poligon.Transform(p => (p.X, s.Height - p.Y));
         }
 
-        public static PoligonInfo Fill(this Poligon poligon)
+        public static PoligonInfo Fill(this Poligon poligon, bool checkValid = true)
         {
             var (valid, convexes, trios) = fillEngine.FillPoligonByTriangles(poligon);
+            if (checkValid && !valid)
+            {
+                throw new PologonFillException();
+            }
             
             return new PoligonInfo
             {
