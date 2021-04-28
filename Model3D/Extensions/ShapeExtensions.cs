@@ -31,7 +31,9 @@ namespace Model3D.Extensions
         {
             return new Shape
             {
-                Points = shape.Points.Concat(shape.Points.Select(p => new Vector4(p.x, p.y, p.z + zVolume, p.w))).ToArray(),
+                Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z - zVolume / 2, p.w))
+                    .Concat(shape.Points.Select(p => new Vector4(p.x, p.y, p.z + zVolume / 2, p.w))).ToArray(),
+
                 Convexes = shape.Convexes.SelectMany(convex => new int[][]
                 {
                     convex,

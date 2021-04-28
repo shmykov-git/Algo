@@ -32,7 +32,10 @@ namespace View3D
                 // var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Sinus(1.7, 1.2, 3, 300).Mult(0.8));
                 //var shape = Poligons.Square(1).PutInside(Poligons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
                 //var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
-                var shape = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Transformations.Cube).ToSphere();
+                //var shape = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Transformations.Cube).ToSphere();
+                var shape = Poligons.Heart(1, 1, 50)
+                .PutInside(Poligons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
+                .PutInside(Poligons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21))).MakeShape().ApplyZ(Funcs3.Paraboloid);
 
                 var scene = sceneManager.CreateScene(shape);
 

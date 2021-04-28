@@ -6,6 +6,18 @@ namespace Model.Libraries
 {
     public static class Poligons
     {
+        public static Poligon Heart(double a, double b, int count) => new Poligon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => (16 * Math.Sin(t).Pow3(), 13 * Math.Cos(t) - 5 * Math.Cos(2 * t) - 2 * Math.Cos(3 * t) - Math.Cos(4 * t)),
+                From = 0,
+                To = 2 * Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        }.Mult(0.5).Scale((32, 24), (a, b)).Move((0, 0.1));
+
         public static Poligon Elipse(double a, double b, int count) => new Poligon
         {
             Points = new Func2Info
