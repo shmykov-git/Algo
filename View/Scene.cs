@@ -34,9 +34,10 @@ namespace View
             //var polygon = Polygons.Square.PutInside(Polygons.Sinus(3, 100));
             //var polygon = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23));
             //var polygon = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 51).Mult(0.99)); // todo: check!
-            var polygon = Polygons.Heart(1, 1, 50)
-                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13,0.21)))
-                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)));
+            //var polygon = Polygons.Heart(1, 1, 50)
+            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13,0.21)))
+            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)));
+            var polygon = Polygons.Spiral(15, 1000);
 
 #if FILL
             var (valid, convexes) = fillEngine.FindConvexes(polygon);
