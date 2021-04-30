@@ -2,7 +2,7 @@
 
 namespace Model
 {
-    public class PologonFillException : Exception
+    public class PolygonFillException : Exception
     {
     }
 }

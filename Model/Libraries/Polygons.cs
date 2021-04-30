@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Model.Libraries
 {
-    public static class Poligons
+    public static class Polygons
     {
-        public static Poligon Heart(double a, double b, int count) => new Poligon
+        public static Polygon Heart(double a, double b, int count) => new Polygon
         {
             Points = new Func2Info
             {
@@ -18,7 +18,7 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.5).Scale((32, 24), (a, b)).Move((0, 0.1));
 
-        public static Poligon Elipse(double a, double b, int count) => new Poligon
+        public static Polygon Elipse(double a, double b, int count) => new Polygon
         {
             Points = new Func2Info
             {
@@ -30,7 +30,7 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.9 * 0.5 / Math.Max(a, b));
 
-        public static Poligon Sinus(double amplitude, double thikness, double n, int count) => new Poligon
+        public static Polygon Sinus(double amplitude, double thikness, double n, int count) => new Polygon
         {
             Points = new Func2Info
             {
@@ -41,7 +41,7 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.9).Move((Math.PI / 4, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI)).Move((-0.5, -0.5));
 
-        public static Poligon Poligon5 => new Poligon
+        public static Polygon Polygon5 => new Polygon
         {
             Points = new Vector2[]
             {
@@ -51,7 +51,7 @@ namespace Model.Libraries
             }
         }.ScaleToOne((10, 10)).Move((-0.5, -0.5));
 
-        public static Poligon Spiral(double n, int count) => new Poligon
+        public static Polygon Spiral(double n, int count) => new Polygon
         {
             Points = new Func2Info
             {
@@ -62,7 +62,7 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Mult(0.7).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
-        public static Poligon Poligon4 => new Poligon
+        public static Polygon Polygon4 => new Polygon
         {
             Points = new Vector2[]
             {
@@ -77,7 +77,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Poligon Poligon3 => new Poligon
+        public static Polygon Polygon3 => new Polygon
         {
             Points = new Vector2[]
             {
@@ -90,7 +90,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Poligon Poligon2 => new Poligon
+        public static Polygon Polygon2 => new Polygon
         {
             Points = new Vector2[]
             {
@@ -102,7 +102,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Poligon Poligon1 => new Poligon
+        public static Polygon Polygon1 => new Polygon
         {
             Points = new Vector2[]
             {
@@ -113,7 +113,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Poligon Square(double size) => new Poligon
+        public static Polygon Square(double size) => new Polygon
         {
             Points = new Vector2[]
             {

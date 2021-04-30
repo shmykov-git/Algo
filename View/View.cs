@@ -11,7 +11,7 @@ namespace View
 {
     public partial class View : Form, IView
     {
-        private PoligonInfo basePoligonInfo;
+        private Shape2 baseshape;
         private List<int[]> debugInfo = new List<int[]>();
         private int debugCount = 0;
 
@@ -21,9 +21,9 @@ namespace View
             this.WindowState = FormWindowState.Maximized;
         }
 
-        public void DrawPoligon(PoligonInfo poligonInfo)
+        public void DrawPolygon(Shape2 shape)
         {
-            this.basePoligonInfo = poligonInfo;
+            this.baseshape = shape;
 
             Refresh();
         }
@@ -40,7 +40,7 @@ namespace View
 
         private void pnlCanvas_Paint(object sender, PaintEventArgs e)
         {
-            if (basePoligonInfo == null)
+            if (baseshape == null)
                 return;
 
             ShowInfo();
@@ -48,91 +48,84 @@ namespace View
             var g = e.Graphics;
             this.BackColor = Color.White;
             Model.Size size = (pnlCanvas.Width, pnlCanvas.Height);
-            var poligon = basePoligonInfo.Poligon.Move((0.5, 0.5)).Scale(size).MirrorY(size);
+            var polygon = baseshape.Polygon.Move((0.5, 0.5)).Scale(size).MirrorY(size);
 
-            if (basePoligonInfo.IsFilled)
+            if (baseshape.IsFilled)
             {
                 Model.Size halfSize = size / 2;
                 var border = halfSize * 0.025;
 
-                var leftTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move(border));
-                var rightTopInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move((halfSize.Width, 0)).Move(border));
-                var leftButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move((0, halfSize.Height)).Move(border));
-                var rightButtomInfo = basePoligonInfo.ModifyPoligon(poligon.Mult(0.45).Move(halfSize).Move(border));
+                var leftTopInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move(border));
+                var rightTopInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move((halfSize.Width, 0)).Move(border));
+                var leftButtomInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move((0, halfSize.Height)).Move(border));
+                var rightButtomInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move(halfSize).Move(border));
 
-                DrawLines(g, leftTopInfo.Poligon, Pens.Black);
-                DrawPoints(g, leftTopInfo.Poligon, Brushes.DodgerBlue);
+                DrawLines(g, leftTopInfo.Polygon, Pens.Black);
+                DrawPoints(g, leftTopInfo.Polygon, Brushes.DodgerBlue);
 
                 DrawNet(g, rightTopInfo, rightTopInfo.IsValid ? Pens.Green : Pens.Red);
-                DrawPoints(g, rightTopInfo.Poligon, Brushes.DodgerBlue);
+                DrawPoints(g, rightTopInfo.Polygon, Brushes.DodgerBlue);
 
-                FillPoligon(g, leftButtomInfo.Poligon, debugInfo.Skip(debugCount).First(), Brushes.Gray);
-                DrawLines(g, leftButtomInfo.Poligon, Pens.Black);
-                DrawPoints(g, leftButtomInfo.Poligon, Brushes.DodgerBlue);
-                DrawPointLabels(g, leftButtomInfo.Poligon, Brushes.Blue);
+                FillPolygon(g, leftButtomInfo.Polygon, debugInfo.Skip(debugCount).First(), Brushes.Gray);
+                DrawLines(g, leftButtomInfo.Polygon, Pens.Black);
+                DrawPoints(g, leftButtomInfo.Polygon, Brushes.DodgerBlue);
+                DrawPointLabels(g, leftButtomInfo.Polygon, Brushes.Blue);
 
                 FillNet(g, rightButtomInfo, rightButtomInfo.IsValid ? Brushes.Green : Brushes.Red);
             }
             else
             {
                 var border = size * 0.025;
-                var info = basePoligonInfo.ModifyPoligon(poligon.Mult(0.95).Move(border));
-                DrawLines(g, info.Poligon, Pens.Black);
-                DrawPoints(g, info.Poligon, Brushes.DodgerBlue);
-                DrawPointLabels(g, info.Poligon, Brushes.Blue);
+                var info = baseshape.ModifyPolygon(polygon.Mult(0.95).Move(border));
+                DrawLines(g, info.Polygon, Pens.Black);
+                DrawPoints(g, info.Polygon, Brushes.DodgerBlue);
+                DrawPointLabels(g, info.Polygon, Brushes.Blue);
             }
         }
 
-        private void FillNet(Graphics g, PoligonInfo info, Brush brush)
+        private void FillNet(Graphics g, Shape2 info, Brush brush)
         {
-            foreach (var trio in info.Trios)
+            foreach (var convex in info.Convexes)
             {
-                var a = info.Poligon[trio.I];
-                var b = info.Poligon[trio.J];
-                var c = info.Poligon[trio.K];
-
-                g.FillPolygon(brush, new[] { a.ToPoint(), b.ToPoint(), c.ToPoint()});
+                g.FillPolygon(brush, convex.Select(i => info.Polygon[i].ToPoint()).ToArray());
             }
         }
 
-        private void FillPoligon(Graphics g, Poligon poligon, int[] part, Brush brush)
+        private void FillPolygon(Graphics g, Polygon polygon, int[] part, Brush brush)
         {
-            g.FillPolygon(brush, part.Select(i=> poligon[i].ToPoint()).ToArray());
+            g.FillPolygon(brush, part.Select(i=> polygon[i].ToPoint()).ToArray());
         }
 
-        private void DrawNet(Graphics g, PoligonInfo info, Pen pen)
+        private void DrawNet(Graphics g, Shape2 info, Pen pen)
         {
-            foreach (var trio in info.Trios)
+            foreach (var edge in info.Convexes.SelectMany(convex => convex.SelectCirclePair((i, j)=>(i,j))))
             {
-                var a = info.Poligon[trio.I];
-                var b = info.Poligon[trio.J];
-                var c = info.Poligon[trio.K];
+                var a = info.Polygon[edge.i];
+                var b = info.Polygon[edge.j];
 
                 g.DrawLine(pen, a.ToPoint(), b.ToPoint());
-                g.DrawLine(pen, b.ToPoint(), c.ToPoint());
-                g.DrawLine(pen, c.ToPoint(), a.ToPoint());
             }
         }
 
-        private void DrawLines(Graphics g, Poligon poligon, Pen pen)
+        private void DrawLines(Graphics g, Polygon polygon, Pen pen)
         {
-            foreach (var line in poligon.Lines)
+            foreach (var line in polygon.Lines)
             {
                 g.DrawLine(pen, line.A.ToPoint(), line.B.ToPoint());
             }
         }
-        private void DrawPointLabels(Graphics g, Poligon poligon, Brush brush)
+        private void DrawPointLabels(Graphics g, Polygon polygon, Brush brush)
         {
             var font = new Font("Arial", 10);
-            for (var i=0; i<poligon.Points.Length; i++)
+            for (var i=0; i<polygon.Points.Length; i++)
             {
-                var p = poligon[i];
+                var p = polygon[i];
                 g.DrawString(i.ToString(), font, brush, p.ToPoint());
             }
         }
-        private void DrawPoints(Graphics g, Poligon poligon, Brush brush)
+        private void DrawPoints(Graphics g, Polygon polygon, Brush brush)
         {
-            foreach (var p in poligon.Points)
+            foreach (var p in polygon.Points)
             {
                 g.FillEllipse(brush, p.ToRectangle((10, 10)));
             }

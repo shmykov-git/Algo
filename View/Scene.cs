@@ -23,36 +23,35 @@ namespace View
 
         public void Show()
         {
-            //var poligon = Sinus(3, 50);
-            //var poligon = Spiral(3, 60);
-            //var poligon = Poligon3;
-            //var poligon = Poligon5;
-            //var poligon = Elipse(1, 0.3, 30);
-            //var poligon = Elipse(0.4, 1, 10);
-            //var poligon = Square.PutInside(Spiral(3, 60));
-            //var poligon = Square.PutInside(Square.MultOne(0.9));
-            //var poligon = Poligons.Square.PutInside(Poligons.Sinus(3, 100));
-            //var poligon = Poligons.Elipse(1, 1, 50).PutInside(Poligons.Spiral(15, 1000).Mult(1.23));
-            //var poligon = Poligons.Square(1).PutInside(Poligons.Elipse(1, 1, 51).Mult(0.99)); // todo: check!
-            var poligon = Poligons.Heart(1, 1, 50)
-                .PutInside(Poligons.Spiral(10, 500).Mult(0.3).Move((0.13,0.21)))
-                .PutInside(Poligons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)));
+            //var polygon = Sinus(3, 50);
+            //var polygon = Spiral(3, 60);
+            //var polygon = Polygon3;
+            //var polygon = Polygon5;
+            //var polygon = Elipse(1, 0.3, 30);
+            //var polygon = Elipse(0.4, 1, 10);
+            //var polygon = Square.PutInside(Spiral(3, 60));
+            //var polygon = Square.PutInside(Square.MultOne(0.9));
+            //var polygon = Polygons.Square.PutInside(Polygons.Sinus(3, 100));
+            //var polygon = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23));
+            //var polygon = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 51).Mult(0.99)); // todo: check!
+            var polygon = Polygons.Heart(1, 1, 50)
+                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13,0.21)))
+                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)));
 
 #if FILL
-            var (valid, convexes, trios) = fillEngine.FillPoligonByTriangles(poligon);
+            var (valid, convexes) = fillEngine.FindConvexes(polygon);
 #else
-            var (valid, convexes, trios) = (true, (int[][])null, (Trio[])null);
+            var (valid, convexes) = (true, (int[][])null, (Trio[])null);
 #endif
 
-            var info = new PoligonInfo
+            var info = new Shape2
             {
-                Poligon = poligon,
+                Polygon = polygon,
                 Convexes = convexes,
-                Trios = trios,
                 IsValid = valid
             };
 
-            view.DrawPoligon(info);
+            view.DrawPolygon(info);
         }
     }
 }

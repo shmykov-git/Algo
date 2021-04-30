@@ -4,7 +4,7 @@ http://citforum.ru/programming/theory/alg_triangl/index.shtml#:~:text=%D0%90%D0%
 
 
 
-Описание работы алгоритма FillEngine.FillPoligonByTriangles
+Описание работы алгоритма FillEngine.FillPolygonByTriangles
 
 Вводная информация:
 Предполагаем, что наш полигон левый, т.е. внутренняя область полигона находится слева по началу движения.

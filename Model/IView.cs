@@ -2,7 +2,7 @@
 {
     public interface IView
     {
-        public void DrawPoligon(PoligonInfo poligon);
+        public void DrawPolygon(Shape2 polygon);
         public void DrawDebug(int[] inds);
     }
 }

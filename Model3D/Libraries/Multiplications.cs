@@ -3,9 +3,9 @@ using Model;
 
 namespace View3D.Libraries
 {
-    public static class Transformations
+    public static class Multiplications
     {
-        public static Transformation Cube => new Transformation
+        public static Multiplication Cube => new Multiplication
         {
             Transformations = new Transform[]
             {
@@ -18,7 +18,7 @@ namespace View3D.Libraries
             }
         };
 
-        public static Transformation None => new Transformation
+        public static Multiplication None => new Multiplication
         {
             Transformations = new Transform[] { p => p }
         };

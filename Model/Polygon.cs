@@ -3,8 +3,7 @@ using System.Collections.Generic;
 
 namespace Model
 {
-
-    public class Poligon
+    public class Polygon
     {
         public Vector2 this[int i] => Points[i];
 

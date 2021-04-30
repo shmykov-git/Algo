@@ -19,7 +19,7 @@ namespace View3D.Tools
         {
             var mesh = new Mesh();
             mesh.ControlPoints.AddRange(shape.Points);
-
+            
             foreach (var convex in shape.Convexes)
             {
                 mesh.CreatePolygon(convex);

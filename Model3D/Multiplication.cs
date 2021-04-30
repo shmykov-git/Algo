@@ -5,7 +5,7 @@ namespace Model
 {
     public delegate Vector4 Transform(Vector4 p);
 
-    public class Transformation
+    public class Multiplication
     {
         public Transform[] Transformations;
     }
