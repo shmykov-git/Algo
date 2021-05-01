@@ -21,21 +21,26 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ApplyZ(this Shape shape, Func3 func)
+        public static Shape Transform(this Shape shape, TransformFunc3 fn) => new Shape
         {
-            return new Shape
-            {
-                Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y), p.w)).ToArray(),
-                Convexes = shape.Convexes
-            };
-        }
+            Points = shape.Points.Select(p => fn(p.ToV3()).ToV4()).ToArray(),
+            Convexes = shape.Convexes
+        };
 
-        public static Shape AddZVolume(this Shape shape, double zVolume)
+        public static Shape ApplyZ(this Shape shape, Func3 func) => new Shape
         {
+            Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y), p.w)).ToArray(),
+            Convexes = shape.Convexes
+        };
+
+        public static Shape AddVolume(this Shape shape, double x, double y, double z)
+        {
+            var halfVolume = new Vector4(x, y, z, 0) * 0.5;
+
             return new Shape
             {
-                Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z - zVolume / 2, p.w))
-                    .Concat(shape.Points.Select(p => new Vector4(p.x, p.y, p.z + zVolume / 2, p.w))).ToArray(),
+                Points = shape.Points.Select(p => p - halfVolume)
+                    .Concat(shape.Points.Select(p => p + halfVolume)).ToArray(),
 
                 Convexes = shape.Convexes.SelectMany(convex => new int[][]
                 {
@@ -115,6 +120,15 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points.Select(p => new Vector4(k * p.x, k * p.y, k * p.z, p.w)).ToArray(),
+                Convexes = shape.Convexes
+            };
+        }
+
+        public static Shape Scale(this Shape shape, double x, double y, double z)
+        {
+            return new Shape
+            {
+                Points = shape.Points.Select(p => new Vector4(x * p.x, y * p.y, z * p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes
             };
         }

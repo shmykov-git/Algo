@@ -28,14 +28,15 @@ namespace View3D
                 //var polygon = Square.PutInside(Spiral(3, 60));
                 //var polygon = Square.PutInside(Square.MultOne(0.9));
                 //var polygon = Polygons.Square.PutInside(Polygons.Sinus(3, 100));
-                var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
+                //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
                 //var polygon = Polygons.Square.PutInside(Polygons.Sinus(1.7, 1.2, 3, 300));
                 // var polygon = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Sinus(1.7, 1.2, 3, 300).Mult(0.8));
                 //var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
                 //var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
-                //var shape = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Transformations.Cube).ToSphere();
+                //var shape = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Multiplications.Cube).ToSphere();
+                var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).Rotate(Rotates.Z_Y);
 
-                //var shape = Polygons.Heart(1, 1, 50)
+                //var shape = Polygons.Heart(1, 1, 50).MakeShape();
                 //.PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
                 //.PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21))).MakeShape(0.1).ApplyZ(Funcs3.Paraboloid);
 

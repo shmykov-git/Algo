@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Libraries;
+using System;
 using System.Linq;
 
 namespace Model
@@ -8,7 +9,7 @@ namespace Model
         public double From;
         public double To;
         public int N;
-        public Func<double, Vector2> Fn;
+        public Func2 Fn;
         public Func<double, double> TFn = t => t;
         public bool Closed;
 

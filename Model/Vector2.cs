@@ -23,6 +23,8 @@ namespace Model
             Y = a.Item2;
         }
 
+        public Vector2 Scale(Vector2 v) => new Vector2(X * v.X, Y * v.Y);
+
         public static implicit operator Vector2((double, double) a)
         {
             return new Vector2 { X = a.Item1, Y = a.Item2 };

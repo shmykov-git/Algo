@@ -10,13 +10,13 @@ namespace Model.Libraries
         {
             Points = new Func2Info
             {
-                Fn = t => (16 * Math.Sin(t).Pow3(), 13 * Math.Cos(t) - 5 * Math.Cos(2 * t) - 2 * Math.Cos(3 * t) - Math.Cos(4 * t)),
+                Fn = Funcs2.Heart(),
                 From = 0,
                 To = 2 * Math.PI,
                 N = count,
                 Closed = true
             }.GetPoints().Reverse().ToArray()
-        }.Mult(0.5).Scale((32, 24), (a, b)).Move((0, 0.1));
+        }.Scale((a, b));
 
         public static Polygon Elipse(double a, double b, int count) => new Polygon
         {
@@ -56,7 +56,7 @@ namespace Model.Libraries
             Points = new Func2Info
             {
                 Fn = t => (-Math.Abs(t) * Math.Sin(t), t * Math.Cos(t)),
-                TFn = Densities.CentralDensity(0.8),
+                //TFn = Densities.CentralDensity(0.8),
                 From = n * 2 * Math.PI + Math.PI / 2,
                 To = -n * 2 * Math.PI + Math.PI / 2,
                 N = count,
