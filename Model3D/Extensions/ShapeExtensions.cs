@@ -33,6 +33,10 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
+        public static Shape AddVolumeX(this Shape shape, double xVolume) => AddVolume(shape, xVolume, 0, 0);
+        public static Shape AddVolumeY(this Shape shape, double yVolume) => AddVolume(shape, 0, yVolume, 0);
+        public static Shape AddVolumeZ(this Shape shape, double zVolume) => AddVolume(shape, 0, 0, zVolume);
+
         public static Shape AddVolume(this Shape shape, double x, double y, double z)
         {
             var halfVolume = new Vector4(x, y, z, 0) * 0.5;
