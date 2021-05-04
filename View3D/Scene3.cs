@@ -3,6 +3,7 @@ using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using View3D.Libraries;
 
 namespace View3D
 {
@@ -29,10 +30,10 @@ namespace View3D
             // Snake Heart // var shape = Polygons.Spiral(25, 4000).Mult(1.23).Mult(2).MakeShape().ApplyZ(Funcs3.Hyperboloid).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
             // Saddle Net // var shape = Parquets.Triangles(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
 
-            var shape = Polygons.Heart(1, 1, 50)
-                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
-                .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)))
-                .MakeShape().ApplyZ(Funcs3.Paraboloid);
+            //var shape = Polygons.Heart(1, 1, 50)
+            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
+            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)))
+            //    .MakeShape().ApplyZ(Funcs3.Paraboloid);
 
             //var shape = new Shape
             //{
@@ -44,7 +45,7 @@ namespace View3D
             //var shape = Polygons.Heart(1, 1, 50).MakeTriangulatedShape(0.05).ToMetaShape();
             //var shape = Polygons.Square(1).MakeTriangulatedShape(0.6).ToMetaShape();
 
-            //var shape = Parquets.Triangles(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
+            var shape = Parquets.Triangles(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
 
             return shape;
         }

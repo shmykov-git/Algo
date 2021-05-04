@@ -8,7 +8,8 @@ namespace Model.Libraries
 
         public static Tile Triangles => new Tile
         {
-            Shift = (1, 2*h3),
+            ShiftX = (1, 0),
+            ShiftY = (0, 2*h3),
             Points = new Vector2[]
             {
                 (0, 0), (1, 0), 
