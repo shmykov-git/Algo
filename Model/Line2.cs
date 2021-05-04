@@ -24,9 +24,9 @@ namespace Model
             B = b;
         }
 
-        public static implicit operator Line2((Vector2, Vector2) l)
+        public static implicit operator Line2((Vector2 a, Vector2 b) l)
         {
-            return new Line2 { A = l.Item1, B = l.Item2 };
+            return new Line2 (l.a, l.b);
         }
     }
 }

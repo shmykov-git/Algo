@@ -1,9 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model3D.Extensions
 {
     public static class ValueTupleExtensions
     {
+        public static IEnumerable<T> SelectRange<T>(this (int m, int n) range, Func<int, int, T> selectFn)
+        {
+            return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).Select(j => selectFn(i, j)));
+        }
+
+        public static IEnumerable<T> SelectRange<T>(this int range, Func<int, T> selectFn)
+        {
+            return Enumerable.Range(0, range).Select(i => selectFn(i));
+        }
+
         public static (int i, int j) OrderedEdge(this (int i, int j) e)
         {
             return (Math.Min(e.i, e.j), Math.Max(e.i, e.j));

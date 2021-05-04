@@ -85,5 +85,13 @@ namespace Model.Extensions
                 IsValid = valid
             };
         }
+
+        public static Shape2 Triangulate(this Polygon polygon, double edgeLen = 0.1)
+        {
+            return new Shape2
+            {
+                Polygon = polygon
+            };
+        }
     }
 }

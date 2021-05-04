@@ -41,18 +41,18 @@ namespace Model.Tools
             var vertices = polygon.Points.Index().ToList();
             List<List<int>> convexes = new List<List<int>>();
 
-            Trio ToTriangleTrio(Trio trio) => new Trio(vertices[trio.I], vertices[trio.J], vertices[trio.K]);
+            Trio ToTriangleTrio(Trio trio) => new Trio(vertices[trio.i], vertices[trio.j], vertices[trio.k]);
 
             int CorrectInd(int i) => (i + vertices.Count) % vertices.Count;
-            int CorrectDelInd(int i, int delI) => i < delI ? i : i - 1;
+            int CorrectDelInd(int i, int delI) => i < delI ? i : CorrectInd(i - 1);
             int NextInd(int i, int count = 1) => CorrectInd(i + count);
             int PrevInd(int i, int count = 1) => CorrectInd(i - count);
-            Trio NextTrio(Trio trio) => new Trio(trio.J, trio.K, NextInd(trio.K));
+            Trio NextTrio(Trio trio) => new Trio(trio.j, trio.k, NextInd(trio.k));
 
             TrioPairInfo ToPairInfo(Trio trio) => new TrioPairInfo
             {
-                Line = new Line2(polygon[trio.I], polygon[trio.J]),
-                Point = polygon[trio.K]
+                Line = new Line2(polygon[trio.i], polygon[trio.j]),
+                Point = polygon[trio.k]
             };
 
             Vector2 GetPoint(int i) => polygon[vertices[i]];
@@ -73,7 +73,7 @@ namespace Model.Tools
                     break;
                 }
 
-                var convexStartOutInd = PrevInd(t.I);
+                var convexStartOutInd = PrevInd(t.i);
 
                 var convexEndInfo = GetTrioPairInfo(t);
                 var convexCount = 0;
@@ -83,7 +83,7 @@ namespace Model.Tools
                     if (!tInfo.IsLeftPoint)
                         break;
 
-                    if (!convexEndInfo.CheckLeftPoint(GetPoint(t.K)))
+                    if (!convexEndInfo.CheckLeftPoint(GetPoint(t.k)))
                         break;
 
                     t = NextTrio(t);
@@ -98,7 +98,7 @@ namespace Model.Tools
                 var pairInfo = GetTrioPairInfo(t);
                 var convex = new List<int>();
 
-                var l = PrevInd(t.I);
+                var l = PrevInd(t.i);
                 var pointCount = 2;
                 while (l != convexStartOutInd && pairInfo.CheckLeftPoint(GetPoint(l)))
                 {

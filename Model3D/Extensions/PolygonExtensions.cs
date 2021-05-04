@@ -1,17 +1,19 @@
 ﻿using Model;
 using Model.Extensions;
+using Model.Tools;
 
 namespace Model3D.Extensions
 {
     public static class PolygonExtensions
     {
-        public static Shape MakeShape(this Polygon polygon, double? triangulationLen = null)
+        public static Shape MakeTriangulatedShape(this Polygon polygon, double edgeLen = 0.1)
         {
-            var shape2 = polygon.Fill();
-            if (triangulationLen.HasValue)
-                shape2 = shape2.Triangulate(triangulationLen.Value);
+            return Triangulator.Triangulate(polygon, edgeLen).ToShape3();
+        }
 
-            return shape2.ToShape3();
+        public static Shape MakeShape(this Polygon polygon)
+        {
+            return polygon.Fill().ToShape3();
         }
     }
 }

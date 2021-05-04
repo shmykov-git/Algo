@@ -4,26 +4,30 @@ namespace Model
 {
     public struct Trio
     {
-        public int I;
-        public int J;
-        public int K;
+        public int i;
+        public int j;
+        public int k;
 
         public Trio(int i, int j, int k)
         {
-            I = i;
-            J = j;
-            K = k;
+            this.i = i;
+            this.j = j;
+            this.k = k;
         }
+
+        public bool IsStart => i == 0;
 
         public IEnumerable<Trio> SelectPairs()
         {
-            yield return new Trio(I, J, K);
-            yield return new Trio(J, K, I);
-            yield return new Trio(K, I, J);
+            yield return new Trio(i, j, k);
+            yield return new Trio(j, k, i);
+            yield return new Trio(k, i, j);
         }
 
-        public override string ToString() => $"({I}, {J}, {K})";
+        public override string ToString() => $"({i}, {j}, {k})";
 
-        public int[] ToArray() => new[] { I, J, K };
+        public int[] ToArray() => new[] { i, j, k };
+
+        public static Trio Start = new Trio(0, 1, 2);
     }
 }
