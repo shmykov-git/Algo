@@ -34,8 +34,10 @@ namespace View3D
                 //var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
                 //var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
                 //var shape = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Multiplications.Cube).ToSphere();
+
                 // Sphere Heart //var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
                 // Arabica Heart // var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().ApplyZ(Funcs3.Hyperboloid).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
+                // Snake Heart // var shape = Polygons.Spiral(25, 4000).Mult(1.23).Mult(2).MakeShape().ApplyZ(Funcs3.Hyperboloid).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
 
                 //var shape = Polygons.Heart(1, 1, 50).MakeShape();
                 //.PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
@@ -50,7 +52,6 @@ namespace View3D
                 //var shape = Polygons.Elipse(1, 0.4, 16).MakeTriangulatedShape(0.1).ToMetaShape();
                 //var shape = Polygons.Heart(1, 1, 50).MakeTriangulatedShape(0.05).ToMetaShape();
                 //var shape = Polygons.Square(1).MakeTriangulatedShape(0.6).ToMetaShape();
-
 
                 var shape = Parquets.Triangles(0.25).ToShape3().ToMetaShape();
 
