@@ -53,7 +53,7 @@ namespace View3D
                 //var shape = Polygons.Heart(1, 1, 50).MakeTriangulatedShape(0.05).ToMetaShape();
                 //var shape = Polygons.Square(1).MakeTriangulatedShape(0.6).ToMetaShape();
 
-                var shape = Parquets.Triangles(0.25).ToShape3().ToMetaShape();
+                var shape = Parquets.Triangles(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
 
                 var scene = sceneManager.CreateScene(shape);
 
