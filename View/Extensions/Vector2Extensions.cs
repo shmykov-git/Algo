@@ -10,6 +10,7 @@ namespace View.Extensions
 
             return new Rectangle((int)(p.X - halfS.Width), (int)(p.Y - halfS.Height), (int)s.Width, (int)s.Height);
         }
+
         public static Point ToPoint(this Model.Vector2 p)
         {
             return new Point((int)p.X, (int)p.Y);

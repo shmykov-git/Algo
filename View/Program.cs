@@ -9,9 +9,6 @@ namespace View
 {
     static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
@@ -19,11 +16,9 @@ namespace View
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-
             var view = new View();
-            var fillEngine = new FillEngine();
-            
-            var scene = new Scene(view, fillEngine);
+
+            var scene = new Scene(view);
             scene.Show();
 
             Application.Run(view);

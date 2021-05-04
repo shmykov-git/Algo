@@ -6,8 +6,6 @@ namespace Model.Extensions
 {
     public static class PolygonExtensions
     {
-        private static FillEngine fillEngine = new FillEngine();
-
         public static Polygon PutInside(this Polygon polygon, Polygon insidePolygon)
         {
             var points = polygon.Points;
@@ -70,27 +68,22 @@ namespace Model.Extensions
             return polygon.Transform(p => (p.X, s.Height - p.Y));
         }
 
-        public static Shape2 Fill(this Polygon polygon, bool checkValid = true)
+        public static Shape2 Fill(this Polygon polygon)
         {
-            var (valid, convexes) = fillEngine.FindConvexes(polygon);
-            if (checkValid && !valid)
-            {
-                throw new PolygonFillException();
-            }
+            var convexes = FillEngine.FindConvexes(polygon);
             
             return new Shape2
             {
-                Polygon = polygon,
+                Points = polygon.Points,
                 Convexes = convexes,
-                IsValid = valid
             };
         }
 
-        public static Shape2 Triangulate(this Polygon polygon, double edgeLen = 0.1)
+        public static Shape2 ToShape2(this Polygon polygon)
         {
             return new Shape2
             {
-                Polygon = polygon
+                Points = polygon.Points
             };
         }
     }

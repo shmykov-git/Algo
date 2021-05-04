@@ -12,13 +12,10 @@ namespace View
     class Scene
     {
         private readonly IView view;
-        private readonly FillEngine fillEngine;
 
-        public Scene(IView view, FillEngine fillEngine)
+        public Scene(IView view)
         {
             this.view = view;
-            this.fillEngine = fillEngine;
-            fillEngine.OnDebug = view.DrawDebug;
         }
 
         public void Show()
@@ -40,19 +37,30 @@ namespace View
             var polygon = Polygons.Spiral(15, 1000);
 
 #if FILL
-            var (valid, convexes) = fillEngine.FindConvexes(polygon);
+            Shape2 shape;
+            bool isValid;
+            try
+            {
+                shape = polygon.Fill();
+                isValid = true;
+            }
+            catch (PolygonFillException e)
+            {
+                shape = new Shape2
+                {
+                    Points = polygon.Points,
+                    Convexes = e.IncerrectConvexes,
+                };
+                isValid = false;
+            }            
 #else
-            var (valid, convexes) = (true, (int[][])null, (Trio[])null);
+            bool isFilled = true;
+            Shape2 shape = poligon.ToShape2();
 #endif
 
-            var info = new Shape2
-            {
-                Polygon = polygon,
-                Convexes = convexes,
-                IsValid = valid
-            };
 
-            view.DrawPolygon(info);
+
+            view.DrawPolygon(isValid, shape);
         }
     }
 }

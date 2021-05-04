@@ -11,8 +11,8 @@ namespace View
 {
     public partial class View : Form, IView
     {
-        private Shape2 baseshape;
-        private List<int[]> debugInfo = new List<int[]>();
+        private Shape2 baseShape;
+        private bool isValid;
         private int debugCount = 0;
 
         public View()
@@ -21,9 +21,10 @@ namespace View
             this.WindowState = FormWindowState.Maximized;
         }
 
-        public void DrawPolygon(Shape2 shape)
+        public void DrawPolygon(bool isFilled, Shape2 shape)
         {
-            this.baseshape = shape;
+            this.baseShape = shape;
+            this.isValid = isFilled;
 
             Refresh();
         }
@@ -33,88 +34,83 @@ namespace View
             Refresh();
         }
 
-        public void DrawDebug(int[] inds)
-        {
-            debugInfo.Add(inds);
-        }
-
         private void pnlCanvas_Paint(object sender, PaintEventArgs e)
         {
-            if (baseshape == null)
+            if (baseShape == null)
                 return;
 
-            ShowInfo();
+            ShowShape();
 
             var g = e.Graphics;
             this.BackColor = Color.White;
             Model.Size size = (pnlCanvas.Width, pnlCanvas.Height);
-            var polygon = baseshape.Polygon.Move((0.5, 0.5)).Scale(size).MirrorY(size);
+            var shape = baseShape.Move((0.5, 0.5)).Scale(size).MirrorY(size);
 
-            if (baseshape.IsFilled)
+            if (isValid)
             {
                 Model.Size halfSize = size / 2;
                 var border = halfSize * 0.025;
 
-                var leftTopInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move(border));
-                var rightTopInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move((halfSize.Width, 0)).Move(border));
-                var leftButtomInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move((0, halfSize.Height)).Move(border));
-                var rightButtomInfo = baseshape.ModifyPolygon(polygon.Mult(0.45).Move(halfSize).Move(border));
+                var leftTopShape = shape.Mult(0.45).Move(border);
+                var rightTopShape = shape.Mult(0.45).Move((halfSize.Width, 0)).Move(border);
+                var leftButtomShape = shape.Mult(0.45).Move((0, halfSize.Height)).Move(border);
+                var rightButtomShape = shape.Mult(0.45).Move(halfSize).Move(border);
 
-                DrawLines(g, leftTopInfo.Polygon, Pens.Black);
-                DrawPoints(g, leftTopInfo.Polygon, Brushes.DodgerBlue);
+                DrawLines(g, leftTopShape, Pens.Black);
+                DrawPoints(g, leftTopShape, Brushes.DodgerBlue);
 
-                DrawNet(g, rightTopInfo, rightTopInfo.IsValid ? Pens.Green : Pens.Red);
-                DrawPoints(g, rightTopInfo.Polygon, Brushes.DodgerBlue);
+                DrawNet(g, rightTopShape, isValid ? Pens.Green : Pens.Red);
+                DrawPoints(g, rightTopShape, Brushes.DodgerBlue);
 
-                FillPolygon(g, leftButtomInfo.Polygon, debugInfo.Skip(debugCount).First(), Brushes.Gray);
-                DrawLines(g, leftButtomInfo.Polygon, Pens.Black);
-                DrawPoints(g, leftButtomInfo.Polygon, Brushes.DodgerBlue);
-                DrawPointLabels(g, leftButtomInfo.Polygon, Brushes.Blue);
+                FillPolygon(g, leftButtomShape, shape.Convexes.Skip(debugCount).First(), Brushes.Gray);
+                DrawLines(g, leftButtomShape, Pens.Black);
+                DrawPoints(g, leftButtomShape, Brushes.DodgerBlue);
+                DrawPointLabels(g, leftButtomShape, Brushes.Blue);
 
-                FillNet(g, rightButtomInfo, rightButtomInfo.IsValid ? Brushes.Green : Brushes.Red);
+                FillNet(g, rightButtomShape, isValid ? Brushes.Green : Brushes.Red);
             }
             else
             {
                 var border = size * 0.025;
-                var info = baseshape.ModifyPolygon(polygon.Mult(0.95).Move(border));
-                DrawLines(g, info.Polygon, Pens.Black);
-                DrawPoints(g, info.Polygon, Brushes.DodgerBlue);
-                DrawPointLabels(g, info.Polygon, Brushes.Blue);
+                shape = shape.Mult(0.95).Move(border);
+                DrawLines(g, shape, Pens.Black);
+                DrawPoints(g, shape, Brushes.DodgerBlue);
+                DrawPointLabels(g, shape, Brushes.Blue);
             }
         }
 
-        private void FillNet(Graphics g, Shape2 info, Brush brush)
+        private void FillNet(Graphics g, Shape2 shape, Brush brush)
         {
-            foreach (var convex in info.Convexes)
+            foreach (var convex in shape.Convexes)
             {
-                g.FillPolygon(brush, convex.Select(i => info.Polygon[i].ToPoint()).ToArray());
+                g.FillPolygon(brush, convex.Select(i => shape[i].ToPoint()).ToArray());
             }
         }
 
-        private void FillPolygon(Graphics g, Polygon polygon, int[] part, Brush brush)
+        private void FillPolygon(Graphics g, Shape2 shape, int[] part, Brush brush)
         {
-            g.FillPolygon(brush, part.Select(i=> polygon[i].ToPoint()).ToArray());
+            g.FillPolygon(brush, part.Select(i=> shape[i].ToPoint()).ToArray());
         }
 
-        private void DrawNet(Graphics g, Shape2 info, Pen pen)
+        private void DrawNet(Graphics g, Shape2 shape, Pen pen)
         {
-            foreach (var edge in info.Convexes.SelectMany(convex => convex.SelectCirclePair((i, j)=>(i,j))))
+            foreach (var edge in shape.Convexes.SelectMany(convex => convex.SelectCirclePair((i, j)=>(i,j))))
             {
-                var a = info.Polygon[edge.i];
-                var b = info.Polygon[edge.j];
+                var a = shape[edge.i];
+                var b = shape[edge.j];
 
                 g.DrawLine(pen, a.ToPoint(), b.ToPoint());
             }
         }
 
-        private void DrawLines(Graphics g, Polygon polygon, Pen pen)
+        private void DrawLines(Graphics g, Shape2 polygon, Pen pen)
         {
             foreach (var line in polygon.Lines)
             {
                 g.DrawLine(pen, line.A.ToPoint(), line.B.ToPoint());
             }
         }
-        private void DrawPointLabels(Graphics g, Polygon polygon, Brush brush)
+        private void DrawPointLabels(Graphics g, Shape2 polygon, Brush brush)
         {
             var font = new Font("Arial", 10);
             for (var i=0; i<polygon.Points.Length; i++)
@@ -123,7 +119,7 @@ namespace View
                 g.DrawString(i.ToString(), font, brush, p.ToPoint());
             }
         }
-        private void DrawPoints(Graphics g, Polygon polygon, Brush brush)
+        private void DrawPoints(Graphics g, Shape2 polygon, Brush brush)
         {
             foreach (var p in polygon.Points)
             {
@@ -131,11 +127,11 @@ namespace View
             }
         }
 
-        private void ShowInfo()
+        private void ShowShape()
         {
             lblCount.Text = debugCount.ToString();
-            if (debugInfo.Count > 0)
-                lblDebugInfo.Text = string.Join(", ", debugInfo[debugCount].Select(v => v.ToString()));
+            if (baseShape.Convexes.Length > 0)
+                lblDebugInfo.Text = string.Join(", ", baseShape.Convexes[debugCount].Select(v => v.ToString()));
             else
                 lblDebugInfo.Text = "";
         }
@@ -148,7 +144,7 @@ namespace View
 
         private void btnPlus_Click(object sender, System.EventArgs e)
         {
-            debugCount = debugCount == debugInfo.Count-1 ? debugInfo.Count - 1 : debugCount + 1;
+            debugCount = debugCount == baseShape.Convexes.Length-1 ? baseShape.Convexes.Length - 1 : debugCount + 1;
             Refresh();
         }
     }

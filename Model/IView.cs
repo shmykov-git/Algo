@@ -2,7 +2,6 @@
 {
     public interface IView
     {
-        public void DrawPolygon(Shape2 polygon);
-        public void DrawDebug(int[] inds);
+        public void DrawPolygon(bool isFilled, Shape2 shape);
     }
 }
