@@ -8,8 +8,8 @@ namespace Model.Libraries
 
         public static Tile Triangles => new Tile
         {
-            ShiftX = (1, 0),
-            ShiftY = (0, 2*h3),
+            ShiftX = new Vector2[] { (1, 0) },
+            ShiftY = new Vector2[] { (0, 2 * h3) },
             Points = new Vector2[]
             {
                 (0, 0), (1, 0), 
@@ -22,6 +22,22 @@ namespace Model.Libraries
                 new int[] {1, 3, 2},
                 new int[] {2, 5, 4},
                 new int[] {2, 3, 5}
+            }
+        };
+
+        public static Tile Triangles2 => new Tile
+        {
+            ShiftX = new Vector2[] { (1, 0) },
+            ShiftY = new Vector2[] { (0.5, h3), (-0.5, h3) },
+            Points = new Vector2[]
+            {
+                (0, 0), (1, 0),
+                (0.5, h3), (1.5, h3)
+            },
+            Convexes = new int[][]
+            {
+                new int[] {0, 1, 2},
+                new int[] {1, 3, 2}
             }
         };
     }

@@ -30,7 +30,7 @@ namespace Model.Extensions
 
         public static Vector2 Sum(this IEnumerable<Vector2> vectors)
         {
-            return vectors.Aggregate((a, b) => a + b);
+            return vectors.Aggregate(Vector2.Zero, (a, b) => a + b);
         }
 
         public static Vector2[] Centered(this Vector2[] vectors)
