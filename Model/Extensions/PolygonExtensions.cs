@@ -68,10 +68,13 @@ namespace Model.Extensions
             return polygon.Transform(p => (p.X, s.Height - p.Y));
         }
 
-        public static Shape2 Fill(this Polygon polygon)
+        public static Shape2 Fill(this Polygon polygon, bool triangulate = false)
         {
             var convexes = FillEngine.FindConvexes(polygon);
-            
+
+            if (triangulate)
+                convexes = FillEngine.Triangulate(polygon.Points, convexes);
+
             return new Shape2
             {
                 Points = polygon.Points,

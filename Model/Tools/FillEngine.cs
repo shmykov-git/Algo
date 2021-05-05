@@ -10,6 +10,28 @@ namespace Model.Tools
 {
     public static class FillEngine
     {
+        public static int[][] Triangulate(Vector2[] points, int[][] convexes)
+        {
+            int[][] TriangulateConvex(int[] convex)
+            {
+                int CorrectInd(int i) => (i + convex.Length) % convex.Length;
+
+                var halfLen = convex.Length / 2;
+
+                var shift = Enumerable.Range(0, convex.Length / 2)
+                    .Select(i => new { I = i, Len2 = (points[convex[CorrectInd(i)]] - points[convex[CorrectInd(i + halfLen)]]).Len2 })
+                    .OrderBy(v => v.Len2)
+                    .First()
+                    .I;
+
+                return Enumerable.Range(0, convex.Length - 2)
+                    .Select(i => new[] { convex[CorrectInd(shift)], convex[CorrectInd(shift + i + 1)], convex[CorrectInd(shift + i + 2)] })
+                    .ToArray();
+            }
+
+            return convexes.SelectMany(convex => TriangulateConvex(convex)).ToArray();
+        }
+
         public static int[][] FindConvexes(Polygon polygon)
         {
             var maxCircles = 10 * polygon.Points.Length;

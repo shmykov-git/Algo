@@ -11,9 +11,9 @@ namespace Model3D.Extensions
         //    return Triangulator.Triangulate(polygon, edgeLen).ToShape3();
         //}
 
-        public static Shape MakeShape(this Polygon polygon)
+        public static Shape MakeShape(this Polygon polygon, bool triangulate = false)
         {
-            return polygon.Fill().ToShape3();
+            return polygon.Fill(triangulate).ToShape3();
         }
     }
 }

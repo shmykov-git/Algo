@@ -1,4 +1,5 @@
 ﻿using Model.Libraries;
+using Model.Tools;
 using System;
 using System.Linq;
 
@@ -107,6 +108,15 @@ namespace Model.Extensions
                 Points = shape.Points.Concat(another.Points).ToArray(),
                 Convexes = shape.Convexes.Concat(another.Convexes.Transform(i => i + shape.Points.Length)).ToArray()
             };
+        }
+
+        public static Shape2 TriangulateConvexes(this Shape2 shape)
+        {
+            return new Shape2
+            {
+                Points = shape.Points,
+                Convexes = FillEngine.Triangulate(shape.Points, shape.Convexes)
+            };            
         }
     }
 }
