@@ -64,9 +64,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToSpots(this Shape shape)
+        public static Shape ToSpots(this Shape shape, double mult = 1)
         {
-            var spot = Polygons.Elipse(1, 1, 10).Mult(0.02).MakeShape();
+            var spot = Polygons.Elipse(1, 1, 10).Mult(0.02 * mult).MakeShape();
 
             return new Shape
             {
@@ -75,9 +75,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToMetaShape(this Shape shape)
+        public static Shape ToMetaShape(this Shape shape, double multPoint = 1, double multLines = 1)
         {
-            return shape.ToSpots().Join(shape.ToLines());
+            return shape.ToSpots(multPoint).Join(shape.ToLines(multLines));
         }
 
         public static Shape Join(this Shape shape, Shape another)
@@ -89,9 +89,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToLines(this Shape shape)
+        public static Shape ToLines(this Shape shape, double mult = 1)
         {
-            var width = 0.003;
+            var width = 0.003 * mult;
             var points = shape.Points2;
 
             Vector4[] GetLine((int,int) edge)

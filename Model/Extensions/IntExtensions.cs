@@ -12,7 +12,12 @@ namespace Model.Extensions
 
         public static int[][] Shift(this int[][] lists, int shift)
         {
-            return lists.Select(list => list.Select(i => i + shift).ToArray()).ToArray();
+            return lists.Transform(i => i + shift);
+        }
+
+        public static int[][] Transform(this int[][] lists, Func<int, int> transformFn)
+        {
+            return lists.Select(list => list.Select(i => transformFn(i)).ToArray()).ToArray();
         }
     }
 }

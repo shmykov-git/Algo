@@ -8,6 +8,8 @@ namespace Model.Libraries
     {
         public static Shape2 Triangles(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles);
         public static Shape2 Triangles2(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles2);
+        public static Shape2 Hexagon(double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon);
+        public static Shape2 PentagonalKershner8(double tileLen, double angleD) => ShiftParquet(tileLen, Tiles.PentagonalKershner8(angleD));
 
         public static Shape2 ShiftParquet(double tileLen, Tile tile)
         {

@@ -9,6 +9,12 @@
         public double Width;
         public double Height;
 
+        public Size(double width, double height)
+        {
+            Width = width;
+            Height = height;
+        }
+
         public static implicit operator Size((double, double) a)
         {
             return new Size { Width = a.Item1, Height = a.Item2 };
