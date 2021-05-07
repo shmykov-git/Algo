@@ -114,7 +114,7 @@ namespace Model.Libraries
             }
         }.Scale((10, 10), (1, 1)).Move((-0.5, -0.5));
 
-        public static Polygon Square(double size) => new Polygon
+        public static Polygon Square => new Polygon
         {
             Points = new Vector2[]
             {
@@ -123,6 +123,6 @@ namespace Model.Libraries
                 (1, 1),
                 (0, 1)
             }
-        }.Move((-0.5, -0.5)).Mult(size);
+        }.Move((-0.5, -0.5));
     }
 }

@@ -1,10 +1,16 @@
-﻿namespace Model.Tools
+﻿using Model.Extensions;
+
+namespace Model.Tools
 {
     public static class Paver
     {
-        public static Shape2 Pave(Shape2 shape, Shape2 carpet)
+        public static Shape2 Pave(Polygon poligon, Shape2 carpet)
         {
-            return null;
+            var super = carpet.ToSuperShape();
+            super.Cut(poligon);
+            var shape = super.ToShape();
+
+            return shape;
         }
     }
 }

@@ -118,5 +118,19 @@ namespace Model.Extensions
                 Convexes = FillEngine.Triangulate(shape.Points, shape.Convexes)
             };            
         }
+
+        public static SuperShape2 ToSuperShape(this Shape2 shape)
+        {
+            return new SuperShape2(shape);
+        }
+
+        public static Shape2 ToShape(this SuperShape2 superShape)
+        {
+            return new Shape2
+            {
+                Points = superShape.points,
+                Convexes = superShape.convexes.Select(convex => convex.indices.ToArray()).ToArray()
+            };
+        }
     }
 }

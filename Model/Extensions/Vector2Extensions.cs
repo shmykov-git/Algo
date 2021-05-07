@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace Model.Extensions
 {
-
     public static class Vector2Extensions
     {
         public static Vector2 Scale(this Vector2 a, Size aSize, Size bSize)

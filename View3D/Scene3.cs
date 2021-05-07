@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Extensions;
 using Model.Libraries;
+using Model.Tools;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
@@ -48,7 +49,11 @@ namespace View3D
             //var shape = Polygons.Heart(1, 1, 50).MakeTriangulatedShape(0.05).ToMetaShape();
             //var shape = Polygons.Square(1).MakeTriangulatedShape(0.6).ToMetaShape();
 
-            var shape = Parquets.PentagonalKershner8(0.05, 1.5).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
+            //var shape = Parquets.PentagonalKershner8(0.05, 1).ToShape3().ToMetaShape(0.5, 20).Rotate(Rotates.Z_Y); //.ApplyZ(Funcs3.Paraboloid)
+            //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
+
+            var polygon = Polygons.Heart(1, 1, 50).Move((0,-0.1)).Mult(1.2);
+            var shape = Paver.Pave(polygon, Parquets.PentagonalKershner8(0.03, 1.5).Mult(1)).Join(polygon.ToShape2()).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Paraboloid).Rotate(Rotates.Z_Y);
 
             return shape;
         }

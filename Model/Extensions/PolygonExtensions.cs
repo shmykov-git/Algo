@@ -86,7 +86,8 @@ namespace Model.Extensions
         {
             return new Shape2
             {
-                Points = polygon.Points
+                Points = polygon.Points,
+                Convexes = new int[][] { polygon.Points.Index().ToArray() }
             };
         }
     }
