@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Extensions;
+using System;
 
 namespace Model3D.Libraries
 {
@@ -7,6 +8,7 @@ namespace Model3D.Libraries
     public class Funcs3
     {
         public static Func3 Hyperboloid = (x, y) => x * x - y * y;
-        public static Func3 Paraboloid = (x, y) => x * x + y * y; 
+        public static Func3 Paraboloid = (x, y) => x * x + y * y;
+        public static Func3 Waves = (x, y) => Math.Sin((x * x + y * y).Sqrt() *40)/50;
     }
 }
