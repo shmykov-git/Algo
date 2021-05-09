@@ -1,5 +1,6 @@
 ﻿using Model.Extensions;
 using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,15 +12,8 @@ namespace Model
         public List<Convex> convexes;
 
         private SuperPoint[] superPoints;
-        private readonly Shape2 shape;
 
         public SuperShape2(Shape2 shape)
-        {
-            this.shape = shape;
-            Init(shape);
-        }
-
-        private void Init(Shape2 shape)
         {
             points = shape.Points;
             convexes = shape.Convexes.Select(convex => new Convex { indices = convex.ToList() }).ToList();
@@ -27,12 +21,18 @@ namespace Model
 
         private void MakeSuperPoints()
         {
+            if (superPoints != null)
+                return;
+
             superPoints = points.Index().Select(i => new SuperPoint { i = i }).ToArray();
             foreach (var convex in convexes)
                 foreach (var edge in convex.edges)
                 {
-                    superPoints[edge.i].neighbors.Add(edge.j);
-                    superPoints[edge.j].neighbors.Add(edge.i);
+                    if (!superPoints[edge.i].neighbors.Contains(edge.j))
+                        superPoints[edge.i].neighbors.Add(edge.j);
+
+                    if (!superPoints[edge.j].neighbors.Contains(edge.i))
+                        superPoints[edge.j].neighbors.Add(edge.i);
                 }
         }
 
@@ -49,75 +49,75 @@ namespace Model
                             convex = convex
                         })));
 
-            var gInfos = cutConvexInfos.GroupBy(c => c.convex).Select(gc => new 
-            { 
+            var gInfos = cutConvexInfos.GroupBy(c => c.convex).Select(gc => new
+            {
                 cutconvex = gc.Key,
                 lefts = gc.Select(c => c.left).Distinct().ToArray(),
                 rights = gc.Select(c => c.edge.Another(c.left)).Distinct().ToArray(),
                 cutedges = gc.Select(c => c.edge).Distinct().ToArray()
             }).ToArray();
 
-            foreach(var info in gInfos)
-                convexes.Remove(info.cutconvex);
-
-            MakeSuperPoints();
-
             var rights = gInfos.SelectMany(g => g.rights).Distinct();
             var lefts = gInfos.SelectMany(g => g.lefts).Distinct();
             var pure = inside ? lefts.Except(rights).ToList() : rights.Except(lefts).ToList();
+
+            foreach (var info in gInfos)
+                convexes.Remove(info.cutconvex);
+
+            MakeSuperPoints();
 
             var field = GetField(pure);
 
             foreach (var i in EmptyPoints)
                 field.Remove(i);
 
-            var newShape = this.ToShape().Cut(field);
-            Init(newShape);
+            var backIndices = field.BackIndices();
+            var cutConvexes = convexes.Select(c => c.indices.ToArray()).Where(c => c.All(i => backIndices.ContainsKey(i))).Transform(i => backIndices[i]);
+            var cutPoints = field.Select(i => points[i]).ToArray();
 
+            points = cutPoints;
+            convexes = cutConvexes.Select(convex => new Convex { indices = convex.ToList() }).ToList();
+            superPoints = null;
+        }
 
-            //if (info.cutconvex.indices.Count <= info.cutedges.Length+2)
-            //{
-            //    convexes.Remove(info.cutconvex);
-            //}
-            ////else
-            //{
-            //    if (info.cutedges.Length == 1)
-            //    {
-            //        info.cutconvex.indices = info.cutconvex.indices.Where(i => info.cutedges[0].i != i && info.cutedges[0].j != i).ToList();
-            //    }
-            //    else
-            //    {
-            //        List<List<int>> newConvexes = new List<List<int>>();
-            //        List<int> newConvex = new List<int>();
-            //        foreach (var edge in info.cutconvex.edges)
-            //        {
-            //            if (info.cutedges.Contains(edge))
-            //            {
-            //                if (newConvex != null)
-            //                {
-            //                    newConvexes.Add(newConvex);
-            //                    newConvex = null;
-            //                }
-            //            }
-            //            else
-            //            {
-            //                if (newConvex == null)
-            //                    newConvex = new List<int>();
+        public Polygon FindPolygon(bool inside = false, Vector2? insideClosestPoint = null)
+        {
+            MakeSuperPoints();
 
-            //                newConvex.Add(edge.i);
-            //            }
-            //        }
-            //        if (newConvexes.Count > 2)
-            //        {
-            //            newConvexes.First().AddRange(newConvexes.Last());
-            //            newConvexes.Remove(newConvexes.Last());
-            //        }
+            var insideStartPoint = inside ? (insideClosestPoint ?? points.Center()) : Vector2.Zero;
 
-            //        convexes.Remove(info.cutconvex);
-            //        convexes.AddRange(newConvexes.Select(c => new Convex { indices = c }));
-            //    }
-            //}
+            var startPoint = inside
+                ? superPoints.OrderBy(p => (insideStartPoint - points[p.i]).Len2).First()
+                : superPoints.OrderBy(p => points[p.i].X).First();
 
+            int GetNext(int ai, Vector2 a, SuperPoint b)
+            {
+                Line2 ab = (a, points[b.i]);
+
+                if (inside)
+                    return b.neighbors.Where(i => i != ai).OrderBy(i => ab.FnAngleB(points[i])).First();
+                else
+                    return b.neighbors.Where(i => i != ai).OrderByDescending(i => ab.FnAngleB(points[i])).First();
+            }
+
+            List<int> polygon = new List<int>();
+            var p = startPoint;
+            var previ = -1;
+            Vector2 prevp = (points[p.i].X - 1, points[p.i].Y);
+
+            do
+            {
+                polygon.Add(p.i);
+                var nexti = GetNext(previ, prevp, p);
+                previ = p.i;
+                prevp = points[p.i];
+                p = superPoints[nexti];
+            } while (p != startPoint);
+
+            return new Polygon
+            {
+                Points = polygon.Select(i => points[i]).ToArray()
+            };
         }
 
         private IEnumerable<int> EmptyPoints => superPoints.Where(p => p.neighbors.Count == 0).Select(p => p.i);

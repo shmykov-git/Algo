@@ -100,5 +100,15 @@ namespace Model.Extensions
         {
             return Paver.Pave(polygon, parquete, false);
         }
+
+        public static Shape2 PaveExactInside(this Polygon polygon, Shape2 parquete)
+        {
+            return Paver.PaveExact(polygon, parquete, true);
+        }
+
+        public static Shape2 PaveExactOutside(this Polygon polygon, Shape2 parquete)
+        {
+            return Paver.PaveExact(polygon, parquete, false);
+        }
     }
 }

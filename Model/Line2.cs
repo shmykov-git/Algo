@@ -13,6 +13,10 @@ namespace Model
         public Vector2 NOne => Normal.Normed;
 
         public double Fn(Vector2 x) => (x - A) * Normal;
+        public double FnA(Vector2 x) => (x - A) * AB;
+        public double FnB(Vector2 x) => (x - B) * AB;
+        public double FnAngleB(Vector2 x) => Math.Atan2(Fn(x), FnB(x));
+        public double FnAngleA(Vector2 x) => Math.Atan2(Fn(x), FnA(x));
 
         public bool IsLeft(Vector2 x) => Fn(x) < 0;
 
