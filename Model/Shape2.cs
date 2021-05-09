@@ -16,5 +16,6 @@ namespace Model
         public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes.Select(convex => convex.SelectCirclePair((i, j) => (i, j)));
         public (int, int)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e => e.OrderedEdge())).Distinct().ToArray();
         public Line2[] Lines => OrderedEdges.Select(e => new Line2(Points[e.Item1], Points[e.Item2])).ToArray();
+        public int Length => Points.Length;
     }
 }

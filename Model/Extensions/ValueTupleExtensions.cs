@@ -25,5 +25,10 @@ namespace Model3D.Extensions
         {
             return (e.j, e.i);
         }
+
+        public static int Another(this (int i, int j) e, int k)
+        {
+            return e.i == k ? e.j : e.i;
+        }
     }
 }

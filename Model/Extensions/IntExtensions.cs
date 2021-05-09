@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Model3D.Extensions;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Model.Extensions
@@ -15,9 +17,16 @@ namespace Model.Extensions
             return lists.Transform(i => i + shift);
         }
 
-        public static int[][] Transform(this int[][] lists, Func<int, int> transformFn)
+        public static int[][] Transform(this IEnumerable<int[]> lists, Func<int, int> transformFn)
         {
             return lists.Select(list => list.Select(i => transformFn(i)).ToArray()).ToArray();
+        }
+
+        public static Dictionary<int, int> BackIndices(this IEnumerable<int> indices)
+        {
+            var list = indices.ToArray();
+
+            return indices.Index().ToDictionary(i => list[i], i => i);
         }
     }
 }

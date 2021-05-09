@@ -29,7 +29,7 @@ namespace Model3D.Extensions
 
         public static Shape ApplyZ(this Shape shape, Func3 func, Func3 func2 = null) => new Shape
         {
-            Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y) + func2?.Invoke(p.x, p.y) ?? 0, p.w)).ToArray(),
+            Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y) + (func2?.Invoke(p.x, p.y) ?? 0), p.w)).ToArray(),
             Convexes = shape.Convexes
         };
 

@@ -1,6 +1,7 @@
 ﻿using Model.Libraries;
 using Model.Tools;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Model.Extensions
@@ -10,11 +11,23 @@ namespace Model.Extensions
         public static Shape2 Normalize(this Shape2 shape)
         {
             var points = shape.Points.Distinct().ToList();
-            var convexes = shape.Convexes.Select(convex => convex.Select(i => points.IndexOf(shape.Points[i])).ToArray()).ToArray();
+            var convexes = shape.Convexes.Transform(i => points.IndexOf(shape.Points[i]));
 
             return new Shape2
             {
                 Points = points.ToArray(),
+                Convexes = convexes
+            };
+        }
+
+        public static Shape2 Cut(this Shape2 shape, IEnumerable<int> indices)
+        {
+            var backIndices = indices.BackIndices();
+            var convexes = shape.Convexes.Where(c => c.All(i => backIndices.ContainsKey(i))).Transform(i => backIndices[i]);
+
+            return new Shape2
+            {
+                Points = indices.Select(i => shape[i]).ToArray(),
                 Convexes = convexes
             };
         }

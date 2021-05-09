@@ -33,6 +33,7 @@ namespace View3D
             // Saddle Net // var shape = Parquets.Triangles(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
             // Saddle Hexagon Net // var shape = Parquets.Hexagon(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
             // VualLy //var shape = Parquets.PentagonalKershner8(0.05, 1.5).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
+            // NeedToCut // var polygon = Polygons.Heart(1, 1, 50).Move((0,-0.1)).Mult(1.2); var shape = Paver.Pave(polygon, Parquets.PentagonalKershner8(0.03, 1.5).Mult(1)).Join(polygon.ToShape2()).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
 
             //var shape = Polygons.Heart(1, 1, 50)
             //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
@@ -52,8 +53,10 @@ namespace View3D
             //var shape = Parquets.PentagonalKershner8(0.05, 1).ToShape3().ToMetaShape(0.5, 20).Rotate(Rotates.Z_Y); //.ApplyZ(Funcs3.Paraboloid)
             //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
 
-            var polygon = Polygons.Heart(1, 1, 50).Move((0,-0.1)).Mult(1.2);
-            var shape = Paver.Pave(polygon, Parquets.PentagonalKershner8(0.03, 1.5).Mult(1)).Join(polygon.ToShape2()).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Waves, Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
+            var polygon = Polygons.Heart(1, 1, 100).Move((0,-0.1)).Mult(1.2); // Parquets.PentagonalKershner8(0.03, 1.5) .ToMetaShape(0.5, 20); .Join(polygon.ToShape2())
+            //var shape = polygon.PaveInside(Parquets.PentagonalKershner8(0.03, 1.5)).ToShape3().ToMetaShape(0.5, 20); //.ApplyZ(Funcs3.Waves).Rotate(Rotates.Z_Y);
+
+            var shape = Polygons.Square.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5)).ToShape3().ToMetaShape(0.4, 40).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).Rotate(Rotates.Z_Y);
 
             return shape;
         }

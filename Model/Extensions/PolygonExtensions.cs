@@ -90,5 +90,15 @@ namespace Model.Extensions
                 Convexes = new int[][] { polygon.Points.Index().ToArray() }
             };
         }
+
+        public static Shape2 PaveInside(this Polygon polygon, Shape2 parquete)
+        {
+            return Paver.Pave(polygon, parquete, true);
+        }
+
+        public static Shape2 PaveOutside(this Polygon polygon, Shape2 parquete)
+        {
+            return Paver.Pave(polygon, parquete, false);
+        }
     }
 }
