@@ -68,6 +68,15 @@ namespace Model.Extensions
             return polygon.Transform(p => (p.X, s.Height - p.Y));
         }
 
+        public static Polygon Split(this Polygon polygon, double edgeLen)
+        {
+            var shape = polygon.ToShape2().SplitEdges(edgeLen);
+            return new Polygon
+            {
+                Points = shape.Convexes[0].Index().Select(i => shape[shape.Convexes[0][i]]).ToArray()
+            };
+        }
+
         public static Shape2 Fill(this Polygon polygon, bool triangulate = false)
         {
             var convexes = FillEngine.FindConvexes(polygon);

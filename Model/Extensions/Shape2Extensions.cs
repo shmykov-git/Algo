@@ -129,7 +129,12 @@ namespace Model.Extensions
             {
                 Points = shape.Points,
                 Convexes = FillEngine.Triangulate(shape.Points, shape.Convexes)
-            };            
+            };
+        }
+
+        public static Shape2 SplitEdges(this Shape2 shape, double edgeLen)
+        {
+            return Splitter.SplitEdges(shape, edgeLen);
         }
 
         public static SuperShape2 ToSuperShape(this Shape2 shape)
