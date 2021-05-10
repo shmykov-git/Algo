@@ -1,14 +1,15 @@
-﻿using System.Drawing;
+﻿using Model;
+using System.Drawing;
 
 namespace View.Extensions
 {
     static class Vector2Extensions
     {
-        public static Rectangle ToRectangle(this Model.Vector2 p, Model.Size s)
+        public static Rectangle ToRectangle(this Vector2 p, Vector2 s)
         {
             var halfS = s * 0.5;
 
-            return new Rectangle((int)(p.X - halfS.Width), (int)(p.Y - halfS.Height), (int)s.Width, (int)s.Height);
+            return new Rectangle((int)(p.X - halfS.X), (int)(p.Y - halfS.Y), (int)s.X, (int)s.Y);
         }
 
         public static Point ToPoint(this Model.Vector2 p)

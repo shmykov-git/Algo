@@ -43,17 +43,17 @@ namespace View
 
             var g = e.Graphics;
             this.BackColor = Color.White;
-            Model.Size size = (pnlCanvas.Width, pnlCanvas.Height);
-            var shape = baseShape.Move(new Model.Size(0.5, 0.5)).Scale(size).MirrorY(size);
+            Vector2 size = (pnlCanvas.Width, pnlCanvas.Height);
+            var shape = baseShape.Move((0.5, 0.5)).Scale(size).MirrorY(size);
 
             if (isValid)
             {
-                Model.Size halfSize = size / 2;
+                Vector2 halfSize = size / 2;
                 var border = halfSize * 0.025;
 
                 var leftTopShape = shape.Mult(0.45).Move(border);
-                var rightTopShape = shape.Mult(0.45).Move(new Model.Size(halfSize.Width, 0)).Move(border);
-                var leftButtomShape = shape.Mult(0.45).Move(new Model.Size(0, halfSize.Height)).Move(border);
+                var rightTopShape = shape.Mult(0.45).Move((halfSize.X, 0)).Move(border);
+                var leftButtomShape = shape.Mult(0.45).Move((0, halfSize.Y)).Move(border);
                 var rightButtomShape = shape.Mult(0.45).Move(halfSize).Move(border);
 
                 DrawLines(g, leftTopShape, Pens.Black);

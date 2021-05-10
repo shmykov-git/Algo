@@ -2,7 +2,9 @@
 using Model;
 using Model.Extensions;
 using Model.Libraries;
+using Model.Tools;
 using Model3D.Libraries;
+using Model3D.Tools;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -144,6 +146,20 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => q * p).ToArray(),
                 Convexes = shape.Convexes
             };
+        }
+
+        public static Shape Centered(this Shape shape)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Centered(),
+                Convexes = shape.Convexes
+            };
+        }
+
+        public static Shape SplitConvexes(this Shape shape)
+        {
+            return Extender.SplitConvexes(shape);
         }
     }
 }

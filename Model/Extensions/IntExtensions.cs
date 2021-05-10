@@ -28,5 +28,25 @@ namespace Model.Extensions
 
             return indices.Index().ToDictionary(i => list[i], i => i);
         }
+
+        public static int[] ShiftConvex(this int[] c, int value)
+        {
+            var cc = c.ToList();
+            var k = cc.IndexOf(value);
+
+            return c.Index().Select(i => c[(i + k) % c.Length]).ToArray();
+        }
+
+        public static int[] JoinConvexes(this int[] a, int[] b)
+        {
+            var c = a.Intersect(b).ToArray();
+            if (c.Length != 2)
+                throw new JoinConvexesException();
+
+            var aa = a.ShiftConvex(c[1]);
+            var bb = b.ShiftConvex(c[0]);
+
+            return aa.Concat(bb.Skip(1).Take(bb.Length - 2)).ToArray();
+        }
     }
 }

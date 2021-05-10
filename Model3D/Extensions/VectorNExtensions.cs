@@ -9,6 +9,8 @@ namespace Model3D.Extensions
 {
     public static class VectorNExtensions
     {
+        private static readonly Vector3 Zero3 = new Vector3(0, 0, 0);
+
         public static Vector3 ToV3(this Vector4 v)
         {
             return new Vector3(v.x, v.y, v.z);
@@ -32,6 +34,30 @@ namespace Model3D.Extensions
         public static Vector3 ToLen(this Vector3 v, double len)
         {
             return v * len / v.Length;
+        }
+
+        public static Vector3 Center(this IEnumerable<Vector3> vectors)
+        {
+            var sum = Zero3;
+            var count = 0;
+            foreach (var v in vectors)
+            {
+                sum += v;
+                count++;
+            }
+
+            return sum / count;
+        }
+
+        public static Vector3 Sum(this IEnumerable<Vector3> vectors)
+        {
+            return vectors.Aggregate(Zero3, (a, b) => a + b);
+        }
+
+        public static Vector3[] Centered(this Vector3[] vectors)
+        {
+            var center = vectors.Center();
+            return vectors.Select(v => v - center).ToArray();
         }
     }
 }

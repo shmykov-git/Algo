@@ -11,7 +11,7 @@ namespace Model3D.Libraries
     {
         private static double AngleFn(double x, double y) => Math.Atan2(y, x);
 
-        public static TransformFunc3 LikeSphere(Func2 xyFn, Func2 zFn)
+        private static TransformFunc3 PullOnSphere(Func2 xyFn, Func2 zFn)
         {
             return v =>
             {
@@ -26,6 +26,20 @@ namespace Model3D.Libraries
 
         }
 
-        public static TransformFunc3 Heart() => LikeSphere(Funcs2.Circle(), Funcs2.Heart());
+        private static TransformFunc3 WrapSphere(Func2 xyFn, Func2 zFn)
+        {
+            return v =>
+            {
+                var vZ = zFn(v.y);
+                var vXY = xyFn(v.x);
+
+                return new Vector3(vXY.X * vZ.X, vXY.Y * vZ.X, vZ.Y);
+            };
+        }
+
+        public static TransformFunc3 Heart => PullOnSphere(Funcs2.Circle(), Funcs2.Heart());
+        public static TransformFunc3 Sphere => PullOnSphere(Funcs2.Circle(), Funcs2.Circle());
+        public static TransformFunc3 HeartWrap => WrapSphere(Funcs2.Circle(), Funcs2.Heart());
+        public static TransformFunc3 SphereWrap => WrapSphere(Funcs2.Circle(), Funcs2.Circle());
     }
 }

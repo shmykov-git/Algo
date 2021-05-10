@@ -38,22 +38,22 @@ namespace Model.Extensions
             };
         }
 
-        public static Polygon Move(this Polygon polygon, Size size)
+        public static Polygon Move(this Polygon polygon, Vector2 size)
         {
             return polygon.Transform(p => p + size);
         }
 
-        public static Polygon Scale(this Polygon polygon, Size bSize)
+        public static Polygon Scale(this Polygon polygon, Vector2 bSize)
         {
-            return polygon.Scale(Size.One, bSize);
+            return polygon.Scale((1,1), bSize);
         }
 
-        public static Polygon ScaleToOne(this Polygon polygon, Size aSize)
+        public static Polygon ScaleToOne(this Polygon polygon, Vector2 aSize)
         {
-            return polygon.Scale(aSize, Size.One);
+            return polygon.Scale(aSize, (1,1));
         }
 
-        public static Polygon Scale(this Polygon polygon, Size aSize, Size bSize)
+        public static Polygon Scale(this Polygon polygon, Vector2 aSize, Vector2 bSize)
         {
             return polygon.Transform(p => p.Scale(aSize, bSize));
         }
@@ -63,9 +63,9 @@ namespace Model.Extensions
             return polygon.Transform(p => p * k);
         }
 
-        public static Polygon MirrorY(this Polygon polygon, Size s)
+        public static Polygon MirrorY(this Polygon polygon, Vector2 s)
         {
-            return polygon.Transform(p => (p.X, s.Height - p.Y));
+            return polygon.Transform(p => (p.X, s.Y - p.Y));
         }
 
         public static Polygon Split(this Polygon polygon, double edgeLen)

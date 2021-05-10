@@ -53,27 +53,22 @@ namespace Model.Extensions
             };
         }
 
-        public static Shape2 Move(this Shape2 shape, Size size)
-        {
-            return shape.Transform(p => p + size);
-        }
-
         public static Shape2 Move(this Shape2 shape, Vector2 move)
         {
             return shape.Transform(p => p + move);
         }
 
-        public static Shape2 Scale(this Shape2 shape, Size bSize)
+        public static Shape2 Scale(this Shape2 shape, Vector2 bSize)
         {
-            return shape.Scale(Size.One, bSize);
+            return shape.Scale((1,1), bSize);
         }
 
-        public static Shape2 ScaleToOne(this Shape2 shape, Size aSize)
+        public static Shape2 ScaleToOne(this Shape2 shape, Vector2 aSize)
         {
-            return shape.Scale(aSize, Size.One);
+            return shape.Scale(aSize, (1,1));
         }
 
-        public static Shape2 Scale(this Shape2 shape, Size aSize, Size bSize)
+        public static Shape2 Scale(this Shape2 shape, Vector2 aSize, Vector2 bSize)
         {
             return shape.Transform(p => p.Scale(aSize, bSize));
         }
@@ -83,9 +78,9 @@ namespace Model.Extensions
             return shape.Transform(p => p * k);
         }
 
-        public static Shape2 MirrorY(this Shape2 shape, Size s)
+        public static Shape2 MirrorY(this Shape2 shape, Vector2 s)
         {
-            return shape.Transform(p => (p.X, s.Height - p.Y));
+            return shape.Transform(p => (p.X, s.Y - p.Y));
         }
 
         public static Shape2 Rotate(this Shape2 shape, double angle)

@@ -35,23 +35,6 @@ namespace Model
             return new Vector2 { X = v.a, Y = v.b };
         }
 
-        public static Vector2 operator +(Vector2 a, Size b)
-        {
-            return new Vector2
-            {
-                X = a.X + b.Width,
-                Y = a.Y + b.Height
-            };
-        }
-        public static Vector2 operator -(Vector2 a, Size b)
-        {
-            return new Vector2
-            {
-                X = a.X - b.Width,
-                Y = a.Y - b.Height
-            };
-        }
-
         public static Vector2 operator +(Vector2 a, Vector2 b)
         {
             return new Vector2
