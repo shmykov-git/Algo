@@ -56,7 +56,6 @@ namespace Model.Libraries
             Points = new Func2Info
             {
                 Fn = t => (-Math.Abs(t) * Math.Sin(t), t * Math.Cos(t)),
-                //TFn = Densities.CentralDensity(0.8),
                 From = n * 2 * Math.PI + Math.PI / 2,
                 To = -n * 2 * Math.PI + Math.PI / 2,
                 N = count,

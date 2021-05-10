@@ -35,6 +35,10 @@ namespace View3D
             // Saddle Hexagon Net // var shape = Parquets.Hexagon(0.1).ToShape3().Mult(2).ToMetaShape().ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
             // VualLy //var shape = Parquets.PentagonalKershner8(0.05, 1.5).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
             // NeedToCut // var polygon = Polygons.Heart(1, 1, 50).Move((0,-0.1)).Mult(1.2); var shape = Paver.Pave(polygon, Parquets.PentagonalKershner8(0.03, 1.5).Mult(1)).Join(polygon.ToShape2()).ToShape3().ToMetaShape(0.5, 20).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
+            // Print, Kershner8 // var shape = Parquets.PentagonalKershner8(0.075, 1.5).Rotate(-1.15).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
+            // Print, Kershner8MugStand // var shape = Polygons.Elipse(1, 1, 50).PaveInside(Parquets.PentagonalKershner8(0.03, 1.5).Mult(1.5)).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
+            // Print, SpiralMugStand // var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
+            // Print, Kershner8HeartMugStand // var shape = Polygons.Heart(1, 1, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.9).Mult(1.5)).ToShape3().ToMetaShape(0.2,50).AddVolumeZ(0.01);
 
             //var shape = Polygons.Heart(1, 1, 50)
             //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
@@ -55,7 +59,11 @@ namespace View3D
             //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
 
             //var polygon = Polygons.Heart(1, 1, 100).Move((0,-0.1)).Mult(1.2); // Parquets.PentagonalKershner8(0.03, 1.5) .ToMetaShape(0.5, 20); .Join(polygon.ToShape2())
-            var shape = Polygons.Heart(1, 1, 100).PaveExactInside(Parquets.Triangles(0.03)).ToShape3().Mult(4).ApplyZ(Funcs3.Hyperboloid);//.Rotate(Rotates.Z_Y);//.ToMetaShape(0.5, 20); //.ApplyZ(Funcs3.Waves).Rotate(Rotates.Z_Y);
+            //var shape = Polygons.Heart(1, 1, 100).PaveExactInside(Parquets.Triangles(0.03)).ToShape3().Mult(4).ApplyZ(Funcs3.Hyperboloid);//.Rotate(Rotates.Z_Y);//.ToMetaShape(0.5, 20); //.ApplyZ(Funcs3.Waves).Rotate(Rotates.Z_Y);
+
+            //var shape = Polygons.Elipse(1, 1, 50).PaveInside(Parquets.PentagonalKershner8(0.03, 1.5).Mult(1.5)).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
+            //var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
+            var shape = Polygons.Heart(1, 1, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.9).Mult(1.5)).ToShape3().ToMetaShape(0.2,50).AddVolumeZ(0.01);
 
             return shape;
         }
