@@ -63,7 +63,7 @@ namespace View3D
 
             //var shape = Polygons.Elipse(1, 1, 50).PaveInside(Parquets.PentagonalKershner8(0.03, 1.5).Mult(1.5)).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
             //var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
-            var shape = Polygons.Square.Scale((2 * Math.PI, Math.PI)).PaveInside(Parquets.PentagonalKershner8(0.015, 1.5).Mult(7)).Move((Math.PI, 0)).ToShape3().ToMetaShape(0.5, 20).Transform(TransformFuncs3.SphereWrap);
+            var shape = Polygons.Square.Scale((2 * Math.PI-0.1, Math.PI)).PaveInside(Parquets.PentagonalKershner8(0.015, 1.5).Mult(7)).Move((Math.PI / 2, -Math.PI/2)).ToShape3().ToMetaShape(1, 20).Transform(TransformFuncs3.HeartWrap).Scale(0.4, 1, 1).Rotate(Rotates.Z_Y);
 
             return shape;
         }
