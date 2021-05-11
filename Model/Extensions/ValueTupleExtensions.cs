@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Model3D.Extensions
+namespace Model.Extensions
 {
     public static class ValueTupleExtensions
     {

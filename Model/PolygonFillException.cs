@@ -4,7 +4,7 @@ namespace Model
 {
     public class PolygonFillException : Exception
     {
-        public readonly int[][] IncerrectConvexes;
+        public readonly int[][] IntersectConvexes;
 
         public PolygonFillException()
         {
@@ -12,7 +12,7 @@ namespace Model
 
         public PolygonFillException(int[][] convexes)
         {
-            this.IncerrectConvexes = convexes;
+            this.IntersectConvexes = convexes;
         }
     }
 }

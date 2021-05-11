@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Model3D.Tools
 {
-    class Extender
+    public static class Extender
     {
         public static Shape SplitConvexes(Shape shape)
         {

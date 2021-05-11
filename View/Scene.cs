@@ -49,7 +49,7 @@ namespace View
                 shape = new Shape2
                 {
                     Points = polygon.Points,
-                    Convexes = e.IncerrectConvexes,
+                    Convexes = e.IntersectConvexes,
                 };
                 isValid = false;
             }            

@@ -1,5 +1,4 @@
 ﻿using Model.Extensions;
-using Model3D.Extensions;
 using System;
 using System.Linq;
 
@@ -12,17 +11,21 @@ namespace Model.Libraries
         public static Shape2 Hexagon(double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon);
         public static Shape2 PentagonalKershner8(double tileLen, double angleD, double dx = 1, double dy = 1) => ShiftParquet(tileLen, Tiles.PentagonalKershner8(angleD), dx, dy);
         
-        //todo: shift angle
-        public static Shape2 PentagonalKershner8ForTube(int n, double angleD)
+        public static Shape2 PentagonalKershner8ForTube(int n, int m, double angleD)
         {
             var tileLen = 0.2;
             var tile = Tiles.PentagonalKershner8(angleD);
-            var shift = tile.ShiftX.Center() * 0.2;
-            var angle = Math.Atan2(shift.Y, shift.X);
+            var shiftX = tile.ShiftX.Center() * tileLen;
+            var shiftY = tile.ShiftY.Center() * tileLen;
+            var angle = Math.Atan2(shiftX.Y, shiftX.X);
             var paruet = ShiftParquet(tileLen, tile, n * Math.PI / 3, Math.PI / 3);
-            var shape = paruet.Mult(2 * Math.PI / (n * shift.Len)).Rotate(-angle);
-            
-            return shape;
+            var mult = 2 * Math.PI / (n * shiftX.Len);
+            var shape = paruet.Mult(mult).Rotate(-angle);
+
+            var dY = Rotates2.Rotate(-angle) * shiftY * mult;
+            var tubeShape = (m).SelectRange(i => shape.Move(i*dY)).Aggregate((a, b) => a.Join(b));
+
+            return tubeShape.Normalize();
         }
 
         public static Shape2 ShiftParquet(double tileLen, Tile tile, double dx = 1, double dy = 1)

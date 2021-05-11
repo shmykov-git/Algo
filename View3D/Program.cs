@@ -13,7 +13,7 @@ namespace View3D
         static void Main(string[] args)
         {
             var settings = new Settings();
-            var sceneManager = new SceneManger();
+            var sceneManager = new SceneManager();
 
             try
             {

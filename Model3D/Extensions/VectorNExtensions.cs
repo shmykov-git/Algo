@@ -59,5 +59,15 @@ namespace Model3D.Extensions
             var center = vectors.Center();
             return vectors.Select(v => v - center).ToArray();
         }
+
+        public static Vector3 Scale(this Vector3 a, Vector3 aSize, Vector3 bSize)
+        {
+            return new Vector3
+            {
+                x = a.x * bSize.x / aSize.x,
+                y = a.y * bSize.y / aSize.y,
+                z = a.z * bSize.z / aSize.z
+            };
+        }
     }
 }

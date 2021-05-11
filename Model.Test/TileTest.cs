@@ -1,6 +1,5 @@
 ﻿using Model.Extensions;
 using Model.Libraries;
-using Model3D.Extensions;
 using NUnit.Framework;
 using System;
 using System.Linq;

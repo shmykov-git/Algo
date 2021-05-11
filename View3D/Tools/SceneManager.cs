@@ -3,7 +3,7 @@ using Aspose.ThreeD.Entities;
 
 namespace View3D.Tools
 {
-    class SceneManger
+    class SceneManager
     {
         public Scene CreateScene(Model.Shape shape)
         {

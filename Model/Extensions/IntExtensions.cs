@@ -1,5 +1,4 @@
-﻿using Model3D.Extensions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
