@@ -25,7 +25,7 @@ namespace Model3D.Extensions
 
         public static Shape Transform(this Shape shape, TransformFunc3 fn) => new Shape
         {
-            Points = shape.Points.Select(p => fn(p.ToV3()).ToV4()).ToArray(),
+            Points3 = shape.Points3.Select(p => fn(p)).ToArray(),
             Convexes = shape.Convexes
         };
 
@@ -135,6 +135,15 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points.Select(p => new Vector4(x * p.x, y * p.y, z * p.z, p.w)).ToArray(),
+                Convexes = shape.Convexes
+            };
+        }
+
+        public static Shape Move(this Shape shape, double x, double y, double z)
+        {
+            return new Shape
+            {
+                Points = shape.Points.Select(p => new Vector4(x + p.x, y + p.y, z + p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes
             };
         }

@@ -7,6 +7,8 @@ namespace Model.Libraries
 
     public static class Funcs2
     {
+        public static Func2 HorizontalLine() => t => (t, 1);
+        public static Func2 VerticalLine() => t => (1, t);
         public static Func2 Circle() => t => (Math.Sin(t), Math.Cos(t));
 
         public static Func2 Heart()
