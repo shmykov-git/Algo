@@ -7,6 +7,6 @@ namespace Model3D.Libraries
 
     public static class Funcs3
     {
-        public static Func3 Test = t => new Vector3(Math.Sin(t), Math.Cos(t), t);
+        public static Func3 Spiral = t => new Vector3(Math.Sin(t), Math.Cos(t), t/(2*Math.PI));
     }
 }

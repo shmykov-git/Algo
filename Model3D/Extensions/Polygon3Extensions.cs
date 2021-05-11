@@ -1,5 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
+using Model.Extensions;
 using System;
 using System.Linq;
 
@@ -43,6 +44,13 @@ namespace Model3D.Extensions
             return polygon.Transform(p => p * k);
         }
 
-
+        public static Shape ToShape(this Polygon3 polygon)
+        {
+            return new Shape
+            {
+                Points3 = polygon.Points,
+                Convexes = new int[][] { polygon.Points.Index().ToArray() }
+            };
+        }
     }
 }

@@ -95,20 +95,21 @@ namespace Model3D.Extensions
         {
             var width = 0.003 * mult;
             var points = shape.Points2;
+            var points3 = shape.Points3;
 
-            Vector4[] GetLine((int,int) edge)
+            Vector4[] GetLine((int i, int j) e)
             {
-                var a = points[edge.Item1];
-                var b = points[edge.Item2];
+                var a = points[e.i];
+                var b = points[e.j];
                 var line = new Line2(a, b);
                 var shift = line.Normal * width * 0.5;
 
-                return new Model.Vector2[]
+                return new Vector3[]
                 {
-                    a + shift,
-                    b + shift,
-                    b - shift,
-                    a - shift
+                    (a + shift).ToV3(points3[e.i].z),
+                    (b + shift).ToV3(points3[e.j].z),
+                    (b - shift).ToV3(points3[e.j].z),
+                    (a - shift).ToV3(points3[e.i].z)
                 }.Select(v=>v.ToV4()).ToArray();
             }
 
@@ -169,6 +170,11 @@ namespace Model3D.Extensions
         public static Shape SplitConvexes(this Shape shape)
         {
             return Extender.SplitConvexes(shape);
+        }
+
+        public static Shape ToTube(this Shape tubeShape)
+        {
+            return tubeShape.ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ);
         }
     }
 }

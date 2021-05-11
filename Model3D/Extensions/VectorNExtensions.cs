@@ -31,6 +31,11 @@ namespace Model3D.Extensions
             return new Vector4(v.X, v.Y, 0, 1);
         }
 
+        public static Vector3 ToV3(this Model.Vector2 v, double z = 0)
+        {
+            return new Vector3(v.X, v.Y, z);
+        }
+
         public static Vector3 ToLen(this Vector3 v, double len)
         {
             return v * len / v.Length;
