@@ -6,6 +6,7 @@ namespace Model.Libraries
 {
     public static class Parquets
     {
+        public static Shape2 Squares(int m, int n, double tileLen = 1) => ShiftParquet(tileLen, Tiles.Squares, m, n);
         public static Shape2 Triangles(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles);
         public static Shape2 Triangles2(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles2);
         public static Shape2 Hexagon(double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon);
@@ -28,11 +29,8 @@ namespace Model.Libraries
             return tubeShape.Normalize();
         }
 
-        public static Shape2 ShiftParquet(double tileLen, Tile tile, double dx = 1, double dy = 1)
+        public static Shape2 ShiftParquet(double tileLen, Tile tile, int m, int n)
         {
-            var m = (int)(dy / (tile.Size.Y * tileLen));
-            var n = (int)(dx / (tile.Size.X * tileLen));
-            
             Vector2 Shift(int i, int j)
             {
                 var x = (j).SelectRange(k => tile.ShiftX[k % tile.ShiftX.Length]).Sum();
@@ -48,6 +46,14 @@ namespace Model.Libraries
                 Points = points.Centered(),
                 Convexes = convexes
             }.Normalize();
+        }
+
+        public static Shape2 ShiftParquet(double tileLen, Tile tile, double dx = 1, double dy = 1)
+        {
+            var m = (int)(dy / (tile.Size.Y * tileLen));
+            var n = (int)(dx / (tile.Size.X * tileLen));
+
+            return ShiftParquet(tileLen, tile, m, n);
         }
     }
 }

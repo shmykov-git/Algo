@@ -43,6 +43,17 @@ namespace Model3D.Libraries
                 var vZ = zFn(v.y);
                 var vXY = xyFn(v.x);
 
+                return new Vector3(vXY.X * vZ.X, vXY.Y * vZ.X, vZ.Y) * (1 + v.z);
+            };
+        }
+
+        private static TransformFunc3 WrapCylinderZ(Func2 xyFn, Func2 zFn)
+        {
+            return v =>
+            {
+                var vZ = zFn(v.y);
+                var vXY = xyFn(v.x);
+
                 return new Vector3((1 + v.z) * vXY.X * vZ.X, (1 + v.z) * vXY.Y * vZ.X, vZ.Y);
             };
         }
@@ -51,7 +62,8 @@ namespace Model3D.Libraries
         public static TransformFunc3 Sphere => PullOnSphere(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 HeartWrap => WrapSphere(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 SphereWrap => WrapSphere(Funcs2.Circle(), Funcs2.Circle());
+        public static TransformFunc3 SphereWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 CylinderWrap => WrapSphere(Funcs2.Circle(), Funcs2.VerticalLine());
-        public static TransformFunc3 CylinderWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.VerticalLine());
+        public static TransformFunc3 CylinderWrapZ => WrapCylinderZ(Funcs2.Circle(), Funcs2.VerticalLine());
     }
 }

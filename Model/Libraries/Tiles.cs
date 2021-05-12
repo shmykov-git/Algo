@@ -44,6 +44,21 @@ namespace Model.Libraries
             }
         };
 
+        public static Tile Squares => new Tile
+        {
+            ShiftX = new Vector2[] { (1, 0) },
+            ShiftY = new Vector2[] { (0, 1) },
+            Points = new Vector2[]
+            {
+                (0, 0), (1, 0),
+                (1, 1), (0, 1)
+            },
+            Convexes = new int[][]
+            {
+                new int[] {0, 1, 2, 3},
+            }
+        };
+
         public static Tile Hexagon => new Tile
         {
             ShiftX = new Vector2[] { (1.5, h3), (1.5, -h3) },
