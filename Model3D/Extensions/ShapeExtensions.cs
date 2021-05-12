@@ -172,9 +172,9 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
-        public static Shape ToTube(this Shape tubeShape)
+        public static Shape ToTube(this Shape shape, Func3 func)
         {
-            return tubeShape.ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ);
+            return Tuber.MakeTube(func, shape);
         }
     }
 }
