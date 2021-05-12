@@ -61,6 +61,7 @@ namespace Model3D.Libraries
         public static TransformFunc3 Heart => PullOnSphere(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 Sphere => PullOnSphere(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 HeartWrap => WrapSphere(Funcs2.Circle(), Funcs2.Heart());
+        public static TransformFunc3 HeartWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 SphereWrap => WrapSphere(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 SphereWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 CylinderWrap => WrapSphere(Funcs2.Circle(), Funcs2.VerticalLine());
