@@ -78,7 +78,10 @@ namespace View3D
             //var max = s.Points.Max(p => p.X);
 
             //var shape = Parquets.PentagonalKershner8ForTube(3, 10, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y);
-            var shape = Tuber.MakeTube(Funcs3.Spiral, Parquets.PentagonalKershner8ForTube(3, 50, 1.5));
+            var tube = Parquets.PentagonalKershner8ForTube(3, 150, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.2, 0.2, 1);
+            var shape = Tuber.MakeTube(Funcs3.SpiralHeart, tube);
+
+
 
             return shape;
         }
