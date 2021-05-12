@@ -83,7 +83,7 @@ namespace View3D
             //var max = s.Points.Max(p => p.X);
 
             //var shape = Parquets.PentagonalKershner8ForTube(3, 10, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y);
-            var shape = Parquets.PentagonalKershner8(0.05, 0.3).ToShape3().ToMetaShape(0.5, 20).AddVolumeZ(0.01);//.Rotate(Rotates.Z_Y); //.ApplyZ(Funcs3.Paraboloid)
+            var shape = Polygons.Square.PaveInside(Parquets.PentagonalKershner8(0.02, 0.3)).ToShape3().ToMetaShape(0.4, 40).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart).Scale(0.7, 1, 1).Rotate(Rotates.Z_Y);
 
             return shape;
         }
