@@ -6,6 +6,18 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
+        public static Polygon Flower(int n, int count) => new Polygon
+        {
+            Points = new Func2Info
+            {
+                Fn = Funcs2.Flower(n),
+                From = -Math.PI,
+                To = Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        };
+
         public static Polygon Heart(double a, double b, int count) => new Polygon
         {
             Points = new Func2Info

@@ -16,5 +16,29 @@ namespace Model3D.Libraries
                 Closed = false
             }.GetPoints()
         };
+
+        public static Polygon3 Flower(int n, int count) => new Polygon3
+        {
+            Points = new Func3Info
+            {
+                Fn = Funcs3.Flower(n),
+                From = -Math.PI,
+                To = Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints()
+        };
+
+        public static Polygon3 Cloud(int count) => new Polygon3
+        {
+            Points = new Func3Info
+            {
+                Fn = Funcs3.Cloud(1,3),
+                From = 0,
+                To = 8*Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints()
+        };
     }
 }
