@@ -48,5 +48,18 @@ namespace Model.Extensions
             }
             yield return func(prevT, first);
         }
+
+        public static IEnumerable<T> OrderSafeDistinct<T>(this IEnumerable<T> list) where T : IEquatable<T>
+        {
+            var values = new HashSet<T>();
+            foreach(var item in list)
+            {
+                if (values.Contains(item))
+                    continue;
+
+                values.Add(item);
+                yield return item;
+            }
+        }
     }
 }

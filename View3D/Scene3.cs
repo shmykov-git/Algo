@@ -88,7 +88,7 @@ namespace View3D
             //var shape = Parquets.PentagonalKershner8ForTube(3, 10, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y);
             //var shape = Polygons3.Flower(5, 100).ToShape().ToLines(5);
             //var shape = Polygons.Flower(5, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.23).Mult(2.5)).Mult(1.6).ToShape3().ToMetaShape(0.3, 10).AddVolumeZ(0.01).Move(0, 0, -1).Transform(TransformFuncs3.Sphere).Rotate(Rotates.Z_Y);
-            var shape = Parquets.PentagonalKershner8ForTube(50, 50, 1.6).ToShape3().ToLines(5).AddVolumeZ(0.005).Transform(TransformFuncs3.Flower(1.5, 3, 15)).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).Scale(1, 0.2, 1).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y);            
+            var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
 
             return shape;
         }

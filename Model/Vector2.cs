@@ -107,11 +107,6 @@ namespace Model
             return !(a == b);
         }
 
-        private bool Abs()
-        {
-            throw new NotImplementedException();
-        }
-
         public override string ToString()
         {
             return $"({X}, {Y})";

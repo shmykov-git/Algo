@@ -66,9 +66,19 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape ToMetaShape(this Shape shape, double multPoint = 1, double multLines = 1)
+        {
+            return shape.ToSpots(multPoint).Join(shape.ToLines(multLines));
+        }
+
+        public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1)
+        {
+            return shape.ToSpots3(multPoint).Join(shape.ToLines3(multLines));
+        }
+
         public static Shape ToSpots(this Shape shape, double mult = 1)
         {
-            var spot = Polygons.Elipse(1, 1, 10).Mult(0.02 * mult).MakeShape();
+            var spot = Polygons.Elipse(1, 1, 10).Mult(0.02 * mult).ToShape2().ToShape3();
 
             return new Shape
             {
@@ -77,17 +87,14 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToMetaShape(this Shape shape, double multPoint = 1, double multLines = 1)
+        public static Shape ToSpots3(this Shape shape, double mult = 1)
         {
-            return shape.ToSpots(multPoint).Join(shape.ToLines(multLines));
-        }
+            var sphere = Surfaces.Sphere(9, 5, true).Mult(0.02 * mult);
 
-        public static Shape Join(this Shape shape, Shape another)
-        {
             return new Shape
             {
-                Points = shape.Points.Concat(another.Points).ToArray(),
-                Convexes = shape.Convexes.Concat(another.Convexes.Select(convex => convex.Select(i => i + shape.PointsCount).ToArray())).ToArray()
+                Points3 = shape.Points3.SelectMany(p => sphere.Points3.Select(s => p + s)).ToArray(),
+                Convexes = shape.PointIndices.SelectMany(i => sphere.Convexes.Select(convex => convex.Select(j => sphere.PointsCount * i + j).ToArray())).ToArray()
             };
         }
 
@@ -122,6 +129,44 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape ToLines3(this Shape shape, double mult = 1)
+        {
+            var line3 = Surfaces.Cylinder(5, 2);
+            var n = line3.PointsCount;
+            
+            var width = 0.003 * mult;
+            var points = shape.Points3;
+
+            Shape GetLine((int i, int j) e)
+            {
+                var a = points[e.i];
+                var b = points[e.j];
+                var ab = b - a;
+                var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
+
+                var line = line3.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
+                
+                return line;
+            }
+
+            var lines = shape.OrderedEdges.Select(GetLine).ToArray();
+
+            return new Shape
+            {
+                Points = lines.SelectMany(line => line.Points).ToArray(),
+                Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray()
+            };
+        }
+
+        public static Shape Join(this Shape shape, Shape another)
+        {
+            return new Shape
+            {
+                Points = shape.Points.Concat(another.Points).ToArray(),
+                Convexes = shape.Convexes.Concat(another.Convexes.Select(convex => convex.Select(i => i + shape.PointsCount).ToArray())).ToArray()
+            };
+        }
+
         public static Shape Mult(this Shape shape, double k)
         {
             return new Shape
@@ -145,6 +190,15 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points.Select(p => new Vector4(x + p.x, y + p.y, z + p.z, p.w)).ToArray(),
+                Convexes = shape.Convexes
+            };
+        }
+
+        public static Shape Move(this Shape shape, Vector3 v)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Select(p => p + v).ToArray(),
                 Convexes = shape.Convexes
             };
         }
@@ -175,6 +229,20 @@ namespace Model3D.Extensions
         public static Shape ToTube(this Shape shape, Func3 func)
         {
             return Tuber.MakeTube(func, shape);
+        }
+
+        public static Shape Normalize(this Shape shape)
+        {
+            var shapePoints = shape.Points3.Select(p => p.ToV3D()).ToArray();
+            var points = shapePoints.Distinct().ToList();
+            var convexes = shape.Convexes.Transform(i => points.IndexOf(shapePoints[i]));
+            convexes = convexes.Select(convex => convex.OrderSafeDistinct().ToArray()).Where(convex => convex.Length >= 3).ToArray();
+
+            return new Shape
+            {
+                Points3 = points.Select(p=>p.ToV3()).ToArray(),
+                Convexes = convexes
+            };
         }
     }
 }

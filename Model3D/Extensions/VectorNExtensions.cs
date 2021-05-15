@@ -1,4 +1,5 @@
 ﻿using Aspose.ThreeD.Utilities;
+using Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,16 @@ namespace Model3D.Extensions
         public static Vector3 ToV3(this Model.Vector2 v, double z = 0)
         {
             return new Vector3(v.X, v.Y, z);
+        }
+
+        public static Vector3D ToV3D(this Vector3 v)
+        {
+            return new Vector3D(v.x, v.y, v.z);
+        }
+
+        public static Vector3 ToV3(this Vector3D v)
+        {
+            return new Vector3(v.x, v.y, v.z);
         }
 
         public static Vector3 ToLen(this Vector3 v, double len)
