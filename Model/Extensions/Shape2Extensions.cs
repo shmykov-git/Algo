@@ -58,6 +58,11 @@ namespace Model.Extensions
             return shape.Transform(p => p + move);
         }
 
+        public static Shape2 Move(this Shape2 shape, double x, double y)
+        {
+            return shape.Move((x, y));
+        }
+
         public static Shape2 Scale(this Shape2 shape, Vector2 bSize)
         {
             return shape.Scale((1,1), bSize);

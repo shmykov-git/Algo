@@ -1,5 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
+using Model3D.Libraries;
 using System.Linq;
 
 namespace Model3D.Extensions
@@ -14,5 +15,17 @@ namespace Model3D.Extensions
                 Convexes = shape.Convexes
             };
         }
+
+        public static Shape PullOnSurface(this Shape2 shape, SurfaceFunc fn) => new Shape
+        {
+            Points3 = shape.Points.Select(p => fn(p.X, p.Y)).ToArray(),
+            Convexes = shape.Convexes
+        };
+
+        public static Shape PullOnSurface90(this Shape2 shape, SurfaceFunc fn) => new Shape
+        {
+            Points3 = shape.Points.Select(p => fn(p.Y, p.X)).ToArray(),
+            Convexes = shape.Convexes
+        };
     }
 }

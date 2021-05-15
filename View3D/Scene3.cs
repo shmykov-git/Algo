@@ -53,42 +53,14 @@ namespace View3D
             // Print, SpiralMugStand // var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
             // Print, Kershner8HeartMugStand // var shape = Polygons.Heart(1, 1, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.9).Mult(1.5)).ToShape3().ToMetaShape(0.2,50).AddVolumeZ(0.01);
 
+            // Shamrock // var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
+            // Kershner8 shamrock // var shape = Parquets.PentagonalKershner8ForTube(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines3(4).Rotate(Rotates.Z_Y);
 
-            //var shape = Polygons.Heart(1, 1, 50)
-            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((0.13, 0.21)))
-            //    .PutInside(Polygons.Spiral(10, 500).Mult(0.3).Move((-0.13, 0.21)))
-            //    .MakeShape().ApplyZ(Funcs3.Paraboloid);
+            var shape = Parquets.PentagonalKershner8ForTube(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines3(4).Rotate(Rotates.Z_Y);
 
-            //var shape = new Shape
-            //{
-            //    Points = Polygons.Polygon5.Points.Select(p => p.ToV4()).ToArray(),
-            //    Convexes = Aspose.ThreeD.Entities.PolygonModifier.Triangulate(Polygons.Polygon5.Points.Select(p => p.ToV4()).ToArray())
-            //}.ToMetaShape();
-
-            //var shape = Polygons.Elipse(1, 0.4, 16).MakeTriangulatedShape(0.1).ToMetaShape();
-            //var shape = Polygons.Heart(1, 1, 50).MakeTriangulatedShape(0.05).ToMetaShape();
-            //var shape = Polygons.Square(1).MakeTriangulatedShape(0.6).ToMetaShape();
+            //var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
 
 
-            //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
-
-            //var polygon = Polygons.Heart(1, 1, 100).Move((0,-0.1)).Mult(1.2); // Parquets.PentagonalKershner8(0.03, 1.5) .ToMetaShape(0.5, 20); .Join(polygon.ToShape2())
-            //var shape = Polygons.Heart(1, 1, 100).PaveExactInside(Parquets.Triangles(0.03)).ToShape3().Mult(4).ApplyZ(Funcs3.Hyperboloid);//.Rotate(Rotates.Z_Y);//.ToMetaShape(0.5, 20); //.ApplyZ(Funcs3.Waves).Rotate(Rotates.Z_Y);
-
-            //var shape = Polygons.Elipse(1, 1, 50).PaveInside(Parquets.PentagonalKershner8(0.03, 1.5).Mult(1.5)).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
-            //var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
-
-            //var shift = Tiles.PentagonalKershner8(1.5).ShiftX.Center()*0.2;
-            //var angle = Math.Atan2(shift.Y, shift.X);
-
-            //var s = Parquets.PentagonalKershner8(0.03, 1.5).Rotate(-angle);
-            //var min = s.Points.Min(p => p.X);
-            //var max = s.Points.Max(p => p.X);
-
-            //var shape = Parquets.PentagonalKershner8ForTube(3, 10, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y);
-            //var shape = Polygons3.Flower(5, 100).ToShape().ToLines(5);
-            //var shape = Polygons.Flower(5, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.23).Mult(2.5)).Mult(1.6).ToShape3().ToMetaShape(0.3, 10).AddVolumeZ(0.01).Move(0, 0, -1).Transform(TransformFuncs3.Sphere).Rotate(Rotates.Z_Y);
-            var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
 
             return shape;
         }
