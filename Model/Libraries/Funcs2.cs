@@ -10,7 +10,7 @@ namespace Model.Libraries
         public static Func2 HorizontalLine() => t => (t, 1);
         public static Func2 VerticalLine() => t => (1, t);
         public static Func2 Circle() => t => (Math.Sin(t), Math.Cos(t));
-        //public static Func2 Circle2() => t => new Vector2(Math.Cos(t), Math.Sin(2*t));
+        public static Func2 Torus(double a) => t => new Vector2(a + Math.Cos(t), Math.Sin(t));
 
         public static Func2 Heart()
         {
@@ -23,6 +23,6 @@ namespace Model.Libraries
             return v => heartFn(v).Scale((1.0 / 64, 1.0 / 48)) + new Vector2(0, 0.1);
         }
 
-        public static Func2 Flower(int n) => t => (new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t)))/2;
+        public static Func2 Flower(int n, double a) => t => (a * new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t)))/ (a+1);
     }
 }

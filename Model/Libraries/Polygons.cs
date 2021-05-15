@@ -6,11 +6,11 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
-        public static Polygon Flower(int n, int count) => new Polygon
+        public static Polygon Flower(double a, int n, int count) => new Polygon
         {
             Points = new Func2Info
             {
-                Fn = Funcs2.Flower(n),
+                Fn = Funcs2.Flower(n, a),
                 From = -Math.PI,
                 To = Math.PI,
                 N = count,

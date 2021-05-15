@@ -30,5 +30,10 @@ namespace Model
             get => Points.Select(p => p.ToV2()).ToArray();
             set => Points = value.Select(p => p.ToV4()).ToArray();
         }
+
+        public static Shape operator +(Shape a, Shape b)
+        {
+            return a.Join(b);
+        }
     }
 }
