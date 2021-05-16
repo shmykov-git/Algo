@@ -55,8 +55,11 @@ namespace View3D
 
             // Shamrock // var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
             // Kershner8 shamrock // var shape = Parquets.PentagonalKershner8ForTube(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines3(4).Rotate(Rotates.Z_Y);
+            // Shell // var shape = Parquets.PentagonalKershner8ForTube(10, 75, 1.6).Scale((1, 0.8/3)).PullOnSurface90(SurfaceFuncs.Shell).ToLines3(8).Rotate(Rotates.Z_Y);
+            // See Shell // var shape = Parquets.PentagonalKershner8ForTube(10, 75, 1.6).Scale((1, 1.6/3)).PullOnSurface90(SurfaceFuncs.SeeShell).ToLines3(20).Rotate(Rotates.Z_Y);
 
-            var shape = Parquets.PentagonalKershner8ForTube(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines3(4).Rotate(Rotates.Z_Y);
+
+            var shape = Parquets.PentagonalKershner8ForTube(10, 75, 1.6).Scale((1, 1.6/3)).PullOnSurface90(SurfaceFuncs.SeeShell).ToLines3(20).Rotate(Rotates.Z_Y);
 
             //var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
 
