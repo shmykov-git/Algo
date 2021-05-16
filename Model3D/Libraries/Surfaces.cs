@@ -52,7 +52,22 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
-        }.Normalize();      
+        }.Normalize();
+
+        public static Shape DiniSurface(int un, int vn, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.DiniSurface,
+                UFrom = 0,
+                UTo = 4 * Math.PI,
+                UN = un,
+                VFrom = 0.005,
+                VTo = 2,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+        }.Normalize();
 
         public static Shape Cylinder(int un, int vn) => new Shape
         {

@@ -31,5 +31,12 @@ namespace Model3D.Libraries
                 u * Math.Sin(u) * Math.Cos(v) * (Math.Cos(v) + 1),
                 u * Math.Sin(v) - ((u + 3) * Math.PI / 8).Pow2() - 20
             );
+
+        public static SurfaceFunc DiniSurface => (double u, double v) =>
+            new Vector3(
+                Math.Cos(u) * Math.Sin(v),
+                Math.Sin(u) * Math.Sin(v),
+                Math.Cos(v) + Math.Log(Math.Tan(v / 2)) + 0.2 * u - 4
+            );
     }
 }
