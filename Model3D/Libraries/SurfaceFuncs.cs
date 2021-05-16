@@ -38,5 +38,12 @@ namespace Model3D.Libraries
                 Math.Sin(u) * Math.Sin(v),
                 Math.Cos(v) + Math.Log(Math.Tan(v / 2)) + 0.2 * u - 4
             );
+
+        public static SurfaceFunc MobiusStrip => (double u, double v) =>
+            new Vector3(
+                (1 + v / 2 * Math.Cos(u / 2)) * Math.Cos(u),
+                (1 + v / 2 * Math.Cos(u / 2)) * Math.Sin(u),
+                v / 2 * Math.Sin(u / 2)
+            );
     }
 }

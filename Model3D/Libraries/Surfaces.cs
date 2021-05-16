@@ -69,6 +69,21 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
         }.Normalize();
 
+        public static Shape MobiusStrip(int un, int vn, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.MobiusStrip,
+                UFrom = 0,
+                UTo = 2*Math.PI,
+                UN = un,
+                VFrom = -1,
+                VTo = 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+        }.Normalize();
+
         public static Shape Cylinder(int un, int vn) => new Shape
         {
             Points3 = new SurfaceFuncInfo
