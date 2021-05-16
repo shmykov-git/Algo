@@ -52,8 +52,8 @@ namespace View
                 var border = halfSize * 0.025;
 
                 var leftTopShape = shape.Mult(0.45).Move(border);
-                var rightTopShape = shape.Mult(0.45).Move((halfSize.X, 0)).Move(border);
-                var leftButtomShape = shape.Mult(0.45).Move((0, halfSize.Y)).Move(border);
+                var rightTopShape = shape.Mult(0.45).Move((halfSize.x, 0)).Move(border);
+                var leftButtomShape = shape.Mult(0.45).Move((0, halfSize.y)).Move(border);
                 var rightButtomShape = shape.Mult(0.45).Move(halfSize).Move(border);
 
                 DrawLines(g, leftTopShape, Pens.Black);

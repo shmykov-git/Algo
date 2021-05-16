@@ -9,7 +9,7 @@ namespace Model.Libraries
 {
     public static class TransformFuncs2
     {
-        private static double AngleFn(Vector2 v) => Math.Atan2(v.Y, v.X);
+        private static double AngleFn(Vector2 v) => Math.Atan2(v.y, v.x);
 
         private static Func<Vector2, Vector2> ParametricCircleTransformation(Func2 fn, double radius) => v => radius * fn(AngleFn(v));
 

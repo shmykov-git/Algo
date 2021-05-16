@@ -29,12 +29,12 @@ namespace Model3D.Extensions
 
         public static Vector4 ToV4(this Model.Vector2 v)
         {
-            return new Vector4(v.X, v.Y, 0, 1);
+            return new Vector4(v.x, v.y, 0, 1);
         }
 
         public static Vector3 ToV3(this Model.Vector2 v, double z = 0)
         {
-            return new Vector3(v.X, v.Y, z);
+            return new Vector3(v.x, v.y, z);
         }
 
         public static Vector3D ToV3D(this Vector3 v)

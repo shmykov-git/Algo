@@ -90,7 +90,7 @@ namespace Model.Extensions
 
         public static Shape2 MirrorY(this Shape2 shape, Vector2 s)
         {
-            return shape.Transform(p => (p.X, s.Y - p.Y));
+            return shape.Transform(p => (p.x, s.y - p.y));
         }
 
         public static Shape2 Rotate(this Shape2 shape, double angle)

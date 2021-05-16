@@ -65,7 +65,7 @@ namespace Model.Extensions
 
         public static Polygon MirrorY(this Polygon polygon, Vector2 s)
         {
-            return polygon.Transform(p => (p.X, s.Y - p.Y));
+            return polygon.Transform(p => (p.x, s.y - p.y));
         }
 
         public static Polygon Split(this Polygon polygon, double edgeLen)

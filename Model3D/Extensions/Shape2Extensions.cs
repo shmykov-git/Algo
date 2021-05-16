@@ -11,20 +11,20 @@ namespace Model3D.Extensions
         {
             return new Shape
             {
-                Points = shape.Points.Select(p => new Vector4(p.X, p.Y, 0, 1)).ToArray(),
+                Points = shape.Points.Select(p => new Vector4(p.x, p.y, 0, 1)).ToArray(),
                 Convexes = shape.Convexes
             };
         }
 
         public static Shape PullOnSurface(this Shape2 shape, SurfaceFunc fn) => new Shape
         {
-            Points3 = shape.Points.Select(p => fn(p.X, p.Y)).ToArray(),
+            Points3 = shape.Points.Select(p => fn(p.x, p.y)).ToArray(),
             Convexes = shape.Convexes
         };
 
         public static Shape PullOnSurface90(this Shape2 shape, SurfaceFunc fn) => new Shape
         {
-            Points3 = shape.Points.Select(p => fn(p.Y, p.X)).ToArray(),
+            Points3 = shape.Points.Select(p => fn(p.y, p.x)).ToArray(),
             Convexes = shape.Convexes
         };
     }

@@ -5,42 +5,42 @@ namespace Model
 {
     public struct Vector2 : IEquatable<Vector2>
     {
-        public double X;
-        public double Y;
+        public double x;
+        public double y;
 
-        public double Len2 => X * X + Y * Y;
+        public double Len2 => x * x + y * y;
         public double Len => Math.Sqrt(Len2);
         public Vector2 Normed => this / Len;
 
-        public Vector2 Normal => (Y, -X);
+        public Vector2 Normal => (y, -x);
 
         public Vector2(double x, double y)
         {
-            X = x;
-            Y = y;
+            this.x = x;
+            this.y = y;
         }
 
         public Vector2((int, int) a)
         {
-            X = a.Item1;
-            Y = a.Item2;
+            x = a.Item1;
+            y = a.Item2;
         }
 
-        public Vector2 Scale(Vector2 v) => new Vector2(X * v.X, Y * v.Y);
+        public Vector2 Scale(Vector2 v) => new Vector2(x * v.x, y * v.y);
 
         public static Vector2 Zero => (0, 0);
 
         public static implicit operator Vector2((double a, double b) v)
         {
-            return new Vector2 { X = v.a, Y = v.b };
+            return new Vector2 { x = v.a, y = v.b };
         }
 
         public static Vector2 operator +(Vector2 a, Vector2 b)
         {
             return new Vector2
             {
-                X = a.X + b.X,
-                Y = a.Y + b.Y
+                x = a.x + b.x,
+                y = a.y + b.y
             };
         }
 
@@ -48,8 +48,8 @@ namespace Model
         {
             return new Vector2
             {
-                X = a.X - b.X,
-                Y = a.Y - b.Y
+                x = a.x - b.x,
+                y = a.y - b.y
             };
         }
 
@@ -57,8 +57,8 @@ namespace Model
         {
             return new Vector2()
             {
-                X = a.X * k,
-                Y = a.Y * k
+                x = a.x * k,
+                y = a.y * k
             };
         }
 
@@ -66,8 +66,8 @@ namespace Model
         {
             return new Vector2()
             {
-                X = a.X * k,
-                Y = a.Y * k
+                x = a.x * k,
+                y = a.y * k
             };
         }
 
@@ -75,22 +75,22 @@ namespace Model
         {
             return new Vector2()
             {
-                X = a.X / k,
-                Y = a.Y / k
+                x = a.x / k,
+                y = a.y / k
             };
         }
 
         public static double operator *(Vector2 a, Vector2 b)
         {
-            return a.X * b.X + a.Y * b.Y;
+            return a.x * b.x + a.y * b.y;
         }
 
         public static Vector2 operator -(Vector2 a)
         {
             return new Vector2
             {
-                X = -a.X,
-                Y = -a.Y
+                x = -a.x,
+                y = -a.y
             };
         }
 
@@ -99,7 +99,7 @@ namespace Model
 
         public static bool operator ==(Vector2 a, Vector2 b)
         {
-            return (b.X - a.X).Abs() < Epsilon && (b.Y - a.Y).Abs() < Epsilon;
+            return (b.x - a.x).Abs() < Epsilon && (b.y - a.y).Abs() < Epsilon;
         }
 
         public static bool operator !=(Vector2 a, Vector2 b)
@@ -109,7 +109,7 @@ namespace Model
 
         public override string ToString()
         {
-            return $"({X}, {Y})";
+            return $"({x}, {y})";
         }
 
         public bool Equals(Vector2 other)
@@ -124,8 +124,8 @@ namespace Model
 
         public override int GetHashCode()
         {
-            var x = Math.Round((decimal)X / EpsilonM) * EpsilonM;
-            var y = Math.Round((decimal)Y / EpsilonM) * EpsilonM;
+            var x = Math.Round((decimal)this.x / EpsilonM) * EpsilonM;
+            var y = Math.Round((decimal)this.y / EpsilonM) * EpsilonM;
             
             return HashCode.Combine(x, y);
         }

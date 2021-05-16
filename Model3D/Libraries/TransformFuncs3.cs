@@ -21,7 +21,7 @@ namespace Model3D.Libraries
                 var vZ = zFn(q);
                 var vXY = xyFn(fi);
 
-                return new Vector3(vXY.X * vZ.X, vXY.Y * vZ.X, vZ.Y);
+                return new Vector3(vXY.x * vZ.x, vXY.y * vZ.x, vZ.y);
             };
         }
 
@@ -32,7 +32,7 @@ namespace Model3D.Libraries
                 var vZ = zFn(v.y);
                 var vXY = xyFn(v.x);
 
-                return new Vector3(vXY.X * vZ.X, vXY.Y * vZ.X, vZ.Y);
+                return new Vector3(vXY.x * vZ.x, vXY.y * vZ.x, vZ.y);
             };
         }
 
@@ -43,7 +43,7 @@ namespace Model3D.Libraries
                 var vZ = zFn(v.y);
                 var vXY = xyFn(v.x);
 
-                return new Vector3(vXY.X * vZ.X, vXY.Y * vZ.X, vZ.Y) * (1 + v.z);
+                return new Vector3(vXY.x * vZ.x, vXY.y * vZ.x, vZ.y) * (1 + v.z);
             };
         }
 
@@ -54,7 +54,7 @@ namespace Model3D.Libraries
                 var vZ = zFn(v.y);
                 var vXY = xyFn(v.x);
 
-                return new Vector3((1 + v.z) * vXY.X * vZ.X, (1 + v.z) * vXY.Y * vZ.X, vZ.Y);
+                return new Vector3((1 + v.z) * vXY.x * vZ.x, (1 + v.z) * vXY.y * vZ.x, vZ.y);
             };
         }
 

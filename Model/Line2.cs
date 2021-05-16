@@ -9,7 +9,7 @@ namespace Model
 
         public Vector2 AB => B - A;
         public Vector2 One => AB.Normed;
-        public Vector2 Normal => (AB.Y, -AB.X);
+        public Vector2 Normal => (AB.y, -AB.x);
         public Vector2 NOne => Normal.Normed;
 
         public double Fn(Vector2 x) => (x - A) * Normal;

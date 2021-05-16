@@ -87,7 +87,7 @@ namespace Model
 
             var startPoint = inside
                 ? superPoints.OrderBy(p => (insideStartPoint - points[p.i]).Len2).First()
-                : superPoints.OrderBy(p => points[p.i].X).First();
+                : superPoints.OrderBy(p => points[p.i].x).First();
 
             int GetNext(int ai, Vector2 a, SuperPoint b)
             {
@@ -102,7 +102,7 @@ namespace Model
             List<int> polygon = new List<int>();
             var p = startPoint;
             var previ = -1;
-            Vector2 prevp = (points[p.i].X - 1, points[p.i].Y);
+            Vector2 prevp = (points[p.i].x - 1, points[p.i].y);
 
             do
             {

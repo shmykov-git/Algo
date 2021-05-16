@@ -9,8 +9,8 @@ namespace Model.Extensions
         {
             return new Vector2
             {
-                X = a.X * bSize.X / aSize.X,
-                Y = a.Y * bSize.Y / aSize.Y
+                x = a.x * bSize.x / aSize.x,
+                y = a.y * bSize.y / aSize.y
             };
         }
 

@@ -9,12 +9,12 @@ namespace View.Extensions
         {
             var halfS = s * 0.5;
 
-            return new Rectangle((int)(p.X - halfS.X), (int)(p.Y - halfS.Y), (int)s.X, (int)s.Y);
+            return new Rectangle((int)(p.x - halfS.x), (int)(p.y - halfS.y), (int)s.x, (int)s.y);
         }
 
         public static Point ToPoint(this Model.Vector2 p)
         {
-            return new Point((int)p.X, (int)p.Y);
+            return new Point((int)p.x, (int)p.y);
         }
     }
 }

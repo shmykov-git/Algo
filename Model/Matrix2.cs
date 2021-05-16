@@ -9,7 +9,7 @@
 
         public static Vector2 operator *(Matrix2 m, Vector2 v)
         {
-            return new Vector2(v.X * m.a00 + v.Y * m.a01, v.X * m.a10 + v.Y * m.a11);
+            return new Vector2(v.x * m.a00 + v.y * m.a01, v.x * m.a10 + v.y * m.a11);
         }
     }
 }

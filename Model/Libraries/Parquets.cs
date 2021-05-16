@@ -19,7 +19,7 @@ namespace Model.Libraries
             var tile = Tiles.PentagonalKershner8(angleD);
             var shiftX = tile.ShiftX.Center() * tileLen;
             var shiftY = tile.ShiftY.Center() * tileLen;
-            var angle = Math.Atan2(shiftX.Y, shiftX.X);
+            var angle = Math.Atan2(shiftX.y, shiftX.x);
             var paruet = ShiftParquet(tileLen, tile, n * Math.PI / 3, Math.PI / 3);
             var mult = 2 * Math.PI / (n * shiftX.Len);
             var shape = paruet.Mult(mult).Rotate(-angle);
@@ -51,8 +51,8 @@ namespace Model.Libraries
 
         public static Shape2 ShiftParquet(double tileLen, Tile tile, double dx = 1, double dy = 1)
         {
-            var m = (int)(dy / (tile.Size.Y * tileLen));
-            var n = (int)(dx / (tile.Size.X * tileLen));
+            var m = (int)(dy / (tile.Size.y * tileLen));
+            var n = (int)(dx / (tile.Size.x * tileLen));
 
             return ShiftParquet(tileLen, tile, m, n);
         }
