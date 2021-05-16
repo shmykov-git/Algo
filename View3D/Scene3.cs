@@ -60,11 +60,11 @@ namespace View3D
             // Dini surface // var shape = Surfaces.DiniSurface(100, 50).ToLines3(2).Rotate(Rotates.Z_Y);
             // Mobius Strip // var shape = Surfaces.MobiusStrip(62, 10).ToLines3(2).Rotate(Rotates.Z_Y);
             // Kershner try Mobius Strip // var shape = Parquets.PentagonalKershner8ForTube(31, 10, 1.6).Scale(0.98, 1).Move(Math.PI, -1 + 0.1).PullOnSurface(SurfaceFuncs.MobiusStrip).ToLines3(1).Rotate(Rotates.Z_Y);
-
+            // Mobius is so ...ing spectial // var shape = Surfaces.MobiusStrip(124, 20).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).ToLines3(2);
 
             //var shape = Parquets.PentagonalKershner8ForTube(10, 10, 1.6).Scale(4*Math.PI, 0.9).Move(0, 0.2).PullOnSurface(SurfaceFuncs.DiniSurface).ToLines3(1).Rotate(Rotates.Z_Y).Scale(10, 1, 10);
 
-            var shape = Parquets.PentagonalKershner8ForTube(31, 10, 1.6).Scale(0.98, 1).Move(Math.PI, -1 + 0.1).PullOnSurface(SurfaceFuncs.MobiusStrip).ToLines3(1).Rotate(Rotates.Z_Y);
+            var shape = Surfaces.MobiusStrip(124, 20).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).ToLines3(2);
 
             //var shape = Surfaces.MobiusStrip(62, 10).ToLines3(2).Rotate(Rotates.Z_Y);
 
