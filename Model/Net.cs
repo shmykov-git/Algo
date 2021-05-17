@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Model
 {
+    /// <summary>
+    /// 2D local collisions complexity optimization from O(n^2) to O(n)
+    /// </summary>
     public class Net<TNetKey, TNetValue> where TNetKey : INetKey
     {
         public int nx;
@@ -16,7 +19,7 @@ namespace Model
         private List<TNetValue>[][] data;
 
         public int Ix(double x) => (int)((x - fromX) / step);
-        public int Iy(double y) => (int)((y - fromY) / step);
+        public int Jy(double y) => (int)((y - fromY) / step);
         public bool IsGoodI(int i) => i >= 0 && i < ny;
         public bool IsGoodJ(int j) => j >= 0 && j < nx;
 
@@ -56,7 +59,7 @@ namespace Model
 
         public void Add(TNetKey key, TNetValue value)
         {
-            data[Ix(key.x)][Iy(key.y)].Add(value);
+            data[Ix(key.x)][Jy(key.y)].Add(value);
         }
 
         public void AddRange(IEnumerable<(TNetKey key, TNetValue value)> items)
@@ -70,7 +73,7 @@ namespace Model
         public IEnumerable<TNetValue> SelectNeighbors(TNetKey item)
         {
             var ii = Ix(item.x);
-            var jj = Iy(item.y);
+            var jj = Jy(item.y);
 
             return dirs.Select(v => (i: ii + v.i, j: jj + v.j))
                 .Where(v => IsGoodI(v.i) && IsGoodJ(v.j))
