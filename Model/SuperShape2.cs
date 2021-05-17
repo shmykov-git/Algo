@@ -38,8 +38,12 @@ namespace Model
         public void Cut(Polygon polygon, bool inside = true)
         {
             var sections = polygon.Lines.ToArray();
+            var sectionSize = sections.Select(s => s.AB.Len).Max();
+            var convexeSize = 3 * convexes.SelectMany(c => c.edges.Select(e => (points[e.i] - points[e.j]).Len)).Max();
+            Net<Vector2, Line2> sectionNet = new Net<Vector2, Line2>(sections.Select(s => (s.Center, s)), Math.Max(sectionSize, convexeSize));
+
             var cutConvexInfos = convexes.SelectMany(convex =>
-                sections.SelectMany(section =>
+                sectionNet.SelectNeighbors(points[convex.indices[0]]).SelectMany(section =>
                     convex.edges.Where(e => section.IsSectionIntersectedBy((points[e.i], points[e.j])))
                         .Select(e => new
                         {

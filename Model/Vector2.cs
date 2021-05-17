@@ -3,10 +3,13 @@ using System;
 
 namespace Model
 {
-    public struct Vector2 : IEquatable<Vector2>
+    public struct Vector2 : IEquatable<Vector2>, INetKey
     {
         public double x;
         public double y;
+
+        double INetKey.x => x;
+        double INetKey.y => y;
 
         public double Len2 => x * x + y * y;
         public double Len => Math.Sqrt(Len2);
