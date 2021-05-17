@@ -39,11 +39,11 @@ namespace Model
         {
             var sections = polygon.Lines.ToArray();
             var sectionSize = sections.Select(s => s.AB.Len).Max();
-            var convexeSize = 3 * convexes.SelectMany(c => c.edges.Select(e => (points[e.i] - points[e.j]).Len)).Max();
-            Net<Vector2, Line2> sectionNet = new Net<Vector2, Line2>(sections.Select(s => (s.Center, s)), Math.Max(sectionSize, convexeSize));
-
+            var convexSize = 3 * convexes.SelectMany(c => c.edges.Select(e => (points[e.i] - points[e.j]).Len)).Max();
+            Net<Vector2, Line2> sectionNet = new Net<Vector2, Line2>(sections.Select(s => (s.Center, s)), Math.Max(sectionSize, convexSize));
+            // better to use convexesNet
             var cutConvexInfos = convexes.SelectMany(convex =>
-                sectionNet.SelectNeighbors(points[convex.indices[0]]).SelectMany(section =>
+                sectionNet.SelectNeighbors(points[convex[0]]).SelectMany(section =>
                     convex.edges.Where(e => section.IsSectionIntersectedBy((points[e.i], points[e.j])))
                         .Select(e => new
                         {
@@ -160,6 +160,7 @@ namespace Model
 
         public class Convex
         {
+            public int this[int i] => indices[i];
             public List<int> indices;
             public IEnumerable<(int i, int j)> edges => indices.CirclePairs();
         }
