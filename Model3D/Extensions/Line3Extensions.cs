@@ -34,5 +34,10 @@ namespace Model3D.Extensions
                 Convexes = shapes.Index().SelectMany(i => shapes[i].Convexes.Transform(c => c + i * n)).ToArray()
             };
         }
+
+        public static Line3[] Move(this Line3[] lines, Vector3 v)
+        {
+            return lines.Select(l => new Line3(l.a + v, l.b + v)).ToArray();
+        }
     }
 }

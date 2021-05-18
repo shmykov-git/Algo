@@ -3,7 +3,6 @@ using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
-using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Tools;
@@ -64,12 +63,12 @@ namespace View3D
             // Kershner try Mobius Strip // var shape = Parquets.PentagonalKershner8ForTube(31, 10, 1.6).Scale(0.98, 1).Move(Math.PI, -1 + 0.1).PullOnSurface(SurfaceFuncs.MobiusStrip).ToLines3(1).Rotate(Rotates.Z_Y);
             // Mobius is so ...ing spectial // var shape = Surfaces.MobiusStrip(124, 20).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).ToLines3(2);
 
-            // Fractal, Tree3 // var shape = LineTreeFractals.Tree3.CreateFractal(6).ToShape(10).Rotate(Rotates.Z_Y);
+            // Fractal, Tree3 // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10).Rotate(Rotates.Z_Y);
 
 
-            var shape = LineTreeFractals.Tree4.CreateFractal(6).ToShape(10).Rotate(Rotates.Z_Y);
+            var shape = LineFractals.Line3.CreateFractal(Shapes.Cube.Lines3, 4).ToShape(100).Rotate(Rotates.Z_Y);
 
-            return shape + Shapes.Cube;
+            return shape;//  + Shapes.Cube;
         }
     }
 }

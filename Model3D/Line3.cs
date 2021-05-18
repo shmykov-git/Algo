@@ -37,5 +37,10 @@ namespace Model
         {
             return new Line3(l.a, l.b);
         }
+
+        public static implicit operator Line3(((double x, double y, double z) a, (double x, double y, double z) b) l)
+        {
+            return new Line3(new Vector3(l.a.x, l.a.y, l.a.z), new Vector3(l.b.x, l.b.y, l.b.z));
+        }
     }
 }
