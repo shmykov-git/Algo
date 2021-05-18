@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Model3D
 {
-    public class Line3Fractal
+    public class LineTreeFractal
     {
         public Line3[] lines;
 
@@ -25,12 +25,17 @@ namespace Model3D
             return lines.Select(GetLine).ToArray();
         }
 
-        public Line3[] CreateFractal(Line3 line, int count)
+        public Line3[] CreateFractal(int count)
+        {
+            return CreateFractal(new[] { Line3.ZLineOne }, count);
+        }
+
+        public Line3[] CreateFractal(Line3[] lines, int count)
         {
             List<Line3> fractal = new List<Line3>();
-            fractal.Add(line);
+            fractal.AddRange(lines);
 
-            var levelLines = new[] { line };
+            var levelLines = lines;
             for(var i = 0; i<count; i++)
             {
                 levelLines = levelLines.SelectMany(l => GetFractalLines(l)).ToArray();
