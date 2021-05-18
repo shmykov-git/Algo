@@ -66,7 +66,7 @@ namespace View3D
             // Fractal, Tree3 // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10).Rotate(Rotates.Z_Y);
 
 
-            var shape = LineFractals.Line3.CreateFractal(Shapes.Cube.Lines3, 4).ToShape(100).Rotate(Rotates.Z_Y);
+            var shape = LineFractals.Line3.CreateFractal(Polygons.Heart(1, 1, 30).ToShape2().ToShape3().Rotate(Rotates.Z_X).Lines3, 3).ToShape(50).Rotate(Rotates.Z_Y);
 
             return shape;//  + Shapes.Cube;
         }
