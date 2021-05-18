@@ -1,4 +1,5 @@
 ﻿using Aspose.ThreeD.Utilities;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -8,6 +9,17 @@ namespace Model
         public Vector3 b;
 
         public Vector3 ab => b - a;
+        public double Len => ab.Length;
+        public Vector3 Center => (a + b) / 2;
+        public Vector3 One => ab.Normalize();
+
+        public static Line3 ZLineOne => new Line3(new Vector3(0, 0, 0), new Vector3(0, 0, 1));
+
+        public IEnumerable<Vector3> Points()
+        {
+            yield return a;
+            yield return b;
+        }
 
         public Line3(Vector3 a, Vector3 b)
         {
@@ -19,6 +31,11 @@ namespace Model
         {
             this.a = v.Item1;
             this.b = v.Item2;
+        }
+
+        public static implicit operator Line3((Vector3 a, Vector3 b) l)
+        {
+            return new Line3(l.a, l.b);
         }
     }
 }

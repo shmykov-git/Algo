@@ -37,7 +37,9 @@ namespace Model.Libraries
             }
         }.Centered();
 
-        public static Shape Cube => new Shape
+        public static Shape Cube => NativeCube.Centered();
+
+        public static Shape NativeCube => new Shape
         {
             Points3 = new Vector3[]
             {
@@ -59,6 +61,6 @@ namespace Model.Libraries
                 new int[] {6, 2, 3, 7},
                 new int[] {6, 7, 4, 5},
             }
-        }.Centered();
+        };
     }
 }
