@@ -52,6 +52,11 @@ namespace Model3D.Extensions
             return v * len / v.Length;
         }
 
+        public static Vector3 ToXY(this Vector3 v)
+        {
+            return new Vector3(v.x, v.y, 0);
+        }
+
         public static Vector3 Center(this IEnumerable<Vector3> vectors)
         {
             var sum = Zero3;

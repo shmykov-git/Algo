@@ -226,9 +226,27 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
-        public static Shape ToTube(this Shape shape, Func3 func)
+        public static Shape CurveZ(this Shape tube, Func3 fn)
         {
-            return Tuber.MakeTube(func, shape);
+            var from = tube.Points.Min(v => v.z);
+            var to = tube.Points.Max(v => v.z);
+            var dt = 0.001;
+
+            Vector3 Rotate(Vector3 p)
+            {
+                var t = p.z;
+                var a = fn(t - dt);
+                var b = fn(t);
+                var dz = (b - a).Normalize();
+
+                return Quaternion.FromRotation(Vector3.ZAxis, dz) * new Vector3(p.x, p.y, 0);
+            }
+
+            return new Shape
+            {
+                Points3 = tube.Points3.Select(p => new Vector3(p.x, p.y, p.z)).Select(p => Rotate(p) + fn(p.z)).ToArray(),
+                Convexes = tube.Convexes
+            };
         }
 
         public static Shape Normalize(this Shape shape)
