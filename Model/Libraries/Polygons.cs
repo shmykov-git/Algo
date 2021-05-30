@@ -6,6 +6,37 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
+        public static Polygon TrebleClef(int count) => new Polygon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => Fourier.Exp(t
+                    , ((0.48, -0.27), -2)
+                    , ((0.25, -0.25), -1)
+                    , ((0.5, 0), 0)
+                    , ((0.212, 0.212), 1)
+                    , ((-0.15, 0.26), 2)
+                    , ((0.13, 0.07), 3)
+                    ),
+                From = 0,
+                To = 1,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        };
+
+        public static Polygon FourierSeries(int count, params ((double, double) c, double k)[] args) => new Polygon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => Fourier.Exp(t, args),
+                From = 0,
+                To = 1,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        };
+
         public static Polygon Flower(double a, int n, int count) => new Polygon
         {
             Points = new Func2Info

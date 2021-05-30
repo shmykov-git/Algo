@@ -15,10 +15,10 @@ namespace Model3D.Libraries
             {
                 Fn = (u, v) => new Vector3(u, v, 0),
                 UFrom = 0,
-                UTo = 2 * Math.PI,
+                UTo = un,
                 UN = un,
-                VFrom = -Math.PI / 2,
-                VTo = Math.PI / 2,
+                VFrom = 0,
+                VTo = vn,
                 VN = vn,
             }.GetPoints(),
             Convexes = Squeres(vn, un)

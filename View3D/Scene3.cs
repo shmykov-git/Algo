@@ -68,9 +68,14 @@ namespace View3D
             // Never Mind 3D // var shape = ShapeFractals.NeverMindTree3D(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
             // Parabola Tree // var shape = ShapeFractals.ParabolaTree(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
 
-            var shape = ShapeFractals.ParabolaTree(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
+            // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
 
-            return shape;//  + Shapes.Cube;
+            var shape = Polygons.FourierSeries(200
+                , ((0.5, 0), 5)
+                , ((1, 0), -1)
+                ).ToShape2().ToShape3().ToMetaShape3(1, 1);
+
+            return shape  + Shapes.Cube.Mult(0.2);
         }
     }
 }

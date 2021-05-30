@@ -1,4 +1,5 @@
 ﻿using Aspose.ThreeD.Utilities;
+using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
@@ -12,6 +13,7 @@ namespace Model3D.Libraries
     {
         private static Func2 heartFn = Funcs2.Heart();
 
+        public static Func3 RootPolinomY(double mult, double[] coefs) => t => new Vector3(0, mult * Polinom.RootFn(t, coefs), t);
         public static Func3 ParabolaY = t => new Vector3(0, t * t, t);
         public static Func3 Spiral = t => new Vector3(Math.Sin(t), Math.Cos(t), t / (2 * Math.PI));
         public static Func3 SpiralHeart = t => heartFn(t).ToV3()*5 + new Vector3(0,0, t / (2 * Math.PI));
