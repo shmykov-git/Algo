@@ -69,11 +69,23 @@ namespace View3D
             // Parabola Tree // var shape = ShapeFractals.ParabolaTree(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
 
             // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
+            // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines3();
 
-            var shape = Polygons.FourierSeries(200
-                , ((0.5, 0), 5)
-                , ((1, 0), -1)
-                ).ToShape2().ToShape3().ToMetaShape3(1, 1);
+
+
+            var shape = Polygons.FourierSeries(400
+                , ((0.04, 0), 13)
+                , ((0.03, 0), 7)
+                , ((0.2, 0), 4)
+                , ((1, 0), 1)
+                ).ToShape2().ToShape3().ToLines3();
+
+            //var shape = Polygons.FourierSeries(200
+            //    , ((0.05, 0), 5)
+            //    , (Fourier.RotateN(100), -1)
+            //    ).ToShape2().ToShape3().ToMetaShape3(1, 1);
+
+            //shape = Polygons.FourierSeries(200, Fourier.Squere).ToShape2().ToShape3().ToMetaShape3(1, 1);
 
             return shape  + Shapes.Cube.Mult(0.2);
         }
