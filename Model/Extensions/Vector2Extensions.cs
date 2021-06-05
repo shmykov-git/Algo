@@ -37,5 +37,10 @@ namespace Model.Extensions
             var center = vectors.Center();
             return vectors.Select(v => v - center).ToArray();
         }
+
+        public static (double x, double y) ToValueTuple(this Vector2 a)
+        {
+            return (a.x, a.y);
+        }
     }
 }

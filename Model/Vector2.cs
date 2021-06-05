@@ -14,6 +14,7 @@ namespace Model
         public double Len2 => x * x + y * y;
         public double Len => Math.Sqrt(Len2);
         public Vector2 Normed => this / Len;
+        public Vector2 Round(int e) => (x.Round(e), y.Round(e));
 
         public Vector2 Normal => (y, -x);
 

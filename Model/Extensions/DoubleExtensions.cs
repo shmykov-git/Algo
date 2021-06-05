@@ -4,6 +4,7 @@ namespace Model.Extensions
 {
     public static class DoubleExtensions
     {
+        public static double Round(this double x, int e) => Math.Round(x * 10.0.Pow(e)) / 10.0.Pow(e);
         public static double Pow(this double x, double y) => Math.Pow(x, y);
         public static double Sqrt(this double x) => Math.Sqrt(x);
         public static double Abs(this double x) => Math.Abs(x);

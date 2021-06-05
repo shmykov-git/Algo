@@ -30,5 +30,10 @@ namespace Model.Extensions
         {
             return e.i == k ? e.j : e.i;
         }
+
+        public static string ToStr(this ((double r, double i) c, double k)[] args)
+        {
+            return string.Join(", ", args.Select(a => $"(({a.c.r}, {a.c.i}), {a.k})"));
+        }
     }
 }

@@ -20,8 +20,11 @@ namespace Model
 
         public int Ix(double x) => (int)((x - fromX) / step);
         public int Jy(double y) => (int)((y - fromY) / step);
-        public bool IsGoodI(int i) => i >= 0 && i < ny;
-        public bool IsGoodJ(int j) => j >= 0 && j < nx;
+        //public int Good(int i, int max) => i < 0 ? 0 : (i > max ? max : i);
+        //public int GIx(double x) => Good(Ix(x), nx-1);
+        //public int GJy(double y) => Good(Jy(y), ny-1);
+        public bool IsGoodI(int i) => i >= 0 && i < nx;
+        public bool IsGoodJ(int j) => j >= 0 && j < ny;
 
         public Net(IEnumerable<(TNetKey key, TNetValue value)> keyValues, double step) : this(keyValues.Select(kv=>kv.key), step)
         {
@@ -54,7 +57,7 @@ namespace Model
         {
             this.ny = (int)((toY - fromY) / step) + 1;
             this.nx = (int)((toX - fromX) / step) + 1;
-            data = (ny).SelectRange(i => (nx).SelectRange(j => new List<TNetValue>()).ToArray()).ToArray();
+            data = (nx).SelectRange(i => (ny).SelectRange(j => new List<TNetValue>()).ToArray()).ToArray();
         }
 
         public void Add(TNetKey key, TNetValue value)

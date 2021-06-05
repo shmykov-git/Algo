@@ -7,6 +7,7 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Tools;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using View3D.Libraries;
 
@@ -71,23 +72,11 @@ namespace View3D
             // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
             // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines3();
 
+            var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
+            var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()
+                + poligon.ToShape2().ToShape3().ToLines3();
 
-
-            var shape = Polygons.FourierSeries(400
-                , ((0.04, 0), 13)
-                , ((0.03, 0), 7)
-                , ((0.2, 0), 4)
-                , ((1, 0), 1)
-                ).ToShape2().ToShape3().ToLines3();
-
-            //var shape = Polygons.FourierSeries(200
-            //    , ((0.05, 0), 5)
-            //    , (Fourier.RotateN(100), -1)
-            //    ).ToShape2().ToShape3().ToMetaShape3(1, 1);
-
-            //shape = Polygons.FourierSeries(200, Fourier.Squere).ToShape2().ToShape3().ToMetaShape3(1, 1);
-
-            return shape  + Shapes.Cube.Mult(0.2);
+            return shape; // + Shapes.Cube.Mult(0.2);
         }
     }
 }
