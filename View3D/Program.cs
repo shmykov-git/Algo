@@ -21,7 +21,7 @@ namespace View3D
 
                 var scene = sceneManager.CreateScene(shape);
 
-                scene.Save(settings.FbxFullFileName, FileFormat.FBX7700Binary);
+                scene.Save(settings.FbxFullFileName, FileFormat.STLBinary);
 
                 var process = new Process();
                 process.StartInfo.UseShellExecute = true;
