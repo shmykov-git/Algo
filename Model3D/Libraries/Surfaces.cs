@@ -9,6 +9,21 @@ namespace Model3D.Libraries
 {
     public static class Surfaces
     {
+        public static Shape NormalDistribution(int un, int vn, double mult, double mu, double sigma) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.NormalDistribution(mu, sigma, new Model.Vector2(-un * mult/2, -vn * mult/2)),
+                UFrom = 0,
+                UTo = un * mult,
+                UN = un,
+                VFrom = 0,
+                VTo = vn * mult,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+
         public static Shape Plane(int un, int vn) => new Shape
         {
             Points3 = new SurfaceFuncInfo

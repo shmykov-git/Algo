@@ -68,11 +68,15 @@ namespace View3D
             // Never Mind // var shape = ShapeFractals.NeverMindTree(6).Rotate(Rotates.Z_Y) + Shapes.Cube;
             // Never Mind 3D // var shape = ShapeFractals.NeverMindTree3D(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
             // Parabola Tree // var shape = ShapeFractals.ParabolaTree(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
+            // Normal Distribution // var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).ToMetaShape3(3,3);
+
 
             // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
             // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines3();
 
-            var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
+            // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
+
+            var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).ToMetaShape3(3,3);
 
             //var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
             //var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()
