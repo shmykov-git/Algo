@@ -76,7 +76,7 @@ namespace View3D
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
-            var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).ToMetaShape3(3,3);
+            var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y);//.ToMetaShape3(3,3);
 
             //var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
             //var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()

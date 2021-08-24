@@ -21,11 +21,11 @@ namespace View3D
 
                 var scene = sceneManager.CreateScene(shape);
 
-                scene.Save(settings.FbxFullFileName, FileFormat.STLBinary);
+                scene.Save(settings.FullFileName, settings.Format);
 
                 var process = new Process();
                 process.StartInfo.UseShellExecute = true;
-                process.StartInfo.FileName = settings.FbxFullFileName;
+                process.StartInfo.FileName = settings.FullFileName;
                 process.Start();
             }
             catch(PolygonFillException)
