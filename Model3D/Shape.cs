@@ -25,7 +25,7 @@ namespace Model
             set => Points = value.Select(p => p.ToV4()).ToArray();
         }
 
-        public Model.Vector2[] Points2
+        public Vector2[] Points2
         {
             get => Points.Select(p => p.ToV2()).ToArray();
             set => Points = value.Select(p => p.ToV4()).ToArray();

@@ -6,7 +6,7 @@ namespace View3D
 {
     class Settings
     {
-        public FileFormat Format => FileFormat.FBX7700ASCII;
+        public FileFormat Format => FileFormat.GLTF2_Binary;
         
         public string FileName => $"scene3d.{exts[Format]}";
 
@@ -14,7 +14,9 @@ namespace View3D
         {
             { FileFormat.STLASCII, "stl" },
             { FileFormat.FBX7700Binary, "fbx" },
-            { FileFormat.FBX7700ASCII, "fbx" }
+            { FileFormat.FBX7400ASCII, "fbx" },
+            { FileFormat.GLTF2_Binary, "glb" },
+            { FileFormat.WavefrontOBJ, "obj" },
         };
 
         private string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), "../../../Scene");

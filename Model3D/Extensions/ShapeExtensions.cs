@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace Model3D.Extensions
 {
-
     public static class ShapeExtensions
     {
         public static Shape Transform(this Shape shape, Multiplication transformation)

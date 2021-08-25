@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.3D" Version="21.4.0" />
+    <PackageReference Include="Aspose.3D" Version="21.8.0" />
   </ItemGroup>
 
   <ItemGroup>
