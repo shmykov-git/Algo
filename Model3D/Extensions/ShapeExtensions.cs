@@ -220,6 +220,20 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape CenteredXZ(this Shape shape)
+        {
+            var shift = shape.Points3.Select(p => new Vector3(p.x, 0, p.z)).Center();
+
+            return shape.Move(-shift);
+        }
+
+        public static Shape BottomedY(this Shape shape)
+        {
+            var minY = shape.Points.Min(p => p.y);
+
+            return shape.Move(0, -minY, 0);
+        }
+
         public static Shape SplitConvexes(this Shape shape)
         {
             return Extender.SplitConvexes(shape);

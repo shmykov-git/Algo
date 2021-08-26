@@ -77,9 +77,12 @@ namespace View3D
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
-            var view1 = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y).Centered().ToMetaShape3(3, 3).ToView(Color.Blue);
-            var view2 = Surfaces.NormalDistribution(30, 30, 0.5, 0, 5).Rotate(Rotates.Z_Y).Centered().ToMetaShape3(3, 3).ToView(Color.Red);
-            var view3 = Surfaces.NormalDistribution(30, 30, 0.4, 0, 4).Rotate(Rotates.Z_Y).Centered().ToMetaShape3(3, 3).ToView(Color.Green);
+
+            // todo: привязать цвет к поверхностям
+
+            var view1 = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Blue);
+            var view2 = Surfaces.NormalDistribution(30, 30, 0.4, 0, 4).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Red);
+            var view3 = Surfaces.NormalDistribution(30, 30, 0.2, 0, 2).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Green);
 
             //var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
             //var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()
