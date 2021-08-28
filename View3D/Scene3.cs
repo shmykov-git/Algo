@@ -16,7 +16,7 @@ namespace View3D
 {
     static class Scene3
     {
-        public static ShapeView[] GetShapeViews()
+        public static Shape GetShape()
         {
             //var polygon = Sinus(3, 50);
             //var polygon = Spiral(3, 60);
@@ -77,12 +77,13 @@ namespace View3D
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
+            var shape1 = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y).CenteredXZ().ToSpots3(3, Color.Blue);
+            var shape2 = Surfaces.NormalDistribution(30, 30, 0.4, 0, 4).Rotate(Rotates.Z_Y).CenteredXZ().ToSpots3(3, Color.Green);
+            var shape3 = Surfaces.NormalDistribution(30, 30, 0.2, 0, 2).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3, Color.Red, Color.DarkGray);
 
-            // todo: привязать цвет к поверхностям
+            var shape = shape1 + shape2 + shape3;
 
-            var view1 = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Blue);
-            var view2 = Surfaces.NormalDistribution(30, 30, 0.4, 0, 4).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Red);
-            var view3 = Surfaces.NormalDistribution(30, 30, 0.2, 0, 2).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3).ToView(Color.Green);
+            //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
 
             //var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
             //var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()
@@ -90,7 +91,7 @@ namespace View3D
 
             //shape = shape + Shapes.Cube.Mult(0.2);
 
-            return new[] { view1, view2, view3 };
+            return shape; // + Shapes.Cube.Mult(0.2);
         }
     }
 }

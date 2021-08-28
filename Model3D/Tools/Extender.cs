@@ -1,7 +1,10 @@
-﻿using Model;
+﻿using Aspose.ThreeD.Utilities;
+using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Model3D.Tools
@@ -31,6 +34,55 @@ namespace Model3D.Tools
             {
                 Points = transformed.Points,
                 Convexes = resConvexes
+            };
+        }
+       
+        public static Shape[] SplitConvexesByMaterial(Shape shape)
+        {
+            if (shape.Materials == null)
+                return new[] { shape };
+
+            var defaultMaterial = new Material();
+
+            var shapes = new Dictionary<Material, ShapeItem>();
+
+            for (var i = 0; i < shape.Convexes.Length; i++)
+            {
+                var convex = shape.Convexes[i];
+                var material = shape.Materials[i] ?? defaultMaterial;
+
+                if (!shapes.TryGetValue(material, out ShapeItem shapeItem))
+                {
+                    shapeItem = new ShapeItem();
+                    shapes.Add(material, shapeItem);
+                }
+
+                var itemConvexes = convex.Select(i => shapeItem.Shifts.GetOrAdd(i, _ =>
+                  {
+                      shapeItem.Points.Add(shape.Points[i]);
+
+                      return shapeItem.Points.Count - 1;
+                  })).ToArray();
+
+                shapeItem.Convexes.Add(itemConvexes);
+                shapeItem.Materials.Add(material == defaultMaterial ? null : material);
+            }
+
+            return shapes.Values.Select(s=>s.ToShape()).ToArray();
+        }
+
+        class ShapeItem
+        {
+            public List<Vector4> Points = new List<Vector4>();
+            public ConcurrentDictionary<int, int> Shifts = new ConcurrentDictionary<int, int>();
+            public List<int[]> Convexes = new List<int[]>();
+            public List<Material> Materials = new List<Material>();
+
+            public Shape ToShape() => new Shape
+            {
+                Points = Points.ToArray(),
+                Convexes = Convexes.ToArray(),
+                Materials = Materials.Count == 0 ? null : Materials.ToArray()
             };
         }
     }

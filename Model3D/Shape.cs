@@ -12,6 +12,7 @@ namespace Model
         public Vector4[] Points;
 
         public int[][] Convexes;
+        public Material[] Materials;
 
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();

@@ -17,9 +17,9 @@ namespace View3D
 
             try
             {
-                var views = Scene3.GetShapeViews();
+                var shape = Scene3.GetShape();
 
-                var scene = sceneManager.CreateScene(views);
+                var scene = sceneManager.CreateScene(shape);
 
                 scene.Save(settings.FullFileName, settings.Format);
 
