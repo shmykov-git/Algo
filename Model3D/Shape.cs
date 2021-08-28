@@ -32,6 +32,14 @@ namespace Model
             set => Points = value.Select(p => p.ToV4()).ToArray();
         }
 
+        public double GetRadius()
+        {
+            var points = Points3;
+            var center = points.Center();
+
+            return points.Max(p => (p - center).Length);
+        }
+
         public static Shape operator +(Shape a, Shape b)
         {
             return a.Join(b);
