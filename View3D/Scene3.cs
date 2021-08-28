@@ -77,11 +77,12 @@ namespace View3D
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
+            var shape0 = Surfaces.NormalDistribution(30, 30, 1.2, 0, 12).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(5, 5, Color.Black, Color.Black);
             var shape1 = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).Rotate(Rotates.Z_Y).CenteredXZ().ToSpots3(3, Color.Blue);
-            var shape2 = Surfaces.NormalDistribution(30, 30, 0.4, 0, 4).Rotate(Rotates.Z_Y).CenteredXZ().ToSpots3(3, Color.Green);
+            var shape2 = Surfaces.NormalDistribution(30, 30, 0.35, 0, 3.5).Rotate(Rotates.Z_Y).CenteredXZ().ToSpots3(3, Color.Green);
             var shape3 = Surfaces.NormalDistribution(30, 30, 0.2, 0, 2).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(3, 3, Color.Red, Color.DarkGray);
 
-            var shape = shape1 + shape2 + shape3;
+            var shape = shape0 + shape1 + shape2 + shape3;
 
             //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
 
