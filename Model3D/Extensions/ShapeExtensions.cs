@@ -323,26 +323,32 @@ namespace Model3D.Extensions
             return shape;
         }
 
-        public static Shape ApplyMaterialGradientY(this Shape shape, Color from, Color to) => shape.ApplyMaterialGradient(from, to, v => v.y);
+        public static Shape ApplyColorGradientY(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.y, colors);
 
-        private static Shape ApplyMaterialGradient(this Shape shape, Color from, Color to, Func<Vector4, double> valueFn)
+        private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
         {
-            Func<double, int> precisionFn = x => (int)(255*x);
+            var centers = shape.Convexes.Select(convex => convex.Select(i => shape.Points[i]).Center()).ToArray();
 
-            Func<Vector4, Color> colorFn = v => Color.FromArgb(precisionFn(v.w), precisionFn(v.x), precisionFn(v.y), precisionFn(v.z));
+            var min = centers.Min(p => valueFn(p));
+            var max = centers.Max(p => valueFn(p));
+            max += (max - min) * 0.00001;
 
-            var materials = new ConcurrentDictionary<Color, Material>();
+            Vector4 GetColor(double z, Color current)
+            {
+                var n = colors.Length - 1;
+                var k = (z - min) / (max - min); // [0, 1)
+                var j = (int)(k * n);
+                var fromColor = colors[j] ?? current;
+                var toColor = colors[j + 1] ?? current;
+                var kk = (k - j * 1.0 / n) * n;
 
-            var min = shape.Points.Min(p => valueFn(p));
-            var max = shape.Points.Max(p => valueFn(p));
-            var colorFrom = new Vector4(from);
-            var colorTo = new Vector4(to);
+                return new Vector4(fromColor) + (new Vector4(toColor) - new Vector4(fromColor)) * kk;
+            }
 
-            Func<double, Vector4> gradientFn = z => colorFrom + (colorTo - colorFrom) * ((z - min) / (max - min));
-
-            shape.Materials = shape.Convexes.Select(convex => gradientFn(valueFn(shape.Points[convex[0]]))).Select(v => materials.GetOrAdd(colorFn(v), c => new Material { Color = c })).ToArray();
+            shape.Materials = centers.Index().Select(i => GetColor(valueFn(centers[i]), shape.Materials?[i].Color??default)).Select(color => Materials.GetByColor(color)).ToArray();
 
             return shape;
         }
+
     }
 }

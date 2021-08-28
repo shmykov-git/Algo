@@ -11,6 +11,7 @@ namespace Model3D.Extensions
     public static class VectorNExtensions
     {
         private static readonly Vector3 Zero3 = new Vector3(0, 0, 0);
+        private static readonly Vector4 Zero4 = new Vector4(0, 0, 0, 0);
 
         public static Vector3 ToV3(this Vector4 v)
         {
@@ -68,6 +69,19 @@ namespace Model3D.Extensions
             }
 
             return sum / count;
+        }
+
+        public static Vector4 Center(this IEnumerable<Vector4> vectors)
+        {
+            var sum = Zero4;
+            var count = 0;
+            foreach (var v in vectors)
+            {
+                sum += v;
+                count++;
+            }
+
+            return sum * (1.0 / count);
         }
 
         public static Vector3 Sum(this IEnumerable<Vector3> vectors)
