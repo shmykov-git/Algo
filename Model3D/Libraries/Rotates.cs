@@ -10,6 +10,7 @@ namespace View3D.Libraries
         public static Quaternion Z_Y => Quaternion.FromRotation(Vector3.ZAxis, Vector3.YAxis);
         public static Quaternion Z_mY => Quaternion.FromRotation(Vector3.ZAxis, -Vector3.YAxis);
         public static Quaternion Y_Z => Quaternion.FromRotation(Vector3.YAxis, Vector3.ZAxis);
+        public static Quaternion Y_mZ => Quaternion.FromRotation(Vector3.YAxis, -Vector3.ZAxis);
         public static Quaternion Y_X => Quaternion.FromRotation(Vector3.YAxis, Vector3.XAxis);
     }
 }

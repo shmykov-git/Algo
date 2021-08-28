@@ -5,6 +5,8 @@ using Model.Libraries;
 using Model.Tools;
 using Model3D.Libraries;
 using Model3D.Tools;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -317,7 +319,29 @@ namespace Model3D.Extensions
                 return shape;
 
             shape.Materials = shape.Convexes.Index().Select(i => material).ToArray();
-            
+
+            return shape;
+        }
+
+        public static Shape ApplyMaterialGradientY(this Shape shape, Color from, Color to) => shape.ApplyMaterialGradient(from, to, v => v.y);
+
+        private static Shape ApplyMaterialGradient(this Shape shape, Color from, Color to, Func<Vector4, double> valueFn)
+        {
+            Func<double, int> precisionFn = x => (int)(255*x);
+
+            Func<Vector4, Color> colorFn = v => Color.FromArgb(precisionFn(v.w), precisionFn(v.x), precisionFn(v.y), precisionFn(v.z));
+
+            var materials = new ConcurrentDictionary<Color, Material>();
+
+            var min = shape.Points.Min(p => valueFn(p));
+            var max = shape.Points.Max(p => valueFn(p));
+            var colorFrom = new Vector4(from);
+            var colorTo = new Vector4(to);
+
+            Func<double, Vector4> gradientFn = z => colorFrom + (colorTo - colorFrom) * ((z - min) / (max - min));
+
+            shape.Materials = shape.Convexes.Select(convex => gradientFn(valueFn(shape.Points[convex[0]]))).Select(v => materials.GetOrAdd(colorFn(v), c => new Material { Color = c })).ToArray();
+
             return shape;
         }
     }

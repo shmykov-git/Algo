@@ -22,7 +22,8 @@ namespace View3D.Tools
             }
             else
             {
-                foreach (var mShape in shape.SplitByMaterial())
+                var mShapes = shape.SplitByMaterial();
+                foreach (var mShape in mShapes)
                     AddMaterialNode(scene, mShape, mShape.Materials?[0]);
             }
 

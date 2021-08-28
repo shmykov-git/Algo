@@ -1,6 +1,7 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Libraries;
+using System.Drawing;
 using System.Linq;
 
 namespace Model
