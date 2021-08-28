@@ -84,7 +84,7 @@ namespace View3D
 
             //var shape = Parquets.Triangles(12, 40, 0.1).Scale((Math.PI / 3.1, 3.0.Sqrt() / 1.7)).Move((Math.PI, -Math.PI / 2)).ToShape3().ToLines(20).AddVolumeZ(0.1).Transform(TransformFuncs3.HeartWrapZ).Rotate(Rotates.Z_Y).Scale(1, 1, 0.7).Rotate(Rotates.Y_mZ).ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.FromArgb(20, 20, 20), Color.Red, Color.Red);
 
-            var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10, true, Color.FromArgb(0, 10, 0), Color.FromArgb(0, 50, 0)).Rotate(Rotates.Z_Y);
+            var shape = Surfaces.Sphere(50, 25).Rotate(Rotates.Z_Y).ToMetaShape3(0.8, 1, Color.Blue, Color.Black).ApplyColorGradientY(Color.Red, null, null, null, Color.White);
 
             //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
 
@@ -94,7 +94,7 @@ namespace View3D
 
             //shape = shape + Shapes.Cube.Mult(0.2);
 
-            return shape + Shapes.Cube.Mult(0.2).ApplyMaterial(new Material() { Color = Color.Black });
+            return shape;// + Shapes.Cube.Mult(0.2).ApplyMaterial(new Material() { Color = Color.Black });
         }
     }
 }
