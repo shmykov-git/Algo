@@ -323,6 +323,13 @@ namespace Model3D.Extensions
             return shape;
         }
 
+        public static Shape ApplyColor(this Shape shape, Color color)
+        {
+            shape.ApplyMaterial(Materials.GetByColor(color));
+
+            return shape;
+        }
+
         public static Shape ApplyColorGradientY(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.y, colors);
 
         private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
