@@ -330,7 +330,9 @@ namespace Model3D.Extensions
             return shape;
         }
 
+        public static Shape ApplyColorGradientX(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.x, colors);
         public static Shape ApplyColorGradientY(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.y, colors);
+        public static Shape ApplyColorGradientZ(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.z, colors);
 
         private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
         {
