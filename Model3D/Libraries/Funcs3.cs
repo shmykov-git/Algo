@@ -8,6 +8,7 @@ using System;
 namespace Model3D.Libraries
 {
     public delegate Vector3 Func3(double t);
+    public delegate double Func_3(Vector3 v);
 
     public static class Funcs3
     {

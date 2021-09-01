@@ -74,6 +74,8 @@ namespace View3D
             // Green tree // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10, true, Color.FromArgb(0, 10, 0), Color.FromArgb(0, 50, 0)).Rotate(Rotates.Z_Y);
             // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
             // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines3();
+            // Rainbow // var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
+
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
@@ -84,10 +86,11 @@ namespace View3D
 
             //var shape = Parquets.Triangles(12, 40, 0.1).Scale((Math.PI / 3.1, 3.0.Sqrt() / 1.7)).Move((Math.PI, -Math.PI / 2)).ToShape3().ToLines(20).AddVolumeZ(0.1).Transform(TransformFuncs3.HeartWrapZ).Rotate(Rotates.Z_Y).Scale(1, 1, 0.7).Rotate(Rotates.Y_mZ).ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.FromArgb(20, 20, 20), Color.Red, Color.Red);
 
-            var shape = Surfaces.Sphere(100, 50).ToMetaShape3(0.5, 0.7).Rotate(Rotates.Z_Y)
-                .ApplyColorGradientY(Color.Black, Color.White)
-                .ApplyColorGradientX(Color.Red, null, null, null, Color.Red)
-                .ApplyColorGradientZ(Color.Green, null, null, null, Color.Green);
+            //Materials.Precision = 5;
+
+            var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05)
+                .ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
+
 
             //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
 
@@ -97,7 +100,7 @@ namespace View3D
 
             //shape = shape + Shapes.Cube.Mult(0.2);
 
-            return shape;// + Shapes.Cube.Mult(0.2).ApplyMaterial(new Material() { Color = Color.Black });
+            return shape;// + Shapes.Cube.Mult(1).ApplyMaterial(new Material() { Color = Color.Black });
         }
     }
 }

@@ -5,6 +5,7 @@ using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
 using Model3D.Extensions;
+using Model3D.Libraries;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -27,8 +28,8 @@ namespace View3D.Tools
                 var mShapes = shape.SplitByMaterial();
                 Debug.WriteLine($"Number of materials: {mShapes.Length}");
 
-                if (mShapes.Length > 1000)
-                    throw new ApplicationException("Too much materials");
+                if (mShapes.Length > Materials.MaxMaterialsCount)
+                    throw new ApplicationException($"Too much materials {mShapes.Length} > {Materials.MaxMaterialsCount}");
 
                 foreach (var mShape in mShapes)
                     AddMaterialNode(scene, mShape, mShape.Materials?[0]);

@@ -8,6 +8,7 @@ namespace Model3D.Libraries
 {
     public static class Materials
     {
+        public static int MaxMaterialsCount = 1000;
         public static double Precision = 10;
 
         private static ConcurrentDictionary<Color, Material> materials = new ConcurrentDictionary<Color, Material>();

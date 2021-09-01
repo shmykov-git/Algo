@@ -82,7 +82,7 @@ namespace Model3D.Extensions
 
         public static Shape ToMetaShapeWithMaterial3(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
         {
-            return shape.ToSpots3(multPoint, pointMaterial).Join(shape.ToLines3(multLines, linesMaterial));
+            return shape.ToSpots3WithMaterial(multPoint, pointMaterial).Join(shape.ToLines3WithMaterial(multLines, linesMaterial));
         }
 
         public static Shape ToSpots(this Shape shape, double mult = 1, Material material = null)
@@ -96,9 +96,9 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3(mult, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3WithMaterial(mult, color.HasValue ? new Material { Color = color.Value } : null);
 
-        public static Shape ToSpots3(this Shape shape, double mult = 1, Material material = null)
+        public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Material material = null)
         {
             var sphere = Surfaces.Sphere(9, 5, true).Mult(0.02 * mult);
 
@@ -106,6 +106,37 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.SelectMany(p => sphere.Points3.Select(s => p + s)).ToArray(),
                 Convexes = shape.PointIndices.SelectMany(i => sphere.Convexes.Select(convex => convex.Select(j => sphere.PointsCount * i + j).ToArray())).ToArray()
+            }.ApplyMaterial(material);
+        }
+
+        public static Shape ToLines3(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? new Material { Color = color.Value } : null);
+
+        public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null)
+        {
+            var line3 = Surfaces.Cylinder(5, 2);
+            var n = line3.PointsCount;
+
+            var width = 0.003 * mult;
+            var points = shape.Points3;
+
+            Shape GetLine((int i, int j) e)
+            {
+                var a = points[e.i];
+                var b = points[e.j];
+                var ab = b - a;
+                var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
+
+                var line = line3.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
+
+                return line;
+            }
+
+            var lines = shape.OrderedEdges.Select(GetLine).ToArray();
+
+            return new Shape
+            {
+                Points = lines.SelectMany(line => line.Points).ToArray(),
+                Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -137,37 +168,6 @@ namespace Model3D.Extensions
             {
                 Points = lines.SelectMany(edge => edge).ToArray(),
                 Convexes = lines.Index().Select(i => new[] { 4 * i, 4 * i + 1, 4 * i + 2, 4 * i + 3 }).ToArray()
-            }.ApplyMaterial(material);
-        }
-
-        public static Shape ToLines3(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3(mult, color.HasValue ? new Material { Color = color.Value } : null);
-
-        public static Shape ToLines3(this Shape shape, double mult = 1, Material material = null)
-        {
-            var line3 = Surfaces.Cylinder(5, 2);
-            var n = line3.PointsCount;
-
-            var width = 0.003 * mult;
-            var points = shape.Points3;
-
-            Shape GetLine((int i, int j) e)
-            {
-                var a = points[e.i];
-                var b = points[e.j];
-                var ab = b - a;
-                var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
-
-                var line = line3.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
-
-                return line;
-            }
-
-            var lines = shape.OrderedEdges.Select(GetLine).ToArray();
-
-            return new Shape
-            {
-                Points = lines.SelectMany(line => line.Points).ToArray(),
-                Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -294,6 +294,20 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape ApplyFn(this Shape shape, Func_3 fnX = null, Func_3 fnY = null, Func_3 fnZ = null)
+        {
+            fnX ??= v => v.x;
+            fnY ??= v => v.y;
+            fnZ ??= v => v.z;
+
+            return new Shape
+            {
+                Points3 = shape.Points3.Select(p => new Vector3(fnX(p), fnY(p), fnZ(p))).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape Normalize(this Shape shape)
         {
             var shapePoints = shape.Points3.Select(p => p.ToV3D()).ToArray();
@@ -331,8 +345,13 @@ namespace Model3D.Extensions
         }
 
         public static Shape ApplyColorGradientX(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.x, colors);
+        public static Shape ApplyColorGradientX(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.y,v.z), colors);
+
         public static Shape ApplyColorGradientY(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.y, colors);
+        public static Shape ApplyColorGradientY(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x,v.z), colors);
+
         public static Shape ApplyColorGradientZ(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.z, colors);
+        public static Shape ApplyColorGradientZ(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x,v.y), colors);
 
         private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
         {
