@@ -95,6 +95,14 @@ namespace Model3D.Extensions
             return vectors.Select(v => v - center).ToArray();
         }
 
+        public static Shape ToShape(this IEnumerable<Vector3> vectors)
+        {
+            return new Shape
+            {
+                Points3 = vectors.ToArray()
+            };
+        }
+
         public static Vector3 Scale(this Vector3 a, Vector3 aSize, Vector3 bSize)
         {
             return new Vector3

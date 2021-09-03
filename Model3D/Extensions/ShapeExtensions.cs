@@ -82,7 +82,7 @@ namespace Model3D.Extensions
 
         public static Shape ToMetaShapeWithMaterial3(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
         {
-            return shape.ToSpots3WithMaterial(multPoint, pointMaterial).Join(shape.ToLines3WithMaterial(multLines, linesMaterial));
+            return shape.ToSpots3WithMaterial(multPoint, null, pointMaterial).Join(shape.ToLines3WithMaterial(multLines, linesMaterial));
         }
 
         public static Shape ToSpots(this Shape shape, double mult = 1, Material material = null)
@@ -96,16 +96,22 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3WithMaterial(mult, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3WithMaterial(mult, null, color.HasValue ? new Material { Color = color.Value } : null);
 
-        public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Material material = null)
+        public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
+            shape.ToSpots3WithMaterial(mult, Shapes.Cube.Centered().Mult(0.02 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+
+        public static Shape ToTetrahedronSpots3(this Shape shape, double mult = 1, Color? color = null) =>
+            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.Centered().Mult(0.04 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+
+        public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
-            var sphere = Surfaces.Sphere(9, 5, true).Mult(0.02 * mult);
+            pointShape ??= Surfaces.Sphere(9, 5, true).Mult(0.02 * mult);
 
             return new Shape
             {
-                Points3 = shape.Points3.SelectMany(p => sphere.Points3.Select(s => p + s)).ToArray(),
-                Convexes = shape.PointIndices.SelectMany(i => sphere.Convexes.Select(convex => convex.Select(j => sphere.PointsCount * i + j).ToArray())).ToArray()
+                Points3 = shape.Points3.SelectMany(p => pointShape.Points3.Select(s => p + s)).ToArray(),
+                Convexes = shape.PointIndices.SelectMany(i => pointShape.Convexes.Select(convex => convex.Select(j => pointShape.PointsCount * i + j).ToArray())).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -181,11 +187,13 @@ namespace Model3D.Extensions
 
             if (shape.Materials != null || another.Materials != null)
             {
-                newShape.Materials = shape.Materials.ThisOrDefault().Concat(another.Materials.ThisOrDefault()).ToArray();
+                newShape.Materials = shape.MaterialsOrDefault().Concat(another.MaterialsOrDefault()).ToArray();
             }
 
             return newShape;
         }
+
+        public static Material[] MaterialsOrDefault(this Shape shape) => shape.Materials ?? shape.Convexes.Index().Select(i => (Material)null).ToArray();
 
         public static Shape Mult(this Shape shape, double k)
         {

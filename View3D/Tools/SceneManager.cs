@@ -43,11 +43,13 @@ namespace View3D.Tools
             Node main = scene.RootNode.CreateChildNode();
             main.Entity = CreateMesh(shape);
 
+            var m = material ?? defaultMaterial;
+
             main.Material = new PbrMaterial()
             {
                 MetallicFactor = 0.9,
                 RoughnessFactor = 0.9,
-                EmissiveColor = new Vector3(material.Color)
+                EmissiveColor = new Vector3(m.Color)
             };
         }
 

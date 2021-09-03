@@ -5,6 +5,7 @@ using Model.Libraries;
 using Model.Tools;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using Model3D.Systems;
 using Model3D.Tools;
 using System;
 using System.Diagnostics;
@@ -75,7 +76,7 @@ namespace View3D
             // Plinom // var shape = Surfaces.Cylinder(8, 61).Centered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
             // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines3();
             // Rainbow // var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
-
+            // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
 
             // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
@@ -88,9 +89,12 @@ namespace View3D
 
             //Materials.Precision = 5;
 
-            var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05)
-                .ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
 
+            var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
+
+
+            //var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v => 0.005 * Math.Sin(v.x * 171 + v.y * 750)).ToSpots3(0.05)
+            //    .ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
 
             //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
 
@@ -100,7 +104,9 @@ namespace View3D
 
             //shape = shape + Shapes.Cube.Mult(0.2);
 
-            return shape;// + Shapes.Cube.Mult(1).ApplyMaterial(new Material() { Color = Color.Black });
+            return shape
+                + Shapes.Cube.Mult(1).ApplyMaterial(new Material() { Color = Color.Red });
+                //+ Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
         }
     }
 }
