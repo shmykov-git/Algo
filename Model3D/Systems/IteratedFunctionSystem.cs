@@ -9,7 +9,7 @@ namespace Model3D.Systems
 {
     public class IteratedFunctionSystem
     {
-
+        // http://grafika.me/node/184
         public static Vector2[] BarnsleyFern(int iterationCount)
         {
             var ifs = new (double a, double b, double c, double d, double e, double f, double p)[]
