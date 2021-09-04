@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace Model3D.Systems
 {
-    public class IteratedFunctionSystem
+
+    public static class IteratedFunctionSystem
     {
         // http://grafika.me/node/184
         public static Vector2[] BarnsleyFern(int iterationCount)

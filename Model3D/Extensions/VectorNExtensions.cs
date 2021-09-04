@@ -1,5 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
+using Model.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -99,7 +100,8 @@ namespace Model3D.Extensions
         {
             return new Shape
             {
-                Points3 = vectors.ToArray()
+                Points3 = vectors.ToArray(),
+                Convexes = vectors.Index().SelectCirclePair((i, j) => new[] {i,j}).ToArray()
             };
         }
 

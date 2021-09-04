@@ -1,5 +1,6 @@
 ﻿using Model.Extensions;
 using System;
+using System.Numerics;
 
 namespace Model
 {
@@ -17,6 +18,9 @@ namespace Model
         public Vector2 Round(int e) => (x.Round(e), y.Round(e));
 
         public Vector2 Normal => (y, -x);
+        public Vector2 ToLen(double len) => this * (len / Len);
+
+        public Complex ToZ() => new Complex(x, y);
 
         public Vector2(double x, double y)
         {
@@ -37,6 +41,11 @@ namespace Model
         public static implicit operator Vector2((double a, double b) v)
         {
             return new Vector2 { x = v.a, y = v.b };
+        }
+
+        public static implicit operator Vector2(Complex v)
+        {
+            return new Vector2 { x = v.Real, y = v.Imaginary };
         }
 
         public static Vector2 operator +(Vector2 a, Vector2 b)
