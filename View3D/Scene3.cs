@@ -91,7 +91,7 @@ namespace View3D
 
 
             //var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
-            var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.1).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
+            var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.08).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
 
             //var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v => 0.005 * Math.Sin(v.x * 171 + v.y * 750)).ToSpots3(0.05)
             //    .ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);

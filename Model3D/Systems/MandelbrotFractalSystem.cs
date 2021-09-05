@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
 namespace Model3D.Systems
 {
     public static class MandelbrotFractalSystem
     {
-        public static object Debuger { get; private set; }
-
         private static int MandelbrotDistance(Complex c, int maxIterations)
         {
             Func<Complex, Complex> GetFn(Complex c) => z => z * z + c;
