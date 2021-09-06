@@ -6,12 +6,12 @@ namespace Model3D.Systems
 {
     public static class MandelbrotFractalSystem
     {
-        private static int MandelbrotDistance(Complex c, int maxIterations)
+        private static int MandelbrotDistance(Complex power, Complex c, int maxIterations)
         {
-            Func<Complex, Complex> GetFn(Complex c) => z => z * z + c;
+            Func<Complex, Complex> GetFn(Complex power, Complex c) => z => Complex.Pow(z, power)  + c;
             bool IsOutside(Complex z) => z.Real * z.Real + z.Imaginary * z.Imaginary > 4;
 
-            var fn = GetFn(c);
+            var fn = GetFn(power, c);
 
             var z = c;
             for (var i = 1; i < maxIterations; i++)
@@ -26,21 +26,21 @@ namespace Model3D.Systems
         }
 
 
-        private static (Model.Vector2 a, Model.Vector2 b) FindBounds(Complex c0, double precision, int maxIterations)
+        private static (Model.Vector2 a, Model.Vector2 b) FindBounds(Complex power, Complex c0, double precision, int maxIterations)
         {
             var step = new Complex(precision, 0);
             var c = c0;
-            while (MandelbrotDistance(c, maxIterations) == 0)
+            while (MandelbrotDistance(power, c, maxIterations) == 0)
                 c += step;
 
             return (c-step, c);
         }
 
-        public static Model.Vector2[] GetPoints(double precision, int maxIterations = 100, int limit = 100000)
+        public static Model.Vector2[] GetPoints(double power, double precision, int maxIterations = 100, int limit = 100000)
         {
-            var v0 = FindBounds(new Complex(0, 0), precision, maxIterations);
+            var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);
 
-            bool IsInside(Model.Vector2 v) => MandelbrotDistance(v.ToZ(), maxIterations) == 0;
+            bool IsInside(Model.Vector2 v) => MandelbrotDistance(power, v.ToZ(), maxIterations) == 0;
 
             (Model.Vector2 a, Model.Vector2 b) NextPoint((Model.Vector2 a, Model.Vector2 b) v)
             {
