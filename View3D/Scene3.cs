@@ -1,6 +1,7 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model.Graph;
 using Model.Libraries;
 using Model.Tools;
 using Model3D.Extensions;
@@ -78,33 +79,10 @@ namespace View3D
             // Rainbow // var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
             // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
             // Quick Mandelbrot // var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.1).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
-            // var shape = Parquets.PentagonalKershner8(0.05, 1.5).Rotate(-1.15).ToShape3().ToLines(40).AddVolumeZ(0.01);
 
-            //var shape = Surfaces.NormalDistribution(50, 50, 0.6, 10, 3).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(5, 5, Color.Red, Color.Green).ApplyColorGradientY(null, null, null, Color.White);
-            //var shape2 = Surfaces.NormalDistribution(50, 50, 0.6, 10, 2).Rotate(Rotates.Z_Y).CenteredXZ().ToMetaShape3(5, 5).Move(0,0,30).ApplyMaterialGradientY(Color.Green, Color.White);
 
-            //var shape = shape1 + shape2;
+            var shape = Maze2.CreateMaze(20, 20).ToNet2Shape(20, 20).ToMetaShape3(10, 3, Color.Blue, Color.Red);
 
-            //var shape = Parquets.Triangles(12, 40, 0.1).Scale((Math.PI / 3.1, 3.0.Sqrt() / 1.7)).Move((Math.PI, -Math.PI / 2)).ToShape3().ToLines(20).AddVolumeZ(0.1).Transform(TransformFuncs3.HeartWrapZ).Rotate(Rotates.Z_Y).Scale(1, 1, 0.7).Rotate(Rotates.Y_mZ).ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.FromArgb(20, 20, 20), Color.Red, Color.Red);
-
-            //Materials.Precision = 5;
-
-            var points = Enumerable.Range(0, 101).Select(i => i / 50.0).SelectMany(z => MandelbrotFractalSystem.GetPoints(2 + z, 0.004, 200).Select(v => v.ToV3(z))).ToArray();
-
-            //var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
-            var shape = points.ToShape().ToTetrahedronSpots3(0.1).ApplyColorGradientX(Color.Blue, Color.Green, Color.Green)
-                + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
-
-            //var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v => 0.005 * Math.Sin(v.x * 171 + v.y * 750)).ToSpots3(0.05)
-            //    .ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
-
-            //var shape = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
-
-            //var poligon = Polygons.FourierSeries(400, ((0.2, 0), -6), (Fourier.RotateN(1, 4), -1));
-            //var shape = poligon.PaveInside(Parquets.PentagonalKershner8(0.02, 1.5).Mult(3)).ToShape3().ToLines3()
-            //    + poligon.ToShape2().ToShape3().ToLines3();
-
-            //shape = shape + Shapes.Cube.Mult(0.2);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
