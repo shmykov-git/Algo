@@ -48,27 +48,26 @@ namespace Model.Graph
         public IEnumerable<Node> Visit(Node node = null)
         {
             var visited = new bool[nodes.Count];
+            var queue = new Queue<Node>(nodes.Count);
 
-            return VisitInternal(visited, node??nodes[0]);
-        }
+            queue.Enqueue(node ?? nodes[0]);
 
-        private IEnumerable<Node> VisitInternal(bool[] visited, Node node)
-        {
-            if (!visited[node.i])
+            do
             {
-                visited[node.i] = true;
-
-                yield return node;
-
-                foreach (var edge in node.edges)
+                var n = queue.Dequeue();
+                if (!visited[n.i])
                 {
-                    foreach (var n in VisitInternal(visited, edge.a))
-                        yield return n;
+                    visited[n.i] = true;
 
-                    foreach (var n in VisitInternal(visited, edge.b))
-                        yield return n;
+                    yield return n;
+
+                    foreach(var edge in n.edges)
+                    {
+                        queue.Enqueue(edge.a);
+                        queue.Enqueue(edge.b);
+                    }
                 }
-            }
+            } while (queue.Count > 0);
         }
 
         public void AddEdge(Edge edge)

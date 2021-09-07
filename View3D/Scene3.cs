@@ -81,7 +81,7 @@ namespace View3D
             // Quick Mandelbrot // var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.1).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
 
 
-            var shape = Maze2.CreateMaze(20, 20).ToNet2Shape(20, 20).ToMetaShape3(10, 3, Color.Blue, Color.Red);
+            var shape = Maze2.CreateMaze(10, 10).ToNet2Shape(10, 10).ToMetaShape3(10, 5, Color.Blue, Color.Red);
 
 
             return shape;
