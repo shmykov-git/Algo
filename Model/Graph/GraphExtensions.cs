@@ -1,22 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model.Graph
 {
-    public static class Maze2
-    {
-        public static Graph CreateMaze(int m, int n)
+    public static class GraphExtensions
+    { 
+        public static Graph MinimizeConnections(this Graph g, int seed = 0)
         {
-            var r = new Random(2);
-
-            var g = Graphs2.NetGraph(m, n);
+            var r = new Random(seed);
 
             var exclude = new List<Graph.Edge>();
 
-            for(var i=0; i<m*n; i++)
+            while (true)
             {
                 var edges = g.edges.Where(edge => !exclude.Contains(edge)).ToArray();
 
@@ -31,7 +27,6 @@ namespace Model.Graph
                 {
                     g.AddEdge(edge);
                     exclude.Add(edge);
-                    i--;
                 }
             }
 
