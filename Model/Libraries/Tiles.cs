@@ -148,8 +148,6 @@ namespace Model.Libraries
             {
                 ShiftX = new Vector2[] { shiftX },
                 ShiftY = new Vector2[] { shiftY },
-                //ShiftX = new Vector2[] { (1, 0) },
-                //ShiftY = new Vector2[] { (0, 1) },
                 Points = normalizedShape.Points,
                 Convexes = normalizedShape.Convexes
             };
