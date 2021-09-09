@@ -10,9 +10,9 @@ namespace Model3D
 {
     public static class Mazes
     {
-        public static Shape CrateKershner8Maze(int seed = 0)
+        public static Shape CrateKershner8Maze(double tileLen, double angleD, double rotationAngle, int seed = 0)
         {
-            var s = Parquets.PentagonalKershner8(0.03, 1.7).Rotate(-1.09);
+            var s = Parquets.PentagonalKershner8(tileLen, angleD).Rotate(rotationAngle);
 
             (int i, int j)? GetBound((int i, int j)[] a, (int i, int j)[] b)
             {
@@ -38,16 +38,15 @@ namespace Model3D
                 a.convex,
                 a.set,
                 a.center,
-                edges = items
+                edges = items.Where(b=>b != a)
                             .Select(b => (b, bound: GetBound(a.set, b.set)))
                             .Where(v => v.bound.HasValue)
-                            .Select(v => (e: (i: a.i, j: v.b.i), bound: v.bound.Value))
+                            .Select(v => (e: a.i < v.b.i ? (i: a.i, j: v.b.i) : (i: v.b.i, j: a.i), bound: v.bound.Value))
                             .ToArray()
             }).ToArray();
 
-            var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => e.e).Distinct()));
-            g.MinimizeConnections(seed);
-            var holes = g.Edges.ToArray();
+            var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => e.e)).Distinct());
+            var holes = g.RandomVisitEdges(seed).Select(e => e.e).ToArray();
 
             var bounds = holes.SelectMany(h => nodes[h.i].edges.Select(e => e.bound).Intersect(nodes[h.j].edges.Select(e => e.bound))).ToList();
 

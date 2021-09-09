@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Model.Graph
@@ -17,6 +18,7 @@ namespace Model.Graph
             public (int i, int j) e => (a.i, b.i);
             public Node a;
             public Node b;
+            public Node Another(Node n) => n == a ? b : a;
         }
 
         public class Node
@@ -43,6 +45,35 @@ namespace Model.Graph
 
                 return edge;
             }).ToList();
+        }
+
+        public IEnumerable<Edge> RandomVisitEdges(int seed = 0, Node node = null)
+        {
+            var rnd = new Random(seed);
+
+            var visited = new bool[nodes.Count];
+            var stack = new Stack<(Node n, Edge e)>(nodes.Count);
+
+            stack.Push((node ?? nodes[0], null));
+
+            do
+            {
+                var move = stack.Pop();
+                if (!visited[move.n.i])
+                {
+                    visited[move.n.i] = true;
+
+                    if (move.e != null)
+                        yield return move.e;
+
+                    var edges = move.n.edges.Select(e => (e, n: e.Another(move.n), rnd: rnd.NextDouble())).Where(v => !visited[v.n.i]).OrderBy(v => v.rnd).ToArray();
+
+                    foreach (var v in edges)
+                        stack.Push((v.n, v.e));
+
+                    //Debug.WriteLine(string.Join(", ", stack.Select(v => $"({v.e.a.i}, {v.e.b.i})")));
+                }
+            } while (stack.Count > 0);
         }
 
         public IEnumerable<Node> Visit(Node node = null)

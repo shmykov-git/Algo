@@ -81,12 +81,10 @@ namespace View3D
             // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
             // Quick Mandelbrot // var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.1).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
             // Maze 5 5 5 // var shape = Mazes.CreateNet3Maze(5, 5, 5).ToCubeMetaShape3(10, 10, Color.Blue, Color.Red);
-            // Kershner8 Maze // var shape = Mazes.CrateKershner8Maze().ToMetaShape3(0.3, 0.5, Color.Blue, Color.Red);
+            // Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
+            // Fantastic Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 0.4, 0, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
 
-
-            //var shape = Parquets.PentagonalKershner8(0.075, 1.5).Rotate(-1.15).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
-
-            var shape = Mazes.CrateKershner8Maze(1).ToMetaShape3(0.3, 0.5, Color.Blue, Color.Red);
+            var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
