@@ -86,7 +86,7 @@ namespace View3D
 
             //var shape = Parquets.PentagonalKershner8(0.075, 1.5).Rotate(-1.15).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
 
-            var shape = Mazes.CrateKershner8Maze().ToMetaShape3(0.3, 0.5, Color.Blue, Color.Red);
+            var shape = Mazes.CrateKershner8Maze(1).ToMetaShape3(0.3, 0.5, Color.Blue, Color.Red);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });

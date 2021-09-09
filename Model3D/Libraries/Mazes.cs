@@ -10,7 +10,7 @@ namespace Model3D
 {
     public static class Mazes
     {
-        public static Shape CrateKershner8Maze()
+        public static Shape CrateKershner8Maze(int seed = 0)
         {
             var s = Parquets.PentagonalKershner8(0.03, 1.7).Rotate(-1.09);
 
@@ -46,7 +46,7 @@ namespace Model3D
             }).ToArray();
 
             var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => e.e).Distinct()));
-            g.MinimizeConnections();
+            g.MinimizeConnections(seed);
             var holes = g.Edges.ToArray();
 
             var bounds = holes.SelectMany(h => nodes[h.i].edges.Select(e => e.bound).Intersect(nodes[h.j].edges.Select(e => e.bound))).ToList();
