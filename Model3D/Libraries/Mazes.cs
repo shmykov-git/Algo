@@ -24,13 +24,22 @@ namespace Model3D
                 return holes.Any(v => (v.i == i && v.j == j) || (v.i == j && v.j == i));
             }
 
-            var items = s.Convexes.Index().Select(i => new
+            var items = s.Convexes.Index().Select(i =>
             {
-                i,
-                convex = s.Convexes[i],
-                set = s.Convexes[i].SelectCirclePair((i, j) => i > j ? (i: j, j: i) : (i, j)).OrderBy(v => v.i).ThenBy(v => v.j).ToArray(),
-                center = s.Convexes[i].Select(i => s.Points[i]).Center().ToV3()
+                var convex = s.Convexes[i];
+                var center = convex.Select(i => s.Points[i]).Center();
+
+                return new
+                {
+                    i,
+                    convex = convex,
+                    set = convex.SelectCirclePair((i, j) => i > j ? (i: j, j: i) : (i, j)).OrderBy(v => v.i).ThenBy(v => v.j).ToArray(),
+                    center = center,
+                    radius = convex.Select(i=>(s.Points[i]-center).Len).Max()
+                };
             }).ToArray();
+
+            var net = new Net<Model.Vector2, int>(items.Select(v => (v.center, v.i)), 6 * items.Max(v => v.radius));
 
             var nodes = items.Select(a => new
             {
@@ -38,7 +47,9 @@ namespace Model3D
                 a.convex,
                 a.set,
                 a.center,
-                edges = items.Where(b=>b != a)
+                edges = net.SelectNeighbors(a.center)
+                            .Select(i=>items[i])
+                            .Where(b=>b != a)
                             .Select(b => (b, bound: GetBound(a.set, b.set)))
                             .Where(v => v.bound.HasValue)
                             .Select(v => (e: a.i < v.b.i ? (i: a.i, j: v.b.i) : (i: v.b.i, j: a.i), bound: v.bound.Value))
