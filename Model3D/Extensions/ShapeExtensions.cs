@@ -286,6 +286,11 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
+        public static Shape ToMazeXY(this Shape shape, int seed = 0)
+        {
+            return Mazerator.MakeMazeXY(shape, seed);
+        }
+
         public static Shape[] SplitByMaterial(this Shape shape)
         {
             return Extender.SplitConvexesByMaterial(shape);
