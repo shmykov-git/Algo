@@ -8,7 +8,7 @@ namespace Model3D.Tools
 {
     public static class Mazerator
     {
-        public static Shape MakeMazeXY(Shape shape, int seed = 0)
+        public static Shape MakeMaze(Shape shape, int seed = 0)
         {
             var points = shape.Points2;
 

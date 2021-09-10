@@ -86,11 +86,12 @@ namespace View3D
             // Fantastic Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 0.4, 0, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
             // Kershner8 Wow Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
             // Kershner8 Wow Maze optimized var shape = Mazes.CrateKershner8Maze(0.003, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToTetrahedronMetaShape3(0.1, 0.3, Color.Blue, Color.Red);
-            // Mobius Maze // var shape = Surfaces.MobiusStrip(128, 20).ToMazeXY().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
+            // Mobius Maze // var shape = Surfaces.MobiusStrip(128, 20).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
 
-            // todo: ToMazeShape() - чтобы можно было любой shape превратить в лабиринт
 
-            var shape = Surfaces.MobiusStrip(128, 20).ToMazeXY().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
+            //var shape = Surfaces.Shamrock(400, 30).ToMaze().ToLines3(4).Rotate(Rotates.Z_Y);
+            //var shape = Surfaces.Sphere(50,25).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
+            var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });

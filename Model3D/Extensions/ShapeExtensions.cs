@@ -28,7 +28,8 @@ namespace Model3D.Extensions
         public static Shape Transform(this Shape shape, TransformFunc3 fn) => new Shape
         {
             Points3 = shape.Points3.Select(p => fn(p)).ToArray(),
-            Convexes = shape.Convexes
+            Convexes = shape.Convexes,
+            Materials = shape.Materials
         };
 
         public static Shape ApplyZ(this Shape shape, Func3Z func, Func3Z func2 = null) => new Shape
@@ -286,9 +287,9 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
-        public static Shape ToMazeXY(this Shape shape, int seed = 0)
+        public static Shape ToMaze(this Shape shape, int seed = 0)
         {
-            return Mazerator.MakeMazeXY(shape, seed);
+            return Mazerator.MakeMaze(shape, seed);
         }
 
         public static Shape[] SplitByMaterial(this Shape shape)
