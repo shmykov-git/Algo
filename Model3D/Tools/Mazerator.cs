@@ -1,6 +1,5 @@
 ﻿using Model;
 using Model.Extensions;
-using Model.Graph;
 using Model3D.Extensions;
 using System.Linq;
 
@@ -8,7 +7,7 @@ namespace Model3D.Tools
 {
     public static class Mazerator
     {
-        public static Shape MakeMaze(Shape shape, int seed = 0)
+        public static Shape MakeMaze(Shape shape, int seed = 0, (int i, int j)[] exits = null)
         {
             var points = shape.Points2;
 
@@ -60,8 +59,9 @@ namespace Model3D.Tools
             var bounds = holes.SelectMany(h => nodes[h.i].edges.Select(e => e.bound).Intersect(nodes[h.j].edges.Select(e => e.bound))).ToList();
 
             var n = shape.Points.Length;
-
-            //bounds = bounds.Concat(new[] { (6, 7), (n - 6, n - 5) }).ToList(); // exits
+            
+            if (exits != null)
+                bounds = bounds.Concat(exits.Select(v => (v.i < 0 ? n + v.i : v.i, v.j < 0 ? n + v.j : v.j))).ToList();
 
             var mazeShape = new Shape()
             {

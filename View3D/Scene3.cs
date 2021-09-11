@@ -1,19 +1,9 @@
-﻿using Aspose.ThreeD.Utilities;
-using Model;
+﻿using Model;
 using Model.Extensions;
-using Model.Graph;
-using Model.Libraries;
-using Model.Tools;
 using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
-using Model3D.Systems;
-using Model3D.Tools;
-using System;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using View3D.Libraries;
 
 namespace View3D
 {
@@ -83,15 +73,16 @@ namespace View3D
             // Quick Mandelbrot // var shape = MandelbrotFractalSystem.GetPoints(0.001, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.1).ApplyColor(Color.Blue) + Surfaces.Sphere(20, 10).Centered().Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
             // Maze 5 5 5 // var shape = Mazes.CreateNet3Maze(5, 5, 5).ToCubeMetaShape3(10, 10, Color.Blue, Color.Red);
             // Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
-            // Fantastic Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 0.4, 0, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
+            // Fantastic Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToLines3(0.2, Color.Green);
             // Kershner8 Wow Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
-            // Kershner8 Wow Maze optimized var shape = Mazes.CrateKershner8Maze(0.003, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToTetrahedronMetaShape3(0.1, 0.3, Color.Blue, Color.Red);
+            // Kershner8 Wow Maze optimized // var shape = Mazes.CrateKershner8Maze(0.003, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToTetrahedronMetaShape3(0.1, 0.3, Color.Blue, Color.Red);
             // Mobius Maze // var shape = Surfaces.MobiusStrip(128, 20).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
-
 
             //var shape = Surfaces.Shamrock(400, 30).ToMaze().ToLines3(4).Rotate(Rotates.Z_Y);
             //var shape = Surfaces.Sphere(50,25).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
-            var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
+            //var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
+
+            var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToLines3(0.2, Color.Green);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });

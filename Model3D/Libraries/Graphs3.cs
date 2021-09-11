@@ -1,5 +1,5 @@
-﻿using Model.Extensions;
-using Model.Graph;
+﻿using Model;
+using Model.Extensions;
 using System.Linq;
 
 namespace Model3D
