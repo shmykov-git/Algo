@@ -17,9 +17,12 @@ namespace View3D
 
             try
             {
+                var sw = Stopwatch.StartNew();
                 var shape = Scene3.GetShape();
-
                 var scene = sceneManager.CreateScene(shape);
+                sw.Stop();
+
+                Console.WriteLine($"Scene generation time {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}");
 
                 scene.Save(settings.FullFileName, settings.Format);
 

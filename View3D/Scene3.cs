@@ -1,5 +1,6 @@
 ﻿using Model;
 using Model.Extensions;
+using Model.Libraries;
 using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
@@ -77,12 +78,24 @@ namespace View3D
             // Kershner8 Wow Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
             // Kershner8 Wow Maze optimized // var shape = Mazes.CrateKershner8Maze(0.003, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToTetrahedronMetaShape3(0.1, 0.3, Color.Blue, Color.Red);
             // Mobius Maze // var shape = Surfaces.MobiusStrip(128, 20).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
+            // Maze with path // var (maze, path) = Parquets.PentagonalKershner8(0.01, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });            var shape = maze.ToLines3(0.2, Color.Blue) + path.ToLines3(0.2, Color.Red);
+
 
             //var shape = Surfaces.Shamrock(400, 30).ToMaze().ToLines3(4).Rotate(Rotates.Z_Y);
             //var shape = Surfaces.Sphere(50,25).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
             //var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
 
-            var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToLines3(0.2, Color.Green);
+
+            // todo: направленый лабиринт - направления лабиринта зависят от ландшафта (смещение вероятностей поворотов в зависимости от ландшафта и направления движения)
+            // todo: A*
+
+            var (maze, path) = Parquets.PentagonalKershner8(0.01, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });
+            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Red);
+            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Red);
+            var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit;// + path.ToLines3(0.2, Color.Red);
+
+
+            //var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).ToLines3(0.2, Color.Blue);
 
             return shape;
                 //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });

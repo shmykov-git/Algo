@@ -9,6 +9,8 @@ namespace Model
         public double y;
         public double z;
 
+        public static Vector3D Zero = new Vector3D(0, 0, 0);
+
         public Vector3D(double x, double y, double z)
         {
             this.x = x;

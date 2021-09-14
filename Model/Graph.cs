@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model.Tools;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -47,31 +49,43 @@ namespace Model
             }).ToList();
         }
 
-        public IEnumerable<Edge> RandomVisitEdges(int seed = 0, Node node = null)
+        public IEnumerable<Edge> RandomVisitEdges(int seed = 0, Node node = null, Func<int, int, int[], int[]> directionFn = null)
         {
-            var rnd = new Random(seed);
+            if (directionFn == null)
+            {
+                var rnd = new Rnd(seed);
+
+                directionFn = (from, to, dirs) => rnd.RandomList(dirs);
+            }
 
             var visited = new bool[nodes.Count];
-            var stack = new Stack<(Node n, Edge e)>(nodes.Count);
+            var stack = new Stack<(Node to, Edge eFrom)>(nodes.Count);
 
             stack.Push((node ?? nodes[0], null));
 
             do
             {
                 var move = stack.Pop();
-                if (!visited[move.n.i])
+                var to = move.to;
+
+                if (!visited[to.i])
                 {
-                    visited[move.n.i] = true;
+                    visited[to.i] = true;
 
-                    if (move.e != null)
-                        yield return move.e;
+                    var from = move.eFrom?.Another(to);
+                    if (move.eFrom != null)
+                        yield return move.eFrom;
 
-                    var edges = move.n.edges.Select(e => (e, n: e.Another(move.n), rnd: rnd.NextDouble())).Where(v => !visited[v.n.i]).OrderBy(v => v.rnd).ToArray();
+                    var edgeIndices = to.edges.Index().Select(ind => (ind, i: to.edges[ind].Another(to).i)).Where(v => !visited[v.i]).ToDictionary(v => v.i, v => v.ind);
+                    var dirs = directionFn(from?.i??-1, move.to.i, edgeIndices.Keys.ToArray());
 
-                    foreach (var v in edges)
-                        stack.Push((v.n, v.e));
+                    foreach (var dir in dirs)
+                    {
+                        var edge = to.edges[edgeIndices[dir]];
+                        stack.Push((edge.Another(to), edge));
+                    }
 
-                    //Debug.WriteLine(string.Join(", ", stack.Select(v => $"({v.e.a.i}, {v.e.b.i})")));
+                    //Debug.WriteLine(string.Join(", ", stack.Select(v => $"({v.eFrom.a.i}, {v.eFrom.b.i})")));
                 }
             } while (stack.Count > 0);
         }
@@ -99,6 +113,65 @@ namespace Model
                     }
                 }
             } while (queue.Count > 0);
+        }
+
+        public IEnumerable<Node> Path(Node nodeFrom, Node nodeTo)
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Queue<Node>(nodes.Count);
+
+            queue.Enqueue(nodeFrom);
+
+            do
+            {
+                var n = queue.Dequeue();
+                if (!visited[n.i])
+                {
+                    visited[n.i] = true;
+
+                    yield return n;
+
+                    foreach (var edge in n.edges)
+                    {
+                        queue.Enqueue(edge.a);
+                        queue.Enqueue(edge.b);
+                    }
+                }
+            } while (queue.Count > 0);
+        }
+
+        public IEnumerable<Node> FindPath(Node nodeFrom, Node nodeTo)
+        {
+            var visited = new bool[nodes.Count];
+
+            return FindPathInternal(visited, nodeFrom, nodeTo);
+        }
+
+        private IEnumerable<Node> FindPathInternal(bool[] visited, Node node, Node nodeTo)
+        {
+            if (!visited[node.i])
+            {
+                visited[node.i] = true;
+
+                if (node == nodeTo)
+                    yield return node;
+
+                foreach (var edge in node.edges)
+                {
+                    var correctPath = false;
+                    var nextEdge = edge.Another(node);
+                    var count = 0;
+                    foreach (var n in FindPathInternal(visited, nextEdge, nodeTo))
+                    {
+                        yield return n;
+                        count++;
+                        correctPath = true;
+                    }
+
+                    if (correctPath)
+                        yield return nextEdge;
+                }
+            }
         }
 
         public void AddEdge(Edge edge)

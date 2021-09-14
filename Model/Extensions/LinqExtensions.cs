@@ -49,6 +49,20 @@ namespace Model.Extensions
             yield return func(prevT, first);
         }
 
+        public static IEnumerable<TRes> SelectPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
+        {
+            var i = 0;
+            var prevT = default(T);
+            foreach (var t in list)
+            {
+                if (i++ == 0)
+                { }
+                else
+                    yield return func(prevT, t);
+                prevT = t;
+            }
+        }
+
         public static IEnumerable<T> OrderSafeDistinct<T>(this IEnumerable<T> list) where T : IEquatable<T>
         {
             var values = new HashSet<T>();

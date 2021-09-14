@@ -292,6 +292,11 @@ namespace Model3D.Extensions
             return Mazerator.MakeMaze(shape, seed, exits);
         }
 
+        public static (Shape maze, Shape path) ToMazeWithPath(this Shape shape, int seed = 0, (int i, int j)[] exits = null)
+        {
+            return Mazerator.MakeMazeWithPath(shape, seed, exits);
+        }
+
         public static Shape[] SplitByMaterial(this Shape shape)
         {
             return Extender.SplitConvexesByMaterial(shape);
