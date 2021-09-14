@@ -89,7 +89,7 @@ namespace View3D
             // todo: направленый лабиринт - направления лабиринта зависят от ландшафта (смещение вероятностей поворотов в зависимости от ландшафта и направления движения)
             // todo: A*
 
-            var (maze, path) = Parquets.PentagonalKershner8(0.02, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });
+            var (maze, path) = Parquets.PentagonalKershner8(0.02, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Torus(0.5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });
             var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Red);
             var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Red);
             var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red);
