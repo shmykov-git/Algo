@@ -4,6 +4,7 @@ using Model.Libraries;
 using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System;
 using System.Drawing;
 
 namespace View3D
@@ -85,13 +86,10 @@ namespace View3D
             //var shape = Surfaces.Sphere(50,25).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
             //var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
 
-
-            // todo: направленый лабиринт - направления лабиринта зависят от ландшафта (смещение вероятностей поворотов в зависимости от ландшафта и направления движения)
-            // todo: A*
-
-            var (maze, path) = Parquets.PentagonalKershner8(0.02, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Torus(0.5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });
-            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Red);
-            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Red);
+            //todo граница!
+            var (maze, path) = Parquets.PentagonalKershner8(0.002, 1.7).ToShape3().Mult(4).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) }); //.Transform(TransformFuncs3.Torus(1.5))
+            var enter = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[0]).ApplyColor(Color.Black);
+            var exit = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[^1]).ApplyColor(Color.Green);
             var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red);
 
 

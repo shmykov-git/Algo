@@ -90,6 +90,47 @@ namespace Model
             } while (stack.Count > 0);
         }
 
+        public IEnumerable<Node> FindPath(int from, int to) => FindPath(nodes[from], nodes[to]);
+
+        public IEnumerable<Node> FindPath(Node from = null, Node to = null)
+        {
+            from ??= nodes[0];
+            to ??= nodes[^1];
+
+            var distance = new int[nodes.Count];
+            var queue = new Queue<(Node,Node)>(nodes.Count);
+
+            queue.Enqueue((to, to));
+
+            do
+            {
+                var (prev, n) = queue.Dequeue();
+
+                if (distance[n.i] == 0)
+                {
+                    distance[n.i] = distance[prev.i] + 1;
+
+                    if (n == from)
+                        break;
+
+                    foreach (var edge in n.edges)
+                    {
+                        queue.Enqueue((n, edge.Another(n)));
+                    }
+                }
+            } while (queue.Count > 0);
+
+            var node = from;
+            while(node != to)
+            {
+                yield return node;
+
+                node = node.edges.Select(e => e.Another(node)).Where(n => distance[n.i] > 0).OrderBy(n => distance[n.i]).First();
+            }
+
+            yield return to;
+        }
+
         public IEnumerable<Node> Visit(Node node = null)
         {
             var visited = new bool[nodes.Count];
@@ -108,70 +149,10 @@ namespace Model
 
                     foreach (var edge in n.edges)
                     {
-                        queue.Enqueue(edge.a);
-                        queue.Enqueue(edge.b);
+                        queue.Enqueue(edge.Another(n));
                     }
                 }
             } while (queue.Count > 0);
-        }
-
-        public IEnumerable<Node> Path(Node nodeFrom, Node nodeTo)
-        {
-            var visited = new bool[nodes.Count];
-            var queue = new Queue<Node>(nodes.Count);
-
-            queue.Enqueue(nodeFrom);
-
-            do
-            {
-                var n = queue.Dequeue();
-                if (!visited[n.i])
-                {
-                    visited[n.i] = true;
-
-                    yield return n;
-
-                    foreach (var edge in n.edges)
-                    {
-                        queue.Enqueue(edge.a);
-                        queue.Enqueue(edge.b);
-                    }
-                }
-            } while (queue.Count > 0);
-        }
-
-        public IEnumerable<Node> FindPath(Node nodeFrom, Node nodeTo)
-        {
-            var visited = new bool[nodes.Count];
-
-            return FindPathInternal(visited, nodeFrom, nodeTo);
-        }
-
-        private IEnumerable<Node> FindPathInternal(bool[] visited, Node node, Node nodeTo)
-        {
-            if (!visited[node.i])
-            {
-                visited[node.i] = true;
-
-                if (node == nodeTo)
-                    yield return node;
-
-                foreach (var edge in node.edges)
-                {
-                    var correctPath = false;
-                    var nextEdge = edge.Another(node);
-                    var count = 0;
-                    foreach (var n in FindPathInternal(visited, nextEdge, nodeTo))
-                    {
-                        yield return n;
-                        count++;
-                        correctPath = true;
-                    }
-
-                    if (correctPath)
-                        yield return nextEdge;
-                }
-            }
         }
 
         public void AddEdge(Edge edge)

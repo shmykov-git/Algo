@@ -42,7 +42,7 @@ namespace Model3D.Tools
                 {
                     i,
                     convex = convex,
-                    set = convex.SelectCirclePair((i, j) => i > j ? (i: j, j: i) : (i, j)).OrderBy(v => v.i).ThenBy(v => v.j).ToArray(),
+                    set = convex.SelectCirclePair((i, j) => i < j ? (i, j) : (i: j, j: i)).OrderBy(v => v).ToArray(),
                     center2 = center2,
                     center3 = center3,
                     radius2 = convex.Select(i => (points2[i] - center2).Len).Max()
@@ -77,7 +77,8 @@ namespace Model3D.Tools
                     return nodeIndices;
 
                 var mainDir = Direction(from, to).Normed;
-                var dirs = nodeIndices.Select(i => { var d = Direction(to, i); var g = Gravity(to, i); return (1*d + 3*g).Normed; }).ToArray();
+                var dirs = nodeIndices.Select(i => { var d = Direction(to, i); var g = Gravity(to, i); return (1 * d + 3 * g).Normed; }).ToArray();
+                //var dirs = nodeIndices.Select(i => { var d = Direction(to, i); return d.Normed; }).ToArray();
                 var projections = dirs.Select(d => (mainDir * d + 1).Pow(0.2)).ToArray();
                 var sum = projections.Sum();
                 var probs = projections.Select(p => p / sum).ToArray();
@@ -87,9 +88,6 @@ namespace Model3D.Tools
 
             var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => e.e)).Distinct());
             var holes = g.RandomVisitEdges(seed, null, OrderVisitedNodes).Select(e => e.e).ToArray();
-
-            var gHoles = new Graph(holes);
-            var path = gHoles.FindPath(gHoles.nodes[3], gHoles.nodes[^5]).Select(n=>n.i).ToArray(); // todo: exits
 
             var bounds = holes.SelectMany(h => nodes[h.i].edges.Select(e => e.bound).Intersect(nodes[h.j].edges.Select(e => e.bound))).ToList();
 
@@ -106,10 +104,19 @@ namespace Model3D.Tools
                 Convexes = nodes.SelectMany(n => n.set.Where(e => !bounds.Contains(e))).Distinct().Select(e => new[] { e.i, e.j }).ToArray()
             };
 
+            if (exits == null)
+                return (mazeShape, null);
+
+
+            var exitNodes = exits.SelectMany(v => nodes.Where(n => n.set.Contains(v))).ToArray();
+
+            var gHoles = new Graph(holes);
+            var path = gHoles.FindPath(exitNodes[0].i, exitNodes[^1].i).Select(n => n.i).ToArray(); // todo: exits
+
             var pathShape = new Shape()
             {
                 Points3 = path.Select(i => nodes[i].center3).ToArray(),
-                Convexes = path.Index().SelectPair((i,j)=>new[] { i, j }).ToArray()
+                Convexes = path.Index().SelectPair((i, j) => new[] { i, j }).ToArray()
             };
 
             return (mazeShape, pathShape);

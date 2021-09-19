@@ -10,13 +10,12 @@ namespace Model.Extensions
     {
         public static Shape2 Normalize(this Shape2 shape)
         {
-            var points = shape.Points.Distinct().ToList();
-            var convexes = shape.Convexes.Transform(i => points.IndexOf(shape.Points[i]));
+            var (backIndices, filter) = Indexer.DistinctIndices(shape.Points);
 
             return new Shape2
             {
-                Points = points.ToArray(),
-                Convexes = convexes
+                Points = shape.Points.Index().Where(i => filter[i]).Select(i => shape.Points[i]).ToArray(),
+                Convexes = shape.Convexes.Transform(i => backIndices[i])
             };
         }
 
