@@ -88,13 +88,13 @@ namespace View3D
             //var shape = Surfaces.Sphere(50,25).ToMaze().ToLines3(2).Rotate(Rotates.Z_Y).ApplyColor(Color.FromArgb(20, 20, 20));
             //var shape = Parquets.PentagonalKershner8ForTube(8, 4, 1.5).ToShape3().ToMaze().Transform(TransformFuncs3.CylinderWrapZ).Rotate(Rotates.Z_Y).ToMetaShape3(1, 1, Color.Blue, Color.Red);
 
-            //var shape = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMaze(0, MazeType.PowerGravity).ToLines3(2, Color.Blue).Rotate(Rotates.Z_Y);
-            var (maze, path) = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(1, MazeType.PowerGravity);            
+            //var (maze, path) = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(1, MazeType.PowerGravity);
+            var (maze, path) = Parquets.PentagonalKershner8(0.01, 1.7).Rotate(-1.09).Mult(2).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(2, MazeType.PowerDirection4, new[] { (6, 7), (-6, -5) });
             maze = maze.Rotate(Rotates.Z_Y);           
             path = path.Rotate(Rotates.Z_Y);            
-            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Black);            
-            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green);                  
-            var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
+            var enter = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[0]).ApplyColor(Color.Black);            
+            var exit = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[^1]).ApplyColor(Color.Green);                  
+            var shape = maze.ToLines3(0.5, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red);
             
 
             //var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).ToLines3(0.2, Color.Blue);

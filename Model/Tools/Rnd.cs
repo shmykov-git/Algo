@@ -27,11 +27,16 @@ namespace Model.Tools
         {
             var res = (probabilities.Length).SelectRange(i => i).ToArray();
 
+            var probs = probabilities.ToList();
+            var mult = 1.0;
+
             for (var i = 0; i < count; i++)
             {
-                var k = GetIndex(probabilities, rnd.NextDouble());
+                var k = GetIndex(probs, mult * rnd.NextDouble());
 
                 Reversal(res, res.Length - 1 - i, k);
+                mult -= probs[k];
+                probs.RemoveAt(k);
             }
 
             return res;
@@ -44,11 +49,11 @@ namespace Model.Tools
             values[to] = tmp;
         }
 
-        private int GetIndex(double[] probabilities, double value)
+        private int GetIndex(List<double> probabilities, double value)
         {
             var sum = 0.0;
 
-            for(var i=0; i<probabilities.Length; i++)
+            for(var i=0; i<probabilities.Count; i++)
             {
                 sum += probabilities[i];
 

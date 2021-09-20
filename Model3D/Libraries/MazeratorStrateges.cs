@@ -51,11 +51,11 @@ namespace Model3D.Libraries
 
                 var probabilities = projections.Select(p => p / sum).ToArray();
 
-                var randomOrderCount = nodeIndices.Length == 2 ? 1 : 2;
+                //var randomOrderCount = nodeIndices.Length == 2 ? 1 : 2;
 
                 //Debug.WriteLine($"{points[to].ToV2()}: {string.Join(", ", probabilities.Select(p => $"{p:F1}"))}");
 
-                return rnd.RandomIndices(probabilities, randomOrderCount).Select(i => nodeIndices[i]).ToArray();
+                return rnd.RandomIndices(probabilities, probabilities.Length - 1).Select(i => nodeIndices[i]).ToArray();
             }
 
             return OrderVisitedNodes;
