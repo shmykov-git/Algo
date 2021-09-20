@@ -1,4 +1,5 @@
 ﻿using Model.Extensions;
+using Model.Libraries;
 using Model.Tools;
 using System;
 using System.Collections.Generic;
@@ -49,14 +50,9 @@ namespace Model
             }).ToList();
         }
 
-        public IEnumerable<Edge> RandomVisitEdges(int seed = 0, Node node = null, Func<int, int, int[], int[]> directionFn = null)
+        public IEnumerable<Edge> VisitEdges(int seed = 0, GraphVisitStrategy directionFn = null, Node node = null)
         {
-            if (directionFn == null)
-            {
-                var rnd = new Rnd(seed);
-
-                directionFn = (from, to, dirs) => rnd.RandomList(dirs);
-            }
+            directionFn ??= GraphVisitStrateges.SimpleRandom(seed);
 
             var visited = new bool[nodes.Count];
             var stack = new Stack<(Node to, Edge eFrom)>(nodes.Count);

@@ -34,6 +34,11 @@ namespace Model3D.Extensions
             return new Model.Vector2(v.x, v.y);
         }
 
+        public static Vector3 MultV(this Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
+        }
+
         public static Vector4 ToV4(this Model.Vector2 v)
         {
             return new Vector4(v.x, v.y, 0, 1);

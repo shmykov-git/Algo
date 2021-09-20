@@ -8,6 +8,7 @@ namespace Model.Libraries
     {
         public static Shape2 Squares(int m, int n, double tileLen = 1) => ShiftParquet(tileLen, Tiles.Squares, m, n);
         public static Shape2 Triangles(int m, int n, double tileLen = 1) => ShiftParquet(tileLen, Tiles.Triangles, m, n);
+        public static Shape2 Hexagons(int m, int n, double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon, m, n);
         public static Shape2 Triangles(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles);
         public static Shape2 Triangles2(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles2);
         public static Shape2 Hexagon(double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon);

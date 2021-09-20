@@ -25,7 +25,7 @@ namespace Model.Tools
 
         public int[] RandomIndices(double[] probabilities, int count = 2)
         {
-            var res = RandomIndices(probabilities.Length);
+            var res = (probabilities.Length).SelectRange(i => i).ToArray();
 
             for (var i = 0; i < count; i++)
             {

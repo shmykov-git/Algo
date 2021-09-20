@@ -37,6 +37,7 @@ namespace Model
         public Vector2 Scale(Vector2 v) => new Vector2(x * v.x, y * v.y);
 
         public static Vector2 Zero => (0, 0);
+        public static Vector2 One => (1, 1);
 
         public static implicit operator Vector2((double a, double b) v)
         {

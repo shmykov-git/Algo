@@ -38,6 +38,12 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
+        public static Shape SetZ(this Shape shape, Func3Z func) => new Shape
+        {
+            Points = shape.Points.Select(p => new Vector4(p.x, p.y, func(p.x, p.y), p.w)).ToArray(),
+            Convexes = shape.Convexes
+        };
+
         public static Shape AddVolumeX(this Shape shape, double xVolume) => AddVolume(shape, xVolume, 0, 0);
         public static Shape AddVolumeY(this Shape shape, double yVolume) => AddVolume(shape, 0, yVolume, 0);
         public static Shape AddVolumeZ(this Shape shape, double zVolume) => AddVolume(shape, 0, 0, zVolume);
@@ -287,14 +293,14 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
-        public static Shape ToMaze(this Shape shape, int seed = 0, (int i, int j)[] exits = null)
+        public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
         {
-            return Mazerator.MakeMaze(shape, seed, exits);
+            return Mazerator.MakeMaze(shape, seed, type, exits);
         }
 
-        public static (Shape maze, Shape path) ToMazeWithPath(this Shape shape, int seed = 0, (int i, int j)[] exits = null)
+        public static (Shape maze, Shape path) ToMazeWithPath(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
         {
-            return Mazerator.MakeMazeWithPath(shape, seed, exits);
+            return Mazerator.MakeMazeWithPath(shape, seed, type, exits);
         }
 
         public static Shape[] SplitByMaterial(this Shape shape)

@@ -1,23 +1,26 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model.Libraries;
 using Model.Tools;
 using Model3D.Extensions;
+using Model3D.Libraries;
 using System;
 using System.Linq;
 
 namespace Model3D.Tools
 {
+
     public static class Mazerator
     {
-        public static Shape MakeMaze(Shape shape, int seed = 0, (int i, int j)[] exits = null)
+        public static Shape MakeMaze(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
         {
-            return MakeMazeWithPath(shape, seed, exits).maze;
+            return MakeMazeWithPath(shape, seed, type, exits).maze;
         }
 
-        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, (int i, int j)[] exits = null)
+        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
         {
-            var rnd = new Rnd(seed);
+            exits ??= new[] { (0, 1), (-2, -1) };
 
             var points2 = shape.Points2;
             var points = shape.Points3;
@@ -67,27 +70,47 @@ namespace Model3D.Tools
                             .ToArray()
             }).ToArray();
 
-            Vector3 Normal(int i) => nodes[i].convex.Length < 3 ? Vector3.ZAxis : new Plane(points[nodes[i].convex[0]], points[nodes[i].convex[1]], points[nodes[i].convex[2]]).NOne;
-            Model.Vector2 Direction(int i, int j) => nodes[j].center2 - nodes[i].center2;
-            Model.Vector2 Gravity(int i, int j) => (Normal(j) + Normal(i)).ToV2();
-
-            int[] OrderVisitedNodes(int from, int to, int[] nodeIndices)
+            GraphVisitStrategy mazeStrategy;
+            switch (type)
             {
-                if (from == -1 || nodeIndices.Length < 3)                                                                                                                                                             
-                    return nodeIndices;
+                case MazeType.SimpleRandom:
+                    mazeStrategy = GraphVisitStrateges.SimpleRandom(seed);
+                    break;
 
-                var mainDir = Direction(from, to).Normed;
-                var dirs = nodeIndices.Select(i => { var d = Direction(to, i); var g = Gravity(to, i); return (1 * d + 3 * g).Normed; }).ToArray();
-                //var dirs = nodeIndices.Select(i => { var d = Direction(to, i); return d.Normed; }).ToArray();
-                var projections = dirs.Select(d => (mainDir * d + 1).Pow(0.2)).ToArray();
-                var sum = projections.Sum();
-                var probs = projections.Select(p => p / sum).ToArray();
+                case MazeType.PowerDirection:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 1, 0, 1);
+                    break;
 
-                return rnd.RandomIndices(probs).Select(i => nodeIndices[i]).ToArray();
+                case MazeType.PowerDirection2:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 1, 0, 2);
+                    break;
+
+                case MazeType.PowerDirection4:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 1, 0, 4);
+                    break;
+
+                case MazeType.PowerGravity:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 0, 1, 1);
+                    break;
+
+                case MazeType.PowerGravity2:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 0, 1, 2);
+                    break;
+
+                case MazeType.PowerGravity4:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 0, 1, 4);
+                    break;
+
+                case MazeType.PowerDirectionAnd3Gravity:
+                    mazeStrategy = MazeratorStrateges.DirectionAndGravityRandom(points, i => nodes[i].center2, i => nodes[i].convex, seed, 1, 3, 1);
+                    break;
+
+                default:
+                    throw new NotImplementedException(type.ToString());
             }
 
             var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => e.e)).Distinct());
-            var holes = g.RandomVisitEdges(seed, null, OrderVisitedNodes).Select(e => e.e).ToArray();
+            var holes = g.VisitEdges(seed, mazeStrategy).Select(e => e.e).ToArray();
 
             var bounds = holes.SelectMany(h => nodes[h.i].edges.Select(e => e.bound).Intersect(nodes[h.j].edges.Select(e => e.bound))).ToList();
 
