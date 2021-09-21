@@ -62,5 +62,47 @@ namespace Model.Libraries
                 new int[] {6, 7, 4, 5},
             }
         };
+
+        public static Shape Icosahedron => new Shape
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(1.618033988749895, 1, 0),
+                new Vector3(1.618033988749895, -1, 0),
+                new Vector3(-1.618033988749895, -1, 0),
+                new Vector3(-1.618033988749895, 1, 0),
+                new Vector3(0, 1.618033988749895, 1),
+                new Vector3(0, -1.618033988749895, 1),
+                new Vector3(0, -1.618033988749895, -1),
+                new Vector3(0, 1.618033988749895, -1),
+                new Vector3(1, 0, 1.618033988749895),
+                new Vector3(1, 0, -1.618033988749895),
+                new Vector3(-1, 0, -1.618033988749895),
+                new Vector3(-1, 0, 1.618033988749895),
+            },
+            Convexes = new int[][]
+            {
+                new int[]{4, 0, 7},
+                new int[]{3, 4, 7},
+                new int[]{10, 3, 7},
+                new int[]{9, 10, 7},
+                new int[]{0, 9, 7},
+                new int[]{5, 8, 11},
+                new int[]{5, 11, 2},
+                new int[]{5, 2, 6},
+                new int[]{5, 6, 1},
+                new int[]{5, 1, 8},
+                new int[]{4, 8, 0},
+                new int[]{8, 4, 11},
+                new int[]{3, 11, 4},
+                new int[]{11, 3, 2},
+                new int[]{10, 2, 3},
+                new int[]{2, 10, 6},
+                new int[]{9, 6, 10},
+                new int[]{6, 9, 1},
+                new int[]{0, 1, 9},
+                new int[]{1, 0, 8},
+            }
+        };
     }
 }

@@ -125,7 +125,7 @@ namespace Model3D.Extensions
 
         public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
-            pointShape ??= Surfaces.Sphere(9, 5, true).Mult(0.02 * mult);
+            pointShape ??= Shapes.Icosahedron.Mult(0.02 * mult);
 
             return new Shape
             {
