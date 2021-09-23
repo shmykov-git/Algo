@@ -5,7 +5,9 @@ using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using View3D.Libraries;
 
 namespace View3D
@@ -84,11 +86,11 @@ namespace View3D
             // Imposible maze // var (maze, path) = Parquets.PentagonalKershner8(0.002, 1.7).ToShape3().Mult(4).ToMazeWithPath(1, MazeType.SimpleRandom, new[] { (6, 7), (-6, -5) });             var enter = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[^1]).ApplyColor(Color.Green);            var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red); //.Transform(TransformFuncs3.Torus(1.5))
             // Gravity maze // var (maze, path) = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(1, MazeType.PowerGravity);            maze = maze.Rotate(Rotates.Z_Y);           path = path.Rotate(Rotates.Z_Y);            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green);                  var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
 
-            var shape = Shapes.Icosahedron.ToMetaShape3().ApplyColor(Color.Blue);
+            var shape = Shapes.Dodecahedron.ToMetaShape3();//.ToNumSpots3();//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
             return shape;
-                //+ Shapes.Cube.Mult(0.1).ApplyMaterial(new Material() { Color = Color.Red });
-                //+ Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
+            //+ Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
+            //+Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
         }
     }
 }

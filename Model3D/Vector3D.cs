@@ -18,8 +18,8 @@ namespace Model
             this.z = z;
         }
 
-        private const double Epsilon = 0.000000001;
-        private const decimal EpsilonM = 0.000000001m;
+        private const double Epsilon = 0.000001;
+        private const decimal EpsilonM = 0.000001m;
 
         public static bool operator ==(Vector3D a, Vector3D b)
         {
@@ -48,9 +48,9 @@ namespace Model
 
         public override int GetHashCode()
         {
-            var hashX = Math.Round((decimal)x / EpsilonM) * EpsilonM;
-            var hashY = Math.Round((decimal)y / EpsilonM) * EpsilonM;
-            var hashZ = Math.Round((decimal)z / EpsilonM) * EpsilonM;
+            var hashX = Math.Abs(x) < Epsilon ? 0m : Math.Round((decimal)x / EpsilonM) * EpsilonM;
+            var hashY = Math.Abs(y) < Epsilon ? 0m : Math.Round((decimal)y / EpsilonM) * EpsilonM;
+            var hashZ = Math.Abs(z) < Epsilon ? 0m : Math.Round((decimal)z / EpsilonM) * EpsilonM;
 
             return HashCode.Combine(hashX, hashY, hashZ);
         }

@@ -13,6 +13,14 @@ namespace Model.Extensions
                 yield return i++;
         }
 
+        public static IEnumerable<(int index, T value)> IndexValue<T>(this IEnumerable<T> list)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+            while (enumerator.MoveNext())
+                yield return (i++, enumerator.Current);
+        }
+
         public static IEnumerable<T> Evens<T>(this IEnumerable<T> list)
         {
             var i = 0;

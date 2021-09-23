@@ -60,7 +60,7 @@ namespace Model3D.Extensions
                 Convexes = shape.Convexes.SelectMany(convex => new int[][]
                 {
                     convex,
-                    convex.Select(i=>i+shape.Points.Length).ToArray()
+                    convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()
 
                 }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray()
             };
@@ -113,6 +113,36 @@ namespace Model3D.Extensions
                 Points3 = shape.Points3.SelectMany(p => spot.Points3.Select(s => p + s)).ToArray(),
                 Convexes = shape.PointIndices.SelectMany(i => spot.Convexes.Select(convex => convex.Select(j => spot.PointsCount * i + j).ToArray())).ToArray()
             }.ApplyMaterial(material);
+        }
+
+        public static Shape ToNumSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null, Color? fiveColor = null)
+        {
+            spotColor ??= Color.Red;
+            numColor ??= Color.DarkGreen;
+            fiveColor ??= Color.Black;
+            
+            var shapes = new List<Shape>();
+
+            foreach (var (i, p) in shape.Points3.IndexValue())
+            {
+                var n = i % 5;
+                if (n > 0)
+                {
+                    var circle = Polygons.Elipse(1, 1, n).ToShape2().ToShape3().Mult(0.1* mult).Centered().ToMetaShape3(0.5, 1).Move(p).Move(0, 0, 0.1).ApplyColor(numColor.Value);
+                    shapes.Add(circle);
+                }
+
+                var k = i / 5;
+                for (var j = 1; j <= k; j++)
+                {
+                    var five = Polygons.Elipse(1, 1, 5).ToShape2().ToShape3().AddVolumeZ(0.1).Mult(0.07 * mult).Move(p).Move(0, 0, 0.1 + j * 0.05).ApplyColor(fiveColor.Value);
+                    shapes.Add(five);
+                }
+            }
+
+            var spots = shape.ToSpots3(mult, spotColor.Value);
+
+            return shapes.Aggregate((a, b) => a + b) + spots;
         }
 
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3WithMaterial(mult, null, color.HasValue ? new Material { Color = color.Value } : null);
