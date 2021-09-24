@@ -91,7 +91,7 @@ namespace View3D
             // todo: A* может
             // todo: 3d буквы
 
-            var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            var shape = Texter.GetText("Мама мыла раму...", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
 
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3();//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
