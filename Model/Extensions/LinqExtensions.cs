@@ -21,6 +21,14 @@ namespace Model.Extensions
                 yield return (i++, enumerator.Current);
         }
 
+        public static IEnumerable<TRes> SelectWithIndex<T, TRes>(this IEnumerable<T> list, Func<T, int, TRes> func)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+            while (enumerator.MoveNext())
+                yield return func(enumerator.Current, i++);
+        }
+
         public static IEnumerable<T> Evens<T>(this IEnumerable<T> list)
         {
             var i = 0;

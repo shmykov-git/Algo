@@ -4,6 +4,7 @@ using Model.Libraries;
 using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using Model3D.Tools;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -85,8 +86,15 @@ namespace View3D
             // Maze with path // var (maze, path) = Parquets.PentagonalKershner8(0.01, 1.7).Rotate(-1.09).ToShape3().Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToMazeWithPath(1, new[] { (6, 7), (-6, -5) });            var shape = maze.ToLines3(0.2, Color.Blue) + path.ToLines3(0.2, Color.Red);
             // Imposible maze // var (maze, path) = Parquets.PentagonalKershner8(0.002, 1.7).ToShape3().Mult(4).ToMazeWithPath(1, MazeType.SimpleRandom, new[] { (6, 7), (-6, -5) });             var enter = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[^1]).ApplyColor(Color.Green);            var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red); //.Transform(TransformFuncs3.Torus(1.5))
             // Gravity maze // var (maze, path) = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(1, MazeType.PowerGravity);            maze = maze.Rotate(Rotates.Z_Y);           path = path.Rotate(Rotates.Z_Y);            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green);                  var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
+            // Not bad font // var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            // todo: dyno
+            // todo: A* может
+            // todo: 3d буквы
 
-            var shape = Shapes.Dodecahedron.ToNumSpots3();//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+
+
+            //var shape = Shapes.Dodecahedron.ToNumSpots3();//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
             return shape;
             //+ Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);

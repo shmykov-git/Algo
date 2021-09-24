@@ -1,9 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Model.Extensions;
 
-namespace Model
+namespace Model3D.Tools
 {
+
+    public class Dyno
+    {
+        // vec2 + SurfaceFunc - точка
+        // graph - основа
+        // rules??
+        // animation
+    }
+
+
+
     public delegate Vector2 DynoFunc(int frameCount, Vector2 pos);
 
     public class Dyno<TDynoItem> where TDynoItem : IDynoItem
@@ -11,8 +23,8 @@ namespace Model
         private List<DynoNode> nodes = new List<DynoNode>();
 
         public Dyno() { }
-        
-        public Dyno(IEnumerable<(TDynoItem item, DynoFunc[] rules)> itemRules) 
+
+        public Dyno(IEnumerable<(TDynoItem item, DynoFunc[] rules)> itemRules)
         {
             AddItemRulesRange(itemRules);
         }
@@ -48,7 +60,7 @@ namespace Model
             public TDynoItem item;
             public DynoFunc[] rules;
 
-            public Vector2 Pos 
+            public Vector2 Pos
             {
                 get => item.pos;
                 set => item.pos = value;
