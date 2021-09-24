@@ -115,7 +115,25 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToNumSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null, Color? fiveColor = null)
+        public static Shape ToNumSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null)
+        {
+            spotColor ??= Color.Red;
+            numColor ??= Color.Black;
+
+            var shapes = new List<Shape>();
+
+            foreach (var (i, p) in shape.Points3.IndexValue())
+            {
+                var iText = Texter.GetText(i.ToString()).ToCubeSpots3(200).Centered().Mult(0.002* mult).Move(p).Move(0.1, 0.1, 0).ApplyColor(numColor.Value);
+                shapes.Add(iText);
+            }
+
+            var spots = shape.ToSpots3(mult, spotColor.Value);
+
+            return shapes.Aggregate((a, b) => a + b) + spots;
+        }
+
+        public static Shape ToNumFigureSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null, Color? fiveColor = null)
         {
             spotColor ??= Color.Red;
             numColor ??= Color.DarkGreen;
