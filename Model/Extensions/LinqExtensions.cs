@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Model.Extensions
 {
@@ -63,6 +64,40 @@ namespace Model.Extensions
                 prevT = t;
             }
             yield return func(prevT, first);
+        }
+
+        public static void ForEachCirclePair<T>(this IEnumerable<T> list, Action<T, T> action)
+        {
+            foreach (var _ in list.SelectCirclePair((a, b) =>
+            {
+                action(a, b);
+                return true;
+            }));
+        }
+
+        public static IEnumerable<TRes> SelectCircleTriple<T, TRes>(this IEnumerable<T> list, Func<T, T, T, TRes> func)
+        {
+            var i = 0;
+            var prevPrevT = default(T);
+            var prevT = default(T);
+            var firstT = default(T);
+            var secondT = default(T);
+            foreach (var t in list)
+            {
+                if (i == 0)
+                    firstT = t;
+                else if (i == 1)
+                    secondT = t;
+                else
+                    yield return func(prevPrevT, prevT, t);
+
+                prevPrevT = prevT;
+                prevT = t;
+                i++;
+            }
+
+            yield return func(prevPrevT, prevT, firstT);
+            yield return func(prevT, firstT, secondT);
         }
 
         public static IEnumerable<TRes> SelectPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)

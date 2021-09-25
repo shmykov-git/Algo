@@ -124,7 +124,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = Texter.GetText(i.ToString()).ToCubeSpots3(200).Centered().Mult(0.002* mult).Move(p).Move(0.1, 0.1, 0).ApplyColor(numColor.Value);
+                var iText = Texter.GetText(i.ToString()).ToLines3(500).Centered().Mult(0.002* mult).Move(p).Move(0.1, 0.1, 0).ApplyColor(numColor.Value);
                 shapes.Add(iText);
             }
 

@@ -2,6 +2,7 @@
 using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
@@ -41,6 +42,8 @@ namespace Model3D.Tools
                 return c.R < colorLevel && c.G < colorLevel && c.B < colorLevel;
             }
 
+            (int i, int j) GetDir((int i, int j) a, (int i, int j) b) => (b.i - a.i, b.j - a.j);
+
             var map = Ranges.Range(m).Select(i => Ranges.Range(n).Select(j => IsPoint((i, j))).ToArray()).ToArray();
 
             (int i, int j)[] insideDirs = new[] { (1, 0), (0, -1), (-1, 0), (0, 1) };
@@ -55,20 +58,32 @@ namespace Model3D.Tools
                 p = new Vector2(v.j, 2 * fontSize - v.i)
             }).ToArray();
 
-            //var dic = nodes.ToDictionary(v => v.v, v => v);
+            var dic = nodes.ToDictionary(v => v.v, v => v);
 
-            //(int i, int j)[] dirs = new[] { (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1) };
+            (int i, int j)[] dirs = new[] { (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1) };
 
-            //var edges = nodes.Select(n => n.v)
-            //    .SelectMany(a => dirs.Select(d => (i: a.i + d.i, j: a.j + d.j)).Where(v => map[v.i][v.j]).Select(b => (i: dic[a].k, j: dic[b].k))
-            //    .Select(v => v.i < v.j ? v : (i: v.j, j: v.i)))
-            //    .Distinct()
-            //    .ToArray();
+            var edges = nodes.Select(n => n.v)
+                .SelectMany(a => dirs.Select(d => (i: a.i + d.i, j: a.j + d.j)).Where(v => map[v.i][v.j]).Select(b => (i: dic[a].k, j: dic[b].k))
+                .Select(v => v.i < v.j ? v : (i: v.j, j: v.i)))
+                .Distinct()
+                .ToList();
+
+            var g = new Graph(edges);
+
+            //foreach (var v in g.FullVisit())
+            //    Debug.WriteLine(nodes[v.i].v);
+
+            var delNodes = g.FullVisit().SelectCircleTriple((a, b, c) => (n: b, del: b.edges.Count == 2 && GetDir(nodes[a.i].v, nodes[b.i].v) == GetDir(nodes[b.i].v, nodes[c.i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+
+            foreach (var node in delNodes)
+                g.TakeOutNode(node);
+
+            var backIndices = g.BackIndices;
 
             return new Shape
             {
-                Points2 = nodes.Select(n => n.p).ToArray(),
-                //Convexes = edges.Select(v => new int[] { v.i, v.j }).ToArray()
+                Points2 = g.Nodes.Select(i => nodes[i].p).ToArray(),
+                Convexes = g.Edges.Select(v => new int[] { backIndices[v.i], backIndices[v.j] }).ToArray()
             };
         }
     }

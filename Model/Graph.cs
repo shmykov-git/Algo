@@ -12,22 +12,26 @@ namespace Model
     {
         public IEnumerable<(int i, int j)> Edges => edges.Select(edge => edge.e);
         public IEnumerable<int> Nodes => nodes.Select(n => n.i);
+        public Dictionary<int, int> BackIndices => nodes.IndexValue().ToDictionary(v => v.value.i, v => v.index);
 
         public List<Node> nodes;
         public List<Edge> edges;
 
         public class Edge
         {
-            public (int i, int j) e => (a.i, b.i);
             public Node a;
             public Node b;
+
             public Node Another(Node n) => n == a ? b : a;
+            public (int i, int j) e => (a.i, b.i);
         }
 
         public class Node
         {
             public int i;
             public List<Edge> edges;
+
+            public bool IsConnected(Node n) => edges.Any(e => e.Another(this) == n);
         }
 
         public Graph(IEnumerable<(int i, int j)> edges)
@@ -149,6 +153,53 @@ namespace Model
                     }
                 }
             } while (queue.Count > 0);
+        }
+
+        public IEnumerable<Node> FullVisit()
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Stack<Node>(nodes.Count);
+            
+            var startNode = nodes[0];
+
+            do
+            {
+                queue.Push(startNode);
+
+                do
+                {
+                    var n = queue.Pop();
+                    if (!visited[n.i])
+                    {
+                        visited[n.i] = true;
+
+                        yield return n;
+
+                        foreach (var edge in n.edges)
+                        {
+                            queue.Push(edge.Another(n));
+                        }
+                    }
+                } while (queue.Count > 0);
+
+                var index = visited.IndexValue().Where(v => !v.value).Select(v=>v.index).FirstOrDefault();
+                startNode = index == 0 ? null : nodes[index];
+            } while (startNode != null);
+        }
+
+        public void TakeOutNode(Node node)
+        {
+            node.edges.Select(e => e.Another(node)).ForEachCirclePair((a, b) => AddEdge(a, b));
+
+            foreach (var e in node.edges.ToArray())
+                RemoveEdge(e);
+            
+            nodes.Remove(node);
+        }
+
+        public void AddEdge(Node a, Node b)
+        {
+            AddEdge(new Edge() { a = a, b = b });
         }
 
         public void AddEdge(Edge edge)

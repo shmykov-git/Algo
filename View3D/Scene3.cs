@@ -92,7 +92,13 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
-            //var shape = Texter.GetText("10").ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            //            var txt = @"
+            //ВОЙНА И МИР
+            //ТОМ ПЕРВЫЙ
+            //ЧАСТЬ ПЕРВАЯ
+            //I";
+
+            //            var shape = Texter.GetText(txt).ToLines3(100, Color.Red); //.ToMetaShape3(10, 10, Color.Red, Color.Blue); //.ApplyColorGradientY(Color.Red, Color.Red, Color.White);
 
 
             var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
