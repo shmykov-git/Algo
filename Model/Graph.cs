@@ -12,7 +12,7 @@ namespace Model
     {
         public IEnumerable<(int i, int j)> Edges => edges.Select(edge => edge.e);
         public IEnumerable<int> Nodes => nodes.Select(n => n.i);
-        public Dictionary<int, int> BackIndices => nodes.IndexValue().ToDictionary(v => v.value.i, v => v.index);
+        public Dictionary<int, int> GetBackIndices() => nodes.IndexValue().ToDictionary(v => v.value.i, v => v.index);
 
         public List<Node> nodes;
         public List<Edge> edges;
@@ -159,7 +159,7 @@ namespace Model
         {
             var visited = new bool[nodes.Count];
             var queue = new Stack<Node>(nodes.Count);
-            
+            var bi = GetBackIndices();
             var startNode = nodes[0];
 
             do
@@ -169,9 +169,9 @@ namespace Model
                 do
                 {
                     var n = queue.Pop();
-                    if (!visited[n.i])
+                    if (!visited[bi[n.i]])
                     {
-                        visited[n.i] = true;
+                        visited[bi[n.i]] = true;
 
                         yield return n;
 
@@ -189,7 +189,7 @@ namespace Model
 
         public void TakeOutNode(Node node)
         {
-            node.edges.Select(e => e.Another(node)).ForEachCirclePair((a, b) => AddEdge(a, b));
+            node.edges.Select(e => e.Another(node)).ToArray().ForEachCirclePair((a, b) => AddEdge(a, b));
 
             foreach (var e in node.edges.ToArray())
                 RemoveEdge(e);

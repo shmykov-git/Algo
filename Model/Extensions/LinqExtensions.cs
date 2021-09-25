@@ -100,6 +100,23 @@ namespace Model.Extensions
             yield return func(prevT, firstT, secondT);
         }
 
+        public static IEnumerable<TRes> SelectCircleGroup<T, TRes>(this IEnumerable<T> list, int groupSize, Func<T[], TRes> func)
+        {
+            var group = new Queue<T>(groupSize);
+
+            foreach (var t in list.Concat(list.Take(groupSize-1)))
+            {
+                if (group.Count < groupSize - 1)
+                    group.Enqueue(t);
+                else
+                {
+                    group.Enqueue(t);
+                    yield return func(group.ToArray());
+                    group.Dequeue();
+                }
+            }
+        }
+
         public static IEnumerable<TRes> SelectPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
         {
             var i = 0;

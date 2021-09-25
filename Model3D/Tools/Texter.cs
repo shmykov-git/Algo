@@ -73,17 +73,29 @@ namespace Model3D.Tools
             //foreach (var v in g.FullVisit())
             //    Debug.WriteLine(nodes[v.i].v);
 
-            var delNodes = g.FullVisit().SelectCircleTriple((a, b, c) => (n: b, del: b.edges.Count == 2 && GetDir(nodes[a.i].v, nodes[b.i].v) == GetDir(nodes[b.i].v, nodes[c.i].v))).Where(v => v.del).Select(v => v.n).ToArray();
-
+            var delNodes1 = g.FullVisit().SelectCircleTriple((a, b, c) => (n: b, del: b.edges.Count == 2 && GetDir(nodes[a.i].v, nodes[b.i].v) == GetDir(nodes[b.i].v, nodes[c.i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+            var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (n: g[2], del: g[2].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[2].i].v) == GetDir(nodes[g[2].i].v, nodes[g[4].i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+            var delNodes3 = g.FullVisit().SelectCircleGroup(7, g => (n: g[3], del: g[3].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[3].i].v) == GetDir(nodes[g[3].i].v, nodes[g[6].i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+            var delNodes = delNodes1.Concat(delNodes2).Concat(delNodes3).Distinct().ToArray();
             foreach (var node in delNodes)
                 g.TakeOutNode(node);
 
-            var backIndices = g.BackIndices;
+            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (ns: new[] { g[1], g[2], g[3] }, del: g[1].edges.Count == 2 && g[2].edges.Count == 2 && g[3].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[2].i].v) == GetDir(nodes[g[2].i].v, nodes[g[4].i].v))).Where(v => v.del).SelectMany(v => v.ns).Distinct().ToArray();
+
+            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (n: g[2], del: g[2].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[2].i].v) == GetDir(nodes[g[2].i].v, nodes[g[4].i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+            //foreach (var node in delNodes2)
+            //    g.TakeOutNode(node);
+
+            //var delNodes = delNodes1.Concat(delNodes2).Distinct().ToArray();
+            //foreach (var node in delNodes)
+            //    g.TakeOutNode(node);
+
+            var bi = g.GetBackIndices();
 
             return new Shape
             {
                 Points2 = g.Nodes.Select(i => nodes[i].p).ToArray(),
-                Convexes = g.Edges.Select(v => new int[] { backIndices[v.i], backIndices[v.j] }).ToArray()
+                Convexes = g.Edges.Select(v => new int[] { bi[v.i], bi[v.j] }).ToArray()
             };
         }
     }

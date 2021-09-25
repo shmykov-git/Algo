@@ -94,6 +94,8 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
+            // еще вектора в тексте, 3d фонт?
+
             var txt = @"
             — Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des
 поместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas
