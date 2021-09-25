@@ -94,7 +94,14 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
-            var shape = Texter.GetText("ВОЙНА И МИР\r\nТОМ ПЕРВЫЙ\r\nЧАСТЬ ПЕРВАЯ\r\nI", 100, "Times New Roman").ToLines3(300, Color.Red); //.ToMetaShape3(10, 10, Color.Red, Color.Blue); //.ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            var txt = @"
+            — Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des
+поместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas
+que nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,
+toutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,
+vous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.
+";
+            var shape = Texter.GetText(txt, 100, "Times New Roman").ToLines3(300, Color.Red); //.ToMetaShape3(10, 10, Color.Red, Color.Blue); //.ApplyColorGradientY(Color.Red, Color.Red, Color.White);
 
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
