@@ -19,7 +19,10 @@ namespace View3D
             { FileFormat.WavefrontOBJ, "obj" },
         };
 
-        private string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), "../../../Scene");
+        private string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Scene");
+        private string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Content");
         public string FullFileName => Path.Combine(OutputDirectory, FileName);
+
+        public string GetContentFileName(string fileName) => Path.Combine(InputDirectory, fileName);
     }
 }

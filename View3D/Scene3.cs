@@ -15,21 +15,20 @@ namespace View3D
 {
     static class Scene3
     {
-        public static Shape GetShape()
+        public static Shape GetShape(Settings settings)
         {
-            //var polygon = Sinus(3, 50);
-            //var polygon = Spiral(3, 60);
-            //var polygon = Elipse(1, 0.3, 30);
-            //var polygon = Elipse(0.4, 1, 10);
-            //var polygon = Square.PutInside(Spiral(3, 60));
-            //var polygon = Square.PutInside(Square.MultOne(0.9));
-            //var polygon = Polygons.Square.PutInside(Polygons.Sinus(3, 100));
-            //var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
-            //var polygon = Polygons.Square.PutInside(Polygons.Sinus(1.7, 1.2, 3, 300));
+            // var polygon = Sinus(3, 50);
+            // var polygon = Spiral(3, 60);
+            // var polygon = Elipse(1, 0.3, 30);
+            // var polygon = Elipse(0.4, 1, 10);
+            // var polygon = Square.PutInside(Spiral(3, 60));
+            // var polygon = Square.PutInside(Square.MultOne(0.9));
+            // var polygon = Polygons.Square.PutInside(Polygons.Sinus(3, 100));
+            // var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
+            // var polygon = Polygons.Square.PutInside(Polygons.Sinus(1.7, 1.2, 3, 300));
             // var polygon = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Sinus(1.7, 1.2, 3, 300).Mult(0.8));
-            //var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
-            //var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
-
+            // var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
+            // var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
             // Spiral Sphere // var shape = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Multiplications.Cube).ToSphere();
             // Sphere Heart //var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
             // Arabica Heart // var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().ApplyZ(Funcs3Z.Hyperboloid).Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
@@ -49,12 +48,10 @@ namespace View3D
             // Kershner8 flower // var shape = Parquets.PentagonalKershner8ForTube(15, 15, 1.6).Move((0, 0)).ToShape3().ToLines(5).AddVolumeZ(0.005).Transform(TransformFuncs3.Flower(1.5, 3, 7)).ApplyZ(Funcs3Z.Paraboloid).Rotate(Rotates.Z_Y).Scale(1, 0.2, 1);
             // Alive Mistake // var shape = Parquets.PentagonalKershner8ForTube(15, 15, 1.6).Move((0, 0)).ToShape3().ToLines(5).AddVolumeZ(0.005).Transform(TransformFuncs3.Flower(1.5, 3, 5)).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).Scale(1, 0.2, 1).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y);            
             // Mistake Evolution // var shape = Parquets.PentagonalKershner8ForTube(30, 30, 1.6).ToShape3().ToLines(5).AddVolumeZ(0.005).Transform(TransformFuncs3.Flower(1.5, 3, 15)).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).Scale(1, 0.2, 1).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y);            
-
             // Print, Kershner8 // var shape = Parquets.PentagonalKershner8(0.075, 1.5).Rotate(-1.15).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
             // Print, Kershner8MugStand // var shape = Polygons.Elipse(1, 1, 50).PaveInside(Parquets.PentagonalKershner8(0.03, 1.5).Mult(1.5)).ToShape3().ToMetaShape(1, 20).AddVolumeZ(0.01);
             // Print, SpiralMugStand // var shape = Polygons.Elipse(1, 1, 100).PutInside(Polygons.Spiral(25, 6000).Mult(1.25)).MakeShape().AddVolumeZ(0.01);
             // Print, Kershner8HeartMugStand // var shape = Polygons.Heart(1, 1, 100).PaveInside(Parquets.PentagonalKershner8(0.01, 1.9).Mult(1.5)).ToShape3().ToMetaShape(0.2,50).AddVolumeZ(0.01);
-
             // Shamrock // var shape = Surfaces.Shamrock(400, 30).ToLines3(4).Rotate(Rotates.Z_Y);
             // Kershner8 shamrock // var shape = Parquets.PentagonalKershner8ForTube(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines3(4).Rotate(Rotates.Z_Y);
             // Shell // var shape = Parquets.PentagonalKershner8ForTube(10, 75, 1.6).Scale((1, 0.8/3)).PullOnSurface90(SurfaceFuncs.Shell).ToLines3(8).Rotate(Rotates.Z_Y);
@@ -63,7 +60,6 @@ namespace View3D
             // Mobius Strip // var shape = Surfaces.MobiusStrip(62, 10).ToLines3(2).Rotate(Rotates.Z_Y);
             // Kershner try Mobius Strip // var shape = Parquets.PentagonalKershner8ForTube(31, 10, 1.6).Scale(0.98, 1).Move(Math.PI, -1 + 0.1).PullOnSurface(SurfaceFuncs.MobiusStrip).ToLines3(1).Rotate(Rotates.Z_Y);
             // Mobius is so ...ing spectial // var shape = Surfaces.MobiusStrip(124, 20).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).ToLines3(2);
-
             // Fractal, Tree3 // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10).Rotate(Rotates.Z_Y);
             // Never Mind // var shape = ShapeFractals.NeverMindTree(6).Rotate(Rotates.Z_Y) + Shapes.Cube;
             // Never Mind 3D // var shape = ShapeFractals.NeverMindTree3D(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
@@ -87,24 +83,14 @@ namespace View3D
             // Imposible maze // var (maze, path) = Parquets.PentagonalKershner8(0.002, 1.7).ToShape3().Mult(4).ToMazeWithPath(1, MazeType.SimpleRandom, new[] { (6, 7), (-6, -5) });             var enter = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.005).Move(path.Points3[^1]).ApplyColor(Color.Green);            var shape = maze.ToLines3(0.2, Color.Blue) + enter + exit + path.ToLines3(0.2, Color.Red); //.Transform(TransformFuncs3.Torus(1.5))
             // Gravity maze // var (maze, path) = Parquets.Squares(50, 50, 0.04).ToShape3().ApplyZ(Funcs3Z.Paraboloid).ToMazeWithPath(1, MazeType.PowerGravity);            maze = maze.Rotate(Rotates.Z_Y);           path = path.Rotate(Rotates.Z_Y);            var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Black);            var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green);                  var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
             // Not bad font // var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
-            // LNT // var shape = Texter.GetText("ВОЙНА И МИР\r\nТОМ ПЕРВЫЙ\r\nЧАСТЬ ПЕРВАЯ\r\nI", 100, "Times New Roman").ToLines3(300, Color.Red);
-
+            // LNT // var shape = Vectorizer.GetText("ВОЙНА И МИР\r\nТОМ ПЕРВЫЙ\r\nЧАСТЬ ПЕРВАЯ\r\nI", 100, "Times New Roman").ToLines3(300, Color.Red);
+            // LNT2 // var shape = Vectorizer.GetText("— Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", 100, "Times New Roman").ToLines3(300, Color.Red);
 
 
             // todo: dyno
             // todo: A* может
 
-            // еще вектора в тексте, 3d фонт?
-
-            var txt = @"
-            — Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des
-поместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas
-que nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,
-toutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,
-vous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.
-";
-            var shape = Texter.GetText(txt, 100, "Times New Roman").ToLines3(300, Color.Red); //.ToMetaShape3(10, 10, Color.Red, Color.Blue); //.ApplyColorGradientY(Color.Red, Color.Red, Color.White);
-
+            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines3(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 

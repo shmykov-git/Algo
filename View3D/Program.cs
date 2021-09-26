@@ -19,7 +19,7 @@ namespace View3D
             try
             {
                 var sw = Stopwatch.StartNew();
-                var shape = Scene3.GetShape();
+                var shape = Scene3.GetShape(settings);
                 var scene = sceneManager.CreateScene(shape);
                 sw.Stop();
 
