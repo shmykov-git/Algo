@@ -85,12 +85,14 @@ namespace View3D
             // Not bad font // var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
             // LNT // var shape = Vectorizer.GetText("ВОЙНА И МИР\r\nТОМ ПЕРВЫЙ\r\nЧАСТЬ ПЕРВАЯ\r\nI", 100, "Times New Roman").ToLines3(300, Color.Red);
             // LNT2 // var shape = Vectorizer.GetText("— Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", 100, "Times New Roman").ToLines3(300, Color.Red);
+            // Bird // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines3(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            // Iguana //var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
 
 
             // todo: dyno
             // todo: A* может
 
-            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines3(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
