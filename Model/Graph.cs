@@ -32,6 +32,8 @@ namespace Model
             public List<Edge> edges;
 
             public bool IsConnected(Node n) => edges.Any(e => e.Another(this) == n);
+
+            public IEnumerable<Node> Siblings => edges.Select(e => e.Another(this));
         }
 
         public Graph(IEnumerable<(int i, int j)> edges)

@@ -23,7 +23,7 @@ namespace Model.Extensions
 
         public static (int i, int j) OrderedEdge(this (int i, int j) e)
         {
-            return (Math.Min(e.i, e.j), Math.Max(e.i, e.j));
+            return e.i < e.j ? e : (e.j, e.i);
         }
 
         public static (int i, int j) ReversedEdge(this (int i, int j) e)

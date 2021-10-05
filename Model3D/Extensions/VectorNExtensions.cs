@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Extensions
 {
@@ -19,9 +20,9 @@ namespace Model3D.Extensions
             return new Vector3(v.x, v.y, v.z);
         }
 
-        public static Model.Vector2 ToV2(this Vector4 v)
+        public static Vector2 ToV2(this Vector4 v)
         {
-            return new Model.Vector2(v.x, v.y);
+            return new Vector2(v.x, v.y);
         }
 
         public static Vector4 ToV4(this Vector3 v)
@@ -29,9 +30,9 @@ namespace Model3D.Extensions
             return new Vector4(v.x, v.y, v.z, 1);
         }
 
-        public static Model.Vector2 ToV2(this Vector3 v)
+        public static Vector2 ToV2(this Vector3 v)
         {
-            return new Model.Vector2(v.x, v.y);
+            return new Vector2(v.x, v.y);
         }
 
         public static Vector3 MultV(this Vector3 a, Vector3 b)
@@ -39,12 +40,12 @@ namespace Model3D.Extensions
             return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
         }
 
-        public static Vector4 ToV4(this Model.Vector2 v)
+        public static Vector4 ToV4(this Vector2 v)
         {
             return new Vector4(v.x, v.y, 0, 1);
         }
 
-        public static Vector3 ToV3(this Model.Vector2 v, double z = 0)
+        public static Vector3 ToV3(this Vector2 v, double z = 0)
         {
             return new Vector3(v.x, v.y, z);
         }
@@ -62,6 +63,11 @@ namespace Model3D.Extensions
         public static Vector3 ToLen(this Vector3 v, double len)
         {
             return v * len / v.Length;
+        }
+
+        public static Vector3 ToLen(this Vector3 v, Func<double, double> lenFn)
+        {
+            return v * lenFn(v.Length) / v.Length;
         }
 
         public static Vector3 ToXY(this Vector3 v)

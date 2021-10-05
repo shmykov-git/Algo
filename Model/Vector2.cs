@@ -44,6 +44,11 @@ namespace Model
             return new Vector2 { x = v.a, y = v.b };
         }
 
+        public static implicit operator (double x, double y)(Vector2 v)
+        {
+            return (v.x, v.y);
+        }
+
         public static implicit operator Vector2(Complex v)
         {
             return new Vector2 { x = v.Real, y = v.Imaginary };

@@ -101,7 +101,8 @@ namespace Model.Libraries
 
         public static Tile PentagonalKershner8(double angleD)
         {
-            var angleB = SimpleMinimizer.Minimize(2, 0.1, 0.00000000000001, x => PentagonalKershner8MinimizeFn(x, angleD));
+            var angleB = Minimizer.MinimizeSimple(2, 0.1, 0.0000000001, x => PentagonalKershner8MinimizeFn(x, angleD));
+            //var angleB = Minimizer.Minimize(x => PentagonalKershner8MinimizeFn(x, angleD), 2, 0.01);
             var angleD0 = Math.PI / 2;
 
             var angleC = 2 * Math.PI - 2 * angleB;

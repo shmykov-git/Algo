@@ -92,12 +92,17 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
-            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
+            var shape = 
+                Dynos.Test(0).ToMetaShape3(0.3, 0.3, Color.Green, Color.Green).Move(0, 0, 0) +
+                Dynos.Test(1).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 1) +
+                Dynos.Test(2).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 2) +
+                Dynos.Test(3).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 3) +
+                Dynos.Test(4).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 4);
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
-            return shape;
-            //+ Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
+            return shape
+            + Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
             //+Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
         }
     }
