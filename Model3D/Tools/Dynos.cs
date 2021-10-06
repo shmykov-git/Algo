@@ -13,18 +13,54 @@ namespace Model3D.Tools
     {
         public static Shape Test(int frameCount)
         {
+            var plane = Shapes.Icosahedron.SplitConvexes();
+
+            //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
+
+            Vector3 NothingFn(int frameCount, Vector3[] points, Graph.Node node) => points[node.i];
+
+            var r = 0.001;
+            var mult = 0.1;
+            Vector3 GravityFn(int frameCount, Vector3[] points, Graph.Node node)
+            {
+                var position = points[node.i];
+                var moves = node.Siblings.Select(s => points[s.i]).Select(v => (v - position).ToLen(l => l - r)).ToArray();
+                var move = mult * moves.Sum();
+
+                //Debug.WriteLine(move);
+
+                //if (move.Length > 0.25)
+                //    Debugger.Break();
+
+                return position + move;
+            }
+
+            var d = new SphereDyno(plane.Points3, plane.OrderedEdges, _=> GravityFn);
+
+            d.Animate(frameCount);
+
+            return new Shape()
+            {
+                Points3 = d.Points,
+                Convexes = plane.Convexes
+            };
+        }
+
+        public static Shape SurfaceTest(int frameCount)
+        {
             var plane = Parquets.Triangles(5, 10, 0.1).ToShape3().Centered();
 
             //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
 
-            Vector3 NothingFn(int frameCount, Vector3 position, IEnumerable<Vector3> siblings) => position;
+            Vector3 NothingFn(int frameCount, Vector3[] points, Graph.Node node) => points[node.i];
 
             var r = 0.2;
-            var mult = 0.5;
-            Vector3 GravityFn(int frameCount, Vector3 position, IEnumerable<Vector3> siblings)
+            var mult = 0.1;
+            Vector3 GravityFn(int frameCount, Vector3[] points, Graph.Node node)
             {
-                var moves = siblings.Select(v => (v - position).ToLen(l => l - r)).ToArray();
-                var move = mult / frameCount * moves.Sum();
+                var position = points[node.i];
+                var moves = node.Siblings.Select(s => points[s.i]).Select(v => (v - position).ToLen(l => l - r)).ToArray();
+                var move = mult * moves.Sum();
 
                 //Debug.WriteLine(move);
 
@@ -36,15 +72,15 @@ namespace Model3D.Tools
 
             //var rules = plane.Points.Index().Select(_ => (DynoFunc)GravityFn).ToArray();
 
-            DynoFunc[] GetRules(Graph g) => g.nodes.Select(n =>
+            DynoFunc GetRule(Graph.Node n) 
             {
                 if (n.edges.Count < 6)
                     return (DynoFunc)NothingFn;
                 else
                     return (DynoFunc)GravityFn;
-            }).ToArray();
+            }
 
-            var d = new Dyno(plane.Points2, plane.OrderedEdges, GetRules, SurfaceFuncs.HyperboloidZ);
+            var d = new SurfaceDyno(SurfaceFuncs.HyperboloidZ, plane.Points2, plane.OrderedEdges, GetRule);
 
             d.Animate(frameCount);
 

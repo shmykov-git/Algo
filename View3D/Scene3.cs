@@ -92,12 +92,7 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
-            var shape = 
-                Dynos.Test(0).ToMetaShape3(0.3, 0.3, Color.Green, Color.Green).Move(0, 0, 0) +
-                Dynos.Test(1).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 1) +
-                Dynos.Test(2).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 2) +
-                Dynos.Test(3).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 3) +
-                Dynos.Test(4).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 4);
+            var shape = Dynos.Test(10).ToMetaShape3(0.3, 0.3, Color.Blue, Color.Red).Move(0, 0, 0);
 
             //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
