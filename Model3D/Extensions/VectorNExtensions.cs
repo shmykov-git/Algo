@@ -40,6 +40,11 @@ namespace Model3D.Extensions
             return new Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
         }
 
+        public static double MultS(this Vector3 a, Vector3 b)
+        {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
+
         public static Vector4 ToV4(this Vector2 v)
         {
             return new Vector4(v.x, v.y, 0, 1);

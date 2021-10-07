@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Model;
 using Model.Extensions;
@@ -13,14 +14,14 @@ namespace Model3D.Tools
     {
         public static Shape Test(int frameCount)
         {
-            var plane = Shapes.Icosahedron.SplitConvexes();
-
+            var plane = Shapes.IcosahedronSp4.SplitSphere(1.5);
+            //return plane;
             //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
 
             Vector3 NothingFn(int frameCount, Vector3[] points, Graph.Node node) => points[node.i];
 
-            var r = 0.001;
-            var mult = 0.1;
+            var r = 0.6;
+            var mult = 1;
             Vector3 GravityFn(int frameCount, Vector3[] points, Graph.Node node)
             {
                 var position = points[node.i];
@@ -38,6 +39,10 @@ namespace Model3D.Tools
             var d = new SphereDyno(plane.Points3, plane.OrderedEdges, _=> GravityFn);
 
             d.Animate(frameCount);
+
+            //var ps = d.Points;
+            //foreach (var c in plane.Convexes)
+            //    Debug.WriteLine(string.Join(", ", c.SelectCirclePair((i, j) => (ps[j] - ps[i]).Length.ToString("F2"))));
 
             return new Shape()
             {

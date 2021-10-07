@@ -4,7 +4,7 @@ namespace Model.Tools
 {
     public static class Indexer
     {
-        public static (int[], bool[]) DistinctIndices<TItem>(TItem[] items)
+        public static (int[] indices, bool[] filter) DistinctIndices<TItem>(TItem[] items)
         {
             var iDist = 0;
             var indices = new Dictionary<TItem, int>(items.Length);

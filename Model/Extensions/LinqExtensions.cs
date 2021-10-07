@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Tools;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,6 +56,7 @@ namespace Model.Extensions
             var i = 0;
             var prevT = default(T);
             var first = default(T);
+            
             foreach (var t in list)
             {
                 if (i++ == 0)
@@ -63,7 +65,9 @@ namespace Model.Extensions
                     yield return func(prevT, t);
                 prevT = t;
             }
-            yield return func(prevT, first);
+            
+            if (i > 1)
+                yield return func(prevT, first);
         }
 
         public static void ForEachCirclePair<T>(this IEnumerable<T> list, Action<T, T> action)
@@ -143,5 +147,11 @@ namespace Model.Extensions
                 yield return item;
             }
         }
+
+        public static (int[] indices, bool[] filter) DistinctIndices<TItem>(this TItem[] items)
+        {
+            return Indexer.DistinctIndices(items);
+        }
+        
     }
 }

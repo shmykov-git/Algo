@@ -5,12 +5,71 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
 {
     public static class Extender
     {
+        public static Shape SplitSphere(Shape shape, double deformation = 1.2)
+        {
+            var r = shape.GetRadius();
+            var shapePoints = shape.Points3.Select(p => p / r).ToArray();
+            var newPoints = shape.Convexes.Select(convex => convex.Select(i => shapePoints[i]).Center().Normalize()).ToArray();
+
+            var points = shapePoints.Concat(newPoints).ToArray();
+            var indPoints = points.IndexValue().ToArray();
+            var net = new Net<Vector2, (int index, Vector3 value)>(indPoints.Select(p => (p.value.ToV2(), p)), 3 * r);
+            var distance = deformation * indPoints.SelectMany(a => net.SelectNeighbors(a.value.ToV2()).Where(b=>a.index != b.index).Select(b => (b.value - a.value).Length)).Min();
+
+            // todo: triples
+            List<(int index, Vector3 value)> OrderEdges((int index, Vector3 value) a, (int index, Vector3 value)[] ps)
+            {
+                List<(int index, Vector3 value)> res = new();
+                res.Add(ps[0]);
+
+                for (var i = 1; i < ps.Length; i++)
+                {
+                    for (var j = i; j < ps.Length; j++)
+                    {
+                        if ((ps[i-1].value - ps[j].value).Length < distance) //  && IsRight(a.value, ps[i - 1].value, ps[j].value)
+                        {
+                            var t = ps[i];
+                            ps[i] = ps[j];
+                            ps[j] = t;
+                            
+                            break;
+                        }
+                    }
+                    res.Add(ps[i]);
+                }
+
+                //Debug.WriteLine(string.Join(", ", res.SelectCirclePair((a,b)=>(b.value-a.value).Length.ToString("F1"))));
+
+                return res;
+            }
+
+            bool IsRight(Vector3 a, Vector3 b, Vector3 c)
+            {
+                var ba = a - b;
+                var bc = c - b;
+
+                return b.MultS(ba.MultV(bc)) < 0;
+            }
+
+            var convexes = indPoints.SelectMany(a => OrderEdges(a, net.SelectNeighbors(a.value.ToV2()).Where(b => a.index != b.index && (b.value - a.value).Length < distance).ToArray()).SelectCirclePair((b, c) => new[] { a.index, b.index, c.index })).ToArray();
+            var di = convexes.Select(c => c.OrderBy(v => v).ToArray()).Select(c => (c[0], c[1], c[2])).ToArray().DistinctIndices();
+            convexes = convexes.IndexValue().Where(v => di.filter[v.index]).Select(v => v.value).Select(c=>IsRight(points[c[0]], points[c[1]], points[c[2]]) ? c : new[] { c[1], c[0], c[2] }).ToArray();
+
+            return new Shape 
+            {
+                Points3 = points,
+                Convexes = convexes
+            };
+        }
+
         public static Shape SplitConvexes(Shape shape)
         {
             var points = shape.Points3;

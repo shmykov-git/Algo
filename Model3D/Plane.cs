@@ -1,5 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model3D.Extensions;
+using System;
 
 namespace Model
 {
@@ -13,6 +14,7 @@ namespace Model
         public Vector3 cb => b - c;
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
+        public Func<Vector3, double> Fn => x => Normal.MultS(x - c);
 
         public Plane(Vector3 a, Vector3 b, Vector3 c)
         {
