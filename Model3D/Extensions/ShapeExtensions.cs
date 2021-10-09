@@ -124,7 +124,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = Vectorizer.GetText(i.ToString()).ToLines3(500).Centered().Mult(0.002* mult).Move(p).Move(0.1, 0.1, 0).ApplyColor(numColor.Value);
+                var iText = Vectorizer.GetText(i.ToString()).ToLines3(500).Centered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
                 shapes.Add(iText);
             }
 
@@ -341,19 +341,19 @@ namespace Model3D.Extensions
             return Extender.SplitConvexes(shape);
         }
 
-        public static Shape SplitSphere(this Shape shape, double deformation = 1.2)
+        public static Shape SplitSphere(this Shape shape, double deformation = 1.5)
         {
             return Extender.SplitSphere(shape, deformation);
         }
 
-        public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
+        public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
-            return Mazerator.MakeMaze(shape, seed, type, exits);
+            return Mazerator.MakeMaze(shape, seed, type, exits, openExits);
         }
 
-        public static (Shape maze, Shape path) ToMazeWithPath(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
+        public static (Shape maze, Shape path) ToMazeWithPath(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
-            return Mazerator.MakeMazeWithPath(shape, seed, type, exits);
+            return Mazerator.MakeMazeWithPath(shape, seed, type, exits, openExits);
         }
 
         public static Shape[] SplitByMaterial(this Shape shape)

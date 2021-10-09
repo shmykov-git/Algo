@@ -92,16 +92,26 @@ namespace View3D
             // todo: dyno
             // todo: A* может
 
-            var shape = Shapes.Ball.ApplyColor(Color.Red);
+            //var s = Shapes.Dodecahedron.SplitSphere().SplitSphere().SplitSphere().SplitSphere().SplitSphere().SplitSphere(1.6); //.ToMaze().ToLines3(1.5, Color.Blue);
 
+            //var k = s.Convexes.Length/2;
+            //var (maze, path) = s.ToMazeWithPath(0, MazeType.SimpleRandom, new[] { (s.Convexes[0][0], s.Convexes[0][1]), (s.Convexes[k][0], s.Convexes[k][1]) }, false);
+            //var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Yellow); 
+            //var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green); 
+            //var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
+
+            //var shape = s.ApplyColor(Color.Red) + s.Mult(1.01).ToMetaShape3(0.1, 0.2, Color.Blue, Color.Green);
 
             //var shape = Dynos.Test(0).ApplyColor(Color.Red) +
             //    Dynos.Test(0).Mult(1.01).ToMetaShape3(0.4, 1, Color.Blue, Color.Green);
 
-            //var shape = Shapes.Dodecahedron.ToNumSpots3() + Shapes.Dodecahedron.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            var s = Shapes.Ball.Move(0,10,0).Transform(TransformFuncs3.Flower(1,1,9));
 
-            return shape
-            + Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
+            var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
+            //var shape = s.ToNumSpots3(0.3) + s.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+
+            return shape;
+            //+ Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
             //+Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
         }
     }

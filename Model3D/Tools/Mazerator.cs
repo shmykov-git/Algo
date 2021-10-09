@@ -13,12 +13,12 @@ namespace Model3D.Tools
 
     public static class Mazerator
     {
-        public static Shape MakeMaze(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
+        public static Shape MakeMaze(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
-            return MakeMazeWithPath(shape, seed, type, exits).maze;
+            return MakeMazeWithPath(shape, seed, type, exits, openExits).maze;
         }
 
-        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null)
+        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
             exits ??= new[] { (0, 1), (-2, -1) };
 
@@ -116,9 +116,9 @@ namespace Model3D.Tools
 
             var n = shape.Points.Length;
 
-            exits = exits?.Select(v => (v.i < 0 ? n + v.i : v.i, v.j < 0 ? n + v.j : v.j)).ToArray();
+            exits = exits?.Select(v => (v.i < 0 ? n + v.i : v.i, v.j < 0 ? n + v.j : v.j)).Select(v=>v.OrderedEdge()).ToArray();
 
-            if (exits != null)
+            if (exits != null && openExits)
                 bounds = bounds.Concat(exits).ToList();
 
             var mazeShape = new Shape()

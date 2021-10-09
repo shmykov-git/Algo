@@ -14,7 +14,7 @@ namespace Model3D.Tools
     {
         public static Shape Test(int frameCount)
         {
-            var plane = Shapes.IcosahedronSp4.SplitSphere(1.5);
+            var plane = Shapes.Cube.SplitSphere().SplitSphere().SplitSphere(1.8).SplitSphere(2.1);
             //return plane;
             //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
 

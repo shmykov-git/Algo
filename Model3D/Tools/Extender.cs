@@ -13,7 +13,7 @@ namespace Model3D.Tools
 {
     public static class Extender
     {
-        public static Shape SplitSphere(Shape shape, double deformation = 1.2)
+        public static Shape SplitSphere(Shape shape, double deformation = 1.5)
         {
             var r = shape.GetRadius();
             var shapePoints = shape.Points3.Select(p => p / r).ToArray();
