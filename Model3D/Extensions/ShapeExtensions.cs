@@ -81,10 +81,10 @@ namespace Model3D.Extensions
             return shape.ToSpots(multPoint, pointMaterial).Join(shape.ToLines(multLines, linesMaterial));
         }
 
-        public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null)
+        public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null, Shape spotShape = null)
         {
             return shape.ToLines3(multLines, linesColor)
-                .Join(shape.ToSpots3(multPoint, pointColor));
+                .Join(shape.ToSpots3(multPoint, pointColor, spotShape));
         }
 
         public static Shape ToCubeMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null)
@@ -163,7 +163,7 @@ namespace Model3D.Extensions
             return shapes.Aggregate((a, b) => a + b) + spots;
         }
 
-        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null) => shape.ToSpots3WithMaterial(mult, null, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
             shape.ToSpots3WithMaterial(mult, Shapes.Cube.Centered().Mult(0.02 * mult), color.HasValue ? new Material { Color = color.Value } : null);
@@ -173,7 +173,8 @@ namespace Model3D.Extensions
 
         public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
-            pointShape ??= Shapes.Icosahedron.Mult(0.02 * mult);
+            pointShape ??= Shapes.Icosahedron;
+            pointShape = pointShape.Mult(0.02 * mult);
 
             return new Shape
             {
@@ -401,6 +402,12 @@ namespace Model3D.Extensions
                 Convexes = shape.Convexes,
                 Materials = shape.Materials
             };
+        }
+
+        public static Shape Normed(this Shape shape)
+        {
+            var r = shape.GetRadius();
+            return shape.Mult(1 / r);
         }
 
         public static Shape Normalize(this Shape shape)

@@ -69,7 +69,11 @@ namespace Model.Libraries
         public static Shape IcosahedronSp4 => IcosahedronSp3.SplitSphere(1.4);
         public static Shape Ball => IcosahedronSp4.SplitSphere(1.5);
         public static Shape GolfBall => Ball.JoinConvexesBy6();
-        
+        public static Shape GolfBall4 => IcosahedronSp4.JoinConvexesBy6();
+        public static Shape GolfBall3 => IcosahedronSp3.JoinConvexesBy6();
+        public static Shape GolfBall2 => IcosahedronSp2.JoinConvexesBy6();
+        public static Shape GolfBall1 => IcosahedronSp1.JoinConvexesBy6();
+
         public static Shape Icosahedron => new Shape
         {
             Points3 = new Vector3[]
@@ -110,7 +114,7 @@ namespace Model.Libraries
                 new int[]{0, 1, 9},
                 new int[]{1, 0, 8},
             }
-        };
+        }.Normed();
 
         public static Shape Dodecahedron => new Shape
         {
@@ -152,6 +156,6 @@ namespace Model.Libraries
                 new[] {13, 11, 1, 3, 0},
                 new[] {1, 11, 14, 5, 4}
             }
-        };
+        }.Normed();
     }
 }
