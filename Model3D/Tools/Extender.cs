@@ -51,16 +51,8 @@ namespace Model3D.Tools
                 return res;
             }
 
-            bool IsRight(Vector3 a, Vector3 b, Vector3 c)
-            {
-                var ba = a - b;
-                var bc = c - b;
-
-                return b.MultS(ba.MultV(bc)) < 0;
-            }
-
             var convexes = indPoints.SelectMany(a => OrderEdges(a, net.SelectNeighbors(a.value.ToV2()).Where(b => a.index != b.index && (b.value - a.value).Length < distance).ToArray()).SelectCirclePair((b, c) => new[] { a.index, b.index, c.index })).ToArray();
-            var di = convexes.Select(c => c.OrderBy(v => v).ToArray()).Select(c => (c[0], c[1], c[2])).ToArray().DistinctIndices();
+            var di = convexes.Select(c => c.OrderBy(v => v).ToArray()).Select(c => (c[0], c[1], c[2])).ToArray().DistinctBi();
             convexes = convexes.IndexValue().Where(v => di.filter[v.index]).Select(v => v.value).Select(c=>IsRight(points[c[0]], points[c[1]], points[c[2]]) ? c : new[] { c[1], c[0], c[2] }).ToArray();
 
             return new Shape 
@@ -68,6 +60,63 @@ namespace Model3D.Tools
                 Points3 = points,
                 Convexes = convexes
             };
+        }
+
+        public static Shape JoinConvexesBy6(Shape shape)
+        {
+            var g = new Graph(shape.OrderedEdges);
+            var excluded = new HashSet<Graph.Node>(g.nodes.Count);
+            var nonExcluded = g.Visit().Where(n => n.edges.Count == 5).SelectMany(n=>n.edges.Select(e=>e.Another(n))).ToHashSet();
+            foreach(var node in g.PathVisit())
+            {
+                if ((node.edges.Count == 6 || node.edges.Count == 5) && !nonExcluded.Contains(node) && node.edges.All(e=>!excluded.Contains(e.Another(node))))
+                {
+                    excluded.Add(node);
+                }
+            }
+
+            int[] JoinConvexes(int[][] convexes, int k)
+            {
+                var res = new List<int>();
+                var edges = convexes.Select(c => c.Where(i => i != k).ToArray()).ToList();
+                var j = edges[0][0];
+                do
+                {
+                    var e = edges.First(e => e[0] == j || e[1] == j);
+                    res.Add(j);
+                    j = e[0] == j ? e[1] : e[0];
+                    edges.Remove(e);
+                } while (edges.Count > 0);
+
+                return res.ToArray();
+            }
+
+            var joinedConvexes = new List<int[]>();
+            var points = shape.Points3;
+            var convexes = shape.Convexes.ToList();
+            foreach(var node in excluded)
+            {
+                var planeConvexes = convexes.Where(c => c.Any(i => node.i == i)).ToArray();
+                
+                foreach (var c in planeConvexes)
+                    convexes.Remove(c);
+
+                var joinedConvex = JoinConvexes(planeConvexes, node.i);
+                joinedConvexes.Add(joinedConvex);
+            }
+
+            var (bi, pointIndices) = points.Index().RemoveBi(excluded.Select(n => n.i));
+            var newPoints = pointIndices.Select(i => points[i]).ToArray();
+            var newConvexes = convexes.Concat(joinedConvexes).ApplyBi(bi);
+            var rightConvexes = newConvexes.Select(c=>IsRight(newPoints[c[0]], newPoints[c[1]], newPoints[c[2]]) ? c : c.Reverse().ToArray()).ToArray();
+            
+            var resultShape = new Shape
+            {
+                Points3 = newPoints,
+                Convexes = rightConvexes
+            };
+
+            return resultShape;
         }
 
         public static Shape SplitConvexes(Shape shape)
@@ -143,6 +192,14 @@ namespace Model3D.Tools
                 Convexes = Convexes.ToArray(),
                 Materials = Materials.Count == 0 ? null : Materials.ToArray()
             };
+        }
+
+        private static bool IsRight(Vector3 a, Vector3 b, Vector3 c)
+        {
+            var ba = a - b;
+            var bc = c - b;
+
+            return b.MultS(ba.MultV(bc)) < 0;
         }
     }
 }

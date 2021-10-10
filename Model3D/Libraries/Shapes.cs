@@ -68,6 +68,7 @@ namespace Model.Libraries
         public static Shape IcosahedronSp3 => IcosahedronSp2.SplitSphere(1.3);
         public static Shape IcosahedronSp4 => IcosahedronSp3.SplitSphere(1.4);
         public static Shape Ball => IcosahedronSp4.SplitSphere(1.5);
+        public static Shape GolfBall => Ball.JoinConvexesBy6();
         
         public static Shape Icosahedron => new Shape
         {

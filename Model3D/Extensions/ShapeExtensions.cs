@@ -346,6 +346,11 @@ namespace Model3D.Extensions
             return Extender.SplitSphere(shape, deformation);
         }
 
+        public static Shape JoinConvexesBy6(this Shape shape)
+        {
+            return Extender.JoinConvexesBy6(shape);
+        }
+
         public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
             return Mazerator.MakeMaze(shape, seed, type, exits, openExits);

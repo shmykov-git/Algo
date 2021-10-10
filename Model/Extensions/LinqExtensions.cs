@@ -148,10 +148,14 @@ namespace Model.Extensions
             }
         }
 
-        public static (int[] indices, bool[] filter) DistinctIndices<TItem>(this TItem[] items)
+        public static (int[] bi, bool[] filter) DistinctBi<TItem>(this TItem[] items)
         {
-            return Indexer.DistinctIndices(items);
+            return Indexer.DistinctBi(items);
         }
-        
+
+        public static (int[] bi, List<TItem> items) RemoveBi<TItem>(this IEnumerable<TItem> items, IEnumerable<TItem> removeItems)
+        {
+            return Indexer.RemoveBi(items, removeItems);
+        }
     }
 }

@@ -157,6 +157,30 @@ namespace Model
             } while (queue.Count > 0);
         }
 
+        public IEnumerable<Node> PathVisit(Node node = null)
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Stack<Node>(nodes.Count);
+
+            queue.Push(node ?? nodes[0]);
+
+            do
+            {
+                var n = queue.Pop();
+                if (!visited[n.i])
+                {
+                    visited[n.i] = true;
+
+                    yield return n;
+
+                    foreach (var edge in n.edges)
+                    {
+                        queue.Push(edge.Another(n));
+                    }
+                }
+            } while (queue.Count > 0);
+        }
+
         public IEnumerable<Node> FullVisit()
         {
             var visited = new bool[nodes.Count];

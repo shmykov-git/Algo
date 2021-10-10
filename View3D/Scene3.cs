@@ -105,9 +105,9 @@ namespace View3D
             //var shape = Dynos.Test(0).ApplyColor(Color.Red) +
             //    Dynos.Test(0).Mult(1.01).ToMetaShape3(0.4, 1, Color.Blue, Color.Green);
 
-            var s = Shapes.Ball.Move(0,10,0).Transform(TransformFuncs3.Flower(1,1,9));
+            var shape = Shapes.GolfBall.ApplyColor(Color.Red);
 
-            var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
+            //var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
             //var shape = s.ToNumSpots3(0.3) + s.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
             return shape;

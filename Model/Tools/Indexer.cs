@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Model.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model.Tools
 {
     public static class Indexer
     {
-        public static (int[] indices, bool[] filter) DistinctIndices<TItem>(TItem[] items)
+        public static (int[] bi, bool[] filter) DistinctBi<TItem>(TItem[] items)
         {
             var iDist = 0;
             var indices = new Dictionary<TItem, int>(items.Length);
@@ -28,6 +30,14 @@ namespace Model.Tools
             }
 
             return (backIndices, filter);
+        }
+
+        public static (int[] bi, List<TItem> items) RemoveBi<TItem>(IEnumerable<TItem> items, IEnumerable<TItem> removeItems)
+        {
+            var result = items.Except(removeItems).ToList();
+            var bi = items.Select(v => result.IndexOf(v)).ToArray();
+            
+            return (bi, result);
         }
     }
 }
