@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;

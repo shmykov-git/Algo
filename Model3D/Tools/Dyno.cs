@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Tools;
 using Model3D.Extensions;
 using Vector3 = Aspose.ThreeD.Utilities.Vector3;

@@ -1,6 +1,7 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model;
 using System.Linq;
+using Model.Graphs;
 
 namespace Model3D.Extensions
 {

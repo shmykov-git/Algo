@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model3D.Extensions;
 using System;
+using Model.Graphs;
 using Vector3 = Aspose.ThreeD.Utilities.Vector3;
 
 namespace Model3D.Tools

@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Extensions;
 using System.Linq;
+using Model.Graphs;
 
 namespace Model3D
 {

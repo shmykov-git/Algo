@@ -7,6 +7,7 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
 using System.Linq;
+using Model.Graphs;
 
 namespace Model3D.Tools
 {

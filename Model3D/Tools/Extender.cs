@@ -7,6 +7,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Model.Graphs;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
