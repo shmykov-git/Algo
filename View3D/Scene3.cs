@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using Model.Graphs;
 using View3D.Libraries;
 
 namespace View3D
@@ -105,13 +106,33 @@ namespace View3D
             //var shape = Dynos.Test(0).ApplyColor(Color.Red) +
             //    Dynos.Test(0).Mult(1.01).ToMetaShape3(0.4, 1, Color.Blue, Color.Green);
 
-            var shape = Shapes.Dodecahedron.ToMetaShape3(2, 2, Color.Red, Color.Blue, Shapes.IcosahedronSp4);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
+
+            //var shape = Polygons.Sinus(0.5, 3, 5, 500).ToShape2().ToShape3().ToMetaShape3(0.2, 1, Color.Red, Color.Blue);
+
+            //var shape = Surfaces.Plane(50, 50).Mult(1.0/50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(0.5, 3, 5, 500)).ToShape3().ToMetaShape3(0.2, 1, Color.Red, Color.Blue);
+
+            var s = Surfaces.Plane(50, 50).Mult(1.0 / 50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(1, 3, 5, 500)).ToShape3();
+            var g = s.ToGraph();
+            var path = g.FindPath(g.nodes[0], g.nodes[^835]);
+
+
+            var shape = new Shape()
+            {
+                Points = s.Points,
+                Convexes = path.SelectPair((a, b) => new[] { a.i, b.i }).ToArray()
+            };
+
+
+            shape = shape.ToMetaShape3(0.2, 1, Color.Red, Color.Blue);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
+
+
+
 
             //var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
             //var shape = s.ToNumSpots3(0.3) + s.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
 
-            return shape;
-            //+ Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
+            return shape
+            +Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
             //+Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
         }
     }

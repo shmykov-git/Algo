@@ -12,8 +12,8 @@ namespace Model.Graphs
         public IEnumerable<int> Nodes => nodes.Select(n => n.i);
         public Dictionary<int, int> GetBackIndices() => nodes.IndexValue().ToDictionary(v => v.value.i, v => v.index);
 
-        public List<Node> nodes;
-        public List<Edge> edges;
+        public readonly List<Node> nodes;
+        public readonly List<Edge> edges;
 
         public Graph(IEnumerable<(int i, int j)> edges)
         {
@@ -37,7 +37,7 @@ namespace Model.Graphs
 
         public void TakeOutNode(Node node)
         {
-            node.edges.Select(e => e.Another(node)).ToArray().ForEachCirclePair((a, b) => AddEdge(a, b));
+            node.edges.Select(e => e.Another(node)).ToArray().ForEachCirclePair(AddEdge);
 
             foreach (var e in node.edges.ToArray())
                 RemoveEdge(e);

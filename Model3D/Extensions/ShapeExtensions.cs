@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using Model.Graphs;
 
 namespace Model3D.Extensions
 {
@@ -73,6 +74,15 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => p.ToV3().ToLen(0.5).ToV4()).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials
+            };
+        }
+
+        public static Shape2 ToShape2(this Shape shape)
+        {
+            return new Shape2
+            {
+                Points = shape.Points.Select(p => p.ToV2()).ToArray(),
+                Convexes = shape.Convexes,
             };
         }
 
@@ -350,6 +360,11 @@ namespace Model3D.Extensions
         public static Shape JoinConvexesBy6(this Shape shape)
         {
             return Extender.JoinConvexesBy6(shape);
+        }
+
+        public static Graph ToGraph(this Shape shape)
+        {
+            return new Graph(shape.OrderedEdges);
         }
 
         public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)

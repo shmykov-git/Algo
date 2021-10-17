@@ -16,10 +16,10 @@ namespace Model3D.Tools
     {
         public static Shape MakeMaze(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
         {
-            return MakeMazeWithPath(shape, seed, type, exits, openExits).maze;
+            return MakeMazeWithPath(shape, seed, type, exits, openExits, false).maze;
         }
 
-        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
+        public static (Shape maze, Shape path) MakeMazeWithPath(Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true, bool needPath = true)
         {
             exits ??= new[] { (0, 1), (-2, -1) };
 
@@ -128,9 +128,8 @@ namespace Model3D.Tools
                 Convexes = nodes.SelectMany(n => n.set.Where(e => !bounds.Contains(e))).Distinct().Select(e => new[] { e.i, e.j }).ToArray()
             };
 
-            if (exits == null)
+            if (!needPath)
                 return (mazeShape, null);
-
 
             var exitNodes = exits.SelectMany(v => nodes.Where(n => n.set.Contains(v))).ToArray();
 

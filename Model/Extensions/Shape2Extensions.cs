@@ -19,6 +19,20 @@ namespace Model.Extensions
             };
         }
 
+        public static Shape2 CutInside(this Shape2 shape, Polygon polygon)
+        {
+            var ss = shape.ToSuperShape();
+            ss.Cut(polygon, true);
+            return ss.ToShape();
+        }
+
+        public static Shape2 CutOutside(this Shape2 shape, Polygon polygon)
+        {
+            var ss = shape.ToSuperShape();
+            ss.Cut(polygon, false);
+            return ss.ToShape();
+        }
+
         public static Shape2 Cut(this Shape2 shape, IEnumerable<int> indices)
         {
             var backIndices = indices.BackIndices();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Model.Graphs
@@ -16,7 +17,7 @@ namespace Model.Graphs
             var queue = new Queue<(Node, Node)>(nodes.Count);
 
             queue.Enqueue((to, to));
-
+            
             do
             {
                 var (prev, n) = queue.Dequeue();
@@ -24,7 +25,7 @@ namespace Model.Graphs
                 if (distance[n.i] == 0)
                 {
                     distance[n.i] = distance[prev.i] + 1;
-
+                    
                     if (n == from)
                         break;
 
@@ -48,6 +49,9 @@ namespace Model.Graphs
 
         public IEnumerable<Node> FindPathAstar(Node from = null, Node to = null)
         {
+            // минимизация числа посещенных нодов
+            // оптимизация сложности алгоритма от o(n^2) к o(nlogn)
+
             return null;
         }
     }
