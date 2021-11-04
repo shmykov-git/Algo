@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace Model.Graphs
             var queue = new Queue<(Node, Node)>(nodes.Count);
 
             queue.Enqueue((to, to));
-            
+
             do
             {
                 var (prev, n) = queue.Dequeue();
@@ -25,7 +26,7 @@ namespace Model.Graphs
                 if (distance[n.i] == 0)
                 {
                     distance[n.i] = distance[prev.i] + 1;
-                    
+
                     if (n == from)
                         break;
 
@@ -41,18 +42,85 @@ namespace Model.Graphs
             {
                 yield return node;
 
-                node = node.edges.Select(e => e.Another(node)).Where(n => distance[n.i] > 0).OrderBy(n => distance[n.i]).First();
+                node = node.edges.Select(e => e.Another(node)).Where(n => distance[n.i] > 0).OrderBy(n => distance[n.i])
+                    .First();
             }
 
             yield return to;
         }
 
-        public IEnumerable<Node> FindPathAstar(Node from = null, Node to = null)
+        // how to: https://www.youtube.com/watch?v=-L-WgKMFuhE
+        public IEnumerable<Node> FindPathAStar(Func<Node, Node, double> distanceFn, Node from = null, Node to = null)
         {
-            // минимизация числа посещенных нодов
-            // оптимизация сложности алгоритма от o(n^2) к o(nlogn)
+            from ??= nodes[0];
+            to ??= nodes[^1];
 
-            return null;
+            var infos = new Dictionary<Node, Info>();
+            var openSet = new SortedStack<Node>(nodes.Count);
+            var closeSet = new HashSet<Node>(nodes.Count);
+
+            void UpdateOpenSetItem(Node prev, Node n)
+            {
+                var prevPathDistance = infos.TryGetValue(prev, out Info prevInfo) ? prevInfo.PathDistance : 0;
+
+                if (!infos.TryGetValue(n, out Info info))
+                {
+                    info = new Info()
+                    {
+                        ToDistance = distanceFn(n, to),
+                        PathDistance = prevPathDistance + distanceFn(prev, n),
+                        Prev = prev
+                    };
+                    infos.Add(n, info);
+                    openSet.Push(n, info.EstimatedPathDistance);
+                }
+                else
+                {
+                    var pathDistance = prevPathDistance + distanceFn(prev, n);
+                    if (pathDistance < info.PathDistance)
+                    {
+                        info.PathDistance = pathDistance;
+                        info.Prev = prev;
+                        openSet.Update(n, info.EstimatedPathDistance);
+                    }
+                }
+            }
+
+            UpdateOpenSetItem(from, from);
+
+            do
+            {
+                var n = openSet.Pop();
+                closeSet.Add(n);
+
+                if (n == to)
+                    break;
+
+                foreach (var nn in n.edges.Select(e=>e.Another(n)).Where(node=>!closeSet.Contains(node)))
+                {
+                    UpdateOpenSetItem(n, nn);
+                }
+            } while (!openSet.IsEmpty);
+
+            Debug.WriteLine($"{openSet.Count} + {closeSet.Count} = {openSet.Count + closeSet.Count}");
+
+            var node = to;
+            while (node != from)
+            {
+                yield return node;
+
+                node = infos[node].Prev;
+            }
+
+            yield return from;
+        }
+
+        private struct Info
+        {
+            public double ToDistance;
+            public double PathDistance;
+            public Node Prev;
+            public double EstimatedPathDistance => ToDistance + PathDistance;
         }
     }
 }
