@@ -117,7 +117,7 @@ namespace View3D
 
             double Distance(int i, int j)
             {
-                return (Math.Abs(points[i].x - points[j].x) + Math.Abs(points[i].y - points[j].y));
+                return Math.Sqrt((points[i].x - points[j].x).Pow2() + (points[i].y - points[j].y).Pow2());
             }
 
             var g = s.ToGraph();

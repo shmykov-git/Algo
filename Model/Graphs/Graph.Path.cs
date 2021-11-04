@@ -50,6 +50,7 @@ namespace Model.Graphs
         }
 
         // how to: https://www.youtube.com/watch?v=-L-WgKMFuhE
+        // todo: можно оптимизировать заменив double на long, и для равноудаленных узлов брать ближайший к цели (как на видео)
         public IEnumerable<Node> FindPathAStar(Func<Node, Node, double> distanceFn, Node from = null, Node to = null)
         {
             from ??= nodes[0];
@@ -61,27 +62,27 @@ namespace Model.Graphs
 
             void UpdateOpenSetItem(Node prev, Node n)
             {
-                var prevPathDistance = infos.TryGetValue(prev, out Info prevInfo) ? prevInfo.PathDistance : 0;
+                var prevPathDistance = infos.TryGetValue(prev, out Info prevInfo) ? prevInfo.PathDistanceFrom : 0;
 
                 if (!infos.TryGetValue(n, out Info info))
                 {
                     info = new Info()
                     {
-                        ToDistance = distanceFn(n, to),
-                        PathDistance = prevPathDistance + distanceFn(prev, n),
+                        DistanceTo = distanceFn(n, to),
+                        PathDistanceFrom = prevPathDistance + distanceFn(prev, n),
                         Prev = prev
                     };
                     infos.Add(n, info);
-                    openSet.Push(n, info.EstimatedPathDistance);
+                    openSet.Push(n, info.PathDistance);
                 }
                 else
                 {
                     var pathDistance = prevPathDistance + distanceFn(prev, n);
-                    if (pathDistance < info.PathDistance)
+                    if (pathDistance < info.PathDistanceFrom)
                     {
-                        info.PathDistance = pathDistance;
+                        info.PathDistanceFrom = pathDistance;
                         info.Prev = prev;
-                        openSet.Update(n, info.EstimatedPathDistance);
+                        openSet.Update(n, info.PathDistance);
                     }
                 }
             }
@@ -117,10 +118,10 @@ namespace Model.Graphs
 
         private struct Info
         {
-            public double ToDistance;
-            public double PathDistance;
+            public double DistanceTo;
+            public double PathDistanceFrom;
             public Node Prev;
-            public double EstimatedPathDistance => ToDistance + PathDistance;
+            public double PathDistance => DistanceTo + PathDistanceFrom;
         }
     }
 }

@@ -5,12 +5,12 @@ namespace Model
     public class SortedStack<T>
     {
         private readonly List<T> data;
-        private readonly List<double> dataOrder;
+        private readonly List<double> dataValues;
 
         public SortedStack(int capacity = 4)
         {
             data = new List<T>(capacity);
-            dataOrder = new List<double>(capacity);
+            dataValues = new List<double>(capacity);
         }
 
         public bool IsEmpty => data.Count == 0;
@@ -24,28 +24,26 @@ namespace Model
                 return false;
 
             data.RemoveAt(index);
-            dataOrder.RemoveAt(index);
+            dataValues.RemoveAt(index);
             
             return true;
         }
 
-        public void Push(T item, double weight)
+        public void Push(T item, double value)
         {
-            int position = dataOrder.BinarySearch(weight);
+            var position = dataValues.BinarySearch(value);
+            
             if (position < 0)
-            {
                 position = ~position;
-            }
 
-            data.Insert(position, item);
-            dataOrder.Insert(position, weight);
-            //Debug.WriteLine($"{weight}");
+            this.data.Insert(position, item);
+            dataValues.Insert(position, value);
         }
 
-        public void Update(T item, double weight)
+        public void Update(T item, double value)
         {
             Remove(item);
-            Push(item, weight);
+            Push(item, value);
         }
 
         public T Pop()
@@ -55,7 +53,7 @@ namespace Model
 
             var item = data[0];
             data.RemoveAt(0);
-            dataOrder.RemoveAt(0);
+            dataValues.RemoveAt(0);
 
             return item;
         }
