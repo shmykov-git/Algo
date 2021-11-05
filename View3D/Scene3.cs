@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using Aspose.ThreeD.Utilities;
 using MathNet.Numerics;
 using Model.Graphs;
 using View3D.Libraries;
@@ -115,28 +116,57 @@ namespace View3D
             var s = Surfaces.Plane(50, 50).Mult(1.0 / 50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(1, 3, 5, 500)).ToShape3();
             var points = s.Points2;
 
+            var q2 = Math.Sqrt(2);
+
             double Distance(int i, int j)
             {
-                return Math.Sqrt((points[i].x - points[j].x).Pow2() + (points[i].y - points[j].y).Pow2());
+                var a = points[i];
+                var b = points[j];
+
+                var dx = Math.Abs(a.x - b.x);
+                var dy = Math.Abs(a.y - b.y);
+
+                var min = Math.Min(dx, dy);
+                var max = Math.Max(dx, dy);
+
+                return (max - min) + min*2;
+
+                //if (Math.Abs(a.x -b.x) < 0.00001 || Math.Abs(a.y - b.y) < 0.00001)
+                    return (b - a).Len;
+
+                //return 0.99 * (b - a).Len;
             }
 
             var g = s.ToGraph();
             var from = g.nodes[^1219];
             var to = g.nodes[^835];
 
-            var path = g.FindPathAStar((a, b) => Distance(a.i, b.i), from, to);
+            var (path, open, close, infos) = g.FindPathAStar((a, b) => Distance(a.i, b.i), from, to);
 
-            var shape = new Shape()
+            var pathShape = new Shape()
             {
                 Points = s.Points,
                 Convexes = path.SelectPair((a, b) => new[] { a.i, b.i }).ToArray()
             };
 
+            var openShape = new Shape()
+            {
+                Points = open.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance*0.3, 0)).ToArray(),
+            };
 
-            shape = shape.ToMetaShape3(0.2, 1, Color.Red, Color.Blue);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
+            var closeList = close.ToList();
+            var closeShape = new Shape()
+            {
+                Points = close.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance * 0.3, 0)).ToArray(),
+                Convexes = path.Select(n=> closeList.IndexOf(n)).SelectPair((i,j)=>new[]{i,j}).ToArray()
+            };
 
+            pathShape = pathShape.ToMetaShape3(0.2, 1, Color.Black, Color.Green);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
 
-
+            var shape = pathShape +
+                        openShape.ToSpots3(0.22, Color.Blue) +
+                        closeShape.ToMetaShape3(0.22, 1, Color.Red, Color.Green)
+                ;// + s.Move(0,0,-0.1).ToMetaShape3(0.2, 0.1, Color.Green, Color.Green);
 
             //var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
             //var shape = s.ToNumSpots3(0.3) + s.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);

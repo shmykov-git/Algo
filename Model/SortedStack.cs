@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Model
 {
@@ -12,6 +13,8 @@ namespace Model
             data = new List<T>(capacity);
             dataValues = new List<double>(capacity);
         }
+
+        public T[] ToArray() => data.ToArray();
 
         public bool IsEmpty => data.Count == 0;
 
@@ -42,7 +45,9 @@ namespace Model
 
         public void Update(T item, double value)
         {
-            Remove(item);
+            if (!Remove(item))
+                throw new ArgumentException("No node");
+
             Push(item, value);
         }
 

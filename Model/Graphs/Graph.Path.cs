@@ -51,7 +51,7 @@ namespace Model.Graphs
 
         // how to: https://www.youtube.com/watch?v=-L-WgKMFuhE
         // todo: можно оптимизировать заменив double на long, и для равноудаленных узлов брать ближайший к цели (как на видео)
-        public IEnumerable<Node> FindPathAStar(Func<Node, Node, double> distanceFn, Node from = null, Node to = null)
+        public (Node[] path, Node[] open, Node[] close, Dictionary<Node, Info> infos) FindPathAStar(Func<Node, Node, double> distanceFn, Node from = null, Node to = null)
         {
             from ??= nodes[0];
             to ??= nodes[^1];
@@ -62,14 +62,16 @@ namespace Model.Graphs
 
             void UpdateOpenSetItem(Node prev, Node n)
             {
-                var prevPathDistance = infos.TryGetValue(prev, out Info prevInfo) ? prevInfo.PathDistanceFrom : 0;
+                var prevPathDistanceFrom = infos.TryGetValue(prev, out Info prevInfo) ? prevInfo.PathDistanceFrom : 0;
+                var pathDistanceFrom = prevPathDistanceFrom + distanceFn(prev, n);
 
                 if (!infos.TryGetValue(n, out Info info))
                 {
                     info = new Info()
                     {
                         DistanceTo = distanceFn(n, to),
-                        PathDistanceFrom = prevPathDistance + distanceFn(prev, n),
+                        PathDistanceFrom = pathDistanceFrom,
+                        Node = n,
                         Prev = prev
                     };
                     infos.Add(n, info);
@@ -77,10 +79,9 @@ namespace Model.Graphs
                 }
                 else
                 {
-                    var pathDistance = prevPathDistance + distanceFn(prev, n);
-                    if (pathDistance < info.PathDistanceFrom)
+                    if (pathDistanceFrom < info.PathDistanceFrom)
                     {
-                        info.PathDistanceFrom = pathDistance;
+                        info.PathDistanceFrom = pathDistanceFrom;
                         info.Prev = prev;
                         openSet.Update(n, info.PathDistance);
                     }
@@ -105,21 +106,35 @@ namespace Model.Graphs
 
             Debug.WriteLine($"{openSet.Count} + {closeSet.Count} = {openSet.Count + closeSet.Count}");
 
+            List<Node> path = new();
+
             var node = to;
             while (node != from)
             {
-                yield return node;
+                var info = infos[node];
+                Debug.WriteLine($"{node.i}: {info.DistanceTo:F3} + {info.PathDistanceFrom:F3} = {info.PathDistance:F3} ");
 
-                node = infos[node].Prev;
+                path.Add(node);
+                //yield return node;
+
+                node = info.Prev;
             }
 
-            yield return from;
+            var infoFrom = infos[from];
+            Debug.WriteLine($"{node.i}: {infoFrom.DistanceTo:F3} + {infoFrom.PathDistanceFrom:F3} = {infoFrom.PathDistance:F3} ");
+
+            path.Add(from);
+            //yield return from;
+            path.Reverse();
+
+            return (path.ToArray(), openSet.ToArray(), closeSet.ToArray(), infos);
         }
 
-        private struct Info
+        public struct Info
         {
             public double DistanceTo;
             public double PathDistanceFrom;
+            public Node Node;
             public Node Prev;
             public double PathDistance => DistanceTo + PathDistanceFrom;
         }

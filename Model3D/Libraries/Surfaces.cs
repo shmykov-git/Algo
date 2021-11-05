@@ -39,6 +39,21 @@ namespace Model3D.Libraries
             Convexes = Squeres(vn, un)
         };
 
+        public static Shape PlaneWithDiagonals(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = (u, v) => new Vector3(u, v, 0),
+                UFrom = 0,
+                UTo = un,
+                UN = un,
+                VFrom = 0,
+                VTo = vn,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Diagonals(vn, un)
+        };
+
         public static Shape Sphere(int un, int vn, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
@@ -129,6 +144,18 @@ namespace Model3D.Libraries
             {
                 new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v) },
                 new int[] { GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) }
+            }).SelectMany(v => v).ToArray();
+        }
+
+        private static int[][] Diagonals(int un, int vn)
+        {
+            int GetNum(int u, int v) => vn * u + v;
+
+            return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
+            {
+                new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) },
+                new int[] { GetNum(u, v), GetNum(u + 1, v + 1)},
+                new int[] { GetNum(u, v+1), GetNum(u + 1, v)}
             }).SelectMany(v => v).ToArray();
         }
     }
