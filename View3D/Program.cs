@@ -1,10 +1,6 @@
-﻿using Aspose.ThreeD;
-using Model;
-using Model3D.Tools;
+﻿using Model;
 using System;
 using System.Diagnostics;
-using System.Linq;
-using View3D.Libraries;
 using View3D.Tools;
 
 namespace View3D
@@ -14,7 +10,7 @@ namespace View3D
         static void Main(string[] args)
         {
             var settings = new Settings();
-            var sceneManager = new SceneManager();
+            var sceneManager = new SceneManager(settings);
 
             try
             {

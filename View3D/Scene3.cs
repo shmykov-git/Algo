@@ -92,88 +92,18 @@ namespace View3D
             // Iguana //var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
             // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
 
-            // todo: dyno
-            // todo: A* может
 
-            //var s = Shapes.Dodecahedron.SplitSphere().SplitSphere().SplitSphere().SplitSphere().SplitSphere().SplitSphere(1.6); //.ToMaze().ToLines3(1.5, Color.Blue);
+            //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
+            //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
+            //var shape = Mazes.CreateNet3MazeBox(5, 5, 5); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            var shape = Surfaces.APowerB(50, 50, 0, 4).ToMetaShape3(1, 1, Color.Red, Color.Green);//.Rotate(Rotates.Z_Y);
+            
 
-            //var k = s.Convexes.Length/2;
-            //var (maze, path) = s.ToMazeWithPath(0, MazeType.SimpleRandom, new[] { (s.Convexes[0][0], s.Convexes[0][1]), (s.Convexes[k][0], s.Convexes[k][1]) }, false);
-            //var enter = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[0]).ApplyColor(Color.Yellow); 
-            //var exit = Surfaces.Sphere(10, 10).Mult(0.01).Move(path.Points3[^1]).ApplyColor(Color.Green); 
-            //var shape = maze.ToLines3(1, Color.Blue) + enter + exit + path.ToLines3(0.3, Color.Red);
+            //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            //var shape = s.ApplyColor(Color.Red) + s.Mult(1.01).ToMetaShape3(0.1, 0.2, Color.Blue, Color.Green);
-
-            //var shape = Dynos.Test(0).ApplyColor(Color.Red) +
-            //    Dynos.Test(0).Mult(1.01).ToMetaShape3(0.4, 1, Color.Blue, Color.Green);
-
-
-            //var shape = Polygons.Sinus(0.5, 3, 5, 500).ToShape2().ToShape3().ToMetaShape3(0.2, 1, Color.Red, Color.Blue);
-
-            //var shape = Surfaces.Plane(50, 50).Mult(1.0/50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(0.5, 3, 5, 500)).ToShape3().ToMetaShape3(0.2, 1, Color.Red, Color.Blue);
-
-            var s = Surfaces.Plane(50, 50).Mult(1.0 / 50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(1, 3, 5, 500)).ToShape3();
-            var points = s.Points2;
-
-            var q2 = Math.Sqrt(2);
-
-            double Distance(int i, int j)
-            {
-                var a = points[i];
-                var b = points[j];
-
-                var dx = Math.Abs(a.x - b.x);
-                var dy = Math.Abs(a.y - b.y);
-
-                var min = Math.Min(dx, dy);
-                var max = Math.Max(dx, dy);
-
-                return (max - min) + min*2;
-
-                //if (Math.Abs(a.x -b.x) < 0.00001 || Math.Abs(a.y - b.y) < 0.00001)
-                    return (b - a).Len;
-
-                //return 0.99 * (b - a).Len;
-            }
-
-            var g = s.ToGraph();
-            var from = g.nodes[^1219];
-            var to = g.nodes[^835];
-
-            var (path, open, close, infos) = g.FindPathAStar((a, b) => Distance(a.i, b.i), from, to);
-
-            var pathShape = new Shape()
-            {
-                Points = s.Points,
-                Convexes = path.SelectPair((a, b) => new[] { a.i, b.i }).ToArray()
-            };
-
-            var openShape = new Shape()
-            {
-                Points = open.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance*0.3, 0)).ToArray(),
-            };
-
-            var closeList = close.ToList();
-            var closeShape = new Shape()
-            {
-                Points = close.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance * 0.3, 0)).ToArray(),
-                Convexes = path.Select(n=> closeList.IndexOf(n)).SelectPair((i,j)=>new[]{i,j}).ToArray()
-            };
-
-            pathShape = pathShape.ToMetaShape3(0.2, 1, Color.Black, Color.Green);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
-
-            var shape = pathShape +
-                        openShape.ToSpots3(0.22, Color.Blue) +
-                        closeShape.ToMetaShape3(0.22, 1, Color.Red, Color.Green)
-                ;// + s.Move(0,0,-0.1).ToMetaShape3(0.2, 0.1, Color.Green, Color.Green);
-
-            //var shape = s.ToLines3(0.3, Color.Blue); //.SplitSphere().SplitSphere().SplitSphere();
-            //var shape = s.ToNumSpots3(0.3) + s.ApplyColor(Color.Blue).ToLines3(1, Color.Blue);//.ToMetaShape3(1, 1, Color.Red, Color.Blue);
-
-            return shape;
+            return shape
             //+Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
-            //+Surfaces.Plane(20, 20).Centered().Mult(0.2).Move(0, 0, -0.1).ToMetaShape3(0.5, 0.5).ApplyColor(Color.DarkMagenta);
+            + Surfaces.Plane(20, 20).Mult(5.0/20).ApplyColor(Color.DarkMagenta);
         }
     }
 }

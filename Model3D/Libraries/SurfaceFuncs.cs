@@ -9,6 +9,8 @@ namespace Model3D.Libraries
 
     public static class SurfaceFuncs
     {
+        public static SurfaceFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);
+        
         public static SurfaceFunc HyperboloidZ => (double u, double v) => new Vector3(u, v, u * u - v * v);
 
         public static SurfaceFunc NormalDistribution(double mu, double sigma, Model.Vector2 shift) 

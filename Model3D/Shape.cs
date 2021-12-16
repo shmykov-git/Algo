@@ -13,7 +13,7 @@ namespace Model
 
         public int[][] Convexes;
         public Material[] Materials;
-
+        
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();
         public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? new (int, int)[0][] : Convexes.Select(convex => convex.Length == 2 ? new[] { (convex[0], convex[1]) } : convex.SelectCirclePair((i, j) => (i, j)));
@@ -24,6 +24,15 @@ namespace Model
         {
             get => Points.Select(p => p.ToV3()).ToArray();
             set => Points = value.Select(p => p.ToV4()).ToArray();
+        }
+
+        public Vector4[] Normals
+        {
+            get
+            {
+                var points = Points3;
+                return Convexes.Where(c => c.Length > 2).Select(c => new Plane(points[c[0]], points[c[1]], points[c[2]]).Normal.ToV4()).ToArray();
+            }
         }
 
         public Vector2[] Points2

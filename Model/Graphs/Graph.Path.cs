@@ -49,6 +49,63 @@ namespace Model.Graphs
             yield return to;
         }
 
+
+
+        //var s = Surfaces.Plane(50, 50).Mult(1.0 / 50).Move(-0.5, -0.5, 0).ToShape2().CutOutside(Polygons.Sinus(1, 3, 5, 500)).ToShape3();
+        //var points = s.Points2;
+
+        //var q2 = Math.Sqrt(2);
+
+        //double Distance(int i, int j)
+        //{
+        //    var a = points[i];
+        //    var b = points[j];
+
+        //    var dx = Math.Abs(a.x - b.x);
+        //    var dy = Math.Abs(a.y - b.y);
+
+        //    var min = Math.Min(dx, dy);
+        //    var max = Math.Max(dx, dy);
+
+        //    return (max - min) + min * 2;
+
+        //    //if (Math.Abs(a.x -b.x) < 0.00001 || Math.Abs(a.y - b.y) < 0.00001)
+        //    return (b - a).Len;
+
+        //    //return 0.99 * (b - a).Len;
+        //}
+
+        //var g = s.ToGraph();
+        //var from = g.nodes[^1219];
+        //var to = g.nodes[^835];
+
+        //var(path, open, close, infos) = g.FindPathAStar((a, b) => Distance(a.i, b.i), from, to);
+
+        //    var pathShape = new Shape()
+        //    {
+        //        Points = s.Points,
+        //        Convexes = path.SelectPair((a, b) => new[] { a.i, b.i }).ToArray()
+        //    };
+
+        //var openShape = new Shape()
+        //{
+        //    Points = open.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance * 0.3, 0)).ToArray(),
+        //};
+
+        //var closeList = close.ToList();
+        //var closeShape = new Shape()
+        //{
+        //    Points = close.Select(n => s.Points[n.i] + new Vector4(0, 0, infos[n].PathDistance * 0.3, 0)).ToArray(),
+        //    Convexes = path.Select(n => closeList.IndexOf(n)).SelectPair((i, j) => new[] { i, j }).ToArray()
+        //};
+
+        //pathShape = pathShape.ToMetaShape3(0.2, 1, Color.Black, Color.Green);//.ApplyColor(Color.Red);//.ToLines3(1, Color.Blue);
+
+        //    var shape = pathShape +
+        //                openShape.ToSpots3(0.22, Color.Blue) +
+        //                closeShape.ToMetaShape3(0.22, 1, Color.Red, Color.Green)
+
+
         // how to: https://www.youtube.com/watch?v=-L-WgKMFuhE
         // todo: можно оптимизировать заменив double на long, и для равноудаленных узлов брать ближайший к цели (как на видео)
         public (Node[] path, Node[] open, Node[] close, Dictionary<Node, Info> infos) FindPathAStar(Func<Node, Node, double> distanceFn, Node from = null, Node to = null)

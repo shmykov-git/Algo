@@ -63,7 +63,21 @@ namespace Model3D.Extensions
                     convex,
                     convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()
 
-                }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray()
+                }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
+            };
+        }
+
+        public static Shape AddSphereVolume(this Shape shape, double thicknessMult = 1.1)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Concat(shape.Points3.Select(p => thicknessMult*p)).ToArray(),
+
+                Convexes = shape.Convexes.SelectMany(convex => new int[][]
+                {
+                    convex.Reverse().ToArray(),
+                    convex.Select(i=>i+shape.Points.Length).ToArray()
+                }).ToArray() //.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
             };
         }
 
@@ -329,6 +343,16 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.Centered(),
                 Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
+        public static Shape TurnOut(this Shape shape)
+        {
+            return new Shape
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Select(c=>c.Reverse().ToArray()).ToArray(),
                 Materials = shape.Materials
             };
         }

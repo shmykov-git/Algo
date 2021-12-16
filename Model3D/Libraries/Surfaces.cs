@@ -9,6 +9,21 @@ namespace Model3D.Libraries
 {
     public static class Surfaces
     {
+        public static Shape APowerB(int un, int vn, double from, double to) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.APowerB,
+                UFrom = from,
+                UTo =  to,
+                UN = un,
+                VFrom = from,
+                VTo = to,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+
         public static Shape NormalDistribution(int un, int vn, double mult, double mu, double sigma) => new Shape
         {
             Points3 = new SurfaceFuncInfo
@@ -61,6 +76,21 @@ namespace Model3D.Libraries
                 Fn = SurfaceFuncs.Sphere,
                 UFrom = 0,
                 UTo = -2 * Math.PI,
+                UN = un,
+                VFrom = 0,
+                VTo = Math.PI,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+        }.Normalize();
+
+        public static Shape HalfSphere(int un, int vn, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Sphere,
+                UFrom = 0,
+                UTo = - Math.PI,
                 UN = un,
                 VFrom = 0,
                 VTo = Math.PI,
