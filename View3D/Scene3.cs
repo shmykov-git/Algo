@@ -96,14 +96,14 @@ namespace View3D
             //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
             //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
             //var shape = Mazes.CreateNet3MazeBox(5, 5, 5); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
-            var shape = Surfaces.APowerB(50, 50, 0, 4).ToMetaShape3(1, 1, Color.Red, Color.Green);//.Rotate(Rotates.Z_Y);
-            
+
+            var shape = Shapes.CoodsWithText;
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            return shape
+            return shape;
             //+Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
-            + Surfaces.Plane(20, 20).Mult(5.0/20).ApplyColor(Color.DarkMagenta);
+            //+ Surfaces.Plane(20, 20).Mult(5.0/20).ApplyColor(Color.DarkMagenta);
         }
     }
 }

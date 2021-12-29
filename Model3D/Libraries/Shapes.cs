@@ -2,7 +2,10 @@
 using Model.Extensions;
 using Model3D.Extensions;
 using System;
+using System.Drawing;
 using System.Linq;
+using Model3D.Tools;
+using View3D.Libraries;
 
 namespace Model.Libraries
 {
@@ -18,6 +21,55 @@ namespace Model.Libraries
 
             Convexes = Ranges.Range(n, n).Select(pair => 4 * n * pair.Item1 + 4 * pair.Item2).Select(i => new int[] { i, i + 1, i + 2, i + 3 }).ToArray()
         };
+
+        public static Shape Coods => new Shape
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(-5, 0, 0),
+                new Vector3(100, 0, 0),
+                new Vector3(0, -5, 0),
+                new Vector3(0, 100, 0),
+                new Vector3(0, 0, -5),
+                new Vector3(0, 0, 100),
+                new Vector3(97, 1, 1),
+                new Vector3(97, -1, -1),
+                new Vector3(97, 1, -1),
+                new Vector3(97, -1, 1),
+                new Vector3(1, 97, 1),
+                new Vector3(-1, 97, -1),
+                new Vector3(-1, 97, 1),
+                new Vector3(1, 97, -1),
+                new Vector3(1, 1, 97),
+                new Vector3(-1, -1, 97),
+                new Vector3(1, -1, 97),
+                new Vector3(-1, 1, 97),
+            },
+            Convexes = new int[][]
+            {
+                new int[] { 0, 1 },
+                new int[] { 2, 3 },
+                new int[] { 4, 5 },
+                new int[] { 1, 6 },
+                new int[] { 1, 7 },
+                new int[] { 1, 8 },
+                new int[] { 1, 9 },
+                new int[] { 3, 10 },
+                new int[] { 3, 11 },
+                new int[] { 3, 12 },
+                new int[] { 3, 13 },
+                new int[] { 5, 14 },
+                new int[] { 5, 15 },
+                new int[] { 5, 16 },
+                new int[] { 5, 17 },
+            }
+        }.Mult(0.01).ToLines3(0.7, Color.Navy);
+
+        public static Shape CoodsWithText =>
+            Coods +
+            Vectorizer.GetText("x", 100, "Georgia").Mult(0.0005).Move(0.95, -0.07, 0).ToLines3(0.6, Color.Red) +
+            Vectorizer.GetText("y", 100, "Georgia").Mult(0.0005).Move(0.02, 0.95, 0).ToLines3(0.6, Color.Red) +
+            Vectorizer.GetText("z", 100, "Georgia").Mult(0.0005).Rotate(Rotates.Z_X).Move(0, -0.07, 1).ToLines3(0.6, Color.Red);
 
         public static Shape Tetrahedron => new Shape
         {

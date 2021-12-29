@@ -84,6 +84,21 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
         }.Normalize();
 
+        public static Shape HalfSphere2(int un, int vn, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Sphere,
+                UFrom = - Math.PI * 0.2,
+                UTo = - Math.PI*0.8,
+                UN = un,
+                VFrom = Math.PI * 0.2,
+                VTo = Math.PI*0.8,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+        }.Normalize();
+
         public static Shape HalfSphere(int un, int vn, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
