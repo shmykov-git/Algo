@@ -129,7 +129,7 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
         }.Normalize();
 
-        public static Shape DiniSurface(int un, int vn, bool triangulate = false) => new Shape
+        public static Shape DiniSurface(int un, int vn, bool triangulate = false, bool bothFaces = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -141,7 +141,7 @@ namespace Model3D.Libraries
                 VTo = 2,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un, bothFaces)
         }.Normalize();
 
         public static Shape MobiusStrip(int un, int vn, bool triangulate = false) => new Shape
@@ -174,11 +174,20 @@ namespace Model3D.Libraries
             Convexes = Squeres(vn, un)
         };
 
-        private static int[][] Squeres(int un, int vn)
+        private static int[][] Squeres(int un, int vn, bool bothFaces = false)
         {
             int GetNum(int u, int v) => vn * u + v;
-
-            return (un - 1, vn - 1).SelectRange((u, v) => new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) }).ToArray();
+            if (bothFaces)
+                return (un - 1, vn - 1).SelectRange((u, v) => new[]
+                {
+                    new[] {GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v)},
+                    new[] {GetNum(u + 1, v), GetNum(u + 1, v + 1), GetNum(u, v + 1), GetNum(u, v)}
+                }).SelectMany(v => v).ToArray();
+            else
+                return (un - 1, vn - 1).SelectRange((u, v) => new int[]
+                {
+                    GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v)
+                }).ToArray();
         }
 
         private static int[][] Triangles(int un, int vn)

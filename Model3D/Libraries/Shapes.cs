@@ -64,7 +64,7 @@ namespace Model.Libraries
                 new int[] { 5, 16 },
                 new int[] { 5, 17 },
             }
-        }.Mult(0.01).ToLines3(0.7, Color.Navy);
+        }.Mult(0.01).ToLines3(0.7, Color.Red);
 
         public static Shape CoodsWithText =>
             Coods +
