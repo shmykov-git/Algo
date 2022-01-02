@@ -95,8 +95,12 @@ namespace View3D
 
             //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
             //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
-            var shape = Vectorizer.GetText("С Новым годом!", 100, "Times New Roman").Centered().Normed().Move(0, 0, 0).ToLines3(0.4, Color.Blue); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
-
+            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("t3.jpg")).Centered().Normed().ToLines3(0.4, Color.Blue); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            // .Move(0.5, 0.5, 0)
+            // .Mult(0.4).ApplyZ(Funcs3Z.Waves).Rotate(Rotates.Z_X)
+            // .Move(0.5, 0.5, 0)
+            // .ApplyZ(Funcs3Z.Paraboloid)
+            // .Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,1,1).Normalize()))
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
