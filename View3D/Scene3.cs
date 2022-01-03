@@ -95,12 +95,13 @@ namespace View3D
 
             //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
             //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
-            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("n2.jpg")).Centered().Normed().Mult(0.5).ApplyZ(Funcs3Z.SphereR(0.7)).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1, 2, 3).Normalize())).Move(0.2*new Vector3(1, 2, 3).Normalize()).ToLines3(0.4, Color.Blue); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            var shape = Vectorizer.GetContentShape(settings.GetContentFileName("l3.jpg")).Centered().Normed().ToLines3(0.4, Color.Blue); //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
             // .Move(0.5, 0.5, 0) .Move(-0.02, 0.003, 0)
             // .Mult(0.4).ApplyZ(Funcs3Z.Waves).Rotate(Rotates.Z_X)
             // .Move(0.5, 0.5, 0)
             // .ApplyZ(Funcs3Z.Paraboloid)
             // .Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,1,1).Normalize()))
+            // .Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1, 1, 1).Normalize())).Rotate(Quaternion.FromAngleAxis(0.25, new Vector3(1, 1, 1).Normalize()))
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
