@@ -126,15 +126,13 @@ namespace Model3D.Tools
             return shape;
         }
 
-        public static Shape GetContentShape(string fileName)
+        public static Shape GetContentShape(string fileName, int colorLevel = 200)
         {
             using var bitmap = new Bitmap(fileName);
-            var map = GetMapFromBitmap(bitmap);
+            var map = GetMapFromBitmap(bitmap, colorLevel);
             var shape = GetShapeFromMap(map);
 
-            var radius = shape.GetRadius();
-
-            return shape.Centered().Mult(0.5/ radius);
+            return shape.Centered().Normed();
         }
     }
 }

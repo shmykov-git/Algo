@@ -21,6 +21,11 @@ namespace Model.Extensions
             return lists.Select(list => list.Select(i => transformFn(i)).ToArray()).ToArray();
         }
 
+        public static int[][] CleanBi(this IEnumerable<int[]> lists)
+        {
+            return lists.Where(list=>!list.Contains(-1)).ToArray();
+        }
+
         public static Dictionary<int, int> BackIndices(this IEnumerable<int> indices)
         {
             var list = indices.ToArray();

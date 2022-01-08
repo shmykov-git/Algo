@@ -39,6 +39,17 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
+        public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc)
+        {
+            var pBi = shape.Points3.WhereBi(whereFunc);
+
+            return new Shape
+            {
+                Points3 = pBi.items.ToArray(),
+                Convexes = shape.Convexes.Transform(i => pBi.bi[i]).CleanBi()
+            };
+        }
+
         public static Shape SetZ(this Shape shape, Func3Z func) => new Shape
         {
             Points = shape.Points.Select(p => new Vector4(p.x, p.y, func(p.x, p.y), p.w)).ToArray(),
@@ -447,6 +458,12 @@ namespace Model3D.Extensions
         {
             var r = shape.GetRadius();
             return shape.Mult(1 / r);
+        }
+
+        public static Shape NormedHalf(this Shape shape)
+        {
+            var r = shape.GetRadius();
+            return shape.Mult(1.5 / r);
         }
 
         public static Shape Normalize(this Shape shape)
