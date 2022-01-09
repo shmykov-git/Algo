@@ -93,12 +93,17 @@ namespace View3D
             // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
 
 
-            //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
-            //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
-            var s1 = Vectorizer.GetContentShape(settings.GetContentFileName("e2.png")).Mult(0.5).Move(0, 0.5, 0).ToLines3(0.4, Color.Blue); //.ApplyZ(Funcs3Z.Sphere)
-            var s2 = Vectorizer.GetText("...only", 200, "Times New Roman").Centered().Normed().Mult(0.1).Move(1,-0.1,0).ToLines3(0.4, Color.Blue);
+            var shapes = new Shape[]
+            {
+                Vectorizer.GetContentShape(settings.GetContentFileName("f1.jpg")).ApplyZ(Funcs3Z.Waves).Mult(0.5).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0,1).Normalize())).Move(0.4,0.3,0.4).ToLines3(1, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("s5.jpg")).ApplyZ(Funcs3Z.Waves).Mult(0.2).Move(1,1,-1).ToLines3(0.5, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
+                Shapes.IcosahedronSp1.Mult(0.1).Move(-0.2, 0, 0.8).ToLines3(0.4, Color.Blue),
+                Shapes.Cube.Mult(0.1).Move(0.7, 0, -0.15).ToLines3(0.5, Color.Blue),
+                Surfaces.Plane(50, 50).ToMaze().Centered().Normed().Mult(2).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1, 1, 1).Normalize())).Rotate(Quaternion.FromAngleAxis(0.25, new Vector3(1, 1, 1).Normalize())).Move(-0.5,-0.5,-0.5).ToLines3(0.3, Color.Blue),
+                Shapes.CoodsWithText,
+            };
 
-            var shape = s1 + s2; //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
             // .Move(0.5, 0.5, 0) .Move(-0.02, 0.003, 0)
             // .Mult(0.4).ApplyZ(Funcs3Z.Waves).Rotate(Rotates.Z_X)
             // .Move(0.5, 0.5, 0)
@@ -108,10 +113,7 @@ namespace View3D
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            return shape
-            +Shapes.CoodsWithText.Mult(1);
-            //+Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
-            //+ Surfaces.Plane(20, 20).Mult(5.0/20).ApplyColor(Color.DarkMagenta);
+            return shapes.Aggregate((a, b) => a + b);
         }
     }
 }
