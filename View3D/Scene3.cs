@@ -95,10 +95,10 @@ namespace View3D
 
             //var shape = Parquets.PentagonalKershner8ForTube(3, 54, 1.5).ToShape3().ToLines(40).AddVolumeZ(0.05).Transform(TransformFuncs3.CylinderWrapZ).Scale(0.1, 0.1, 1).Move(0, 0, -5).CurveZ(Funcs3.Spiral4);
             //var shape = Shapes.Dodecahedron.AddSphereVolume(1.01).ApplyColor(Color.Red);
-            var s1 = Vectorizer.GetContentShape(settings.GetContentFileName("h2.jpg"), 150).ApplyZ(Funcs3Z.Waves).ToLines3(0.4, Color.Blue); //.ApplyZ(Funcs3Z.Sphere)
-            var s2 = Vectorizer.GetContentShape(settings.GetContentFileName("b1.jpg")).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Move(0, 0, 0.2).ToLines3(0.3, Color.Blue);
+            var s1 = Vectorizer.GetContentShape(settings.GetContentFileName("m5.png")).ApplyZ(Funcs3Z.Waves).ToLines3(0.4, Color.Blue); //.ApplyZ(Funcs3Z.Sphere)
+            //var s2 = Vectorizer.GetContentShape(settings.GetContentFileName("s4.jpg")).ApplyZ(Funcs3Z.Paraboloid).Mult(1.3).Move(0, 0, -1).ToLines3(0.4, Color.Blue);
 
-            var shape = s1 + s2; //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
+            var shape = s1;//+ s2; //.ToMetaShape3(1, 1, Color.Red, Color.Blue);
             // .Move(0.5, 0.5, 0) .Move(-0.02, 0.003, 0)
             // .Mult(0.4).ApplyZ(Funcs3Z.Waves).Rotate(Rotates.Z_X)
             // .Move(0.5, 0.5, 0)
@@ -108,8 +108,8 @@ namespace View3D
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            return shape;
-            //+ Shapes.CoodsWithText.Mult(1);
+            return shape
+            +Shapes.CoodsWithText.Mult(1);
             //+Shapes.Cube.Mult(0.1).ApplyColor(Color.Black);
             //+ Surfaces.Plane(20, 20).Mult(5.0/20).ApplyColor(Color.DarkMagenta);
         }
