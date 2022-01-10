@@ -95,12 +95,13 @@ namespace View3D
 
             var shapes = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("f1.jpg")).ApplyZ(Funcs3Z.Waves).Mult(0.5).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0,1).Normalize())).Move(0.4,0.3,0.4).ToLines3(1, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("s5.jpg")).ApplyZ(Funcs3Z.Waves).Mult(0.2).Move(1,1,-1).ToLines3(0.5, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
-                Shapes.IcosahedronSp1.Mult(0.1).Move(-0.2, 0, 0.8).ToLines3(0.4, Color.Blue),
-                Shapes.Cube.Mult(0.1).Move(0.7, 0, -0.15).ToLines3(0.5, Color.Blue),
-                Surfaces.Plane(50, 50).ToMaze().Centered().Normed().Mult(2).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1, 1, 1).Normalize())).Rotate(Quaternion.FromAngleAxis(0.25, new Vector3(1, 1, 1).Normalize())).Move(-0.5,-0.5,-0.5).ToLines3(0.3, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("scale_1200.png"), 128).Mult(0.5).Move(0.5,0.6,0).ToLines3(1, Color.Blue),
+                Vectorizer.GetText("Console.WriteLine(\"Hello World\")").Centered().Normed().Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.53).ToLines3(0.5, Color.Blue),
+                //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
+                //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
+                //Shapes.IcosahedronSp1.Mult(0.1).Move(-0.2, 0, 0.8).ToLines3(0.4, Color.Blue),
+                //Shapes.Cube.Mult(0.1).Move(0.7, 0, -0.15).ToLines3(0.5, Color.Blue),
+                //Surfaces.Plane(50, 50).ToMaze().Centered().Normed().Mult(2).Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1, 1, 1).Normalize())).Rotate(Quaternion.FromAngleAxis(0.25, new Vector3(1, 1, 1).Normalize())).Move(-0.5,-0.5,-0.5).ToLines3(0.3, Color.Blue),
                 Shapes.CoodsWithText,
             };
 
