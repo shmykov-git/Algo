@@ -463,7 +463,7 @@ namespace Model3D.Extensions
         public static Shape NormedHalf(this Shape shape)
         {
             var r = shape.GetRadius();
-            return shape.Mult(1.5 / r);
+            return shape.Mult(0.5 / r);
         }
 
         public static Shape Normalize(this Shape shape)
