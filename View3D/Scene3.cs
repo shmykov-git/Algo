@@ -95,9 +95,8 @@ namespace View3D
             var shapes = new Shape[]
             {
                 //Shapes.GolfBall.Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0.01,0.02).Normalize())).ToMaze(0, MazeType.PowerDirection4).ToLines3(1, Color.Red).ApplyColorGradientY(Color.White, Color.Red, Color.Red, Color.Red, Color.White),
-                Shapes.Cube.ToLines3(1, Color.Blue),
-                Shapes.GolfBall1.Mult(0.025).Move(0, -0.3, -0.7).ToLines3(0.5, Color.White),
-                Vectorizer.GetContentShape(settings.GetContentFileName("e3.jpg")).ApplyZ(Funcs3Z.Sphere).Mult(0.6).Move(0,-0.1,0).ToLines3(1, Color.White).ApplyColorGradientY(Color.White,Color.Blue,Color.Blue,Color.Blue,Color.Blue).ApplyColorGradientZ((Color?)null,null,null,null,Color.White).ApplyColorGradientX(Color.White,null,null,null,null,null,null,null,null,null,null,null,Color.White),
+                Surfaces.Plane(30, 30).Centered().Normed().Rotate(Rotates.Z_X).Move(0.4, 0, 0).ToLines3(0.5, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("d5.jpg")).ToLines3(1, Color.White).ApplyColorGradientX((Color?)null, null, null, null, null, null, null, null, null, Color.Blue, Color.Blue),
                 //Vectorizer.GetText("Lost con....", 200, "Times New Roman").Centered().Normed().Rotate(Rotates.Z_Y).Mult(0.2).Move(0.2, 0, 0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
