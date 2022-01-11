@@ -96,6 +96,7 @@ namespace View3D
             {
                 //Shapes.GolfBall.Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0.01,0.02).Normalize())).ToMaze(0, MazeType.PowerDirection4).ToLines3(1, Color.Red).ApplyColorGradientY(Color.White, Color.Red, Color.Red, Color.Red, Color.White),
                 Shapes.Cube.ToLines3(1, Color.Blue),
+                Shapes.GolfBall1.Mult(0.025).Move(0, -0.3, -0.7).ToLines3(0.5, Color.White),
                 Vectorizer.GetContentShape(settings.GetContentFileName("e3.jpg")).ApplyZ(Funcs3Z.Sphere).Mult(0.6).Move(0,-0.1,0).ToLines3(1, Color.White).ApplyColorGradientY(Color.White,Color.Blue,Color.Blue,Color.Blue,Color.Blue).ApplyColorGradientZ((Color?)null,null,null,null,Color.White).ApplyColorGradientX(Color.White,null,null,null,null,null,null,null,null,null,null,null,Color.White),
                 //Vectorizer.GetText("Lost con....", 200, "Times New Roman").Centered().Normed().Rotate(Rotates.Z_Y).Mult(0.2).Move(0.2, 0, 0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
