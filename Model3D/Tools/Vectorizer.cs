@@ -9,11 +9,14 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Linq;
 using Model.Graphs;
+using Model.Interfaces;
 
 namespace Model3D.Tools
 {
     public static class Vectorizer
     {
+        public static IDirSettings Settings { get; set; }
+
         private static Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial")
         {
             var lines = text.Split("\r\n").ToArray();

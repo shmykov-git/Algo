@@ -1,10 +1,11 @@
 ﻿using Aspose.ThreeD;
 using System.Collections.Generic;
 using System.IO;
+using Model.Interfaces;
 
 namespace View3D
 {
-    class Settings
+    public class Settings : IDirSettings
     {
         //public FileFormat Format => FileFormat.FBX7700Binary;
         public FileFormat Format => FileFormat.GLTF2_Binary;
@@ -20,8 +21,8 @@ namespace View3D
             { FileFormat.WavefrontOBJ, "obj" },
         };
 
-        private string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Scene");
-        private string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Content");
+        public string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Scene");
+        public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Content");
         public string FullFileName => Path.Combine(OutputDirectory, FileName);
         public bool AddNormalsWhenNoMaterial => true;
         public string GetContentFileName(string fileName) => Path.Combine(InputDirectory, fileName);

@@ -348,19 +348,24 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3 yAxis)
+        public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3? yAxis = null)
         {
             var zN = zAxis.Normalize();
             var q1 = Quaternion.FromRotation(Vector3.ZAxis, zN);
 
-            var yN = yAxis.Normalize();
-            var yP = yN;
-            var fi = Math.Acos(yP.MultS(yAxis));
-            var q2 = Quaternion.FromAngleAxis(fi, zN);
+            Func<Vector4, Vector4> fn = v => q1 * v;
+
+            if (yAxis.HasValue)
+            {
+                var yN = yAxis.Value.Normalize();
+                var yPAxis = yN.MultV(-zN).MultV(zN).Normalize();
+                var q2 = Quaternion.FromRotation(q1 * Vector3.YAxis, yPAxis);
+                fn = v => q2 * (q1 * v);
+            }
 
             return new Shape
             {
-                Points = shape.Points.Select(p => q2 * (q1 * p)).ToArray(),
+                Points = shape.Points.Select(fn).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials
             };
