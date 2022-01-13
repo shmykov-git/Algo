@@ -348,6 +348,24 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3 yAxis)
+        {
+            var zN = zAxis.Normalize();
+            var q1 = Quaternion.FromRotation(Vector3.ZAxis, zN);
+
+            var yN = yAxis.Normalize();
+            var yP = yN;
+            var fi = Math.Acos(yP.MultS(yAxis));
+            var q2 = Quaternion.FromAngleAxis(fi, zN);
+
+            return new Shape
+            {
+                Points = shape.Points.Select(p => q2 * (q1 * p)).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape Centered(this Shape shape)
         {
             return new Shape

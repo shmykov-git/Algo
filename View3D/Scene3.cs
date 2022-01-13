@@ -94,17 +94,22 @@ namespace View3D
             // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
 
             //var d = Vectorizer.GetContentShape(settings.GetContentFileName("hz1.jpg"), 150).Mult(0.2);
-            var n = Shapes.Tetrahedron.Normals[3];
+            var e = Vectorizer.GetContentShape(settings.GetContentFileName("e1.jpg")).Mult(0.3).ToLines3(1, Color.Blue);
+            var shape = Shapes.Dodecahedron;
+            var s = shape.Normals.Select(n => e.Rotate(n.ToV3(), Vector3.YAxis).Move(2*n.ToV3()))
+                .Aggregate((a, b) => a + b);
 
             var shapes = new Shape[]
             {
+                shape.ToLines3(1, Color.Red),
+                s,
                 //Shapes.GolfBall.Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0.01,0.02).Normalize())).ToMaze(0, MazeType.PowerDirection4).ToLines3(1, Color.Red).ApplyColorGradientY(Color.White, Color.Red, Color.Red, Color.Red, Color.White),
                 //Surfaces.Plane(30, 30).Centered().Normed().Rotate(Rotates.Z_X).Rotate(Rotates.Y_X).Rotate(Quaternion.FromRotation(Vector3.XAxis, new Vector3(5,-1,0).Normalize())).Move(1.3*new Vector3(5,-1,0).Normalize()).Move(0,-0.7,0).ToLines3(0.5, Color.Blue),
                 //Shapes.GolfBall.Mult(2).Move(4, -2, 0).ToLines3(2, Color.Red),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("d6.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,-0.4,-1).ToLines3(1, Color.White),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("w6.jpg")).ApplyZ(Funcs3Z.SphereR(1.2)).Move(0.7,0.7,-0.5).ToLines3(1, Color.Blue),
-                Shapes.Tetrahedron.ToLines3(1, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("l4.jpg")).Mult(0.69).Move(0.08,-0.085,0.2).Rotate(Quaternion.FromAngleAxis(Math.PI, Vector3.ZAxis)).Rotate(Quaternion.FromRotation(Vector3.ZAxis, n.ToV3().Normalize())).ToLines3(1, Color.Blue),
+                //Shapes.Tetrahedron.ToLines3(1, Color.Blue),
+                //Vectorizer.GetContentShape(settings.GetContentFileName("e1.jpg")).ToLines3(1, Color.Blue),
                 //Vectorizer.GetText("Lost con....", 200, "Times New Roman").Centered().Normed().Rotate(Rotates.Z_Y).Mult(0.2).Move(0.2, 0, 0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
@@ -123,7 +128,7 @@ namespace View3D
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            return shapes.Aggregate((a, b) => a + b).Rotate(Quaternion.FromRotation(n.ToV3().Normalize(), Vector3.ZAxis)).Rotate(Quaternion.FromAngleAxis(-3*Math.PI/4, Vector3.ZAxis)).ApplyColorGradientZ(Color.White, null);
+            return shapes.Aggregate((a, b) => a + b);
         }
     }
 }
