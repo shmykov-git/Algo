@@ -103,21 +103,27 @@ namespace View3D
 
             //var s = Vectorizer.GetContentShape(settings.GetContentFileName("p2.jpg"), 130).Move(-0.003, 0, 0).ApplyZ(Funcs3Z.CylinderXM).Move(0,0,1);
 
+            var a = Vectorizer.GetContentShape(settings.GetContentFileName("p3.jpg"), 120).ToLines3(1, Color.Blue) +
+                    Shapes.GolfBall3.Mult(0.265).Move(-0.01, 0.16, 0).ToLines3(1, Color.Blue); //.ApplyColorGradientY((Color?)null, null, null, null, null, null, null, null, null, Color.Yellow, Color.Yellow);
+
             var shapes = new Shape[]
             {
                 //shape.ToLines3(1, Color.Red),
                 //s,
                 //Shapes.GolfBall.Rotate(Quaternion.FromRotation(Vector3.ZAxis, new Vector3(1,0.01,0.02).Normalize())).ToMaze(0, MazeType.PowerDirection4).ToLines3(1, Color.Red).ApplyColorGradientY(Color.White, Color.Red, Color.Red, Color.Red, Color.White),
-                Surfaces.Plane(50, 50).Centered().Normed().Mult(2).Rotate(Rotates.Z_Y).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(1,5,0).Normalize())).Where(v=>new Vector3(v.x, 0, v.z).Length < 1).Move(0,-0.9,0).ToLines3(0.5, Color.White),
+                //Surfaces.Plane(50, 50).Centered().Normed().Mult(2).Rotate(Rotates.Z_Y).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(1,5,0).Normalize())).Where(v=>new Vector3(v.x, 0, v.z).Length < 1).Move(0,-0.9,0).ToLines3(0.5, Color.White),
                 //Shapes.GolfBall.Mult(2).Move(4, -2, 0).ToLines3(2, Color.Red),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("d6.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,-0.4,-1).ToLines3(1, Color.White),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("w6.jpg")).ApplyZ(Funcs3Z.SphereR(1.2)).Move(0.7,0.7,-0.5).ToLines3(1, Color.Blue),
                 //Shapes.Tetrahedron.ToLines3(1, Color.Blue),
                 //s.ToLines3(1, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("c3.png"), 120).ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.DarkBlue)
-                    .ApplyColorGradient(new Vector3(1,2,0).Normalize(), null, null, null, Color.White)
-                    .ApplyColorGradient(new Vector3(-1,2,0).Normalize(), null, null, null, null, null, null, Color.White),
-
+                //Vectorizer.GetContentShape(settings.GetContentFileName("p3.jpg"), 120).ToLines3(1, Color.Blue),
+                //Shapes.GolfBall3.Mult(0.265).Move(-0.01,0.16,0).ToLines3(1, Color.Blue)
+                a.Mult(2).Move(-1, -3, 1),
+                Shapes.GolfBall.Mult(0.8).ToLines3(1, Color.Yellow),
+                Shapes.GolfBall2.Mult(0.1).Move(-2.5, 0, -1).ToLines3(1, Color.Blue),
+                Shapes.GolfBall4.Mult(0.6).Move(2, 0.5, -0.5).ToLines3(1, Color.Blue),
+                Surfaces.Torus(200, 10, 80).Normed().Mult(5).Rotate(-1, 10, 0).ToLines3(1, Color.White),
                 //Vectorizer.GetText("Lost con....", 200, "Times New Roman").Centered().Normed().Rotate(Rotates.Z_Y).Mult(0.2).Move(0.2, 0, 0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
