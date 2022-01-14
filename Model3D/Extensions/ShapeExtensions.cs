@@ -348,6 +348,8 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Rotate(this Shape shape, double x, double y, double z) => Rotate(shape, new Vector3(x, y, z));
+
         public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3? yAxis = null)
         {
             var zN = zAxis.Normalize();
