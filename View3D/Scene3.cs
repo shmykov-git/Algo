@@ -103,9 +103,6 @@ namespace View3D
 
             //var s = Vectorizer.GetContentShape(settings.GetContentFileName("p2.jpg"), 130).Move(-0.003, 0, 0).ApplyZ(Funcs3Z.CylinderXM).Move(0,0,1);
 
-            var a = Vectorizer.GetContentShape(settings.GetContentFileName("p3.jpg"), 120).ToLines3(1, Color.Blue) +
-                    Shapes.GolfBall3.Mult(0.265).Move(-0.01, 0.16, 0).ToLines3(1, Color.Blue); //.ApplyColorGradientY((Color?)null, null, null, null, null, null, null, null, null, Color.Yellow, Color.Yellow);
-
             var shapes = new Shape[]
             {
                 //shape.ToLines3(1, Color.Red),
@@ -119,11 +116,9 @@ namespace View3D
                 //s.ToLines3(1, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("p3.jpg"), 120).ToLines3(1, Color.Blue),
                 //Shapes.GolfBall3.Mult(0.265).Move(-0.01,0.16,0).ToLines3(1, Color.Blue)
-                a.Mult(2).Move(-1, -3, 1),
-                Shapes.GolfBall.Mult(0.8).ToLines3(1, Color.Yellow),
-                Shapes.GolfBall2.Mult(0.1).Move(-2.5, 0, -1).ToLines3(1, Color.Blue),
-                Shapes.GolfBall4.Mult(0.6).Move(2, 0.5, -0.5).ToLines3(1, Color.Blue),
-                Surfaces.Torus(200, 10, 80).Normed().Mult(5).Rotate(-1, 10, 0).ToLines3(1, Color.White),
+                Shapes.GolfBall.Normed().Where(v=>v.z<0.7).ToLines3(2, Color.Yellow),
+                Shapes.GolfBall.Normed().Where(v=>v.z>=0.7).Move(0,0,-1).Rotate(-1, 0, 3).Move(-0.15,0,1.3).ToLines3(2, Color.Yellow),
+                Shapes.GolfBall.Normed().Mult(0.3).ApplyColor(Color.Red),
                 //Vectorizer.GetText("Lost con....", 200, "Times New Roman").Centered().Normed().Rotate(Rotates.Z_Y).Mult(0.2).Move(0.2, 0, 0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
@@ -142,7 +137,7 @@ namespace View3D
 
             //var shape = Surfaces.HalfSphere(10, 10).TurnOut();
 
-            return shapes.Aggregate((a, b) => a + b);
+            return shapes.Aggregate((a, b) => a + b).Rotate(Rotates.Z_Y);
         }
     }
 }
