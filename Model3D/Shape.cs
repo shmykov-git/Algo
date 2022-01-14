@@ -49,6 +49,14 @@ namespace Model
             return points.Max(p => (p - center).Length);
         }
 
+        public Vector3 GetSize()
+        {
+            return new Vector3(
+                Points.Max(p => p.x) - Points.Min(p => p.x),
+                Points.Max(p => p.y) - Points.Min(p => p.y),
+                Points.Max(p => p.z) - Points.Min(p => p.z));
+        }
+
         public static Shape operator +(Shape a, Shape b)
         {
             return a.Join(b);
