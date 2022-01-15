@@ -93,6 +93,7 @@ namespace View3D
             // Iguana //var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
             // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
 
+            // .ApplyZ(Funcs3Z.SphereR(1.2))
 
             var shapes = new Shape[]
             {
@@ -102,9 +103,9 @@ namespace View3D
                 //Vectorizer.GetContentShape(settings.GetContentFileName("w6.jpg")).ApplyZ(Funcs3Z.SphereR(1.2)).Move(0.7,0.7,-0.5).ToLines3(1, Color.Blue),
                 //Shapes.Tetrahedron.ToLines3(1, Color.Blue),
                 //s.ToLines3(1, Color.Blue),
-                Surfaces.Plane(50, 50).ToMaze().Centered().Normed().ApplyZ(Funcs3Z.SphereR(2), Funcs3Z.Waves).Mult(5).Move(0,0,-12).ToLines3(5, Color.Green).ApplyColorSphereGradient(null, null, null, null, Color.White, Color.White).Move(0,2,0),
-                Shapes.IcosahedronSp3.Mult(0.15).Move(0,0.3,-0.1).ToLines3(1, Color.Red),
-                Vectorizer.GetContentShape(settings.GetContentFileName("b6.jpg"), 230).ApplyZ(Funcs3Z.Hyperboloid).ToLines3(1, Color.Blue),//.ApplyColorSphereGradient(null, null, null, null, Color.Red),
+                //Surfaces.Plane(50, 50).ToMaze().Centered().Normed().ApplyZ(Funcs3Z.SphereR(2), Funcs3Z.Waves).Mult(5).Move(0,0,-12).ToLines3(5, Color.Green).ApplyColorSphereGradient(null, null, null, null, Color.White, Color.White).Move(0,2,0),
+                Shapes.IcosahedronSp4.Where(v=>v.z>-0.4).Mult(1.5).Move(0,0,-0.5).ToLines3(1, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("w12.jpg"), 230).ToLines3(1, Color.White),//.ApplyColorSphereGradient(null, null, null, null, Color.Red),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m11.jpg"), 200).ApplyZ(Funcs3Z.Waves).Move(0.2, 0, 0).Rotate(-10,0,100).ToLines3(0.7, Color.White).ApplyColorGradientX(Color.Red, Color.Red, Color.Red, Color.Blue, Color.Blue, Color.Blue, Color.Blue, null, null, Color.Blue, Color.Blue, Color.Blue),//.ApplyColorSphereGradient(null, null, Color.White),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("c2.jpg")).Mult(0.5).Rotate(Rotates.Z_X).Move(0,0.6,0.5).ToLines3(0.5, Color.Blue),
                 //Vectorizer.GetContentShape(settings.GetContentFileName("m1.jpg")).Move(-0.1,0,0).ApplyZ(Funcs3Z.Sphere).Mult(0.2).Rotate(Rotates.Z_X).Move(-1,1,1).ToLines3(0.3, Color.Blue),
