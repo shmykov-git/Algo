@@ -539,6 +539,9 @@ namespace Model3D.Extensions
         public static Shape ApplyColorGradient(this Shape shape, Vector3 a, params Color?[] colors) =>
             ApplyColorGradient(shape, b => a.MultS(b.ToV3()), colors);
 
+        public static Shape ApplyColorSphereGradient(this Shape shape, params Color?[] colors) =>
+            ApplyColorGradient(shape, b => b.ToV3().Length, colors);
+
         private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
         {
             var centers = shape.Convexes.Select(convex => convex.Select(i => shape.Points[i]).Center()).ToArray();

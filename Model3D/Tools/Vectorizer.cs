@@ -49,11 +49,14 @@ namespace Model3D.Tools
 
             bool IsPoint((int i, int j) v)
             {
+                if (v.i < 0 || v.i >= m || v.j < 0 || v.j >= n)
+                    return false;
+
                 var c = bitmap.GetPixel(v.j, v.i);
                 return c.R < colorLevel && c.G < colorLevel && c.B < colorLevel;
             }
 
-            var map = Ranges.Range(m).Select(i => Ranges.Range(n).Select(j => IsPoint((i, j))).ToArray()).ToArray();
+            var map = Ranges.Range(m+2).Select(i => Ranges.Range(n+2).Select(j => IsPoint((i-1, j-1))).ToArray()).ToArray();
 
             return map;
         }
