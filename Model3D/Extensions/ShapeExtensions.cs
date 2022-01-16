@@ -50,6 +50,16 @@ namespace Model3D.Extensions
             };
         }
 
+        public static (Shape main, Shape cut) SplitR(this Shape shape,
+            params (double x, double y, double r)[] areas)
+        {
+            var conds = areas.Select(a => (Func<Vector3, bool>) (v => (v - new Vector3(a.x, a.y, 0)).Length > a.r)).ToArray();
+            var main = shape.Where(v => conds.All(fn => fn(v)));
+            var cut = shape.Where(v => conds.Any(fn => !fn(v)));
+
+            return (main, cut);
+        }
+
         public static Shape SetZ(this Shape shape, Func3Z func) => new Shape
         {
             Points = shape.Points.Select(p => new Vector4(p.x, p.y, func(p.x, p.y), p.w)).ToArray(),

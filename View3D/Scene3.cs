@@ -98,10 +98,12 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
 
             var sh = Vectorizer.GetContentShape(settings.GetContentFileName("h1.jpg"), 200);
-            var h = sh.Where(v =>
-                (v - new Vector3(0.41, 0.18, 0)).Length > 0.15 && (v - new Vector3(0.55, 0.23, 0)).Length > 0.15);
-            var s = sh.Where(v =>
-                (v - new Vector3(0.41, 0.18, 0)).Length <= 0.15 || (v - new Vector3(0.55, 0.23, 0)).Length <= 0.15);
+            var (h, s) = sh.SplitR((0.41, 0.18, 0.15), (0.55, 0.23, 0.15));
+
+            //var h = sh.Where(v =>
+            //    (v - new Vector3(0.41, 0.18, 0)).Length > 0.15 && (v - new Vector3(0.55, 0.23, 0)).Length > 0.15);
+            //var s = sh.Where(v =>
+            //    (v - new Vector3(0.41, 0.18, 0)).Length <= 0.15 || (v - new Vector3(0.55, 0.23, 0)).Length <= 0.15);
 
             var shapes = new Shape[]
             {
