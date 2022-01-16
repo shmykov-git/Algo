@@ -50,6 +50,32 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape WhereR(this Shape shape, double x, double y, double r)
+        {
+            return WhereR(shape, (x, y, r));
+        }
+
+        public static Shape WhereNotR(this Shape shape, double x, double y, double r)
+        {
+            return WhereNotR(shape, (x, y, r));
+        }
+
+        public static Shape WhereR(this Shape shape,
+            params (double x, double y, double r)[] areas)
+        {
+            var conds = areas.Select(a => (Func<Vector3, bool>)(v => (v - new Vector3(a.x, a.y, 0)).Length > a.r)).ToArray();
+
+            return shape.Where(v => conds.Any(fn => !fn(v)));
+        }
+
+        public static Shape WhereNotR(this Shape shape,
+            params (double x, double y, double r)[] areas)
+        {
+            var conds = areas.Select(a => (Func<Vector3, bool>)(v => (v - new Vector3(a.x, a.y, 0)).Length > a.r)).ToArray();
+
+            return shape.Where(v => conds.All(fn => fn(v)));
+        }
+
         public static (Shape main, Shape cut) SplitR(this Shape shape,
             params (double x, double y, double r)[] areas)
         {
