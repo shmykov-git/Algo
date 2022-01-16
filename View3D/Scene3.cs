@@ -100,9 +100,15 @@ namespace View3D
 
             var shapes = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("z1.jpg")).WhereR(0, 0, 0.75).Normed().ToLines3(1, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("s7.jpg")).WhereR(0, -0.2, 0.8).Centered().Normed().Rotate(-1, 0, 0.2).Move(-0.17, -1.21, 0.1).ToLines3(1, Color.Blue),
-                Vectorizer.GetContentShape(settings.GetContentFileName("z1.jpg")).WhereNotR(0, 0, 0.75).Where(v=>v.x>0).Centered().Move(0.3,-0.5,0).Rotate(-1, 0, 0.8).Move(-0.7, 0, -0.2).ToLines3(1, Color.White),
+                Vectorizer.GetContentShape(settings.GetContentFileName("b7.jpg")).ApplyZ(Funcs3Z.Hyperboloid).Rotate(0, 1, 5).ToLines3(1, Color.Blue).ApplyColorGradientZ(Color.Red, null, null, null, null, null, null),
+                Vectorizer.GetContentShape(settings.GetContentFileName("b8.jpg")).Move(0,0,-3).ToLines3(1, Color.Blue).Move(0, -0.2, 0)
+                    .Move(-0.2, 0, 0)
+                    .ApplyColorSphereGradient(Color.Red, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+                    .Move(0.4, 0, 0)
+                    .ApplyColorSphereGradient(Color.Red, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+                    .Move(-0.2, 0, 0)
+                    .Move(0, 0.2, 0),
+                Surfaces.Cylinder(10, 100).Centered().Normed().Rotate(Rotates.Z_Y).Mult(2).Move(0,-0.8,-0.3).ToLines3(0.2, Color.White),
                 //Shapes.CoodsWithText,
             };
 
