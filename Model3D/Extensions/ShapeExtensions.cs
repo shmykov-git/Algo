@@ -235,7 +235,7 @@ namespace Model3D.Extensions
                 var ab = b - a;
                 var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
 
-                var line = line3.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
+                var line = line3.Scale(width, width, 0.8*width + ab.Length).Move(0, 0, -0.4 * width).Transform(p => q * p).Move(a);
 
                 return line;
             }
