@@ -100,11 +100,12 @@ namespace View3D
 
             var shapes = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("b8.jpg")).ToLines3(1, Color.Blue).ApplyColorGradientY((Color?)null, null, null, null, Color.White),
-                Vectorizer.GetContentShape(settings.GetContentFileName("r1.jpg")).WhereNotR(0.5,-0.8, 0.3).Centered().Normed()
-                    .ApplyZ(Funcs3Z.Waves)
-                    .Move(-0.4, -0.9, 0.5).ToLines3(1, Color.Blue)
-                    .ApplyColorGradientY((Color?)null, null, null, null, null, null, null,null, Color.White, Color.White, Color.White),
+                (Vectorizer.GetContentShape(settings.GetContentFileName("w14.jpg")).Move(0,0.4,0).ApplyZ(Funcs3Z.ParaboloidM).ToLines3(0.7, Color.Blue) +
+                Shapes.IcosahedronSp2.Mult(0.025).Move(-0.25,0.51,-0.4).ApplyColor(Color.Red) +
+                Shapes.IcosahedronSp2.Mult(0.025).Move(0.25,0.51,-0.4).ApplyColor(Color.Red)).Rotate(0,-1,3),
+                Shapes.Cube.Mult(0.6).Move(0.5, -1.5, 0.2).ToLines3(2, Color.Blue),
+                Shapes.Cube.Mult(0.6).Move(-0.5, -2.2, -1.8).ToLines3(2, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("w13.jpg")).Rotate(Quaternion.FromAngleAxis(0.4,Vector3.ZAxis)).Rotate(-1,0,3).Move(0,0,0).Mult(1).ToLines3(1, Color.Blue).ApplyColorSphereGradient(null, null, Color.White, Color.White).Move(0,-1,-.5),
                 //Shapes.CoodsWithText,
             };
 
