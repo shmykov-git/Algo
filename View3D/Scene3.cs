@@ -97,14 +97,31 @@ namespace View3D
             // .ApplyZ(Funcs3Z.SphereR(1.2))
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
+            
+            var e = Vectorizer.GetContentShape(settings.GetContentFileName("e5.jpg"));
+
+            var e1 = e.Move(0, 0.2, 0)
+                         .ApplyZ(Funcs3Z.SphereR(1.3)).Move(0, 0, 0.1).Mult(0.5)
+                         .ToLines3(1, Color.Blue)
+                         .ApplyColorGradientY((Color?)null, null, null, null, Color.White) +
+                     Shapes.GolfBall.Mult(0.5 * 1.3).ToLines3(0.5, Color.White) +
+                     Shapes.IcosahedronSp2.Mult(0.03).Move(0,0,0.5*1.25).ApplyColor(Color.Green);
+
+            var e2 = e.Rotate(0, 0, -1).Move(0, 0.2, 0)
+                         .ApplyZ(Funcs3Z.SphereR(1.3)).Move(0, 0, 0.1).Mult(0.5)
+                         .ToLines3(1, Color.Blue)
+                         .ApplyColorGradientY((Color?)null, null, null, null, Color.White) +
+                     Shapes.GolfBall.Mult(0.5 * 1.3).ToLines3(0.5, Color.White) +
+                     Shapes.IcosahedronSp2.Mult(0.03).Move(0, 0, 0.5*1.25).ApplyColor(Color.Green);
 
             var shapes = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("b8.jpg")).ToLines3(1, Color.Blue).ApplyColorGradientY((Color?)null, null, null, null, Color.White),
-                Vectorizer.GetContentShape(settings.GetContentFileName("r1.jpg")).WhereNotR(0.5,-0.8, 0.3).Centered().Normed()
-                    .ApplyZ(Funcs3Z.Waves)
-                    .Move(-0.4, -0.9, 0.5).ToLines3(1, Color.Blue)
-                    .ApplyColorGradientY((Color?)null, null, null, null, null, null, null,null, Color.White, Color.White, Color.White),
+                e1.Rotate(-1,0,4).Move(1, 0, 0),
+                e2.Rotate(1, 0, 4).Move(-1, 0, 0),
+                //Vectorizer.GetContentShape(settings.GetContentFileName("r1.jpg")).WhereNotR(0.5,-0.8, 0.3).Centered().Normed()
+                //    .ApplyZ(Funcs3Z.Waves)
+                //    .Move(-0.4, -0.9, 0.5).ToLines3(1, Color.Blue)
+                //    .ApplyColorGradientY((Color?)null, null, null, null, null, null, null,null, Color.White, Color.White, Color.White),
                 //Shapes.CoodsWithText,
             };
 
