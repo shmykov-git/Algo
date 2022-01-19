@@ -26,6 +26,8 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Transform(this Shape shape, Func<Shape, Shape> trFn) => trFn(shape);
+
         public static Shape Transform(this Shape shape, TransformFunc3 fn) => new Shape
         {
             Points3 = shape.Points3.Select(p => fn(p)).ToArray(),
@@ -137,6 +139,8 @@ namespace Model3D.Extensions
                 Materials = shape.Materials
             };
         }
+
+        public static Shape ToSingleShape(this IEnumerable<Shape> shapes) => shapes.Aggregate((a, b) => a + b);
 
         public static Shape2 ToShape2(this Shape shape)
         {

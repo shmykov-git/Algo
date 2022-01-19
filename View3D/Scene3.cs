@@ -98,34 +98,44 @@ namespace View3D
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             
-            var e = Vectorizer.GetContentShape(settings.GetContentFileName("e6.jpg"), 150).WhereR(0, 1, 1.8).Centered().Normed().Rotate(0, 0, -1).Move(0.13,0.15,0);
+            var e = Vectorizer.GetContentShape(settings.GetContentFileName("b9.jpg"), 200);
 
-            //return e.ToLines3(1, Color.Blue) + Shapes.CoodsWithText;
-
-            var e1 = e
-                         .ApplyZ(Funcs3Z.SphereR(1.3)).Move(0, 0, 0.1).Mult(0.5)
-                         .ToLines3(1, Color.Blue) +
-                     Shapes.GolfBall.Mult(0.5 * 1.3).ToLines3(0.5, Color.White) +
-                     Shapes.IcosahedronSp2.Mult(0.03).Move(0,0,0.5*1.25).ApplyColor(Color.Green);
-
-            var e2 = e.Rotate(0, 0, -1)
-                         .ApplyZ(Funcs3Z.SphereR(1.3)).Move(0, 0, 0.1).Mult(0.5)
-                         .ToLines3(1, Color.Blue) +
-                     Shapes.GolfBall.Mult(0.5 * 1.3).ToLines3(0.5, Color.White) +
-                     Shapes.IcosahedronSp2.Mult(0.03).Move(0, 0, 0.5*1.25).ApplyColor(Color.Green);
-
-            var shapes = new Shape[]
+            var hs = new ((double x, double y, double r) a, Func<Shape, Shape> trFn)[]
             {
-                e1.Rotate(-1,0,5).Move(0.9, 0, 0),
-                e2.Rotate(1, 0, 5).Move(-0.9, 0, 0),
-                //Vectorizer.GetContentShape(settings.GetContentFileName("r1.jpg")).WhereNotR(0.5,-0.8, 0.3).Centered().Normed()
-                //    .ApplyZ(Funcs3Z.Waves)
-                //    .Move(-0.4, -0.9, 0.5).ToLines3(1, Color.Blue)
-                //    .ApplyColorGradientY((Color?)null, null, null, null, null, null, null,null, Color.White, Color.White, Color.White),
-                //Shapes.CoodsWithText,
+                ((0.4, 0.3, 0.145), s=>s),
+                ((0.2, 0.5, 0.145), s=>s),
+                ((0, 0.65, 0.14), s=>s),
+                ((-0.25, 0.6, 0.145), s=>s),
+                ((-0.38, 0.3, 0.145), s=>s),
             };
 
-            return shapes.Aggregate((a, b) => a + b);//.Rotate(Rotates.Z_Y);
+            var i = 0;
+            var b = e.WhereNotR(hs.Select(h=>h.a).ToArray());
+            var bhs = hs.Select(h => e
+                .WhereR(h.a)
+                .ToLines3(0.5, Color.Blue)
+                .Transform(h.trFn)
+                .Move(-h.a.x, -h.a.y, 0)
+                .Rotate(Quaternion.FromAngleAxis(2 * Math.PI * (i++ + 1) / 6, Vector3.YAxis))
+                .Move(h.a.x, h.a.y, 0)
+            ).ToArray();
+
+            var shape = new Shape[]
+            {
+                b.ApplyZ(Funcs3Z.Waves).ToLines3(0.5, Color.Blue),
+                //hs.Select(h => Shapes.GolfBall3.Mult(h.r).Move(h.x, h.y, 0).ToLines3(0.4, Color.Green)).ToSingleShape(),
+                bhs.ToSingleShape(),
+                Shapes.Cube.Mult(0.2).Move(0.38, -0.9, 0).ToLines3(0.5, Color.Blue),
+                //Shapes.CoodsWithText,
+            }.ToSingleShape()
+                .ApplyColorGradientY(Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, null, null, null, null, null, null, Color.Red, Color.Red, Color.Red, Color.Red, Color.Red);
+
+            shape = shape +
+                    Shapes.IcosahedronSp2.Mult(0.01).Move(0.005, .68, 0).ApplyColor(Color.Red) +
+                    Shapes.IcosahedronSp2.Mult(0.01).Move(0.05, .68, 0).ApplyColor(Color.Red);
+                    
+
+            return shape;
         }
     }
 }
