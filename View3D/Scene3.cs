@@ -98,41 +98,12 @@ namespace View3D
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             
-            var e = Vectorizer.GetContentShape(settings.GetContentFileName("b9.jpg"), 200);
-
-            var hs = new ((double x, double y, double r) a, Func<Shape, Shape> trFn)[]
-            {
-                ((0.4, 0.3, 0.145), s=>s),
-                ((0.2, 0.5, 0.145), s=>s),
-                ((0, 0.65, 0.14), s=>s),
-                ((-0.25, 0.6, 0.145), s=>s),
-                ((-0.38, 0.3, 0.145), s=>s),
-            };
-
-            var i = 0;
-            var b = e.WhereNotR(hs.Select(h=>h.a).ToArray());
-            var bhs = hs.Select(h => e
-                .WhereR(h.a)
-                .ToLines3(0.5, Color.Blue)
-                .Transform(h.trFn)
-                .Move(-h.a.x, -h.a.y, 0)
-                .Rotate(Quaternion.FromAngleAxis(2 * Math.PI * (i++ + 1) / 6, Vector3.YAxis))
-                .Move(h.a.x, h.a.y, 0)
-            ).ToArray();
-
             var shape = new Shape[]
             {
-                b.ApplyZ(Funcs3Z.Waves).ToLines3(0.5, Color.Blue),
-                //hs.Select(h => Shapes.GolfBall3.Mult(h.r).Move(h.x, h.y, 0).ToLines3(0.4, Color.Green)).ToSingleShape(),
-                bhs.ToSingleShape(),
-                Shapes.Cube.Mult(0.2).Move(0.38, -0.9, 0).ToLines3(0.5, Color.Blue),
+                Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
+                Vectorizer.GetText("No goal - no mercy").Centered().Normed().Mult(0.4).Move(0.2, 0.1, 0).ToLines3(0.5, Color.Red),
                 //Shapes.CoodsWithText,
-            }.ToSingleShape()
-                .ApplyColorGradientY(Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, null, null, null, null, null, null, Color.Red, Color.Red, Color.Red, Color.Red, Color.Red);
-
-            shape = shape +
-                    Shapes.IcosahedronSp2.Mult(0.01).Move(0.005, .68, 0).ApplyColor(Color.Red) +
-                    Shapes.IcosahedronSp2.Mult(0.01).Move(0.05, .68, 0).ApplyColor(Color.Red);
+            }.ToSingleShape();
                     
 
             return shape;
