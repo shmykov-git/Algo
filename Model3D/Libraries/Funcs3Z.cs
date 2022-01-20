@@ -12,6 +12,7 @@ namespace Model3D.Libraries
         public static Func3Z Paraboloid = (x, y) => x * x + y * y;
         public static Func3Z ParaboloidM = (x, y) => - x * x - y * y;
         public static Func3Z Cylinder = (x, y) => Math.Sqrt(Math.Abs(1 - y * y));
+        public static Func3Z CylinderM = (x, y) => -Math.Sqrt(Math.Abs(1 - y * y));
         public static Func3Z CylinderXM = (x, y) => -Math.Sqrt(Math.Abs(1 - x * x));
         public static Func3Z CylinderR(double r) => (x, y) => Math.Sqrt(Math.Abs(r * r - y * y));
         public static Func3Z Waves = (x, y) => Math.Sin((x * x + y * y).Sqrt() *40)/50;
