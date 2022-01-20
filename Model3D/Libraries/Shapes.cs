@@ -73,6 +73,19 @@ namespace Model.Libraries
             Vectorizer.GetText("y", 100, "Georgia").Mult(0.0003).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
             Vectorizer.GetText("z", 100, "Georgia").Mult(0.0003).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
 
+        public static Shape Line => new Shape()
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+            },
+            Convexes = new int[][]
+            {
+                new int[] { 0, 1 },
+            }
+        };
+
         public static Shape Tetrahedron => new Shape
         {
             Points3 = new Vector3[]

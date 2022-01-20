@@ -98,13 +98,16 @@ namespace View3D
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             
+
+
             var shape = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
-                Vectorizer.GetText("No goal - no mercy").Centered().Normed().Mult(0.4).Move(0.2, 0.1, 0).ToLines3(0.5, Color.Red),
+                Vectorizer.GetContentShape(settings.GetContentFileName("c4.jpg"), 200).Mult(1.56).Move(-0.01,-0.02,0.5).ToLines3(1, Color.Blue),
+                    //.ApplyColorGradient(new Vector3(1, -1, 0).Normalize(), null, null, null, Color.White),
+                Shapes.Cube.SplitLines(10).ToLines3(1, Color.Blue).Rotate(Math.PI/4)
+                    .ApplyColorGradient(new Vector3(1, 0, 0).Normalize(), null, null, null, Color.White),
                 //Shapes.CoodsWithText,
             }.ToSingleShape();
-                    
 
             return shape;
         }

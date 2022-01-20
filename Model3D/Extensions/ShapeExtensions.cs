@@ -368,6 +368,33 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape SplitLines(this Shape shape, int count)
+        {
+            var newPoints = shape
+                .Convexes
+                .SelectMany(convex=>convex.SelectCirclePair((i,j)=>(i,j)))
+                .Select(e => new Line3(shape.Points[e.Item1].ToV3(), shape.Points[e.Item2].ToV3()))
+                .SelectMany(l => (count).SelectRange(i => l.a + (i + 1d) / (count + 1) * l.ab))
+                .ToArray();
+
+            var n = shape.Points.Length;
+
+            var k = -1;
+            var newConvexes = shape.Convexes.Select(convex => convex.SelectCirclePair((i, j) =>
+                {
+                    k++;
+                    return new[] { i }.Concat((count).SelectRange(l => n + k * count + l)).ToArray();
+                })
+                .SelectMany(c => c).ToArray()).ToArray();
+
+            return new Shape
+            {
+                Points3 = shape.Points3.Concat(newPoints).ToArray(),
+                Convexes = newConvexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape Move(this Shape shape, Vector3 v)
         {
             return new Shape
@@ -389,6 +416,8 @@ namespace Model3D.Extensions
         }
 
         public static Shape Rotate(this Shape shape, double x, double y, double z) => Rotate(shape, new Vector3(x, y, z));
+
+        public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
 
         public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3? yAxis = null)
         {
