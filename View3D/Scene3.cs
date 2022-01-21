@@ -101,8 +101,8 @@ namespace View3D
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
             
-            var s = Vectorizer.GetText("Пойду ли сегодня заниматься спортом...", 200, "Times New Roman").Adjust(2 * Math.PI*0.95)
-                .ToShape2().PullOnSurface(SurfaceFuncs.MobiusStrip);
+            var s = Vectorizer.GetText("Пойду ли сегодня заниматься спортом...", 200, "Times New Roman").Adjust(4 * Math.PI*0.95).Scale(1,3,1)
+                .ToShape2().PullOnSurface(SurfaceFuncs.Shamrock).Adjust();
 
             var shape = new Shape[]
             {
