@@ -102,8 +102,13 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
-                Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
+                Vectorizer.GetContentShape(settings.GetContentFileName("o2.jpg"), 200).ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue), //.ApplyColorGradientY(Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White, Color.White,  Color.White, Color.White, null, null, null, null, null, null,null, null, Color.White, Color.White),
+                Shapes.IcosahedronSp2.Mult(0.02).Move(-0.16, 0.25, 0).ApplyColor(Color.Black),
+                Surfaces.Torus(40, 8, 4).Where(v=>v.Normalize().MultS(new Vector3(1,2,0).Normalize())<0.7).Mult(0.3*0.02).Move(-0.16, 0.25, 0).ApplyColor(Color.FromArgb(200,80,0)),
+                Shapes.IcosahedronSp2.Mult(0.02).Move(0.152, 0.25, 0).ApplyColor(Color.Black),
+                Surfaces.Torus(40, 8, 4).Where(v=>v.Normalize().MultS(new Vector3(-1,1.7,0).Normalize())<0.7).Mult(0.3*0.02).Move(0.152, 0.25, 0).ApplyColor(Color.FromArgb(200,80,0)),
+                Shapes.Cube.Mult(2).ToLines3(3, Color.Black),
+                //Shapes.Cube.SplitLines(10).ToLines3(1, Color.Blue).ApplyColorGradientY(Color.White, Color.White, Color.White, Color.White,  null,null,null)
             }.ToSingleShape();
 
 
