@@ -104,7 +104,7 @@ namespace View3D
             var size = w.GetSize();
             w = w.Mult(1d / size.x).Where(v => v.x < .985).Mult(1d/.985);
 
-            var s = w + w.Rotate(0,0,-1).Move(1, 0, 0);
+            var s = w + w.FlipZ().Move(1, 0, 0);
 
             s = s.Mult(Math.PI);
 

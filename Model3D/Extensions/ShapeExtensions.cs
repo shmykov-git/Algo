@@ -415,6 +415,7 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape FlipZ(this Shape shape) => Rotate(shape, -Vector3.ZAxis);
         public static Shape Rotate(this Shape shape, double x, double y, double z) => Rotate(shape, new Vector3(x, y, z));
 
         public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
