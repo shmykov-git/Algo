@@ -475,7 +475,7 @@ namespace Model3D.Extensions
         public static Shape Align(this Shape shape, double x, double y, double z)
         {
             var b = shape.GetBorders();
-            
+
             var shift = new Vector3(
                 b.min.x + x * (b.max.x - b.min.x),
                 b.min.y + y * (b.max.y - b.min.y),
@@ -483,6 +483,13 @@ namespace Model3D.Extensions
             );
 
             return shape.Move(-shift);
+        }
+
+        public static Shape Adjust(this Shape shape, double size = 1)
+        {
+            var s = shape.GetSize();
+
+            return shape.Mult(size / new[]{ s.x, s.y, s.z}.Max());
         }
 
         public static Shape BottomedY(this Shape shape)

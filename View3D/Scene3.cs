@@ -100,17 +100,13 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var w = Vectorizer.GetContentShape(settings.GetContentFileName("b10.jpg"), 200).Align(0.5, 0.5, 0.5);
-            var size = w.GetSize();
-            w = w.Mult(1d / size.x).Where(v => v.x < .985).Mult(1d/.985);
-
-            var s = w + w.FlipZ().Move(1, 0, 0);
-
-            s = s.Mult(Math.PI);
+            
+            var s = Vectorizer.GetText("Пойду ли сегодня заниматься спортом...", 200, "Times New Roman").Adjust(2 * Math.PI*0.95)
+                .ToShape2().PullOnSurface(SurfaceFuncs.MobiusStrip);
 
             var shape = new Shape[]
             {
-                s.ApplyZ(Funcs3Z.Waves).Transform(TransformFuncs3.CylinderWrapZ).ToLines3(.5, Color.Blue)
+                s.ToLines3(.5, Color.Blue)
             }.ToSingleShape().Rotate(Rotates.Z_Y);
 
 
