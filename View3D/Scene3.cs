@@ -97,20 +97,15 @@ namespace View3D
             // .ApplyZ(Funcs3Z.SphereR(1.2))
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
-            
-
+            // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
+            // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
             var shape = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("b10.png"), 200).Move(0,-2.3,0).ToLines3(3, Color.DarkBlue),
-                Surfaces.Plane(60, 60).Centered().Normed().Mult(1.4*Math.PI/2).ApplyZ(Funcs3Z.Waves).Move(-0.8*3*Math.PI/4,0,0).Transform(TransformFuncs3.CylinderWrapZ)
-                    .Mult(3).Rotate(-1,0,0)
-                    .ToLines3(1, Color.Blue),
-                    //.ApplyColorGradient(new Vector3(1, -1, 0).Normalize(), null, null, null, Color.White),
-                //Shapes.Cube.SplitLines(10).ToLines3(1, Color.Blue).Rotate(Math.PI/4)
-                //    .ApplyColorGradient(new Vector3(1, 0, 0).Normalize(), null, null, null, Color.White),
-                //Shapes.CoodsWithText,
+                Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).Centered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
+                Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
             }.ToSingleShape();
+
 
             return shape;
         }
