@@ -49,12 +49,15 @@ namespace Model
             return points.Max(p => (p - center).Length);
         }
 
+        public (Vector3 min, Vector3 max) GetBorders() => (
+            new Vector3(Points.Min(p => p.x), Points.Min(p => p.y), Points.Min(p => p.z)),
+            new Vector3(Points.Max(p => p.x), Points.Max(p => p.y), Points.Max(p => p.z)));
+
         public Vector3 GetSize()
         {
-            return new Vector3(
-                Points.Max(p => p.x) - Points.Min(p => p.x),
-                Points.Max(p => p.y) - Points.Min(p => p.y),
-                Points.Max(p => p.z) - Points.Min(p => p.z));
+            var b = GetBorders();
+
+            return new Vector3(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z);
         }
 
         public static Shape operator +(Shape a, Shape b)

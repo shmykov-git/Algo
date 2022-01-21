@@ -462,9 +462,24 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape CenteredXZ(this Shape shape)
+        public static Shape CenteredXZ(this Shape shape) => Centered(shape, p => new Vector3(p.x, 0, p.z));
+
+        public static Shape Centered(this Shape shape, Func<Vector3, Vector3> getValue)
         {
-            var shift = shape.Points3.Select(p => new Vector3(p.x, 0, p.z)).Center();
+            var shift = shape.Points3.Select(getValue).Center();
+
+            return shape.Move(-shift);
+        }
+
+        public static Shape Align(this Shape shape, double x, double y, double z)
+        {
+            var b = shape.GetBorders();
+            
+            var shift = new Vector3(
+                b.min.x + x * (b.max.x - b.min.x),
+                b.min.y + y * (b.max.y - b.min.y),
+                b.min.z + z * (b.max.z - b.min.z)
+            );
 
             return shape.Move(-shift);
         }
@@ -635,6 +650,5 @@ namespace Model3D.Extensions
 
             return shape;
         }
-
     }
 }
