@@ -100,16 +100,17 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var o = Shapes.Cube.Centered().Scale(4, 4, 1).SplitLines(50) + Shapes.Cube.Centered().Scale(2, 2, 1).SplitLines(50);
+            var o = Vectorizer.GetText("It's easy to quit smoking\r\n        I've done it hundreds of times", 200, "Billie Sight Personal Use", 1.5).Centered().Adjust(3).FlipY().Move(0,1,0);
             //var o = Surfaces.Plane(20, 20).Centered();
 
             var s = o
-                .PullOnSurface(SurfaceFuncs.HyperboloidZ).Adjust();
+                .Transform(TransformFuncs3.Flower(0.3, 0.3, 5));
+            //.PullOnSurface(SurfaceFuncs.HyperboloidZ).Adjust();
 
             var shape = new Shape[]
             {
-                s.ToLines3(.2, Color.Red)
-            }.ToSingleShape().Rotate(Rotates.Z_Y);
+                s.ToLines3(0.3, Color.Red)
+            }.ToSingleShape(); //.Rotate(Rotates.Z_Y);
 
 
             return shape;

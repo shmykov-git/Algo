@@ -17,12 +17,12 @@ namespace Model3D.Tools
     {
         public static IDirSettings Settings { get; set; }
 
-        private static Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial")
+        private static Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
         {
             var lines = text.Split("\r\n").ToArray();
 
-            var m = (int)(1.6 * fontSize * lines.Length) + 1;
-            var n = (int)(1 * fontSize * lines.Max(l => l.Length)) + 1;
+            var m = (int)(multY * 1.6 * fontSize * lines.Length) + 1;
+            var n = (int)(multX * fontSize * lines.Max(l => l.Length)) + 1;
 
             Bitmap bitmap = new Bitmap(n, m, PixelFormat.Format32bppPArgb);
             using Graphics graphics = Graphics.FromImage(bitmap);
@@ -123,9 +123,9 @@ namespace Model3D.Tools
             };
         }
 
-        public static Shape GetText(string text, int fontSize = 50, string fontName = "Arial")
+        public static Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
         {
-            using var bitmap = GetTextBitmap(text, fontSize, fontName);
+            using var bitmap = GetTextBitmap(text, fontSize, fontName, multY, multX);
             var map = GetMapFromBitmap(bitmap);
             var shape = GetShapeFromMap(map);
 
