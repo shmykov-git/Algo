@@ -100,7 +100,7 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var o = Vectorizer.GetText("It's easy to quit smoking\r\n        I've done it hundreds of times", 200, "Billie Sight Personal Use", 1.5).Centered().Adjust(3).FlipY().Move(0,1,0);
+            var o = Vectorizer.GetText("Usually I can't read any sentence when I see it cause it's too long to be able to do it", 200, "Billie Sight Personal Use", 1.5).Centered().Adjust(3).FlipY().Move(0,1,0);
             //var o = Surfaces.Plane(20, 20).Centered();
 
             var s = o
