@@ -17,7 +17,7 @@ namespace Model3D.Tools
         {
             var plane = Shapes.Cube.SplitSphere().SplitSphere().SplitSphere(1.8).SplitSphere(2.1);
             //return plane;
-            //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
+            //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).MassCentered();
 
             Vector3 NothingFn(int frameCount, Vector3[] points, Graph.Node node) => points[node.i];
 
@@ -54,9 +54,9 @@ namespace Model3D.Tools
 
         public static Shape SurfaceTest(int frameCount)
         {
-            var plane = Parquets.Triangles(5, 10, 0.1).ToShape3().Centered();
+            var plane = Parquets.Triangles(5, 10, 0.1).ToShape3().MassCentered();
 
-            //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).Centered();
+            //var plane = Surfaces.Plane(11, 11).Mult(1.0/11).MassCentered();
 
             Vector3 NothingFn(int frameCount, Vector3[] points, Graph.Node node) => points[node.i];
 

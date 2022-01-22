@@ -129,7 +129,7 @@ namespace Model3D.Tools
             var map = GetMapFromBitmap(bitmap);
             var shape = GetShapeFromMap(map);
 
-            return shape;
+            return shape.Adjust();
         }
 
         public static Shape GetContentShape(string fileName, int colorLevel = 200)
@@ -138,7 +138,7 @@ namespace Model3D.Tools
             var map = GetMapFromBitmap(bitmap, colorLevel);
             var shape = GetShapeFromMap(map);
 
-            return shape.Centered().Normed();
+            return shape.MassCentered().Normed();
         }
     }
 }

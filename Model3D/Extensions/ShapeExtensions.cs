@@ -199,7 +199,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = Vectorizer.GetText(i.ToString()).ToLines3(500).Centered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
+                var iText = Vectorizer.GetText(i.ToString()).ToLines3(500).MassCentered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
                 shapes.Add(iText);
             }
 
@@ -221,7 +221,7 @@ namespace Model3D.Extensions
                 var n = i % 5;
                 if (n > 0)
                 {
-                    var circle = Polygons.Elipse(1, 1, n).ToShape2().ToShape3().Mult(0.1* mult).Centered().ToMetaShape3(0.5, 1).Move(p).Move(0, 0, 0.1).ApplyColor(numColor.Value);
+                    var circle = Polygons.Elipse(1, 1, n).ToShape2().ToShape3().Mult(0.1* mult).MassCentered().ToMetaShape3(0.5, 1).Move(p).Move(0, 0, 0.1).ApplyColor(numColor.Value);
                     shapes.Add(circle);
                 }
 
@@ -241,10 +241,10 @@ namespace Model3D.Extensions
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Cube.Centered().Mult(0.02 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpots3WithMaterial(mult, Shapes.Cube.MassCentered().Mult(0.02 * mult), color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToTetrahedronSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.Centered().Mult(0.04 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.MassCentered().Mult(0.04 * mult), color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
@@ -443,7 +443,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape Centered(this Shape shape)
+        public static Shape Centered(this Shape shape) => shape.Align(0.5, 0.5, 0.5);
+
+        public static Shape MassCentered(this Shape shape)
         {
             return new Shape
             {
@@ -463,9 +465,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape CenteredXZ(this Shape shape) => Centered(shape, p => new Vector3(p.x, 0, p.z));
+        public static Shape MassCenteredXZ(this Shape shape) => MassCentered(shape, p => new Vector3(p.x, 0, p.z));
 
-        public static Shape Centered(this Shape shape, Func<Vector3, Vector3> getValue)
+        public static Shape MassCentered(this Shape shape, Func<Vector3, Vector3> getValue)
         {
             var shift = shape.Points3.Select(getValue).Center();
 
@@ -658,5 +660,21 @@ namespace Model3D.Extensions
 
             return shape;
         }
+
+        public static Shape PullOnSurface(this Shape shape, SurfaceFunc fn, double dxy = 0.0001) => new Shape
+        {
+            Points3 = shape.Points
+                .Select(p => new { fXY = fn(p.x, p.y), f1 = fn(p.x + dxy, p.y), f2 = fn(p.x, p.y + dxy), z = p.z })
+                .Select(v => v.fXY + new Plane(v.f1, v.f2, v.fXY).Normal.ToLen(v.z)).ToArray(),
+            Convexes = shape.Convexes
+        };
+
+        public static Shape PullOnSurface90(this Shape shape, SurfaceFunc fn, double dxy = 0.0001) => new Shape
+        {
+            Points3 = shape.Points
+                .Select(p => new { fXY = fn(p.y, p.x), f1 = fn(p.y + dxy, p.x), f2 = fn(p.y, p.x + dxy), z = p.z })
+                .Select(v => v.fXY + new Plane(v.f1, v.f2, v.fXY).Normal.ToLen(v.z)).ToArray(),
+            Convexes = shape.Convexes
+        };
     }
 }

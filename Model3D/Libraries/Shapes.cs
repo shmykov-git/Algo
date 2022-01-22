@@ -102,9 +102,9 @@ namespace Model.Libraries
                 new int[] {0, 1, 3},
                 new int[] {1, 2, 3}
             }
-        }.Centered();
+        }.MassCentered();
 
-        public static Shape Cube => NativeCube.Centered();
+        public static Shape Cube => NativeCube.MassCentered();
 
         public static Shape NativeCube => new Shape
         {
