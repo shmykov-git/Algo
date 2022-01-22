@@ -100,11 +100,11 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var o = Vectorizer.GetText("Just adjust and it will be perfect.", 200, "Royal Inferno").Centered().Scale(1,1,1).Rotate(0, -1, 0);
+            var o = Shapes.Cube.Centered().Scale(6, 1, 1).SplitLines(50);
             //var o = Surfaces.Plane(20, 20).Centered();
 
-            var s = o.Adjust(30)
-                .PullOnSurface(SurfaceFuncs.NormalDistribution(4,7,(-1,0))).Adjust();
+            var s = o
+                .PullOnSurface(SurfaceFuncs.ParaboloidZ).Adjust();
 
             var shape = new Shape[]
             {
