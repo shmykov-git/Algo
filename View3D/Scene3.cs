@@ -101,12 +101,12 @@ namespace View3D
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
             
-            var s = Vectorizer.GetText("Пойду ли сегодня заниматься спортом...", 200, "Times New Roman").Adjust(4 * Math.PI*0.95).Scale(1,3,1)
+            var s = Vectorizer.GetText("It's warm here but the streets are anxious for our footprints. Stardust on our boots.", 200, "Royal Inferno").Adjust(4 * Math.PI*0.98).Scale(1,4,1).Move(0,0.5,0)
                 .ToShape2().PullOnSurface(SurfaceFuncs.Shamrock).Adjust();
 
             var shape = new Shape[]
             {
-                s.ToLines3(.5, Color.Blue)
+                s.ToLines3(.5, Color.Red)
             }.ToSingleShape().Rotate(Rotates.Z_Y);
 
 
