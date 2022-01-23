@@ -68,5 +68,13 @@ namespace Model3D.Libraries
         public static TransformFunc3 CylinderWrapZ => WrapCylinderZ(Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 Flower(double a, double b, int n) => WrapSphereZ(Funcs2.Flower(n, b), Funcs2.Torus(a));
         public static TransformFunc3 Torus(double a) => WrapSphereZ(Funcs2.Circle(), Funcs2.Torus(a));
+
+        public static TransformFunc3 RotateX(double turn = 1, double fluency = 1) => v =>
+        {
+            var fi = turn * Math.Atan2(v.y.Abs(), fluency * v.x);
+            var q = Quaternion.FromAngleAxis(fi, Vector3.XAxis);
+
+            return q * v;
+        };
     }
 }

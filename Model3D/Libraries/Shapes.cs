@@ -69,9 +69,9 @@ namespace Model.Libraries
         public static Shape CoodsWithText =>
             Coods +
             IcosahedronSp2.Mult(0.01).ApplyColor(Color.Red) +
-            Vectorizer.GetText("x", 100, "Georgia").Mult(0.0003).Move(0.96, -0.05, 0).ToLines3(0.6, Color.Red) +
-            Vectorizer.GetText("y", 100, "Georgia").Mult(0.0003).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
-            Vectorizer.GetText("z", 100, "Georgia").Mult(0.0003).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
+            Vectorizer.GetText("x", 100, "Georgia").Mult(0.02).Move(0.96, -0.05, 0).ToLines3(0.6, Color.Red) +
+            Vectorizer.GetText("y", 100, "Georgia").Mult(0.02).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
+            Vectorizer.GetText("z", 100, "Georgia").Mult(0.02).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
 
         public static Shape Line => new Shape()
         {

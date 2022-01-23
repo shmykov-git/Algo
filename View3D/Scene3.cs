@@ -100,16 +100,19 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
             // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var o = Vectorizer.GetText("Usually I can't read any sentence when I see it cause it's too long to be able to do it", 200, "Billie Sight Personal Use", 1.5).Centered().Adjust(3).FlipY().Move(0,1,0);
-            //var o = Surfaces.Plane(20, 20).Centered();
+            //var o = Vectorizer.GetText("Usually I can't read any sentence when I see it cause it's too long to be able to do it", 200, "Billie Sight Personal Use", 1.5).Centered().Adjust(3).FlipY().Move(0,1,0);
+            //var o = Shapes.Cube.SplitLines(100).Scale(5, 1, 1);
+            var o = Surfaces.Plane(50, 20).Adjust().Centered();
+            //var o = Surfaces.Torus(50, 10, 5).Centered().Adjust();
 
             var s = o
-                .Transform(TransformFuncs3.Flower(0.3, 0.3, 5));
+                .Transform(TransformFuncs3.RotateX(1, 1));
             //.PullOnSurface(SurfaceFuncs.HyperboloidZ).Adjust();
 
             var shape = new Shape[]
             {
-                s.ToLines3(0.3, Color.Red)
+                s.ToLines3(0.1, Color.Blue),
+                Shapes.CoodsWithText
             }.ToSingleShape(); //.Rotate(Rotates.Z_Y);
 
 
