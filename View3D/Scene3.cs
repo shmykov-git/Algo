@@ -106,14 +106,14 @@ namespace View3D
             //var o = Surfaces.Torus(50, 10, 5).Centered().Adjust();
 
             var s = o
-                .Transform(TransformFuncs3.RotateX(4,1));
+                .Transform(TransformFuncs3.RotateX(4,2));
             //.PullOnSurface(SurfaceFuncs.HyperboloidZ).Adjust();
 
             var shape = new Shape[]
             {
                 s.ToLines3(0.5, Color.Red),
                 //Shapes.CoodsWithText
-            }.ToSingleShape(); //.Rotate(Rotates.Z_Y);
+            }.ToSingleShape().Rotate(Rotates.Y_Z);
 
 
             return shape;
