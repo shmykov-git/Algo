@@ -700,7 +700,7 @@ namespace Model3D.Extensions
                 shape.Convexes = shape.Convexes.SelectMany(GetSplitConvexes).ToArray();
             }
 
-            return shape;
+            return shape.Normalize();
         }
 
         private static Shape SimpleTriangulateOddPlanes(this Shape shape)

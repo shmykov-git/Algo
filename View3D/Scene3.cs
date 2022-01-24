@@ -107,11 +107,11 @@ namespace View3D
             //    //Shapes.CoodsWithText
             //}.ToSingleShape();
 
-            var s = Shapes.Cube.Centered().TriangulatePlanes(4).Scale(2 * Math.PI, 2 * Math.PI, 0.2);
+            var s = Shapes.Cube.Centered().TriangulatePlanes(4).Scale(4, 1, 0.1);
 
-            var shape = s.PullOnSurface(SurfaceFuncs.Torus(2)).ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//
+            var shape = s.Transform(TransformFuncs3.RotateX(1,0.4)).Normalize().Adjust().ToLines3(0.2, Color.Blue); //.ApplyColor(Color.Blue);// 
 
-            return shape;
+            return shape.Rotate(Rotates.Z_Y);
         }
     }
 }

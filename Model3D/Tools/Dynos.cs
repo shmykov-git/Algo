@@ -86,7 +86,7 @@ namespace Model3D.Tools
                     return (DynoFunc)GravityFn;
             }
 
-            var d = new SurfaceDyno(SurfaceFuncs.HyperboloidZ, plane.Points2, plane.OrderedEdges, GetRule);
+            var d = new SurfaceDyno(SurfaceFuncs.Hyperboloid, plane.Points2, plane.OrderedEdges, GetRule);
 
             d.Animate(frameCount);
 
