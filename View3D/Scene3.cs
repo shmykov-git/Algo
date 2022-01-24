@@ -107,7 +107,9 @@ namespace View3D
             //    //Shapes.CoodsWithText
             //}.ToSingleShape();
 
-            var shape = Shapes.Cube.TriangulatePlanes(4).Scale(3, 1,1).PullOnSurface(SurfaceFuncs.HyperboloidZ).ToLines3(0.2, Color.Blue); //.ApplyColor(Color.Blue);//
+            var s = Shapes.Cube.Centered().TriangulatePlanes(4).Scale(2 * Math.PI, 2 * Math.PI, 0.2);
+
+            var shape = s.PullOnSurface(SurfaceFuncs.Torus(2)).ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//
 
             return shape;
         }
