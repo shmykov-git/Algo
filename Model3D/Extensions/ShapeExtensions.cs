@@ -373,7 +373,7 @@ namespace Model3D.Extensions
         {
             var newPoints = shape
                 .Convexes
-                .SelectMany(convex=>convex.SelectCirclePair((i,j)=>(i,j)))
+                .SelectMany(convex => convex.SelectCirclePair((i, j) => (i, j)))
                 .Select(e => new Line3(shape.Points[e.i].ToV3(), shape.Points[e.j].ToV3()))
                 .SelectMany(l => (count).SelectRange(i => l.a + (i + 1d) / (count + 1) * l.ab))
                 .ToArray();
@@ -394,6 +394,81 @@ namespace Model3D.Extensions
                 Convexes = newConvexes,
                 Materials = shape.Materials
             };
+        }
+
+        public static Shape SplitLongLine(this Shape shape, bool spliteTriangles = false, double? minSize = null)
+        {
+            var convexesInfos = shape
+                .Convexes
+                .Select(convex => convex.SelectCirclePair((i, j) => new
+                {
+                    i, j,
+                    Line = new Line3(shape.Points[i].ToV3(), shape.Points[j].ToV3())
+                }).ToArray())
+                .SelectWithIndex((infos, index) => infos.Select(info=> new
+                {
+                    info.i, info.j, 
+                    info.Line, 
+                    Ind = shape.Points.Length + index,
+                    LongLine = infos.OrderByDescending(c=>c.Line.Len).First().Line
+                }).ToArray()).ToArray();
+
+
+            var points = shape.Points.Concat(convexesInfos.Select(ps => ps.First(pi => pi.Line == pi.LongLine).LongLine.Center.ToV4()))
+                .ToArray();
+
+            if (spliteTriangles && shape.Convexes.All(c => c.Length == 3))
+            {
+                var convexes = convexesInfos.SelectMany(cs =>
+                {
+                    var l = cs.ToList();
+                    var info = cs.First(ci => ci.Line == ci.LongLine);
+                    var k = l.IndexOf(info);
+
+                    if (minSize.HasValue && info.LongLine.Len > minSize.Value)
+                    {
+                        return new[]
+                        {
+                            new[] { cs[(k + 1) % 3].i, cs[(k + 2) % 3].i, info.Ind },
+                            new[] { cs[(k + 2) % 3].i, cs[k].i, info.Ind },
+                        };
+                    }
+                    else
+                    {
+                        return new[]
+                        {
+                            new[] { cs[0].i, cs[1].i, cs[2].i }
+                        };
+                    }
+                }).ToArray();
+
+                return new Shape
+                {
+                    Points = points,
+                    Convexes = convexes
+                };
+            }
+            else
+            {
+                var convexes = convexesInfos.Select(cs => cs.SelectMany(ci =>
+                {
+                    if (ci.LongLine == ci.Line)
+                    {
+                        return new[] { ci.i, ci.Ind };
+                    }
+                    else
+                    {
+                        return new[] { ci.i };
+                    }
+                }).ToArray()).ToArray();
+
+                return new Shape
+                {
+                    Points = points,
+                    Convexes = convexes,
+                    Materials = shape.Materials
+                };
+            }
         }
 
         public static Shape Move(this Shape shape, Vector3 v)
@@ -679,25 +754,29 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
-        public static Shape TriangulatePlanes(this Shape shape, int k)
+        public static Shape TriangulatePlanes(this Shape shape, int k, double? minSize = null)
         {
             shape = shape.SimpleTriangulateOddPlanes();
 
-            int[][] GetSplitConvexes(int[] c)
-            {
-                return new[]
-                {
-                    new[] {c[5], c[0], c[1]},
-                    new[] {c[1], c[2], c[3]},
-                    new[] {c[3], c[4], c[5]},
-                    new[] {c[1], c[3], c[5]},
-                };
-            }
+            //int[][] GetSplitConvexes(int[] c)
+            //{
+            //    return new[]
+            //    {
+            //        new[] {c[5], c[0], c[1]},
+            //        new[] {c[1], c[2], c[3]},
+            //        new[] {c[3], c[4], c[5]},
+            //        new[] {c[1], c[3], c[5]},
+            //    };
+            //}
 
             while (k-- != 0)
             {
-                shape = shape.SplitLines(1);//.SimpleTriangulateOddPlanes();
-                shape.Convexes = shape.Convexes.SelectMany(GetSplitConvexes).ToArray();
+                var newShape = shape.SplitLongLine(true, minSize);
+                if (shape.PointsCount == newShape.PointsCount)
+                    break;
+
+                shape = newShape;
+                //shape.Convexes = shape.Convexes.SelectMany(GetSplitConvexes).ToArray();
             }
 
             return shape.Normalize();
