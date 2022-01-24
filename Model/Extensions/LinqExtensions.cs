@@ -31,12 +31,23 @@ namespace Model.Extensions
                 yield return func(enumerator.Current, i++);
         }
 
+        // Четные
         public static IEnumerable<T> Evens<T>(this IEnumerable<T> list)
         {
             var i = 0;
             var enumerator = list.GetEnumerator();
             while (enumerator.MoveNext())
                 if (i++ % 2 == 0)
+                    yield return enumerator.Current;
+        }
+
+        // Нечетные
+        public static IEnumerable<T> Odds<T>(this IEnumerable<T> list)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+            while (enumerator.MoveNext())
+                if (i++ % 2 == 1)
                     yield return enumerator.Current;
         }
 

@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using MathNet.Numerics;
 using Model.Graphs;
 
 namespace Model3D.Extensions
@@ -373,7 +374,7 @@ namespace Model3D.Extensions
             var newPoints = shape
                 .Convexes
                 .SelectMany(convex=>convex.SelectCirclePair((i,j)=>(i,j)))
-                .Select(e => new Line3(shape.Points[e.Item1].ToV3(), shape.Points[e.Item2].ToV3()))
+                .Select(e => new Line3(shape.Points[e.i].ToV3(), shape.Points[e.j].ToV3()))
                 .SelectMany(l => (count).SelectRange(i => l.a + (i + 1d) / (count + 1) * l.ab))
                 .ToArray();
 
@@ -677,5 +678,46 @@ namespace Model3D.Extensions
                 .Select(v => v.fXY + new Plane(v.f1, v.f2, v.fXY).Normal.ToLen(v.z)).ToArray(),
             Convexes = shape.Convexes
         };
+
+        public static Shape TriangulatePlanes(this Shape shape, int k)
+        {
+            shape = shape.SimpleTriangulateOddPlanes();
+
+            int[][] GetSplitConvexes(int[] c)
+            {
+                return new[]
+                {
+                    new[] {c[5], c[0], c[1]},
+                    new[] {c[1], c[2], c[3]},
+                    new[] {c[3], c[4], c[5]},
+                    new[] {c[1], c[3], c[5]},
+                };
+            }
+
+            while (k-- != 0)
+            {
+                shape = shape.SplitLines(1);//.SimpleTriangulateOddPlanes();
+                shape.Convexes = shape.Convexes.SelectMany(GetSplitConvexes).ToArray();
+            }
+
+            return shape;
+        }
+
+        private static Shape SimpleTriangulateOddPlanes(this Shape shape)
+        {
+            // Odd - нечетные
+            // Even - четные
+            var convexes =
+                shape.Convexes.SelectMany(convex => (convex.Length == 3 || convex.Length.IsEven())
+                    ? convex.SelectCircleTriple((i, j, k) => new[] {i, j, k}).Odds()
+                    : convex.SelectCircleTriple((i, j, k) => new[] {i, j, k}).Odds()
+                        .Concat(new[] {new[] {convex[0], convex[1], convex[3]}})).ToArray();
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = convexes
+            };
+        }
     }
 }

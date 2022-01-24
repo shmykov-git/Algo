@@ -138,7 +138,7 @@ namespace Model3D.Tools
             var map = GetMapFromBitmap(bitmap, colorLevel);
             var shape = GetShapeFromMap(map);
 
-            return shape.MassCentered().Normed();
+            return shape.Centered().Adjust();
         }
     }
 }

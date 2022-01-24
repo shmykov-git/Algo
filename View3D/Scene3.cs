@@ -98,23 +98,16 @@ namespace View3D
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
-            // Vectorizer.GetText("The Answer", 200, "Royal Inferno").Mult(0.001).ApplyZ(Funcs3Z.Waves).Mult(0.5).Move(-0.2,0.15,0).ToLines3(0.7, Color.DarkRed),
 
-            var o = Vectorizer.GetText("Cruciatus", 200, "Royal Inferno", 1.5).Centered().Adjust().Scale(1,0.3,1).Move(0,0.1,0);
-            //var o = Shapes.Cube.SplitLines(100).Scale(5, 1, 1);
-            //var o = Surfaces.Plane(100, 20).Adjust().Centered();
-            //var o = Surfaces.Torus(50, 10, 5).Centered().Adjust();
+            //var shape = new Shape[]
+            //{
+            //    Vectorizer.GetContentShape(settings.GetContentFileName("c5.jpg"), 200).ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue).ApplyColorGradientY((Color?)null, null, null, null, Color.Red),
+            //    Vectorizer.GetContentShape(settings.GetContentFileName("c6.jpg"), 200).Move(-1,-1,-1).ToLines3(1, Color.Blue),
+            //    Vectorizer.GetContentShape(settings.GetContentFileName("c6.jpg"), 200).FlipX().Move(1,-1,-1).ToLines3(1, Color.Blue),
+            //    //Shapes.CoodsWithText
+            //}.ToSingleShape();
 
-            var s = o
-                .Transform(TransformFuncs3.RotateX(4,2));
-            //.PullOnSurface(SurfaceFuncs.HyperboloidZ).Adjust();
-
-            var shape = new Shape[]
-            {
-                s.ToLines3(0.5, Color.Red),
-                //Shapes.CoodsWithText
-            }.ToSingleShape().Rotate(Rotates.Y_Z);
-
+            var shape = Shapes.Cube.TriangulatePlanes(4).Scale(3, 1,1).PullOnSurface(SurfaceFuncs.HyperboloidZ).ToLines3(0.2, Color.Blue); //.ApplyColor(Color.Blue);//
 
             return shape;
         }

@@ -8,6 +8,8 @@ namespace Model
         public Vector2 B;
 
         public Vector2 AB => B - A;
+        public double Len => AB.Len;
+        public double Len2 => AB.Len2;
         public Vector2 Center => (A + B) / 2;
         public Vector2 One => AB.Normed;
         public Vector2 Normal => (AB.y, -AB.x);
