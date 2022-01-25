@@ -110,9 +110,9 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("dragon5", 200).Where(v=>v.y>-0.48).Perfecto().ApplyZ(Funcs3Z.HyperboloidR(0.8,2)).ToLines3(1, Color.Blue),
+                vectorizer.GetText("", 200, "Gamaleon", 1.5).ToLines3(0.3, Color.Blue),
                 
-                Shapes.CoodsWithText
+                //Shapes.CoodsWithText
             }.ToSingleShape();
 
 
