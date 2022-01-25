@@ -1,6 +1,10 @@
 ﻿using Model;
 using System;
 using System.Diagnostics;
+using Meta;
+using Microsoft.Extensions.DependencyInjection;
+using Model.Interfaces;
+using Model3D.Tools;
 using View3D.Tools;
 
 namespace View3D
@@ -9,19 +13,29 @@ namespace View3D
     {
         static void Main(string[] args)
         {
-            var settings = new Settings();
-            var sceneManager = new SceneManager(settings);
+            DI.Configure(services => services
+                .AddSingleton<Settings>()
+                .AddSingleton<IDirSettings>(p => p.GetService<Settings>())
+                .AddSingleton<SceneManager>()
+                .AddSingleton<ContentFinder>()
+                .AddSingleton<Scene>()
+                .AddSingleton<Vectorizer>());
+            DI.Build();
+
+            var settings = DI.Get<Settings>();
+            var sceneManager = DI.Get<SceneManager>();
+            var scene = DI.Get<Scene>();
 
             try
             {
                 var sw = Stopwatch.StartNew();
-                var shape = Scene3.GetShape(settings);
-                var scene = sceneManager.CreateScene(shape);
+                var shape = scene.GetShape();
+                var meshedScene = sceneManager.CreateScene(shape);
                 sw.Stop();
 
                 Console.WriteLine($"Scene generation time {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}");
 
-                scene.Save(settings.FullFileName, settings.Format);
+                meshedScene.Save(settings.FullFileName, settings.Format);
 
                 var process = new Process();
                 process.StartInfo.UseShellExecute = true;

@@ -11,12 +11,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using MathNet.Numerics;
+using Meta;
 using Model.Graphs;
 
 namespace Model3D.Extensions
 {
     public static class ShapeExtensions
     {
+        private static Vectorizer vectorizer = DI.Get<Vectorizer>();
+
         public static Shape Transform(this Shape shape, Multiplication transformation)
         {
             return new Shape
@@ -200,7 +203,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = Vectorizer.GetText(i.ToString()).ToLines3(500).MassCentered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
+                var iText = vectorizer.GetText(i.ToString()).ToLines3(500).MassCentered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
                 shapes.Add(iText);
             }
 
@@ -563,6 +566,8 @@ namespace Model3D.Extensions
 
             return shape.Move(-shift);
         }
+
+        public static Shape Perfecto(this Shape shape) => shape.Centered().Adjust();
 
         public static Shape Adjust(this Shape shape, double size = 1)
         {

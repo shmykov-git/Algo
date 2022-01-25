@@ -4,6 +4,7 @@ using Model3D.Extensions;
 using System;
 using System.Drawing;
 using System.Linq;
+using Meta;
 using Model3D.Libraries;
 using Model3D.Tools;
 using View3D.Libraries;
@@ -12,6 +13,8 @@ namespace Model.Libraries
 {
     public static class Shapes
     {
+        private static Vectorizer vectorizer = DI.Get<Vectorizer>();
+
         private static readonly double hTet2 = 3.0.Sqrt() / 2;
         private static readonly double hTet3 = 6.0.Sqrt() / 3;
 
@@ -69,9 +72,9 @@ namespace Model.Libraries
         public static Shape CoodsWithText =>
             Coods +
             IcosahedronSp2.Mult(0.01).ApplyColor(Color.Red) +
-            Vectorizer.GetText("x", 100, "Georgia").Mult(0.02).Move(0.96, -0.05, 0).ToLines3(0.6, Color.Red) +
-            Vectorizer.GetText("y", 100, "Georgia").Mult(0.02).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
-            Vectorizer.GetText("z", 100, "Georgia").Mult(0.02).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
+            vectorizer.GetText("x", 100, "Georgia").Mult(0.02).Move(0.96, -0.05, 0).ToLines3(0.6, Color.Red) +
+            vectorizer.GetText("y", 100, "Georgia").Mult(0.02).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
+            vectorizer.GetText("z", 100, "Georgia").Mult(0.02).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
 
         public static Shape Line => new Shape()
         {

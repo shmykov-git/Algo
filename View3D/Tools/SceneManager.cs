@@ -19,9 +19,9 @@ namespace View3D.Tools
             this.settings = settings;
         }
 
-        public Scene CreateScene(Model.Shape shape)
+        public Aspose.ThreeD.Scene CreateScene(Model.Shape shape)
         {
-            Scene scene = new Scene();
+            Aspose.ThreeD.Scene scene = new Aspose.ThreeD.Scene();
             
             if (shape.Materials == null)
             {
@@ -42,7 +42,7 @@ namespace View3D.Tools
             return scene;
         }
 
-        private void AddMaterialNode(Scene scene, Model.Shape shape, Model.Material material, bool addNormals)
+        private void AddMaterialNode(Aspose.ThreeD.Scene scene, Model.Shape shape, Model.Material material, bool addNormals)
         {
             Node main = scene.RootNode.CreateChildNode();
             main.Entity = CreateMesh(shape, addNormals);

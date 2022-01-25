@@ -13,11 +13,16 @@ using Model.Interfaces;
 
 namespace Model3D.Tools
 {
-    public static class Vectorizer
+    public class Vectorizer
     {
-        public static IDirSettings Settings { get; set; }
+        private readonly ContentFinder contentFinder;
 
-        private static Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
+        public Vectorizer(ContentFinder contentFinder)
+        {
+            this.contentFinder = contentFinder;
+        }
+
+        private Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
         {
             var lines = text.Split("\r\n").ToArray();
 
@@ -42,7 +47,7 @@ namespace Model3D.Tools
             return bitmap;
         }
 
-        private static bool[][] GetMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
+        private bool[][] GetMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
         {
             var n = bitmap.Width;
             var m = bitmap.Height;
@@ -61,7 +66,7 @@ namespace Model3D.Tools
             return map;
         }
 
-        private static Shape GetShapeFromMap(bool[][] map)
+        private Shape GetShapeFromMap(bool[][] map)
         {
             var n = map[0].Length;
             var m = map.Length;
@@ -123,7 +128,7 @@ namespace Model3D.Tools
             };
         }
 
-        public static Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
+        public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
         {
             using var bitmap = GetTextBitmap(text, fontSize, fontName, multY, multX);
             var map = GetMapFromBitmap(bitmap);
@@ -132,13 +137,13 @@ namespace Model3D.Tools
             return shape.Adjust();
         }
 
-        public static Shape GetContentShape(string fileName, int colorLevel = 200)
+        public Shape GetContentShape(string name, int colorLevel = 200)
         {
-            using var bitmap = new Bitmap(fileName);
+            using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
             var map = GetMapFromBitmap(bitmap, colorLevel);
             var shape = GetShapeFromMap(map);
 
-            return shape.Centered().Adjust();
+            return shape.Perfecto();
         }
     }
 }

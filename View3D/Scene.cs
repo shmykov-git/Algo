@@ -17,9 +17,18 @@ using View3D.Libraries;
 
 namespace View3D
 {
-    static class Scene3
+    class Scene
     {
-        public static Shape GetShape(Settings settings)
+        private readonly Settings settings;
+        private readonly Vectorizer vectorizer;
+
+        public Scene(Settings settings, Vectorizer vectorizer)
+        {
+            this.settings = settings;
+            this.vectorizer = vectorizer;
+        }
+
+        public Shape GetShape()
         {
             // var polygon = Sinus(3, 50);
             // var polygon = Spiral(3, 60);
@@ -101,9 +110,9 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                Vectorizer.GetContentShape(settings.GetContentFileName("dragon5.png"), 200),
+                vectorizer.GetContentShape("dragon5", 200).Where(v=>v.y>-0.48).Perfecto().ApplyZ(Funcs3Z.HyperboloidR(0.8,2)).ToLines3(1, Color.Blue),
                 
-                //Shapes.CoodsWithText
+                Shapes.CoodsWithText
             }.ToSingleShape();
 
 
