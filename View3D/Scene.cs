@@ -110,7 +110,7 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetText("", 200, "Gamaleon", 1.5).ToLines3(0.3, Color.Blue),
+                vectorizer.GetText("Test", 200, "Gamaleon", 1.5).ToLines3(0.3, Color.Blue),
                 
                 //Shapes.CoodsWithText
             }.ToSingleShape();
