@@ -99,17 +99,28 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            //var shape = new Shape[]
-            //{
-            //    Vectorizer.GetContentShape(settings.GetContentFileName("c5.jpg"), 200).ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue).ApplyColorGradientY((Color?)null, null, null, null, Color.Red),
-            //    Vectorizer.GetContentShape(settings.GetContentFileName("c6.jpg"), 200).Move(-1,-1,-1).ToLines3(1, Color.Blue),
-            //    Vectorizer.GetContentShape(settings.GetContentFileName("c6.jpg"), 200).FlipX().Move(1,-1,-1).ToLines3(1, Color.Blue),
-            //    //Shapes.CoodsWithText
-            //}.ToSingleShape();
+            var b = Vectorizer.GetContentShape(settings.GetContentFileName("b7.jpg"), 200)
+                .Transform(TransformFuncs3.RotateX(1, 0.3))
+                .ApplyZ(Funcs3Z.Waves)
+                .Rotate(1,1,-10, Vector3.YAxis)
+                .ToLines3(1, Color.Blue);
 
-            var s = Shapes.Cube.Scale(2*Math.PI,2*Math.PI,1).TriangulatePlanes(20, 0.3); //.Centered().Scale(4, 1, 0.1)
+            var c = Vectorizer.GetContentShape(settings.GetContentFileName("c6.jpg"), 200)
+                        .ApplyZ(Funcs3Z.SphereR(0.8))
+                        .Move(0,0,0.01)
+                        .Rotate(1,4,10)
+                        .ToLines3(2, Color.Blue) +
+                    Shapes.IcosahedronSp2.Mult(0.025).Move(0.79*new Vector3(0.7, 0.67, 1).Normalize()).ApplyColor(Color.Green) +
+                    Shapes.IcosahedronSp2.Mult(0.025).Move(0.79 * new Vector3(-0.33, 0.6, 1).Normalize()).ApplyColor(Color.Green) +
+                    Shapes.GolfBall.Mult(0.8).ToLines3(0.5, Color.White);
 
-            var shape = s.PullOnSurface(SurfaceFuncs.Torus(5)).Normalize().Adjust().ToLines3(0.1, Color.Blue); //.ApplyColor(Color.Blue);// 
+            var shape = new Shape[]
+            {
+                b,
+                c.Move(-1, -1, -1),
+                //Shapes.CoodsWithText
+            }.ToSingleShape();
+
 
             return shape;//.Rotate(Rotates.Z_Y);
         }
