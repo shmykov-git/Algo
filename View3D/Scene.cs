@@ -110,11 +110,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("s10", 200).ToLines3(0.3, Color.Blue),
-                Shapes.GolfBall.Perfecto().Where(v=>v.x>-0.48).Scale(1.2, 1.3, 0.3).ToLines3(0.2, Color.White),
-                vectorizer.GetContentShape("dragon1", 200).FlipX().Move(-1.1,0,0).ToLines3(0.3, Color.Blue),
-                Shapes.GolfBall.Perfecto().Where(v=>v.x<0.48).Scale(1.2, 1.3, 0.3).Move(-1.1,0,0).ToLines3(0.2, Color.White),
-                
+                vectorizer.GetContentShape("c7", 200).ApplyZ(Funcs3Z.Waves).ToLines3(0.3, Color.Blue),
+                Surfaces.Torus(100,20,30).Perfecto().Mult(1.3).ApplyColor(Color.Red),
+                Surfaces.Cylinder(10, 30).Perfecto().Rotate(Rotates.Z_X).Scale(1.25,0.8,0.8).Rotate(Math.PI/4).ToLines3(0.5, Color.Red),
+
                 //Shapes.CoodsWithText
             }.ToSingleShape();
 
