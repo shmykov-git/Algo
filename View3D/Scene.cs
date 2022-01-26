@@ -110,7 +110,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetText("Gamaleon", 200, "Gamaleon", 1.5).ToLines3(0.3, Color.Blue),
+                vectorizer.GetContentShape("s10", 200).ToLines3(0.3, Color.Blue),
+                Shapes.GolfBall.Perfecto().Where(v=>v.x>-0.48).Scale(1.2, 1.3, 0.3).ToLines3(0.2, Color.White),
+                vectorizer.GetContentShape("dragon1", 200).FlipX().Move(-1.1,0,0).ToLines3(0.3, Color.Blue),
+                Shapes.GolfBall.Perfecto().Where(v=>v.x<0.48).Scale(1.2, 1.3, 0.3).Move(-1.1,0,0).ToLines3(0.2, Color.White),
                 
                 //Shapes.CoodsWithText
             }.ToSingleShape();
