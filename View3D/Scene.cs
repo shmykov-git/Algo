@@ -108,11 +108,10 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
+
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("c7", 200).ApplyZ(Funcs3Z.Waves).ToLines3(0.3, Color.Blue),
-                Surfaces.Torus(100,20,30).Perfecto().Mult(1.3).ApplyColor(Color.Red),
-                Surfaces.Cylinder(10, 30).Perfecto().Rotate(Rotates.Z_X).Scale(1.25,0.8,0.8).Rotate(Math.PI/4).ToLines3(0.5, Color.Red),
+                vectorizer.GetContentShape("m12", 150).ToLines3(0.5, Color.Blue),
 
                 //Shapes.CoodsWithText
             }.ToSingleShape();
