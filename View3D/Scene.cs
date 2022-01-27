@@ -114,8 +114,8 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("d9", 220).Where(v=>v.Length<0.49).WhereNotR((0.25, -0.5, 0.15)).Perfecto().ToLines3(1, Color.Blue),
-                //Shapes.CoodsWithText
+                vectorizer.GetContentShape("d9", 220).Where(v=>v.Length<0.49).WhereNotR((0.25, -0.5, 0.15)).Perfecto().Align(0.5, 0, 0.5).ToLines3(0.7, Color.Blue),
+                Shapes.CoodsWithText
             }.ToSingleShape();
 
 
