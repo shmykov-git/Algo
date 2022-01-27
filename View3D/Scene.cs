@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Aspose.ThreeD.Utilities;
 using MathNet.Numerics;
 using Model.Graphs;
@@ -109,10 +110,11 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
 
+            
+
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("m12", 150).ToLines3(0.5, Color.Blue),
-
+                vectorizer.GetContentShape("d9", 220).Where(v=>v.Length<0.49).WhereNotR((0.25, -0.5, 0.15)).Perfecto().ToLines3(1, Color.Blue),
                 //Shapes.CoodsWithText
             }.ToSingleShape();
 
