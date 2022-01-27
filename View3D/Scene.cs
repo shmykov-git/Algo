@@ -114,8 +114,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("d9", 220).Where(v=>v.Length<0.49).WhereNotR((0.25, -0.5, 0.15)).Perfecto().Align(0.5, 0, 0.5).ToLines3(0.7, Color.Blue),
-                Shapes.CoodsWithText
+                vectorizer.GetContentShape("m8", 200).ApplyZ(Funcs3Z.Waves).ToLines3(0.7, Color.Blue).ApplyColorGradient(new Vector3(-1, 6, 0).Normalize(), null, null, null, null, null, null, null, Color.Goldenrod, Color.Goldenrod, Color.Goldenrod),
+                vectorizer.GetContentShape("s100", 200).Where(v=>v.y>-.4).Perfecto().ApplyZ(Funcs3Z.Waves).Move(0,-1,0).ToLines3(0.7, Color.Blue),
+                vectorizer.GetText("20%", 200, "DatCub").Mult(0.2).Move(0.3, -1.6, 0).ToLines3(1, Color.Red),
+                //Shapes.CoodsWithText
             }.ToSingleShape();
 
 
