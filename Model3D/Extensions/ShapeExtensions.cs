@@ -708,6 +708,21 @@ namespace Model3D.Extensions
             return shape;
         }
 
+        public static Shape ApplyDefaultColor(this Shape shape, Color color)
+        {
+            if (shape.Materials == null)
+                shape.ApplyColor(color);
+            else
+            {
+                foreach (var i in shape.Materials.Index())
+                {
+                    shape.Materials[i] ??= Materials.GetByColor(color);
+                }
+            }
+
+            return shape;
+        }
+
         public static Shape ApplyColorGradientX(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.x, colors);
         public static Shape ApplyColorGradientX(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.y,v.z), colors);
 

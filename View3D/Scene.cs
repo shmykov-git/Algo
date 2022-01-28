@@ -114,11 +114,11 @@ namespace View3D
             var c = new Shape[]
             {
                 Shapes.Tetrahedron.Perfecto(),
-                Shapes.GolfBall.Perfecto().ToLines3(0.2, Color.Blue),
+                Shapes.GolfBall.Perfecto().ToLines3(0.2, Color.Green),
                 Shapes.Cube,
                 Shapes.Cube,
                 null,
-                Shapes.Cube,
+                Shapes.CylinderR(30).Perfecto().ApplyColor(Color.Red),
                 Shapes.Cube,
                 Shapes.Cube,
                 Shapes.Cube,
@@ -129,7 +129,7 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                c.ApplyColor(Color.Blue),
+                c.ApplyDefaultColor(Color.Blue),
                 Shapes.CoodsWithText
             }.ToSingleShape();
 
