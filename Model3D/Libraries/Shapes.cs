@@ -26,14 +26,17 @@ namespace Model.Libraries
             Convexes = Ranges.Range(n, n).Select(pair => 4 * n * pair.Item1 + 4 * pair.Item2).Select(i => new int[] { i, i + 1, i + 2, i + 3 }).ToArray()
         };
 
-        public static Shape Arrow => ArrowR(2);
+        public static Shape Arrow => ArrowR(30, 1, 0.01, 0.05, 0.02);
 
-        public static Shape ArrowR(double r, double ln = 0.05) => (
-                Surfaces.Cylinder(30, 2) +
-                Surfaces.Circle(30, 2) +
-                Surfaces.Circle(30, 2).Mult(r).Move(0, 0, 1) +
-                Surfaces.ConeM(30, 2).Scale(r, r, ln).Move(0, 0, 1 + ln))
-            .Normalize().Scale(0.01, 0.01, 1);
+        public static Shape ArrowR(int n,
+            double lineLn = 1, double lineR = 0.01,
+            double arrowLn = 0.05, double arrowR = 0.02) =>
+            (
+                (
+                    (Surfaces.Cylinder(n, 2) + Surfaces.Circle(n, 2)).Scale(lineR, lineR, lineLn) +
+                    (Surfaces.Circle(n, 2) + Surfaces.ConeM(n, 2).Move(0,0,1)).Scale(arrowR, arrowR, arrowLn).Move(0, 0, lineLn)
+                )
+            ).Normalize().ApplyColor(Color.Red);
 
         public static Shape Coods => new Shape
         {
@@ -78,12 +81,22 @@ namespace Model.Libraries
             }
         }.Mult(0.01).ToLines3(0.7, Color.Red);
 
+        public static Shape ArrowCoods
+        {
+            get
+            {
+                var a = ArrowR(10, 1.1, 0.005).Move(0, 0, -0.1);
+
+                return a + a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
+            }
+        }
+
         public static Shape CoodsWithText =>
-            Coods +
-            IcosahedronSp2.Mult(0.01).ApplyColor(Color.Red) +
-            vectorizer.GetText("x", 100, "Georgia").Mult(0.02).Move(0.96, -0.05, 0).ToLines3(0.6, Color.Red) +
-            vectorizer.GetText("y", 100, "Georgia").Mult(0.02).Move(0.01, 0.96, 0).ToLines3(0.6, Color.Red) +
-            vectorizer.GetText("z", 100, "Georgia").Mult(0.02).Rotate(Rotates.Z_X).Move(0, -0.05, 1).ToLines3(0.6, Color.Red);
+            ArrowCoods +
+            IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red) +
+            vectorizer.GetText("x", 100, "Georgia").Mult(0.03).Move(0.95, -0.06, 0).ToLines3(0.6, Color.Red) +
+            vectorizer.GetText("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ToLines3(0.6, Color.Red) +
+            vectorizer.GetText("z", 100, "Georgia").Mult(0.03).Rotate(Rotates.Z_X).Move(0, -0.06, 1).ToLines3(0.6, Color.Red);
 
         public static Shape Line => new Shape()
         {
