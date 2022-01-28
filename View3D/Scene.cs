@@ -122,10 +122,9 @@ namespace View3D
 
             var o = Surfaces.Torus(100, 10, 12).Perfecto().Mult(0.25);
 
-            var h = l.Move(0, -0.5, 0) +
+            var h = 
                     l.Move(0, -1.0 / 6, 0) +
-                    l.Move(0, 1.0 / 6, 0) +
-                    l.Move(0, 0.5, 0);
+                    l.Move(0, 1.0 / 6, 0);
 
             var v = h.Rotate(Math.PI / 2);
 
