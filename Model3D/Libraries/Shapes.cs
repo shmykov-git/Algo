@@ -36,7 +36,15 @@ namespace Model.Libraries
                     (Surfaces.Cylinder(n, 2) + Surfaces.Circle(n, 2)).Scale(lineR, lineR, lineLn) +
                     (Surfaces.Circle(n, 2) + Surfaces.ConeM(n, 2).Move(0,0,1)).Scale(arrowR, arrowR, arrowLn).Move(0, 0, lineLn)
                 )
-            ).Normalize().ApplyColor(Color.Red);
+            ).Normalize();
+
+        public static Shape CylinderR(int n, double lineLn = 1, double lineR = 0.1, int m = 2) =>
+        (
+            (Surfaces.Cylinder(n, m) +
+             Surfaces.Circle(n, 2) +
+             Surfaces.CircleM(n, 2).Move(0, 0, m-1))
+            .Scale(lineR, lineR, lineLn/(m-1))
+        ).Normalize();
 
         public static Shape Coods => new Shape
         {
@@ -85,7 +93,7 @@ namespace Model.Libraries
         {
             get
             {
-                var a = ArrowR(10, 1.1, 0.005).Move(0, 0, -0.1);
+                var a = ArrowR(10, 1.1, 0.005).Move(0, 0, -0.1).ApplyColor(Color.Red);
 
                 return a + a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
             }

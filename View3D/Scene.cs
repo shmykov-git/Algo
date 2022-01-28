@@ -111,12 +111,27 @@ namespace View3D
 
             //var s = Surfaces.CircleM(30, 2);
 
+            var c = new Shape[]
+            {
+                Shapes.Tetrahedron.Perfecto(),
+                Shapes.GolfBall.Perfecto().ToLines3(0.2, Color.Blue),
+                Shapes.Cube,
+                Shapes.Cube,
+                null,
+                Shapes.Cube,
+                Shapes.Cube,
+                Shapes.Cube,
+                Shapes.Cube,
+                Shapes.Cube,
+                null,
+                Shapes.Cube,
+            }.CompoundDirs(0.1, 0.1, 0.1);
+
             var shape = new Shape[]
             {
-                
+                c.ApplyColor(Color.Blue),
                 Shapes.CoodsWithText
             }.ToSingleShape();
-
 
             return shape;//.Rotate(Rotates.Z_Y);
         }
