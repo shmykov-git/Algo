@@ -26,6 +26,13 @@ namespace Model.Libraries
             Convexes = Ranges.Range(n, n).Select(pair => 4 * n * pair.Item1 + 4 * pair.Item2).Select(i => new int[] { i, i + 1, i + 2, i + 3 }).ToArray()
         };
 
+        public static Shape Arrow => (
+                Surfaces.Cylinder(30, 2) +
+                Surfaces.Circle(30, 2) +
+                Surfaces.Circle(30, 2).Mult(2).Move(0, 0, 1) +
+                Surfaces.ConeM(30, 2).Scale(2, 2, 0.05).Move(0, 0, 1.05))
+            .Scale(0.01, 0.01, 1);
+
         public static Shape Coods => new Shape
         {
             Points3 = new Vector3[]

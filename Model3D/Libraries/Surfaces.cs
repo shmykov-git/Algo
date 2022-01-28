@@ -189,6 +189,65 @@ namespace Model3D.Libraries
             Convexes = Squeres(vn, un)
         };
 
+        public static Shape Circle(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Circle,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = 0,
+                VTo = vn - 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+
+        public static Shape CircleM(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Circle,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = vn - 1,
+                VTo = 0,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+
+        public static Shape Cone(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Cone,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = 0,
+                VTo = vn - 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+        public static Shape ConeM(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.ConeM,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = vn - 1,
+                VTo = 0,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squeres(vn, un)
+        };
+
         private static int[][] Squeres(int un, int vn, bool bothFaces = false)
         {
             int GetNum(int u, int v) => vn * u + v;

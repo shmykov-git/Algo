@@ -109,14 +109,16 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-
-            
+            //var s = Surfaces.CircleM(30, 2);
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("m8", 200).ApplyZ(Funcs3Z.Waves).ToLines3(0.7, Color.Blue).ApplyColorGradient(new Vector3(-1, 6, 0).Normalize(), null, null, null, null, null, null, null, Color.Goldenrod, Color.Goldenrod, Color.Goldenrod),
-                vectorizer.GetContentShape("s100", 200).Where(v=>v.y>-.4).Perfecto().ApplyZ(Funcs3Z.Waves).Move(0,-1,0).ToLines3(0.7, Color.Blue),
-                vectorizer.GetText("20%", 200, "DatCub").Mult(0.2).Move(0.3, -1.6, 0).ToLines3(1, Color.Red),
+                Shapes.Arrow.ToOx().ApplyColor(Color.Red),
+                Surfaces.Circle(30, 2).Mult(0.02).AddVolumeZ(0.005).ToOx().Move(0.2,0,0).ApplyColor(Color.Yellow),
+                Surfaces.Circle(30, 2).Mult(0.02).AddVolumeZ(0.005).ToOx().Move(0.8,0,0).ApplyColor(Color.Yellow),
+                vectorizer.GetText("A", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(0.2, -0.05, 0).ToLines3(0.4, Color.Yellow),
+                vectorizer.GetText("B", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(0.8, -0.05, 0).ToLines3(0.4, Color.Yellow),
+                vectorizer.GetText("t", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(1, 0.05, 0).ToLines3(0.4, Color.Yellow),
                 //Shapes.CoodsWithText
             }.ToSingleShape();
 

@@ -13,6 +13,7 @@ using System.Linq;
 using MathNet.Numerics;
 using Meta;
 using Model.Graphs;
+using View3D.Libraries;
 
 namespace Model3D.Extensions
 {
@@ -483,6 +484,8 @@ namespace Model3D.Extensions
                 Materials = shape.Materials
             };
         }
+
+        public static Shape ToOx(this Shape shape) => shape.Rotate(Rotates.Z_X);
 
         public static Shape Rotate(this Shape shape, Quaternion q)
         {
