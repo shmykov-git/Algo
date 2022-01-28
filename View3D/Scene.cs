@@ -111,14 +111,35 @@ namespace View3D
 
             //var s = Surfaces.CircleM(30, 2);
 
+            var ll = Surfaces.Cylinder(30, 2) +
+                     Surfaces.Circle(30, 2) +
+                     Surfaces.CircleM(30, 2).Move(0, 0, 1);
+
+            var l = ll.Scale(0.01, 0.01, 1.014).ToOx().Centered();
+
+            var x = ll.Scale(0.01, 0.01, 0.3).ToOx().Centered().Rotate(Math.PI / 4) +
+                    ll.Scale(0.01, 0.01, 0.3).ToOx().Centered().Rotate(-Math.PI / 4);
+
+            var o = Surfaces.Torus(100, 10, 12).Perfecto().Mult(0.25);
+
+            var h = l.Move(0, -0.5, 0) +
+                    l.Move(0, -1.0 / 6, 0) +
+                    l.Move(0, 1.0 / 6, 0) +
+                    l.Move(0, 0.5, 0);
+
+            var v = h.Rotate(Math.PI / 2);
+
+            var a = 1.0 / 3;
+
             var shape = new Shape[]
             {
-                Shapes.Arrow.ToOx().ApplyColor(Color.Red),
-                Surfaces.Circle(30, 2).Mult(0.02).AddVolumeZ(0.005).ToOx().Move(0.2,0,0).ApplyColor(Color.Yellow),
-                Surfaces.Circle(30, 2).Mult(0.02).AddVolumeZ(0.005).ToOx().Move(0.8,0,0).ApplyColor(Color.Yellow),
-                vectorizer.GetText("A", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(0.2, -0.05, 0).ToLines3(0.4, Color.Yellow),
-                vectorizer.GetText("B", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(0.8, -0.05, 0).ToLines3(0.4, Color.Yellow),
-                vectorizer.GetText("t", 200, "Times New Roman",1,1.3).Align(0.5,0.5,0.5).Mult(0.05).Move(1, 0.05, 0).ToLines3(0.4, Color.Yellow),
+                h.ApplyColor(Color.Blue), 
+                v.ApplyColor(Color.Blue),
+                x.Move(-a, a, 0).ApplyColor(Color.Red),
+                x.Move(0, a, 0).ApplyColor(Color.Red),
+                x.Move(-a, -a, 0).ApplyColor(Color.Red),
+                o.Move(-a, 0, 0).ApplyColor(Color.Red),
+                o.Move(0, 0, 0).ApplyColor(Color.Red)
                 //Shapes.CoodsWithText
             }.ToSingleShape();
 
