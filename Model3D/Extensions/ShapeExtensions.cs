@@ -486,6 +486,7 @@ namespace Model3D.Extensions
         }
 
         public static Shape ToOx(this Shape shape) => shape.Rotate(Rotates.Z_X);
+        public static Shape ToOxM(this Shape shape) => shape.Rotate(Rotates.Z_mX);
         public static Shape ToOy(this Shape shape) => shape.Rotate(Rotates.Z_Y);
         public static Shape OxToOy(this Shape shape) => shape.Rotate(Rotates.X_Y);
 

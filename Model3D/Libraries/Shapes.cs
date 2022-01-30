@@ -106,6 +106,8 @@ namespace Model.Libraries
             vectorizer.GetText("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ToLines3(0.6, Color.Red) +
             vectorizer.GetText("z", 100, "Georgia").Mult(0.03).Rotate(Rotates.Z_X).Move(0, -0.06, 1).ToLines3(0.6, Color.Red);
 
+        public static Shape CoodsNet => CoodsWithText + Surfaces.Plane(11, 11).Perfecto().ToLines3(0.3, Color.Khaki);
+
         public static Shape Line => new Shape()
         {
             Points3 = new Vector3[]
