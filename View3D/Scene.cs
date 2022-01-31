@@ -112,14 +112,8 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("w15", 200).Mult(2).Rotate(-0.1).ApplyZ(Funcs3Z.HyperboloidM).Rotate(0.1).ToLines3(1, Color.Blue).ApplyColorGradientZ(Color.White, Color.White, null, null, null, null, null, null, Color.White, Color.White),
-                Shapes.Cube.SplitLines(10).Mult(2).Scale(2, 0.2, 1).ToOy().ApplyZ(Funcs3Z.CylinderXMR(10)).Move(0,0,10).Rotate(Rotates.Y_mZ).Move(0.1,-1.2,-1.2).ToLines3(1, Color.White), 
-                //Shapes.GolfBall3.Adjust(1.5).ToLines3(0.5, Color.Black),
-                ////Shapes.Cube.ToLines3(2, Color.Black),
-                //vectorizer.GetContentShape("b12", 200).Mult(0.3).Move(1,0,0).ToLines3(1, Color.Blue),
-                ////Shapes.Cube.Mult(0.3).Move(1,0,0).ToLines3(1, Color.Black),
-                //Shapes.GolfBall1.Adjust(0.45).Move(1,0,0).ToLines3(0.5, Color.Black),
-                //Shapes.GolfBall.Where(v=>v.y>0.8).Mult(7).Move(0,-7-1,0).ToLines3(2, Color.Black)
+                vectorizer.GetContentShape("w16", 200).Move(-0.08, -0.1, 0).ToLines3(1, Color.Blue),
+                Surfaces.Plane(51,51).Perfecto().Mult(1.3).ApplyZ((x,y)=>y*y*y*2+x*x*x*2).ToOx().Rotate(2.1).ToLines3(0.2, Color.White),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
