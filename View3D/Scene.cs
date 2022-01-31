@@ -109,21 +109,17 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            var p = Surfaces.Torus(100, 10, 6).Perfecto().Mult(1.1).ApplyColor(Color.Blue) +
-                    Parquets.PentagonalKershner8(0.02, 1.5).ToShape3().Perfecto().Where(v => v.Length < 0.3).Perfecto()
-                        .Mult(5).ApplyZ(Funcs3Z.ParaboloidM).Mult(1d / 5).Move(0, 0, 1)
-                        .ToLines3(1, Color.Red)
-                        .ApplyColorGradientZ((Color?) null, null, null, null, Color.Yellow, Color.Yellow);
-
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("s11", 180).ApplyZ(Funcs3Z.Waves).ToLines3(.5, Color.Blue).ApplyColorGradientX(Color.Yellow, Color.Red, null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, null, null, null, null, null, null),
-                Shapes.IcosahedronSp2.Mult(0.01).Move(-0.285,0.25,0.011).ApplyColor(Color.Black),
-                Shapes.IcosahedronSp2.Mult(0.01).Move(-0.285,0.25,-0.011).ApplyColor(Color.Black),
-                p.ToOxM().Move(-1.4, 0.23, 0),
-                Shapes.Cube.Move(1, 0.23, 0).ApplyColor(Color.Black),
-                Surfaces.Plane(30, 15).Perfecto().Mult(3).ToLines3(1, Color.White).ToOy().Move(1, 0.23-0.5, 0)
+                vectorizer.GetContentShape("b11", 200).ToLines3(1, Color.Blue),
+                Shapes.GolfBall3.Adjust(1.5).ToLines3(0.5, Color.Black),
+                //Shapes.Cube.ToLines3(2, Color.Black),
+                vectorizer.GetContentShape("b12", 200).Mult(0.3).Move(1,0,0).ToLines3(1, Color.Blue),
+                //Shapes.Cube.Mult(0.3).Move(1,0,0).ToLines3(1, Color.Black),
+                Shapes.GolfBall1.Adjust(0.45).Move(1,0,0).ToLines3(0.5, Color.Black),
+                Shapes.GolfBall.Where(v=>v.y>0.8).Mult(7).Move(0,-7-1,0).ToLines3(2, Color.Black)
+
                 //Shapes.CoodsNet
             }.ToSingleShape();
 
