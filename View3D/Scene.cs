@@ -112,13 +112,15 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("w17", 200).ToLines3(0.5, Color.Blue),
-                Surfaces.Cylinder(30,2).Perfecto().ToOy().Scale(0.1, 0.3, 0.1).Align(0.5,1,0.5).Move(-0.22, -0.13, 0).ToLines3(0.2, Color.Red),
-                Shapes.Cube.Mult(0.1).Align(0.5,1,0.5).Move(0.25, 0, 0).ToLines3(0.5, Color.Red),
-                Shapes.IcosahedronSp2.Mult(0.01).Move(-0.07, 0.25, 0).ApplyColor(Color.Red),
-                Shapes.IcosahedronSp2.Mult(0.01).Move(-0.03, 0.25, 0).ApplyColor(Color.Red),
-                Surfaces.Plane(11, 11).Perfecto().ApplyZ(Funcs3Z.SphereR(3)).Move(0,0,-3).ToOy().Move(0, -0.5, 0).ToLines3(0.2, Color.Red)
-                //Surfaces.Plane(51,51).Perfecto().Mult(1.3).ApplyZ((x,y)=>y*y*y*2+x*x*x*2).ToOx().Rotate(2.1).ToLines3(0.2, Color.White),
+                vectorizer.GetContentShape("w18", 200).ToLines3(0.5, Color.Blue),
+                vectorizer.GetContentShape("mc1", 128).Mult(1).Move(0,0.1,-0.2).ToLines3(0.2, Color.White),
+                vectorizer.GetContentShape("w19", 230).Move(0,0.1,-0.1).ToLines3(0.5, Color.White),
+                Surfaces.Cylinder(50, 2).Perfecto().Scale(0.5, 0.5, 0.08).ToOy().Move(-0.45,-0.2,0.2).ToLines3(1, Color.White),
+                //Shapes.Cube.Scale(1.3,0.7,0.05).Move(0,0.2,-0.1).ToLines3(0.5, Color.White),
+                //Shapes.Cube.Scale(0.55,0.6,0.05).Move(-0.325,0.2,-0.1).ToLines3(0.5, Color.White),
+                //Shapes.Cube.Scale(0.55,0.6,0.05).Move(0.325,0.2,-0.1).ToLines3(0.5, Color.White),
+                //vectorizer.GetContentShape("s12", 200).Mult(3).Move(0,0,-0.3).ToLines3(0.5, Color.White),
+
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
