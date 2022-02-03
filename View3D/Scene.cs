@@ -109,10 +109,12 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
+            //Polygons.FourierSeries(1000, (0.05, 5), (1, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
+
             var shape = new Shape[]
             {
-                Polygons.FourierSeries(1000, (0.5, 5), (-0.5, 10), (4, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
-                Shapes.CoodsNet
+                vectorizer.GetContentShape("w20").ToLines3(0.5, Color.Red),
+                //Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);
