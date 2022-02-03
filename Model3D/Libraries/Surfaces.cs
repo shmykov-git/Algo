@@ -21,7 +21,7 @@ namespace Model3D.Libraries
                 VTo = to,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape NormalDistribution(int un, int vn, double mult, double mu, double sigma) => new Shape
@@ -36,7 +36,7 @@ namespace Model3D.Libraries
                 VTo = vn * mult,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape Plane(int un, int vn) => new Shape
@@ -51,7 +51,7 @@ namespace Model3D.Libraries
                 VTo = vn,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape PlaneWithDiagonals(int un, int vn) => new Shape
@@ -81,7 +81,7 @@ namespace Model3D.Libraries
                 VTo = Math.PI,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape Torus(int un, int vn, double a, bool triangulate = false) => new Shape
@@ -96,7 +96,7 @@ namespace Model3D.Libraries
                 VTo = 2 * Math.PI,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape HalfSphere2(int un, int vn, bool triangulate = false) => new Shape
@@ -111,7 +111,7 @@ namespace Model3D.Libraries
                 VTo = Math.PI*0.8,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape HalfSphere(int un, int vn, bool triangulate = false) => new Shape
@@ -126,7 +126,7 @@ namespace Model3D.Libraries
                 VTo = Math.PI,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape Shamrock(int un, int vn, bool triangulate = false) => new Shape
@@ -141,7 +141,7 @@ namespace Model3D.Libraries
                 VTo = Math.PI,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape DiniSurface(int un, int vn, bool triangulate = false, bool bothFaces = false) => new Shape
@@ -156,7 +156,7 @@ namespace Model3D.Libraries
                 VTo = 2,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un, bothFaces)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un, bothFaces)
         }.Normalize();
 
         public static Shape MobiusStrip(int un, int vn, bool triangulate = false) => new Shape
@@ -171,7 +171,7 @@ namespace Model3D.Libraries
                 VTo = 1,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squeres(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
         public static Shape Cylinder(int un, int vn) => new Shape
@@ -186,7 +186,7 @@ namespace Model3D.Libraries
                 VTo = vn - 1,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape Circle(int un, int vn) => new Shape
@@ -201,7 +201,7 @@ namespace Model3D.Libraries
                 VTo = vn - 1,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape CircleM(int un, int vn) => new Shape
@@ -216,7 +216,7 @@ namespace Model3D.Libraries
                 VTo = 0,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
         public static Shape Cone(int un, int vn) => new Shape
@@ -231,7 +231,7 @@ namespace Model3D.Libraries
                 VTo = vn - 1,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
         public static Shape ConeM(int un, int vn) => new Shape
         {
@@ -245,10 +245,10 @@ namespace Model3D.Libraries
                 VTo = 0,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squeres(vn, un)
+            Convexes = Squares(vn, un)
         };
 
-        private static int[][] Squeres(int un, int vn, bool bothFaces = false)
+        private static int[][] Squares(int un, int vn, bool bothFaces = false)
         {
             int GetNum(int u, int v) => vn * u + v;
             if (bothFaces)

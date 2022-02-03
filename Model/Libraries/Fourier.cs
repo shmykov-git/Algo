@@ -12,7 +12,7 @@ namespace Model.Libraries
         private static Complex ExpC((double r, double i) c, double k) => new Complex(c.r, c.i) * Complex.Pow(new Complex(Math.E, 0), new Complex(0, k * 2 * Math.PI));
 
 
-        public static Vector2 Squere(double t) => Exp(t, ((0.1, 0), 3), (RotateN(3), -1));
+        public static Vector2 Square(double t) => Exp(t, ((0.1, 0), 3), (RotateN(3), -1));
         public static Vector2 Star(double t) => Exp(t, ((0.25, 0), 4), (RotateN(8), -1));
 
         public static (double, double) RotateN(double r, double n) => (r * Math.Cos(Math.PI / n), r * Math.Sin(Math.PI / n));

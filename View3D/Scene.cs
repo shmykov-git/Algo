@@ -109,20 +109,10 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-
             var shape = new Shape[]
             {
-                vectorizer.GetContentShape("w18", 200).ToLines3(0.5, Color.Blue),
-                vectorizer.GetContentShape("mc1", 128).Mult(1).Move(0,0.1,-0.2).ToLines3(0.2, Color.White),
-                vectorizer.GetContentShape("w19", 230).Move(0,0.1,-0.1).ToLines3(0.5, Color.White),
-                Surfaces.Cylinder(50, 2).Perfecto().Scale(0.5, 0.5, 0.08).ToOy().Move(-0.45,-0.2,0.2).ToLines3(1, Color.White),
-                //Shapes.Cube.Scale(1.3,0.7,0.05).Move(0,0.2,-0.1).ToLines3(0.5, Color.White),
-                //Shapes.Cube.Scale(0.55,0.6,0.05).Move(-0.325,0.2,-0.1).ToLines3(0.5, Color.White),
-                //Shapes.Cube.Scale(0.55,0.6,0.05).Move(0.325,0.2,-0.1).ToLines3(0.5, Color.White),
-                //vectorizer.GetContentShape("s12", 200).Mult(3).Move(0,0,-0.3).ToLines3(0.5, Color.White),
-
-
-                //Shapes.CoodsNet
+                Polygons.FourierSeries(1000, (0.5, 5), (-0.5, 10), (4, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
+                Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);
