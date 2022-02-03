@@ -111,7 +111,7 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                Polygons.FourierSeries(1000, (0.05, 5), (1, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
+                Polygons.FourierSeries(1000, (0.05, 21), (-0.03, 41), (1, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
                 Shapes.CoodsNet
             }.ToSingleShape();
 
