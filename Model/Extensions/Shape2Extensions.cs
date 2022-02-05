@@ -54,6 +54,11 @@ namespace Model.Extensions
             };
         }
 
+        public static Shape2 Condition(this Shape2 shape, bool apply, Func<Shape2, Shape2> fn)
+        {
+            return apply ? fn(shape) : shape;
+        }
+
         public static Shape2 TurnOut(this Shape2 shape)
         {
             return new Shape2

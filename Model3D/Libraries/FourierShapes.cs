@@ -1,34 +1,53 @@
 ﻿using System;
+using System.Drawing;
+using System.Linq;
+using Meta;
 using Model.Extensions;
 using Model3D.Extensions;
+using Model3D.Tools;
 
 namespace Model.Libraries
 {
     public static class FourierShapes
     {
-        public static Shape Square(double a = 0.11, int count = 100) =>
+        private static Vectorizer vectorizer = DI.Get<Vectorizer>();
+
+        public static Shape Square(double a = 0.11, int count = 100, bool fill = true) =>
             Polygons.FourierSeries(count, (a, 3), (1, -1))
-                .Fill().TurnOut().ToShape3()
+                .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 4).Perfecto();
 
-        public static Shape Star(double a = 0.15, int count = 100) =>
+        public static Shape Star(double a = 0.15, int count = 100, bool fill = true) =>
             Polygons.FourierSeries(count, (a, 4), (1, -1))
-                .Fill().TurnOut().ToShape3()
+                .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Polygon(int n, double a = 0.1, int count = 100) =>
+        public static Shape Polygon(int n, double a = 0.1, int count = 100, bool fill = true) =>
             Polygons.FourierSeries(count, (6*a/(n-1), n-1), (1, -1))
-                .Fill().TurnOut().ToShape3()
+                .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Just1(double a = 0.1, double b = 0.2) => Polygons
-            .FourierSeries(100, (a, 4), (b, -3), (1, -1)).Fill().TurnOut()
-            .ToShape3().Rotate(Math.PI / 2).Perfecto();
+        public static Shape Series3( double an, double bn, double a,double b, int count, bool fill) => Polygons
+            .FourierSeries(count, (a, an), (b, bn), (1, -1))
+            .Condition(fill, p => p.Fill())
+            .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Just2(double a = 0.1, double b = 0.2) => Polygons.FourierSeries(100, (a, 2), (b, -3), (1, -1)).Fill().TurnOut()
-            .ToShape3().Rotate(Math.PI / 2).Perfecto();
+        public static Shape SearchSeries3(int fromI, int toI, int fromJ, int toJ, double a, double b)
+        {
+            return (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
+                .Select(v =>
+                        FourierShapes.Series3(v.i, v.j, a, b, 100, false).Mult(0.8).Move(v.j, v.i, 0)
+                            .ToLines3(2, Color.Blue)
+                    //+ vectorizer.GetText($"{v.i}, {v.j}").Perfecto().ToLines3(1, Color.Blue)
+                ).ToSingleShape().Perfecto();
+        }
 
-        public static Shape Just3(double a = 0.1, double b = 0.2) => Polygons
-            .FourierSeries(100, (a, 5), (b, -3), (1, -1)).Fill().TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
+        public static Shape Just1(double a = 0.1, double b = 0.2) => Series3(a, 4, b, -3, 100, true);
+
+        public static Shape Just2(double a = 0.1, double b = 0.2) => Series3(a, 2, b, -3, 100, true);
+
+        public static Shape Just3(double a = 0.1, double b = 0.2) => Series3(a, 5, b, -3, 100, true);
+
+        public static Shape Vase(double a = 0.1, double b = 0.2) => Series3(a, 4, b, -5, 100, true);
     }
 }

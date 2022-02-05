@@ -91,6 +91,11 @@ namespace Model.Extensions
             };
         }
 
+        public static Shape2 Condition(this Polygon polygon, bool apply, Func<Polygon, Shape2> fn)
+        {
+            return apply ? fn(polygon) : polygon.ToShape2();
+        }
+
         public static Shape2 ToShape2(this Polygon polygon)
         {
             return new Shape2
