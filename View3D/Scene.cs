@@ -116,12 +116,12 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                FourierShapes.Polygon(10, 0.15).AddVolumeZ(0.05).ApplyColor(Color.Red),
-
-                //Polygons.FourierSeries(100, (0.05, 7), (1, -1)).Fill(false).TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
+                FourierShapes.Just1(0.2, 0.3).Move(0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
+                FourierShapes.Just1(0.1, 0.2).Move(-0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
+                vectorizer.GetText("Yours with love", 300, "Billie Sight Personal use", 1.5).Perfecto().Mult(0.7).Move(0.3,-0.7,0).ToLines3(1, Color.Red),
+                //Polygons.FourierSeries(100, (0.15, 4), (0.3, -3), (1, -1)).Fill().TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
                 //Surfaces.Torus(100, 10, 10).Perfecto().ApplyColor(Color.Red),
                 //Surfaces.Cylinder(10, 2).Perfecto().Scale(0.1, 0.1, 1.8).ToOx().Rotate(Math.PI/4).ApplyColor(Color.Red),
-                vectorizer.GetText("    1\r\nБлять", 300, "Times New Roman").Perfecto().Mult(0.5).Move(0,0,0.03).ToLines3(2, Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
