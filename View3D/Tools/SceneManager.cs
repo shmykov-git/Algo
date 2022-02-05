@@ -7,6 +7,7 @@ using Model3D.Libraries;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 
 namespace View3D.Tools
 {
@@ -75,7 +76,7 @@ namespace View3D.Tools
                 
             }
 
-            foreach (var convex in shape.Convexes)
+            foreach (var convex in shape.Convexes.Where(c=>c.Length>=3))
             {
                 mesh.CreatePolygon(convex);
             }

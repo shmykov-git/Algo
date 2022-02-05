@@ -263,7 +263,7 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToLines3(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToLines3(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
 
         public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null)
         {

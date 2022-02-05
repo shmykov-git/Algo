@@ -119,9 +119,15 @@ namespace View3D
 
             var shape = new Shape[]
             {
+                FourierShapes.Fire(0.15, 0.22, 4, 200, true).Where(v=>v.y>-0.3).AddVolumeZ(0.05).ApplyColor(Color.Red)  //.ToLines3(1, Color.Red)
+
                 //FourierShapes.SearchSeries3(-10, 10, -10, 10, 0.1, 0.2),
-                FourierShapes.Series3(-10, 4, 0.09, 0.25, 200, true).AddVolumeZ(0.05).ApplyColor(Color.Red),//.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
-                vectorizer.GetText("Фурье", 300).Perfecto().Mult(0.4).Move(0,0,0.025).ToLines3(1, Color.Blue),
+                //FourierShapes.SearchSeries3(-30, -10, -10, 10, 0.1, 0.2).Move(-1.2, 0, 0),
+                //FourierShapes.SearchSeries3(10, 30, -10, 10, 0.1, 0.2).Move(1.2, 0, 0),
+
+                //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
+                //FourierShapes.Series3(-5, 4, 0.1, 0.2, 200, true).AddVolumeZ(0.05).ApplyColor(Color.Red),//.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
+                //vectorizer.GetText("Фурье", 300).Perfecto().Mult(0.4).Move(0,0,0.025).ToLines3(1, Color.Blue),
                 //FourierShapes.Square(0.11, 100, false).ToLines3(1, Color.Blue),
                 //FourierShapes.Just3(0.2, 0.4).Move(0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
                 //FourierShapes.Just3(0.1, 0.3).Move(-0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
