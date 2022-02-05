@@ -116,7 +116,7 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                Polygons.FourierSeries(300, (0.1, -3), (3, 1)).ToShape2().ToShape3().Perfecto().Rotate(Math.PI/4).AddVolumeZ(0.05).ApplyColor(Color.Blue),
+                Polygons.FourierSeries(100, (0.1, -3), (3, 1)).ToShape2().ToShape3().Perfecto().Rotate(Math.PI/4).AddVolumeZ(0.05).ApplyColor(Color.Blue),
                 vectorizer.GetText("完美的", 300, "Times New Roman", 1.2, 2.5).Perfecto().Mult(0.7).Move(0,0,0.03).ToLines3(2, Color.Red),
                 //Shapes.CoodsNet
             }.ToSingleShape();
