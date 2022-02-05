@@ -109,10 +109,16 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
+            //Shape GetShape(int i) => 
+            //    Polygons.FourierSeries(1000, (0.1, 3), (3, -1)).ToShape2().ToShape3().Perfecto().Move(0, 0, i/10d)
+            //    .ToLines3(0.5, Color.Blue);
+
+
             var shape = new Shape[]
             {
-                Polygons.FourierSeries(1000, (0.05, 21), (-0.03, 41), (1, 1)).ToShape2().ToShape3().Perfecto().ToLines3(0.5, Color.Blue),
-                Shapes.CoodsNet
+                Polygons.FourierSeries(300, (0.1, -3), (3, 1)).ToShape2().ToShape3().Perfecto().Rotate(Math.PI/4).AddVolumeZ(0.05).ApplyColor(Color.Blue),
+                vectorizer.GetText("完美的", 300, "Times New Roman", 1.2, 2.5).Perfecto().Mult(0.7).Move(0,0,0.03).ToLines3(2, Color.Red),
+                //Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);
