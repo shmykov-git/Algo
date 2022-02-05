@@ -27,5 +27,8 @@ namespace Model.Libraries
 
         public static Shape Just2(double a = 0.1, double b = 0.2) => Polygons.FourierSeries(100, (a, 2), (b, -3), (1, -1)).Fill().TurnOut()
             .ToShape3().Rotate(Math.PI / 2).Perfecto();
+
+        public static Shape Just3(double a = 0.1, double b = 0.2) => Polygons
+            .FourierSeries(100, (a, 5), (b, -3), (1, -1)).Fill().TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
     }
 }
