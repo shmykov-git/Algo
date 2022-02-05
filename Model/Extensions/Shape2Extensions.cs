@@ -54,6 +54,14 @@ namespace Model.Extensions
             };
         }
 
+        public static Shape2 TurnOut(this Shape2 shape)
+        {
+            return new Shape2
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Select(c => c.Reverse().ToArray()).ToArray()
+            };
+        }
         public static Shape2 Reverse(this Shape2 shape)
         {
             var points = shape.Points.Reverse().ToArray();

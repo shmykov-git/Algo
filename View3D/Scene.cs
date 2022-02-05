@@ -116,11 +116,13 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                //Polygons.FourierSeries(100, (0.1, -3), (3, 1)).ToShape2().ToShape3().Perfecto().Rotate(Math.PI/4).AddVolumeZ(0.05).ApplyColor(Color.Blue),
-                Surfaces.Torus(100, 10, 10).Perfecto().ApplyColor(Color.Red),
-                Surfaces.Cylinder(10, 2).Perfecto().Scale(0.1, 0.1, 1.8).ToOx().Rotate(Math.PI/4).ApplyColor(Color.Red),
-                vectorizer.GetText("1062", 300).Perfecto().Mult(0.6).Move(0,0,0.05).ToLines3(2, Color.Blue),
-                //Shapes.CoodsNet
+                FourierShapes.Square(0.17).ToLines3(1, Color.Blue),
+
+                //Polygons.FourierSeries(100, (0.13, 3), (1, -1)).Fill(true).TurnOut().ToShape3().Rotate(Math.PI/4).Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Blue),
+                //Surfaces.Torus(100, 10, 10).Perfecto().ApplyColor(Color.Red),
+                //Surfaces.Cylinder(10, 2).Perfecto().Scale(0.1, 0.1, 1.8).ToOx().Rotate(Math.PI/4).ApplyColor(Color.Red),
+                //vectorizer.GetText("1062", 300).Perfecto().Mult(0.6).Move(0,0,0.05).ToLines3(2, Color.Blue),
+                Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);
