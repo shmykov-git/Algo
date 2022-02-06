@@ -109,31 +109,14 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            //Shape GetShape(int i) => 
-            //    Polygons.FourierSeries(1000, (0.1, 3), (3, -1)).ToShape2().ToShape3().Perfecto().Move(0, 0, i/10d)
-            //    .ToLines3(0.5, Color.Blue);
-
-            //var s = (21, 21).SelectRange((i, j) => (i:i-11, j:j-11)).Select(v =>
-            //    FourierShapes.Series3(0.1, v.i, 0.2, v.j, 100, false).Mult(0.8).Move(v.j, v.i, 0)).ToSingleShape().Perfecto().ToLines3(0.1, Color.Blue);
-
-
             var shape = new Shape[]
             {
-                FourierShapes.Fire(0.15, 0.22, 4, 200, true).Where(v=>v.y>-0.3).AddVolumeZ(0.05).ApplyColor(Color.Red)  //.ToLines3(1, Color.Red)
-
-                //FourierShapes.SearchSeries3(-10, 10, -10, 10, 0.1, 0.2),
-                //FourierShapes.SearchSeries3(-30, -10, -10, 10, 0.1, 0.2).Move(-1.2, 0, 0),
-                //FourierShapes.SearchSeries3(10, 30, -10, 10, 0.1, 0.2).Move(1.2, 0, 0),
+                //FourierShapes.Fire(0.15, 0.22, 4, 200, true).Where(v=>v.y>-0.3).AddVolumeZ(0.05).ApplyColor(Color.Red)  //.ToLines3(1, Color.Red)
 
                 //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
-                //FourierShapes.Series3(-5, 4, 0.1, 0.2, 200, true).AddVolumeZ(0.05).ApplyColor(Color.Red),//.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
-                //vectorizer.GetText("Фурье", 300).Perfecto().Mult(0.4).Move(0,0,0.025).ToLines3(1, Color.Blue),
-                //FourierShapes.Square(0.11, 100, false).ToLines3(1, Color.Blue),
-                //FourierShapes.Just3(0.2, 0.4).Move(0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
-                //FourierShapes.Just3(0.1, 0.3).Move(-0.5,0,0).AddVolumeZ(0.05).ApplyColor(Color.Red),
+                
+                FourierShapes.Series3(-11, -6, 0.09, 0.2, 200, false).AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
                 //Polygons.FourierSeries(100, (0.1, 2), (0.2, -3), (1, -1)).ToShape2().TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
-                //Surfaces.Torus(100, 10, 10).Perfecto().ApplyColor(Color.Red),
-                //Surfaces.Cylinder(10, 2).Perfecto().Scale(0.1, 0.1, 1.8).ToOx().Rotate(Math.PI/4).ApplyColor(Color.Red),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
