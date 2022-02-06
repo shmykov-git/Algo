@@ -115,7 +115,14 @@ namespace View3D
 
                 //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
                 
-                FourierShapes.Series3(-11, -6, 0.09, 0.2, 200, false).AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
+                FourierShapes.Series3(14, -7, 0.09, 0.2, 1000, true).AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
+                Shapes.IcosahedronSp2.Mult(0.02).Move(0.06, 0.35, 0.025).ApplyColor(Color.Black),
+                Shapes.IcosahedronSp2.Mult(0.02).Move(-0.06, 0.35, 0.025).ApplyColor(Color.Black),
+                Shapes.Cube.Perfecto(0.15).RotateOx(0.47, 0.23, 0).Move(1.2*new Vector3(0.47, 0.23, 0)).ApplyColor(Color.Black),
+                Shapes.Cube.Perfecto(0.15).RotateOx(-0.47, 0.23, 0).Move(1.2*new Vector3(-0.47, 0.23, 0)).ApplyColor(Color.Black),
+                Shapes.Cube.Perfecto(0.3).Scale(1.3,0.5,0.5).Align(0.5,1,0.5).Move(0,-0.53,0).ApplyColor(Color.Black),
+                Shapes.IcosahedronSp1.Perfecto(0.2).Move(new Vector3(-0.35, -0.45, 0)).ToLines3(1, Color.Black),
+                Shapes.IcosahedronSp1.Perfecto(0.2).Move(new Vector3(0.35, -0.45, 0)).ToLines3(1, Color.Black),
                 //Polygons.FourierSeries(100, (0.1, 2), (0.2, -3), (1, -1)).ToShape2().TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet

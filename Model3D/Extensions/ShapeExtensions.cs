@@ -505,6 +505,8 @@ namespace Model3D.Extensions
         public static Shape Rotate(this Shape shape, double x, double y, double z, Vector3? lookUp = null) => Rotate(shape, new Vector3(x, y, z), lookUp);
 
         public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
+        public static Shape RotateOx(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.XAxis));
+        public static Shape RotateOx(this Shape shape, double x, double y, double z) => Rotate(shape, Quaternion.FromRotation(Vector3.XAxis, new Vector3(x, y, z).Normalize()));
 
         public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3? yAxis = null)
         {
@@ -573,7 +575,7 @@ namespace Model3D.Extensions
             return shape.Move(-shift);
         }
 
-        public static Shape Perfecto(this Shape shape) => shape.Centered().Adjust();
+        public static Shape Perfecto(this Shape shape, double mult = 1) => shape.Centered().Adjust(mult);
 
         public static Shape Adjust(this Shape shape, double size = 1)
         {
