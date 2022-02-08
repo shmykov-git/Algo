@@ -110,7 +110,7 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            var p = Polygons.FourierSeries3(-6, 3, 0.1, 0.2, 256);
+            var p = Polygons.FourierSeries3(-9, 4, 0.1, 0.25, 256);
             var ps = Splitter.SplitIntersections(p);
 
             var ss = ps.Select(p =>
@@ -125,11 +125,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-
                 ss,
-                vectorizer.GetText("Man", 300, "Times New Roman").Perfecto(0.1).Move(0,0,0.025).ToLines3(0.5, Color.Blue),
                 //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
-                
+                Shapes.IcosahedronSp2.Mult(0.005).Move(0.015, 0.46, 0.025).ApplyColor(Color.Yellow),
+                Shapes.IcosahedronSp2.Mult(0.005).Move(-0.015, 0.46, 0.025).ApplyColor(Color.Yellow),
                 //FourierShapes.Series3(-10, 4, 0.19, 0.37, 1007, false).Move(0,0,0.3).ToLines3(1, Color.Blue), //.ToNumSpots3(0.2, Color.Red), //.AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
 
 

@@ -65,6 +65,9 @@ namespace Model.Tools
             var intersections = polygon.Points.Index().Select(i => (i, jj: IntersectedIndex(i))).Where(v => v.jj.j.HasValue)
                 .Select(v => (v.i, j: v.jj.j.Value, p:v.jj.p)).ToArray();
 
+            if (!intersections.Any())
+                return new[] {polygon};
+
             //var ins = intersections.Select(v => (v.i, v.j)).ToList();
             //var s = new Stack<(int, int)>();
             //var l = 0;
