@@ -6,6 +6,9 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
+        public static Polygon FourierSeries3(int an, int bn, double a, double b, int count) =>
+            FourierSeries(count, (a, an), (b, bn), (1, -1));
+
         public static Polygon FourierSeries(int count, params (double r, double k)[] args) =>
             FourierSeries(count, args.Select(a => ((a.r, 0d), a.k)).ToArray());
 

@@ -1,5 +1,6 @@
 ﻿using Model.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Model
@@ -8,6 +9,15 @@ namespace Model
     {
         public double x;
         public double y;
+
+        public IEnumerable<double> values
+        {
+            get
+            {
+                yield return x;
+                yield return y;
+            }
+        }
 
         double INetKey.x => x;
         double INetKey.y => y;

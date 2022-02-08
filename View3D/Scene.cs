@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 using Aspose.ThreeD.Utilities;
 using MathNet.Numerics;
 using Model.Graphs;
+using Model.Tools;
 using View3D.Libraries;
 
 namespace View3D
@@ -109,22 +110,29 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
+            var p = Polygons.FourierSeries3(-6, 3, 0.1, 0.2, 256);
+            var ps = Splitter.SplitIntersections(p);
+
+            var ss = ps.Select(p =>
+            {
+                var s = p.Fill().ToShape3().TurnOut().Rotate(Math.PI / 2);
+
+                //var c = s.Points3.Center();
+                //s = s.Move(c * 0.5);
+
+                return s;//.AddVolumeZ(0.05).ApplyColor(Color.Red);
+            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
+
             var shape = new Shape[]
             {
-                //FourierShapes.Fire(0.15, 0.22, 4, 200, true).Where(v=>v.y>-0.3).AddVolumeZ(0.05).ApplyColor(Color.Red)  //.ToLines3(1, Color.Red)
 
+                ss,
+                vectorizer.GetText("Man", 300, "Times New Roman").Perfecto(0.1).Move(0,0,0.025).ToLines3(0.5, Color.Blue),
                 //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
                 
-                FourierShapes.Series3(-10, 2, 0.09, 0.2, 1000, true).AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
-                Shapes.IcosahedronSp2.Mult(0.02).Move(0, 0.48, 0).ApplyColor(Color.Black),
-                Shapes.IcosahedronSp2.Mult(0.02).Move(0.48, -0.38, 0).ApplyColor(Color.Black),
-                Shapes.IcosahedronSp2.Mult(0.02).Move(-0.48, -0.38, 0).ApplyColor(Color.Black),
-                //Shapes.IcosahedronSp2.Mult(0.02).Move(-0.06, 0.35, 0.025).ApplyColor(Color.Black),
-                //Shapes.Cube.Perfecto(0.15).RotateOx(0.47, 0.23, 0).Move(1.2*new Vector3(0.47, 0.23, 0)).ApplyColor(Color.Black),
-                //Shapes.Cube.Perfecto(0.15).RotateOx(-0.47, 0.23, 0).Move(1.2*new Vector3(-0.47, 0.23, 0)).ApplyColor(Color.Black),
-                //Shapes.Cube.Perfecto(0.3).Scale(1.3,0.5,0.5).Align(0.5,1,0.5).Move(0,-0.53,0).ApplyColor(Color.Black),
-                //Shapes.IcosahedronSp1.Perfecto(0.2).Move(new Vector3(-0.35, -0.45, 0)).ToLines3(1, Color.Black),
-                //Shapes.IcosahedronSp1.Perfecto(0.2).Move(new Vector3(0.35, -0.45, 0)).ToLines3(1, Color.Black),
+                //FourierShapes.Series3(-10, 4, 0.19, 0.37, 1007, false).Move(0,0,0.3).ToLines3(1, Color.Blue), //.ToNumSpots3(0.2, Color.Red), //.AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
+
+
                 //Polygons.FourierSeries(100, (0.1, 2), (0.2, -3), (1, -1)).ToShape2().TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet

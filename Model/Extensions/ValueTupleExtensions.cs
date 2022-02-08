@@ -31,6 +31,11 @@ namespace Model.Extensions
             return (e.j, e.i);
         }
 
+        public static (int i, int j) Reverse(this (int i, int j) e)
+        {
+            return (e.j, e.i);
+        }
+
         public static int Another(this (int i, int j) e, int k)
         {
             return e.i == k ? e.j : e.i;

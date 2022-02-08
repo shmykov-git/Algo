@@ -200,17 +200,17 @@ namespace Model3D.Extensions
             spotColor ??= Color.Red;
             numColor ??= Color.Black;
 
-            var shapes = new List<Shape>();
+            var texts = new List<Shape>();
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = vectorizer.GetText(i.ToString()).ToLines3(500).MassCentered().Mult(0.002* mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
-                shapes.Add(iText);
+                var iText = vectorizer.GetText(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ToLines3(mult, numColor);
+                texts.Add(iText);
             }
 
             var spots = shape.ToSpots3(mult, spotColor.Value);
 
-            return shapes.Aggregate((a, b) => a + b) + spots;
+            return texts.ToSingleShape() + spots;
         }
 
         public static Shape ToNumFigureSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null, Color? fiveColor = null)

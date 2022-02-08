@@ -42,5 +42,10 @@ namespace Model.Extensions
         {
             return (a.x, a.y);
         }
+
+        public static Vector2 ToV2(this Vector v)
+        {
+            return new Vector2(v[0], v[1]);
+        }
     }
 }
