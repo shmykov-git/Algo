@@ -123,12 +123,16 @@ namespace View3D
                 return s;//.AddVolumeZ(0.05).ApplyColor(Color.Red);
             }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
 
+            var b = vectorizer.GetContentShape("b13", 100);
+
             var shape = new Shape[]
             {
                 ss,
+                b.Where(v=>v.y>0).WhereNotR(-0.3,0,0.2).Perfecto(0.2).Move(0, 0.47, 0.025).ToLines3(0.7, Color.Black),
+                b.Where(v=>v.y<0.01).WhereNotR(0,0,0.05).Perfecto(0.82).Move(0, 0.05, 0.025).ToLines3(1.5, Color.Black),
                 //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
-                Shapes.IcosahedronSp2.Mult(0.005).Move(0.015, 0.46, 0.025).ApplyColor(Color.Yellow),
-                Shapes.IcosahedronSp2.Mult(0.005).Move(-0.015, 0.46, 0.025).ApplyColor(Color.Yellow),
+                //Shapes.IcosahedronSp2.Mult(0.005).Move(0.015, 0.46, 0.025).ApplyColor(Color.Black),
+                //Shapes.IcosahedronSp2.Mult(0.005).Move(-0.015, 0.46, 0.025).ApplyColor(Color.Black),
                 //FourierShapes.Series3(-10, 4, 0.19, 0.37, 1007, false).Move(0,0,0.3).ToLines3(1, Color.Blue), //.ToNumSpots3(0.2, Color.Red), //.AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
 
 
