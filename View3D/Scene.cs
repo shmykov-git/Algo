@@ -110,25 +110,23 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            var p = Polygons.FourierSeries3(-9, 8, 0.1, 0.2, 1000);
+            var p = Polygons.FourierSeries3(-14, 6, 0.09, 0.2, 1000);
             var ps = Splitter.SplitIntersections(p);
 
             var ss = ps.Select(p =>
             {
-                var s = p.Fill().ToShape3().TurnOut().Rotate(Math.PI / 2);
+                var s = p.Fill().ToShape3().Rotate(Math.PI / 2);
 
                 //var c = s.Points3.Center();
                 //s = s.Move(c * 0.5);
 
-                return s;//.AddVolumeZ(0.05).ApplyColor(Color.Red);
-            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
-
-            //var b = vectorizer.GetContentShape("b14", 100);
+                return s;
+            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//.AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
 
             var shape = new Shape[]
             {
                 ss,
-                vectorizer.GetText("火", 300, "Arial", 1.5, 2.5, false).Perfecto(0.2).Move(0,-0.3,0.025).ToLines3(1, Color.Blue)
+                //vectorizer.GetText("火", 300, "Arial", 1.5, 2.5, false).Perfecto(0.2).Move(0,-0.3,0.025).ToLines3(1, Color.Blue)
                 //b.Mult(0.3).Move(0,0.05,0.025).ToLines3(1, Color.Black),
 
                 //b.Where(v=>v.y>0).WhereNotR(-0.3,0,0.2).Perfecto(0.2).Move(0, 0.47, 0.025).ToLines3(0.7, Color.Black),
