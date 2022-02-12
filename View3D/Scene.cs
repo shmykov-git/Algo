@@ -110,18 +110,25 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            var p = Polygons.FourierSeries3(-10, 9, 0.1, 0.2, 1000);
+            var fShape = new Fr[] {(10, 0.1), (7, 0.2), (-10, 0.1), (-6, 0.2), (-9, 0.1), (4, 0.2), (-1, 1)};
+
+            //return FourierShapes.SearchSeries(new Fr[] { (-10, 0.1), (-6, 0.2), (-9, 0.1), (4, 0.2), (-1, 1) }, 0.1, 0.2, -10, 10, -10, 10);
+
+            //var p = Polygons.FourierSeries5(-9, 4, -7, -6, 0.1, 0.2, 0.1, 0.2, 1000, 0.1, -0.2);
+            var p = Polygons.FourierSeries(1000, fShape);
+
             var ps = Splitter.SplitIntersections(p);
 
             var ss = ps.Select(p =>
             {
-                var s = p.Fill().ToShape3().Rotate(Math.PI / 2);
+                var s = p.ToShape2(true).ToShape3().TurnOut().Rotate(Math.PI / 2);
 
                 //var c = s.Points3.Center();
                 //s = s.Move(c * 0.5);
 
                 return s;
-            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Blue); //.ToLines3(1, Color.Red);//.AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
+            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue); //.AddVolumeZ(0.05).ApplyColor(Color.Blue); //.ToLines3(1, Color.Red);//.AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
+
 
             var shape = new Shape[]
             {
@@ -143,6 +150,9 @@ namespace View3D
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
+
+
+            //var shape = FourierShapes.SearchSeries3(-10, 10, -10, 10, 0.1, 0.2, 0.1, -0.2);
 
             return shape;//.Rotate(Rotates.Z_Y);
         }

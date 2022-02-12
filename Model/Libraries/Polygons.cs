@@ -6,11 +6,18 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
-        public static Polygon FourierSeries3(int an, int bn, double a, double b, int count) =>
-            FourierSeries(count, (a, an), (b, bn), (1, -1));
+        public static Polygon FourierSeries(int count, params Fr[] members) =>
+            FourierSeries(count, members.Select(m => ((m.r, m.im), m.n + m.dn)).ToArray());
 
-        public static Polygon FourierSeries(int count, params (double r, double k)[] args) =>
-            FourierSeries(count, args.Select(a => ((a.r, 0d), a.k)).ToArray());
+        public static Polygon FourierSeries3(int an, int bn, double a, double b, int count, double da, double db) =>
+            FourierSeries(count, (an + da, a), (bn + db, b), (-1, 1));
+
+        public static Polygon FourierSeries5(int an, int bn, int cn, int dn, double a, double b, double c, double d,
+            int count, double da = 0, double db = 0, double dc = 0, double dd = 0) =>
+            FourierSeries(count, (an + da, a), (bn + db, b), (cn + dc, c), (dn + dd, d), (-1, 1));
+
+        //public static Polygon FourierSeries(int count, params (double r, double k)[] args) =>
+        //    FourierSeries(count, args.Select(a => ((a.r, 0d), a.k)).ToArray());
 
         public static Polygon FourierSeries(int count, params ((double, double) c, double k)[] args) => new Polygon
         {

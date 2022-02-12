@@ -96,8 +96,11 @@ namespace Model.Extensions
             return apply ? fn(polygon) : polygon.ToShape2();
         }
 
-        public static Shape2 ToShape2(this Polygon polygon)
+        public static Shape2 ToShape2(this Polygon polygon, bool fill = false)
         {
+            if (fill)
+                return polygon.Fill(false);
+
             return new Shape2
             {
                 Points = polygon.Points,

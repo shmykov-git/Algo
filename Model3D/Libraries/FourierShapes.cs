@@ -13,37 +13,78 @@ namespace Model.Libraries
         private static Vectorizer vectorizer = DI.Get<Vectorizer>();
 
         public static Shape Square(double a = 0.11, int count = 100, bool fill = true) =>
-            Polygons.FourierSeries(count, (a, 3), (1, -1))
+            Polygons.FourierSeries(count, (3, a), (-1, 1))
                 .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 4).Perfecto();
 
         public static Shape Star(double a = 0.15, int count = 100, bool fill = true) =>
-            Polygons.FourierSeries(count, (a, 4), (1, -1))
+            Polygons.FourierSeries(count, (4, a), (-1, 1))
                 .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 2).Perfecto();
 
         public static Shape Polygon(int n, double a = 0.1, int count = 100, bool fill = true) =>
-            Polygons.FourierSeries(count, (6*a/(n-1), n-1), (1, -1))
+            Polygons.FourierSeries(count, (n-1, 6*a/(n-1)), (-1, 1))
                 .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Series3(int an, int bn, double a,double b, int count, bool fill) => Polygons
-            .FourierSeries(count, (a, an), (b, bn), (1, -1))
+        public static Shape Series3(int an, int bn, double a, double b, int count, bool fill, double da = 0, double db = 0) => Polygons
+            .FourierSeries(count, (an, a, da), (bn, b, db), (-1, 1))
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape SearchSeries3(int fromI, int toI, int fromJ, int toJ, double a, double b)
+        public static Shape Series5(int an, int bn, int cn, int dn, double a, double b, double c, double d, int count, bool fill, double da = 0, double db = 0, double dc = 0, double dd = 0) => Polygons
+            .FourierSeries(count, (an, a, da), (bn, b, db), (cn, c, dc), (dn, d, dd), (-1, 1))
+            .Condition(fill, p => p.Fill())
+            .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
+
+        public static Shape Series(int count, bool fill, params Fr[] members) => Polygons
+            .FourierSeries(count, members)
+            .Condition(fill, p => p.Fill())
+            .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
+
+        public static Shape SearchSeries5(int fromI, int toI, int fromJ, int toJ, int an, int bn, double a, double b, double c, double d, double da = 0, double db = 0, double dc = 0, double dd = 0)
         {
             return (
                 (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.Series3(v.i, v.j, a, b, 100, false).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.Series5(an, bn, v.i, v.j, a, b, c, d, 100, false, da, db, dc, dd).Mult(0.8).Move(v.j, v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (toI - fromI + 1).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i+fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
                 (toJ - fromJ + 1).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j+fromJ, toI+2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+            ).Perfecto();
+        }
+
+        public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ,
+            double da = 0, double db = 0)
+        {
+            return (
+                (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
+                .Select(v =>
+                    FourierShapes.Series(100, false, main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray()).Mult(0.8).Move(v.j, v.i, 0)
+                        .ToLines3(2, Color.Blue)
+                ).ToSingleShape() +
+                (toI - fromI + 1).SelectRange(i =>
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                (toJ - fromJ + 1).SelectRange(j =>
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+            ).Perfecto();
+        }
+
+        public static Shape SearchSeries3(int fromI, int toI, int fromJ, int toJ, double a, double b, double da = 0, double db = 0)
+        {
+            return (
+                (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
+                .Select(v =>
+                    FourierShapes.Series3(v.i, v.j, a, b, 100, false, da, db).Mult(0.8).Move(v.j, v.i, 0)
+                        .ToLines3(2, Color.Blue)
+                ).ToSingleShape() +
+                (toI - fromI + 1).SelectRange(i =>
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                (toJ - fromJ + 1).SelectRange(j =>
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
