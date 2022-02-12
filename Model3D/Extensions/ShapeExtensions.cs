@@ -121,24 +121,6 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape AddPerimetrVolume(this Shape shape, double x, double y, double z)
-        {
-            var halfVolume = new Vector4(x, y, z, 0) * 0.5;
-
-            return new Shape
-            {
-                Points = shape.Points.Select(p => p - halfVolume)
-                    .Concat(shape.Points.Select(p => p + halfVolume)).ToArray(),
-
-                Convexes = shape.Convexes.SelectMany(convex => new int[][]
-                {
-                    convex,
-                    convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()
-
-                }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
-            };
-        }
-
         public static Shape AddSphereVolume(this Shape shape, double thicknessMult = 1.1)
         {
             return new Shape

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using Meta;
 using Model.Extensions;
+using Model.Tools;
 using Model3D.Extensions;
 using Model3D.Tools;
 
@@ -37,10 +38,24 @@ namespace Model.Libraries
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Series(int count, bool fill, params Fr[] members) => Polygons
-            .FourierSeries(count, members)
-            .Condition(fill, p => p.Fill())
-            .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
+        public static Shape Series(Fr[] members, double? volume = 0.05, int count = 256) =>
+            Series(count, volume, members);
+
+        public static Shape Series(int count, double? volume = 0.05, params Fr[] members)
+        {
+            var polygon = Polygons.FourierSeries(count, members);
+            var polygons = Splitter.SplitIntersections(polygon);
+
+            var shape = polygons.Select(p => p.ToShape(volume.HasValue))
+                .ToSingleShape()
+                .Rotate(Math.PI / 2)
+                .Perfecto();
+
+            if (volume.HasValue)
+                shape = shape.Scale(1, 1, volume.Value / shape.SizeZ);
+            
+            return shape;
+        }
 
         public static Shape SearchSeries5(int fromI, int toI, int fromJ, int toJ, int an, int bn, double a, double b, double c, double d, double da = 0, double db = 0, double dc = 0, double dd = 0)
         {
@@ -63,7 +78,7 @@ namespace Model.Libraries
             return (
                 (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.Series(100, false, main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray()).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.Series(100, null, main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray()).Mult(0.8).Move(v.j, v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (toI - fromI + 1).SelectRange(i =>
