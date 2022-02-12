@@ -7,6 +7,14 @@ namespace Model.Extensions
 {
     public static class LinqExtensions
     {
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
+        {
+            var enumerator = list.GetEnumerator();
+
+            while (enumerator.MoveNext())
+                action(enumerator.Current);
+        }
+
         public static IEnumerable<int> Index<T>(this IEnumerable<T> list)
         {
             var i = 0;

@@ -38,23 +38,27 @@ namespace Model.Libraries
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Series(Fr[] members, double? volume = 0.05, int count = 256, int? main = null)
+        public static Shape[] Series(Fr[] members, double? volume = 0.05, int count = 256)
         {
             var polygon = Polygons.FourierSeries(count, members);
             var polygons = Splitter.SplitIntersections(polygon);
 
-            if (main.HasValue)
-                polygons = new[] {polygons[main.Value]};
+            var shapes = polygons.Select(p => p.ToShape(volume.HasValue).Rotate(Math.PI / 2)).ToArray();
 
-            var shape = polygons.Select(p => p.ToShape(volume.HasValue))
-                .ToSingleShape()
-                .Rotate(Math.PI / 2)
-                .Perfecto();
+            var size = shapes.ToSingleShape().Size;
 
             if (volume.HasValue)
-                shape = shape.Scale(1, 1, volume.Value / shape.SizeZ);
+                shapes.Index().ForEach(i =>
+                {
+                    shapes[i] = shapes[i].Scale(1 / size.x, 1 / size.y, volume.Value / size.z);
+                });
 
-            return shape;
+            return shapes;
+        }
+
+        public static Shape SingleSeries(Fr[] members, int count = 256)
+        {
+            return Polygons.FourierSeries(count, members).ToShape(false).Rotate(Math.PI / 2).Perfecto();
         }
 
         public static Shape SearchSeries5(int fromI, int toI, int fromJ, int toJ, int an, int bn, double a, double b, double c, double d, double da = 0, double db = 0, double dc = 0, double dd = 0)
@@ -78,7 +82,7 @@ namespace Model.Libraries
             return (
                 (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.Series(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), null, 100).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), 100).Mult(0.8).Move(v.j, v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (toI - fromI + 1).SelectRange(i =>

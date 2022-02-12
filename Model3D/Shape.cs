@@ -59,11 +59,14 @@ namespace Model
             new Vector3(Points.Min(p => p.x), Points.Min(p => p.y), Points.Min(p => p.z)),
             new Vector3(Points.Max(p => p.x), Points.Max(p => p.y), Points.Max(p => p.z)));
 
-        public Vector3 GetSize()
+        public Vector3 Size
         {
-            var b = GetBorders();
+            get
+            {
+                var b = GetBorders();
 
-            return new Vector3(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z);
+                return new Vector3(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z);
+            }
         }
 
         public (double a, double b) BorderX => (Points.Min(p => p.x), Points.Max(p => p.x));

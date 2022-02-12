@@ -579,7 +579,7 @@ namespace Model3D.Extensions
 
         public static Shape Adjust(this Shape shape, double size = 1)
         {
-            var s = shape.GetSize();
+            var s = shape.Size;
 
             return shape.Mult(size / new[]{ s.x, s.y, s.z}.Max());
         }

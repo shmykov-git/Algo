@@ -41,7 +41,7 @@ namespace Model3D.Extensions
                 if (b == null)
                     return a;
 
-                shifts[i] += (b.GetSize() + distance).MultC(dirs[i]);
+                shifts[i] += (b.Size + distance).MultC(dirs[i]);
 
                 return a + b.Move(shifts[i]);
             });

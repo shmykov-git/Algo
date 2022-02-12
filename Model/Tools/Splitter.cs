@@ -68,28 +68,6 @@ namespace Model.Tools
             if (!intersections.Any())
                 return new[] {polygon};
 
-            //var ins = intersections.Select(v => (v.i, v.j)).ToList();
-            //var s = new Stack<(int, int)>();
-            //var l = 0;
-            //foreach (var v in intersections)
-            //{
-            //    var vv = (v.i, v.j);
-            //    var vv1 = (v.j, v.i);
-            //    if (s.Count > 0 && s.Peek() == vv1)
-            //    {
-            //        s.Pop();
-            //        l--;
-            //        Debug.WriteLine($"{new string(' ', l)}{vv} {ins.Contains(vv1)}");
-            //    }
-            //    else
-            //    {
-            //        Debug.WriteLine($"{new string(' ', l)}{vv} {ins.Contains(vv1)}");
-            //        s.Push(vv);
-            //        l++;
-            //    }
-
-            //}
-
             var rangeCount = 0;
 
             int[] GetRange(int i)
@@ -104,7 +82,8 @@ namespace Model.Tools
             int GetKey() => set.Select(v => v.GetHashCode()).Aggregate(0, HashCode.Combine);
 
             var values = new Dictionary<int, List<(int[] r, Vector2? p, int num)>>();
-            
+
+            var k = 0;
             foreach (var vv in intersections)
             {
                 var v = (vv.i, vv.j);
@@ -113,6 +92,8 @@ namespace Model.Tools
                 
                 values.TryAdd(key, new List<(int[] r, Vector2? p, int num)>());
                 values[key].Add((GetRange(vv.i), vv.p, set.Count));
+
+                Debug.WriteLine($"{k++}: {v}, {set.Count}");
 
                 if (set.Contains(v.Reverse()))
                     set.Remove(v.Reverse());
@@ -132,7 +113,7 @@ namespace Model.Tools
                     Points = CondReverse(value.SelectMany(v => 
                                 v.r.Select(i=>points[i])
                                .Concat(v.p.HasValue ? new[] { v.p.Value } : new Vector2[0])
-                            ).ToArray(), value[0].num % 2 == 1)
+                            ).ToArray(), false/*value[0].num % 2 == 1*/)
                 }).ToArray();
 
             return polygons;

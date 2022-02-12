@@ -122,47 +122,23 @@ namespace View3D
                 (-1, 1)
             };
 
-            return FourierShapes.Series(fShape, 0.05, 256).ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
+            var sp = FourierShapes.Series(fShape, 0.05, 256);
+            //[0].ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
 
-            return FourierShapes.SearchSeries(fShape, 0.1, 0.2, -15, 15, -15, 15);
+            //return FourierShapes.SearchSeries(fShape, 0.1, 0.2, -10, 10, -10, 10);
 
 
             //var p = Polygons.FourierSeries5(-9, 4, -7, -6, 0.1, 0.2, 0.1, 0.2, 1000, 0.1, -0.2);
-            var p = Polygons.FourierSeries(1000, fShape);
 
-            var ps = Splitter.SplitIntersections(p);
-
-            var ss = ps.Select(p =>
-            {
-                var s = p.ToShape2(true).ToShape3().TurnOut().Rotate(Math.PI / 2);
-
-                //var c = s.Points3.Center();
-                //s = s.Move(c * 0.5);
-
-                return s;
-            }).ToSingleShape().Perfecto().AddVolumeZ(0.05).ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue); //.AddVolumeZ(0.05).ApplyColor(Color.Blue); //.ToLines3(1, Color.Red);//.AddVolumeZ(0.05).ApplyColor(Color.Red); //.ToLines3(1, Color.Red);//
-
+            var b = sp[5].BorderY;
 
             var shape = new Shape[]
             {
-                ss,
-                //vectorizer.GetText("火", 300, "Arial", 1.5, 2.5, false).Perfecto(0.2).Move(0,-0.3,0.025).ToLines3(1, Color.Blue)
-                //b.Mult(0.3).Move(0,0.05,0.025).ToLines3(1, Color.Black),
-
-                //b.Where(v=>v.y>0).WhereNotR(-0.3,0,0.2).Perfecto(0.2).Move(0, 0.47, 0.025).ToLines3(0.7, Color.Black),
-                //b.Where(v=>v.y<0.01).WhereNotR(0,0,0.05).Perfecto(0.82).Move(0, 0.05, 0.025).ToLines3(1.5, Color.Black),
+                sp[0].ApplyColor(Color.Blue),
+                sp[5].Move(0,-b.a,0).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(0,1,1).Normalize())).Move(0,b.a,0).ApplyColor(Color.Red)
                 
-                //FourierShapes.Man().AddVolumeZ(0.05).ApplyColor(Color.Red)
-                //Shapes.IcosahedronSp2.Mult(0.005).Move(0.015, 0.43, 0.025).ApplyColor(Color.Black),
-                //Shapes.IcosahedronSp2.Mult(0.005).Move(-0.015, 0.43, 0.025).ApplyColor(Color.Black),
-                //Shapes.IcosahedronSp2.Mult(0.005).Move(0.01, 0.1, 0.025).ApplyColor(Color.Black),
-                //Shapes.IcosahedronSp2.Mult(0.005).Move(-0.01, 0.1, 0.025).ApplyColor(Color.Black),
-                //FourierShapes.Series3(-10, 4, 0.19, 0.37, 1007, false).Move(0,0,0.3).ToLines3(1, Color.Blue), //.ToNumSpots3(0.2, Color.Red), //.AddVolumeZ(0.05).ApplyColor(Color.Red), //.ToLines3(1, Color.Red),//.ApplyColor(Color.Red),
-
-                //Polygons.FourierSeries(100, (0.1, 2), (0.2, -3), (1, -1)).ToShape2().TurnOut().ToShape3().Rotate(Math.PI/2).Perfecto().ToLines3(1, Color.Blue), //.AddVolumeZ(0.05).ApplyColor(Color.Blue),
-
                 //Shapes.CoodsNet
-            }.ToSingleShape();
+            }.ToSingleShape().Scale(0.65, 1, 1);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);
 
 
             //var shape = FourierShapes.SearchSeries3(-10, 10, -10, 10, 0.1, 0.2, 0.1, -0.2);
