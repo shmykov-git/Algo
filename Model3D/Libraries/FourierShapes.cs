@@ -135,22 +135,22 @@ namespace Model.Libraries
             var pref = vectorizer.GetText("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
             var interval = vectorizer.GetText(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
 
-            string FormatV(double x)
+            string FormatV(double x, string tail = "")
             {
                 if (x == 1)
-                    return string.Empty;
+                    return tail;
 
                 if (x == -1)
-                    return "-";
+                    return $"-{tail}";
 
-                return x.ToString();
+                return $"{x} {tail}";
             }
 
             var koffs = fShape.OrderBy(k=> k.n + k.dn)
                 .Select(k =>
                 (k.r == 1 ? Shape.Empty : vectorizer.GetText($"{k.r}", 200, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold)) + 
                 e + 
-                vectorizer.GetText($"{FormatV(k.n + k.dn)}it", 200, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold))
+                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", 200, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold))
                 .Select(s=>s.AlignX(0));
 
             var f = new[] {pref, koffs.CompoundOx(0.5, plus)}.CompoundOx(0.5);
