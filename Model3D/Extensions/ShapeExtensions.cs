@@ -585,6 +585,19 @@ namespace Model3D.Extensions
             return shape.Move(-shift);
         }
 
+        public static Shape AlignX(this Shape shape, double x)
+        {
+            var borderX = shape.BorderX;
+
+            var shift = new Vector3(
+                borderX.a + x * (borderX.b - borderX.a),
+                0,
+                0
+            );
+
+            return shape.Move(-shift);
+        }
+
         public static Shape Perfecto(this Shape shape, double mult = 1) => shape.Centered().Adjust(mult);
 
         public static Shape Adjust(this Shape shape, double size = 1)
