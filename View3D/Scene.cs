@@ -110,9 +110,20 @@ namespace View3D
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
-            var fShape = new Fr[] {(10, 0.1), (7, 0.2), (-10, 0.1), (-6, 0.2), (-9, 0.1), (4, 0.2), (-1, 1)};
+            var fShape = new Fr[]
+            {
+                /*(10, 0.1), (7, 0.2), */
+                (-2, 0.1), (-4, 0.2),
+                (1, 0.1), 
+                (-10, 0.1), (-6, 0.2), 
+                (-9, 0.1), (4, 0.2), 
+                (-1, 1)
+            };
 
-            //return FourierShapes.SearchSeries(new Fr[] { (-10, 0.1), (-6, 0.2), (-9, 0.1), (4, 0.2), (-1, 1) }, 0.1, 0.2, -10, 10, -10, 10);
+            return FourierShapes.Series(1000, true, fShape).ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
+
+            return FourierShapes.SearchSeries(fShape, 0.1, 0.2, -15, 15, -15, 15);
+
 
             //var p = Polygons.FourierSeries5(-9, 4, -7, -6, 0.1, 0.2, 0.1, 0.2, 1000, 0.1, -0.2);
             var p = Polygons.FourierSeries(1000, fShape);
