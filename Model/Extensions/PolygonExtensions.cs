@@ -91,6 +91,14 @@ namespace Model.Extensions
             };
         }
 
+        public static Polygon Reverse(this Polygon polygon)
+        {
+            return new Polygon
+            {
+                Points = polygon.Points.Reverse().ToArray(),
+            };
+        }
+
         public static Shape2 Condition(this Polygon polygon, bool apply, Func<Polygon, Shape2> fn)
         {
             return apply ? fn(polygon) : polygon.ToShape2();
@@ -126,6 +134,19 @@ namespace Model.Extensions
         public static Shape2 PaveExactOutside(this Polygon polygon, Shape2 parquete)
         {
             return Paver.PaveExact(polygon, parquete, false);
+        }
+
+        public static bool IsLeft(this Polygon polygon)
+        {
+            var c = polygon.Points.Center();
+            var centerDistance = polygon.Points.SelectCirclePair((a, b) => new Line2(a, b).Fn(c)).Sum();
+
+            return centerDistance < 0;
+        }
+
+        public static Polygon ToLeft(this Polygon polygon)
+        {
+            return polygon.IsLeft() ? polygon : polygon.Reverse();
         }
     }
 }

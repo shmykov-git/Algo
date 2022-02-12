@@ -110,11 +110,11 @@ namespace Model.Tools
             var polygons = values.Values.OrderBy(v=>v[0].num)
                 .Select(value => new Polygon()
                 {
-                    Points = CondReverse(value.SelectMany(v => 
+                    Points = value.SelectMany(v => 
                                 v.r.Select(i=>points[i])
                                .Concat(v.p.HasValue ? new[] { v.p.Value } : new Vector2[0])
-                            ).ToArray(), false/*value[0].num % 2 == 1*/)
-                }).ToArray();
+                            ).ToArray()
+                }.ToLeft()).ToArray();
 
             return polygons;
         }
