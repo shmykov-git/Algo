@@ -38,13 +38,13 @@ namespace Model.Libraries
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Series(Fr[] members, double? volume = 0.05, int count = 256) =>
-            Series(count, volume, members);
-
-        public static Shape Series(int count, double? volume = 0.05, params Fr[] members)
+        public static Shape Series(Fr[] members, double? volume = 0.05, int count = 256, int? main = null)
         {
             var polygon = Polygons.FourierSeries(count, members);
             var polygons = Splitter.SplitIntersections(polygon);
+
+            if (main.HasValue)
+                polygons = new[] {polygons[main.Value]};
 
             var shape = polygons.Select(p => p.ToShape(volume.HasValue))
                 .ToSingleShape()
@@ -53,7 +53,7 @@ namespace Model.Libraries
 
             if (volume.HasValue)
                 shape = shape.Scale(1, 1, volume.Value / shape.SizeZ);
-            
+
             return shape;
         }
 
@@ -78,7 +78,7 @@ namespace Model.Libraries
             return (
                 (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.Series(100, null, main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray()).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.Series(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), null, 100).Mult(0.8).Move(v.j, v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (toI - fromI + 1).SelectRange(i =>
