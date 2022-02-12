@@ -145,7 +145,17 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToSingleShape(this IEnumerable<Shape> shapes) => shapes.Aggregate((a, b) => a + b);
+        public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
+        {
+            var shapes = shapeList.ToArray();
+
+            while (shapes.Length > 1)
+            {
+                shapes = shapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
+            }
+
+            return shapes[0];
+        }
 
         public static Shape2 ToShape2(this Shape shape)
         {

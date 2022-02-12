@@ -73,9 +73,9 @@ namespace Model
         public (double a, double b) BorderY => (Points.Min(p => p.y), Points.Max(p => p.y));
         public (double a, double b) BorderZ => (Points.Min(p => p.z), Points.Max(p => p.z));
 
-        public double SizeX => Points.Max(p => p.x) - Points.Min(p => p.x);
-        public double SizeY => Points.Max(p => p.y) - Points.Min(p => p.y);
-        public double SizeZ => Points.Max(p => p.z) - Points.Min(p => p.z);
+        public double SizeX => Points.Length == 0 ? 0 : Points.Max(p => p.x) - Points.Min(p => p.x);
+        public double SizeY => Points.Length == 0 ? 0 : Points.Max(p => p.y) - Points.Min(p => p.y);
+        public double SizeZ => Points.Length == 0 ? 0 : Points.Max(p => p.z) - Points.Min(p => p.z);
 
         public static Shape operator +(Shape a, Shape b)
         {

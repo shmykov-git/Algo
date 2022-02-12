@@ -79,16 +79,19 @@ namespace Model.Libraries
         public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ,
             double da = 0, double db = 0)
         {
+            var lenI = toI - fromI + 1;
+            var lenJ = toJ - fromJ + 1;
+
             return (
-                (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
+                (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), 100).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), 100).Mult(0.8).Move(v.j, lenI - v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
-                (toI - fromI + 1).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
-                (toJ - fromJ + 1).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+                (lenI).SelectRange(i =>
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                (lenJ).SelectRange(j =>
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
@@ -121,5 +124,35 @@ namespace Model.Libraries
 
         public static Shape Fire(double a = 0.15, double b = 0.22, int k = 0, int count = 200, bool fill = true) => Series3(-(8+k), 7+k, a, b, count, fill);
         public static Shape Crown(double a = 0.1, double b = 0.2, int count = 200) => Series3(-5, 4, a, b, count, true);
+
+        public static Shape SeriesFunc(Fr[] fShape, double bold = 5)
+        {
+            var n = 200;
+            var font = "Arial";
+
+            var e = vectorizer.GetText("e", n, font, 1 , 1, false).Mult(1d/n).ToLines3(bold);
+            var plus = vectorizer.GetText("+", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
+            var pref = vectorizer.GetText("f(z) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
+            var interval = vectorizer.GetText(", z ∈ Z", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
+
+            string FormatV(double x)
+            {
+                if (x == 1)
+                    return string.Empty;
+
+                if (x == -1)
+                    return "-";
+
+                return x.ToString();
+            }
+            
+            var koffs = fShape.OrderBy(k=> k.n + k.dn).Select(k =>
+                e + vectorizer.GetText($"{FormatV(k.n + k.dn)}z", 200, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold));
+
+            var f = new[] {pref, koffs.CompoundOx(0.5, plus)}.CompoundOx(0.3);
+            var txt = new[] { f, interval}.CompoundOx(0);
+
+            return txt.Mult(0.1);
+        }
     }
 }

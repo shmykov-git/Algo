@@ -8,12 +8,29 @@ namespace Model3D.Extensions
 {
     public static class ShapeCompoundExtensions
     {
-        public static Shape CompoundOx(this IEnumerable<Shape> shapes, double distance = 0)
+        public static Shape CompoundOx(this IEnumerable<Shape> shapes, double distance = 0, Shape delimiterShape = null)
         {
+            var shapesArr = shapes.ToArray();
+
             var dx = 0d;
 
-            return shapes.Aggregate((a, b) => a + b.Move(dx += b.SizeX + distance, 0, 0))
-                .Move(-(dx - distance) / 2, 0, 0);
+            delimiterShape ??= Shape.Empty;
+            var delLen = delimiterShape.SizeX;
+
+            Shape GetItem(Shape s, bool isLast)
+            {
+                var sizeX = s.SizeX;
+                var res = s.Move(dx, 0, 0);
+                
+                if (delimiterShape != null && !isLast)
+                    res += delimiterShape.Move(dx+ sizeX + distance / 2, 0, 0);
+
+                dx += sizeX + distance + delLen;
+
+                return res;
+            }
+
+            return shapesArr.SelectWithIndex((s, ind) => GetItem(s, ind == shapesArr.Length - 1)).ToSingleShape();
         }
 
         public static Shape CompoundDirs(this IEnumerable<Shape> shapes, double distanceX = 0, double distanceY = 0, double distanceZ = 0)

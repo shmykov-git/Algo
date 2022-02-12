@@ -154,6 +154,25 @@ namespace Model.Extensions
             }
         }
 
+        public static IEnumerable<TRes> SelectByPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+            T prev = default;
+            while (enumerator.MoveNext())
+                if (i++ % 2 == 1)
+                {
+                    yield return func(prev, enumerator.Current);
+                }
+                else
+                {
+                    prev = enumerator.Current;
+                }
+
+            if (i % 2 == 1)
+                yield return func(prev, default);
+        }
+
         public static IEnumerable<T> OrderSafeDistinct<T>(this IEnumerable<T> list) where T : IEquatable<T>
         {
             var values = new HashSet<T>();

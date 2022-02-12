@@ -93,7 +93,7 @@ namespace Model.Tools
                 values.TryAdd(key, new List<(int[] r, Vector2? p, int num)>());
                 values[key].Add((GetRange(vv.i), vv.p, set.Count));
 
-                Debug.WriteLine($"{k++}: {v}, {set.Count}");
+                //Debug.WriteLine($"{k++}: {v}, {set.Count}");
 
                 if (set.Contains(v.Reverse()))
                     set.Remove(v.Reverse());
