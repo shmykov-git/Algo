@@ -112,7 +112,8 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                (9, 0.1), (7, 0.2),
+                //(9, 0.1), (7, 0.2),
+                (-11, 0.1), (2, 0.2),
                 (-2, 0.1), (-4, 0.2),
                 (1, 0.1), 
                 (-10, 0.1), (-6, 0.2), 
@@ -120,9 +121,9 @@ namespace View3D
                 (-1, 1)
             };
 
-            return FourierShapes.Series(fShape, 0.05, 256).ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
+            return FourierShapes.Series(fShape, 0.05, 256).ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
 
-            //return FourierShapes.SearchSeries(fShape, 0.1, 0.2, -15, 15, -15, 15);
+            return FourierShapes.SearchSeries(fShape, 0.1, 0.2, -15, 15, -15, 15);
 
 
             //var p = Polygons.FourierSeries5(-9, 4, -7, -6, 0.1, 0.2, 0.1, 0.2, 1000, 0.1, -0.2);

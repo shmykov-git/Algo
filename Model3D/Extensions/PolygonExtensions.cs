@@ -18,15 +18,14 @@ namespace Model3D.Extensions
 
         public static Shape ToShape(this Polygon polygon, double? volume = null)
         {
-            var convexes = FillEngine.FindConvexes(polygon);
-
             if (!volume.HasValue)
                 return new Shape
                 {
                     Points2 = polygon.Points,
-                    Convexes = convexes,
+                    Convexes = new[] { polygon.Points.Index().ToArray() }
                 };
 
+            var convexes = FillEngine.FindConvexes(polygon);
             var halfVolume = new Vector3(0, 0, volume.Value / 2);
             var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
 
