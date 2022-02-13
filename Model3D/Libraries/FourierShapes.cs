@@ -125,35 +125,40 @@ namespace Model.Libraries
         public static Shape Fire(double a = 0.15, double b = 0.22, int k = 0, int count = 200, bool fill = true) => Series3(-(8+k), 7+k, a, b, count, fill);
         public static Shape Crown(double a = 0.1, double b = 0.2, int count = 200) => Series3(-5, 4, a, b, count, true);
 
-        public static Shape SeriesFunc(Fr[] fShape, double bold = 8)
+        public static Shape SeriesFunc(Fr[] fShape)
         {
-            var n = 200;
-            var font = "Arial";
+            var n = 70;
+            var bold = 6;
+            var font = "Libertinus Math";
 
             var e = vectorizer.GetText("e", n, font, 1 , 1, false).Mult(1d/n).ToLines3(bold);
-            var plus = vectorizer.GetText("+", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).AlignX(0).ToLines3(bold);
             var pref = vectorizer.GetText("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
             var interval = vectorizer.GetText(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
 
-            string FormatV(double x, string tail = "")
+            string FormatV(double x, string tail = "", bool plus = false)
             {
+                var sx = plus && x>0 ? $"+ {x}" : $"- {x.Abs()}";
+
                 if (x == 1)
-                    return tail;
+                    return plus ? $"+ {tail}" : tail;
 
                 if (x == -1)
-                    return $"-{tail}";
+                    return $"- {tail}";
 
-                return $"{x} {tail}";
+                if (string.IsNullOrEmpty(tail))
+                    return sx;
+
+                return $"{sx} {tail}";
             }
 
             var koffs = fShape.OrderBy(k=> k.n + k.dn)
-                .Select(k =>
-                (k.r == 1 ? Shape.Empty : vectorizer.GetText($"{k.r}", 200, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold)) + 
+                .SelectWithIndex((k, ind) =>
+                vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold) + 
                 e + 
-                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", 200, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold))
+                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold))
                 .Select(s=>s.AlignX(0));
 
-            var f = new[] {pref, koffs.CompoundOx(0.5, plus)}.CompoundOx(0.5);
+            var f = new[] {pref, koffs.CompoundOx(0.3)}.CompoundOx(0.5);
             var txt = new[] { f, interval}.CompoundOx(0);
 
             return txt.Mult(0.1);

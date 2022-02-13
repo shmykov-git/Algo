@@ -130,6 +130,9 @@ namespace Model3D.Tools
 
         public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1, bool adjust = true)
         {
+            if (string.IsNullOrEmpty(text))
+                return Shape.Empty;
+
             using var bitmap = GetTextBitmap(text, fontSize, fontName, multY, multX);
             var map = GetMapFromBitmap(bitmap);
             var shape = GetShapeFromMap(map);
