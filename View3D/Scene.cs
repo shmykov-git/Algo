@@ -128,12 +128,13 @@ namespace View3D
                 (-1, 10)            // circle
             };
 
+            var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 
             //return FourierShapes.SearchSeries(fShape, -1, 2, -10, 10, -10, 10);
             //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
 
-            var sp = FourierShapes.Series(fShape, 0.05, 256);
-            //var f = FourierShapes.SeriesFunc(fShape);
+            //var sp = FourierShapes.Series(fShape, 0.05, 256);
+            var f = FourierShapes.SeriesFunc(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
             //[0].ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
 
 
@@ -148,7 +149,7 @@ namespace View3D
 
 
                 sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Red),
-                //f.Perfecto(1.5).Scale(0.6, 1, 1).Move(0, 0.13, 0.025).ApplyColor(Color.Red),
+                f.Perfecto(1).Scale(0.6, 1, 1).Move(0, -0.5, 0).ApplyColor(Color.Blue),
                 //sp[5].Move(0,-b.a,0).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(0,1,1).Normalize())).Move(0,b.a,0).ApplyColor(Color.Red)
                 
                 //Shapes.CoodsNet
