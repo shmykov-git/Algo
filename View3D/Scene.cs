@@ -127,13 +127,13 @@ namespace View3D
                 (-1, 10)            // circle
             };
 
-            fShape = new Fr[]
-            {
-                 (-3, 2),
-                (-7, -1), (1, 5),   // perfect devil
-                (-10, 1), (5, -2),  // devil
-                (-1, 11)            // circle
-            };
+            //fShape = new Fr[]
+            //{
+            //     (-3, 2),
+            //    (-7, -1), (1, 5),   // perfect devil
+            //    (-10, 1), (5, -2),  // devil
+            //    (-1, 11)            // circle
+            //};
 
             //var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 

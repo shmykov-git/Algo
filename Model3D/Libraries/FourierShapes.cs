@@ -139,21 +139,27 @@ namespace Model.Libraries
 
             string FormatV(double x, string tail = "", bool plus = false)
             {
-                var sx = plus && x>0 ? $"+ {x}" : $"- {x.Abs()}";
+                var sx = x.Abs().ToString();
 
-                if (x == 1)
-                    return plus ? $"+ {tail}" : tail;
+                if (x.Abs() == 1)
+                    sx = "";
 
-                if (x == -1)
-                    return $"- {tail}";
+                if (plus && x > 0)
+                    sx = "+ " + sx;
 
-                if (string.IsNullOrEmpty(tail))
-                    return sx;
+                if (x <= 0)
+                    sx = "- " + sx;
 
-                return $"{sx} {tail}";
+                if (tail.HasText())
+                    sx = sx.HasText() ? $"{sx} {tail}" : tail;
+                
+                return sx;
             }
 
-            var koffs = fShape.OrderBy(k=> k.n + k.dn)
+            var koffs = fShape
+                .GroupBy(k=> k.n + k.dn)
+                .Select(gk=>new Fr(){n=gk.Select(kk=>kk.n).First(), dn=gk.Select(kk=>kk.dn).First(), im = gk.Sum(kk=>kk.im), r=gk.Sum(kk=>kk.r)})
+                .OrderBy(k=> k.n + k.dn)
                 .SelectWithIndex((k, ind) =>
                 vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold) + 
                 e + 
