@@ -103,42 +103,33 @@ namespace View3D
             // Bird // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines3(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
             // Iguana //var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
             // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines3(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
-
+            // Fourier Man // var shape = FourierShapes.Series(new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
+            // Fourier Woman // var shape = FourierShapes.Series(new Fr[] { (-7, 1), (-3, 2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
+            // Fourier Athlete // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
+            // Fourier search humans // var shape = FourierShapes.SearchSeries(new Fr[] { (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }, 1, 2, -20, 20, -20, 20);
 
             // .ApplyZ(Funcs3Z.SphereR(1.2))
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
+
             var fShape = new Fr[]
             {
                 //(-7, 1), (-3, 2), // child woman
-                (-3, 1),            // child man 
+                //(-3, 1),            // child man 
+                //(1, 1), (2, -2),    // athlete man
                 (-11, 1), (-6, 2),  // perfect man
                 (-9, 1), (4, 2),    // man
                 (-1, 10)            // circle
             };
 
-            //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10);
+            return FourierShapes.SearchSeries(fShape, 1, -2, -10, 10, -10, 10);
             //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
 
-            var man = FourierShapes.Series(new Fr[]
-            {
-                (-3, 1), // child man 
-                (-11, 1), (-6, 2), // perfect man
-                (-9, 1), (4, 2), // man
-                (-1, 10) // circle
-            }).ToSingleShape();
 
-            var woman = FourierShapes.Series(new Fr[]
-            {
-                (-7, 1), (-3, 2), // child woman
-                (-11, 1), (-6, 2), // perfect man
-                (-9, 1), (4, 2), // man
-                (-1, 10) // circle
-            }).ToSingleShape();
 
-            //var sp = FourierShapes.Series(fShape, 0.05, 256);
+            var sp = FourierShapes.Series(fShape, 0.05, 256);
             //var f = FourierShapes.SeriesFunc(fShape);
             //[0].ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
 
@@ -149,12 +140,12 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                man.Move(-0.6, 0,0).ApplyColor(Color.Blue),
-                vectorizer.GetText("M", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(-0.6, 0, 0.025).ToLines3(0.5, Color.Red),
-                woman.Move(0.6, 0,0).ApplyColor(Color.Blue),
-                vectorizer.GetText("Ж", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(0.6, 0, 0.025).ToLines3(0.5, Color.Red),
+                //man.Move(-0.6, 0,0).ApplyColor(Color.Blue),
+                //vectorizer.GetText("M", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(-0.6, 0, 0.025).ToLines3(0.5, Color.Red),
+                //woman.Move(0.6, 0,0).ApplyColor(Color.Blue),
+                //vectorizer.GetText("Ж", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(0.6, 0, 0.025).ToLines3(0.5, Color.Red),
 
-                //sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
+                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
                 //f.Perfecto(1.5).Scale(0.6, 1, 1).Move(0, 0.13, 0.025).ApplyColor(Color.Red),
                 //sp[5].Move(0,-b.a,0).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(0,1,1).Normalize())).Move(0,b.a,0).ApplyColor(Color.Red)
                 
