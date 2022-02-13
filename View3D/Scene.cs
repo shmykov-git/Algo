@@ -149,8 +149,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                man.Move(-0.5, 0,0).ApplyColor(Color.Blue),
-                woman.Move(0.5, 0,0).ApplyColor(Color.Blue),
+                man.Move(-0.6, 0,0).ApplyColor(Color.Blue),
+                vectorizer.GetText("M", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(-0.6, 0, 0.025).ToLines3(0.5, Color.Red),
+                woman.Move(0.6, 0,0).ApplyColor(Color.Blue),
+                vectorizer.GetText("Ж", 300, "Times New Roman",1,1.5).Perfecto(0.15).Move(0.6, 0, 0.025).ToLines3(0.5, Color.Red),
 
                 //sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
                 //f.Perfecto(1.5).Scale(0.6, 1, 1).Move(0, 0.13, 0.025).ApplyColor(Color.Red),
