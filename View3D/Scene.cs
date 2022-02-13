@@ -127,13 +127,10 @@ namespace View3D
                 (-1, 10)            // circle
             };
 
-            //fShape = new Fr[]
-            //{
-            //     (-3, 2),
-            //    (-7, -1), (1, 5),   // perfect devil
-            //    (-10, 1), (5, -2),  // devil
-            //    (-1, 11)            // circle
-            //};
+            fShape = new Fr[]
+            {
+                 (-11, 1), (-9,1),(-6,2),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1)
+            };
 
             //var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 
@@ -147,8 +144,9 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
-                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.8, 0).ApplyColor(Color.Blue),
+                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.6, 0).ApplyColor(Color.Blue),
+                vectorizer.GetText("武术", 300, "Arial", 1.5, 2.5, false).Perfecto(0.12).Move(0, -0.06, 0.025).ToLines3(0.5, Color.Blue),
                 
                 //Shapes.CoodsNet
             }.ToSingleShape();
