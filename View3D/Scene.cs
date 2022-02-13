@@ -117,14 +117,14 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                (3, -1), (-3, 2),     // girl head
-                (-10, -1), (4, 2),
+                (3, -1), (-3, 4),     // girl head
+                (-10, -1), (4, 3),
                 (-1, 10)            // circle
             };
 
             //var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 
-            //return FourierShapes.SearchSeries(fShape, -1, 2, -10, 10, -10, 10);
+            //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10);
             //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
 
             var sp = FourierShapes.Series(fShape, 0.05, 256);
