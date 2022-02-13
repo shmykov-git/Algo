@@ -117,40 +117,41 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                (3, -1), (-3, 4),     // girl head
-                (-10, -1), (4, 3),
+                //(3, -1), (-3, 4),     // girl head
+                //(-10, -1), (4, 3),
+                //(-10, -1), (-10, -2),
+                (1,1), (1, 2),
+                (-1, 1), (-3, 2),
+                (-7, -1), (1, 2),   // perfect devil
+                (-10, 1), (5, -2),  // devil
                 (-1, 10)            // circle
+            };
+
+            fShape = new Fr[]
+            {
+                 (-3, 2),
+                (-7, -1), (1, 5),   // perfect devil
+                (-10, 1), (5, -2),  // devil
+                (-1, 11)            // circle
             };
 
             //var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 
             //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10);
-            //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
-
-            //var sp = FourierShapes.Series(fShape, 0.05, 256);
-            var f = FourierShapes.SeriesFunc(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
-            //[0].ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
+            //return FourierShapes.SearchSeries(fShape, -1, 2, -20, 20, -20, 20);
 
 
-            //var p = Polygons.FourierSeries5(-9, 4, -7, -6, 0.1, 0.2, 0.1, 0.2, 1000, 0.1, -0.2);
+            var sp = FourierShapes.Series(fShape, 0.05, 256);
+            var f = FourierShapes.SeriesFunc(fShape);
 
-            //var b = sp[5].BorderY;
 
             var shape = new Shape[]
             {
-                //man.Move(-0.6, 0,0).ApplyColor(Color.Blue),
-                //vectorizer.GetText("ι", 300, "Times New Roman",1.5,2.5).Perfecto(0.15).Move(0, -0.1, 0.025).ToLines3(0.5, Color.Blue),
-
-
-                //sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
-                f.Perfecto(1).Scale(0.6, 1, 1).Move(0, -0.5, 0).ApplyColor(Color.Blue),
-                //sp[5].Move(0,-b.a,0).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(0,1,1).Normalize())).Move(0,b.a,0).ApplyColor(Color.Red)
+                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
+                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.8, 0).ApplyColor(Color.Blue),
                 
                 //Shapes.CoodsNet
-            }.ToSingleShape();//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);
-
-
-            //var shape = FourierShapes.SearchSeries3(-10, 10, -10, 10, 0.1, 0.2, 0.1, -0.2);
+            }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);
         }

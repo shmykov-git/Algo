@@ -47,10 +47,12 @@ namespace Model.Libraries
 
             var size = shapes.ToSingleShape().Size;
 
+            var maxXY = Math.Max(size.x, size.y);
+
             if (volume.HasValue)
                 shapes.Index().ForEach(i =>
                 {
-                    shapes[i] = shapes[i].Scale(1 / size.x, 1 / size.y, volume.Value / size.z);
+                    shapes[i] = shapes[i].Scale(1 / maxXY, 1 / maxXY, volume.Value / size.z);
                 });
 
             return shapes;
