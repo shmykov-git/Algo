@@ -112,27 +112,33 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                //(9, 0.1), (7, 0.2),
-                //(-11, 0.1), (2, 0.2),
-                //(-2, 0.1), (-12, 0.2),
-                //(-15, 0.1), (-7, 0.2),
-                //(-2, 0.1), (-4, 0.2),
-                //(1, 0.1), 
-                //(-12, 1), (5, 2),
-                //(20, 1), (11, 2), // plane
-                //(-10, 1), (-6, 2),
-                //(-9, 1), (4, 2), 
-                //(-6, 1), (3, 2),
-                //(-11, 1), (-3, 2),
-                (-20, 1), (18, 2),
-                (-6, 1), (4, 2),
-                (-1, 10)
+                //(-7, 1), (-3, 2), // child woman
+                (-3, 1),            // child man 
+                (-11, 1), (-6, 2),  // perfect man
+                (-9, 1), (4, 2),    // man
+                (-1, 10)            // circle
             };
 
-            //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
             //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10);
+            //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20);
 
-            var sp = FourierShapes.Series(fShape, 0.05, 256);
+            var man = FourierShapes.Series(new Fr[]
+            {
+                (-3, 1), // child man 
+                (-11, 1), (-6, 2), // perfect man
+                (-9, 1), (4, 2), // man
+                (-1, 10) // circle
+            }).ToSingleShape();
+
+            var woman = FourierShapes.Series(new Fr[]
+            {
+                (-7, 1), (-3, 2), // child woman
+                (-11, 1), (-6, 2), // perfect man
+                (-9, 1), (4, 2), // man
+                (-1, 10) // circle
+            }).ToSingleShape();
+
+            //var sp = FourierShapes.Series(fShape, 0.05, 256);
             //var f = FourierShapes.SeriesFunc(fShape);
             //[0].ToLines3(1, Color.Blue); //.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);//.ApplyColor(Color.Blue);//.ToLines3(1, Color.Blue);
 
@@ -143,7 +149,10 @@ namespace View3D
 
             var shape = new Shape[]
             {
-                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Yellow),
+                man.Move(-0.5, 0,0).ApplyColor(Color.Blue),
+                woman.Move(0.5, 0,0).ApplyColor(Color.Blue),
+
+                //sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Blue),
                 //f.Perfecto(1.5).Scale(0.6, 1, 1).Move(0, 0.13, 0.025).ApplyColor(Color.Red),
                 //sp[5].Move(0,-b.a,0).Rotate(Quaternion.FromRotation(Vector3.YAxis, new Vector3(0,1,1).Normalize())).Move(0,b.a,0).ApplyColor(Color.Red)
                 
