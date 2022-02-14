@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using Meta;
 using Model.Extensions;
@@ -139,7 +140,7 @@ namespace Model.Libraries
 
             string FormatV(double x, string tail = "", bool plus = false)
             {
-                var sx = x.Abs().ToString();
+                var sx = x.Abs().ToString(CultureInfo.InvariantCulture);
 
                 if (x.Abs() == 1)
                     sx = "";
