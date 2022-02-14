@@ -132,9 +132,9 @@ namespace View3D
             var fShape = new Fr[]
                 {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
-            fShape = fShape.Concat(new Fr[] { (-2, 2), (-36, 0.5) }).ToArray();
+            fShape = fShape.Concat(new Fr[] { (-47, 0.2) }).ToArray();
 
-            //return FourierShapes.SearchSeries(fShape, 2, 0.5, -10, 10, -50, -30, 1000);
+            //return FourierShapes.SearchSeries(fShape, 2, 0.2, -10, 10, -50, -30, 1000);
             //return FourierShapes.SearchSeries(fShape, -1, 2, -20, 20, -20, 20);
 
             //var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
