@@ -108,6 +108,8 @@ namespace View3D
             // Fourier Athlete // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
             // Fourier Perfect Man // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }).ToSingleShape();
             // Fourier search humans // var shape = FourierShapes.SearchSeries(new Fr[] { (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }, 1, 2, -20, 20, -20, 20);
+            // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) });
+
 
             // .ApplyZ(Funcs3Z.SphereR(1.2))
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
@@ -127,10 +129,7 @@ namespace View3D
                 (-1, 10)            // circle
             };
 
-            fShape = new Fr[]
-            {
-                 (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1)
-            };
+            
 
             //var sp = FourierShapes.Series(new Fr[] { (9, -1), (-3, 2), (4, 1), (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 13) });
 
