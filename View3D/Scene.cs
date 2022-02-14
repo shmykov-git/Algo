@@ -117,40 +117,42 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
 
+            //var fShape = new Fr[]
+            //{
+            //    //(3, -1), (-3, 4),     // girl head
+            //    //(-10, -1), (4, 3),
+            //    //(-10, -1), (-10, -2),
+            //    (1,1), (1, 2),
+            //    (-1, 1), (-3, 2),
+            //    (-7, -1), (1, 2),   // perfect devil
+            //    (-10, 1), (5, -2),  // devil
+            //    (-1, 10)            // circle
+            //};
+
             var fShape = new Fr[]
-            {
-                //(3, -1), (-3, 4),     // girl head
-                //(-10, -1), (4, 3),
-                //(-10, -1), (-10, -2),
-                (1,1), (1, 2),
-                (-1, 1), (-3, 2),
-                (-7, -1), (1, 2),   // perfect devil
-                (-10, 1), (5, -2),  // devil
-                (-1, 10)            // circle
-            };
+                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
+            fShape = fShape.Concat(new Fr[] { (-2, 2), (-36, 0.5) }).ToArray();
 
-
-            // (-6, 1), (-3, 2),
-
-            //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10);
+            //return FourierShapes.SearchSeries(fShape, 2, 0.5, -10, 10, -50, -30, 1000);
             //return FourierShapes.SearchSeries(fShape, -1, 2, -20, 20, -20, 20);
 
-            var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            //var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
-            var a = kungFu.ToShape();
-            var b = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToShape();
+            //var a = kungFu.ToShape();
+            //var b = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToShape();
+            //var f = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToFormulaShape();
 
-            //var sp = FourierShapes.Series(fShape, 0.05, 256);
-            //var f = FourierShapes.SeriesFunc(fShape);
+            var sp = FourierShapes.Series(fShape, 0.05, 2560);
+            var f = FourierShapes.SeriesFormula(fShape);
 
 
             var shape = new Shape[]
             {
-                a.Move(-0.6, 0, 0).ApplyColor(Color.Red),
-                b.FlipX().Move(0.6, 0, 0).ApplyColor(Color.Blue)
-                //sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Red),
-                //f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.6, 0).ApplyColor(Color.Blue),
+                //a.Move(-0.6, 0, 0).ApplyColor(Color.Red),
+                //b.FlipX().Move(0.6, 0, 0).ApplyColor(Color.Blue),
+                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.6, 0).ApplyColor(Color.Blue),
                 //vectorizer.GetText("武术", 300, "Arial", 1.5, 2.5, false).Perfecto(0.12).Move(0, -0.06, 0.025).ToLines3(0.5, Color.Blue),
                 
                 //Shapes.CoodsNet

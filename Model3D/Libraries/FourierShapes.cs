@@ -79,7 +79,7 @@ namespace Model.Libraries
             ).Perfecto();
         }
 
-        public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ,
+        public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ, int count = 100,
             double da = 0, double db = 0)
         {
             var lenI = toI - fromI + 1;
@@ -88,7 +88,7 @@ namespace Model.Libraries
             return (
                 (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), 100).Mult(0.8).Move(v.j, lenI - v.i, 0)
+                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
@@ -128,7 +128,7 @@ namespace Model.Libraries
         public static Shape Fire(double a = 0.15, double b = 0.22, int k = 0, int count = 200, bool fill = true) => Series3(-(8+k), 7+k, a, b, count, fill);
         public static Shape Crown(double a = 0.1, double b = 0.2, int count = 200) => Series3(-5, 4, a, b, count, true);
 
-        public static Shape SeriesFunc(Fr[] fShape)
+        public static Shape SeriesFormula(Fr[] fShape)
         {
             var n = 70;
             var bold = 6;
