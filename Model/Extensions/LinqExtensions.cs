@@ -123,6 +123,37 @@ namespace Model.Extensions
             yield return func(prevT, firstT, secondT);
         }
 
+        public static IEnumerable<TRes> SelectCircleFours<T, TRes>(this IEnumerable<T> list, Func<T, T, T, T, TRes> func)
+        {
+            var i = 0;
+            var prevPrevPrevT = default(T);
+            var prevPrevT = default(T);
+            var prevT = default(T);
+            var firstT = default(T);
+            var secondT = default(T);
+            var thirdT = default(T);
+            foreach (var t in list)
+            {
+                if (i == 0)
+                    firstT = t;
+                else if (i == 1)
+                    secondT = t;
+                else if (i == 2)
+                    thirdT = t;
+                else
+                    yield return func(prevPrevPrevT, prevPrevT, prevT, t);
+
+                prevPrevPrevT = prevPrevT;
+                prevPrevT = prevT;
+                prevT = t;
+                i++;
+            }
+
+            yield return func(prevPrevPrevT, prevPrevT, prevT, firstT);
+            yield return func(prevPrevT, prevT, firstT, secondT);
+            yield return func(prevT, firstT, secondT, thirdT);
+        }
+
         public static IEnumerable<TRes> SelectCircleGroup<T, TRes>(this IEnumerable<T> list, int groupSize, Func<T[], TRes> func)
         {
             var group = new Queue<T>(groupSize);

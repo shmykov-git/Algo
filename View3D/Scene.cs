@@ -16,6 +16,7 @@ using MathNet.Numerics;
 using Model.Graphs;
 using Model.Tools;
 using View3D.Libraries;
+using Vector2 = Model.Vector2;
 
 namespace View3D
 {
@@ -108,7 +109,7 @@ namespace View3D
             // Fourier Athlete // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
             // Fourier Perfect Man // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }).ToSingleShape();
             // Fourier search humans // var shape = FourierShapes.SearchSeries(new Fr[] { (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }, 1, 2, -20, 20, -20, 20);
-            // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) });
+            // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) }); // active kung fu // var fShape = new Fr[] {(-47, 0.2), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
 
             // .ApplyZ(Funcs3Z.SphereR(1.2))
@@ -117,44 +118,40 @@ namespace View3D
             // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
 
-            //var fShape = new Fr[]
-            //{
-            //    //(3, -1), (-3, 4),     // girl head
-            //    //(-10, -1), (4, 3),
-            //    //(-10, -1), (-10, -2),
-            //    (1,1), (1, 2),
-            //    (-1, 1), (-3, 2),
-            //    (-7, -1), (1, 2),   // perfect devil
-            //    (-10, 1), (5, -2),  // devil
-            //    (-1, 10)            // circle
-            //};
-
             var fShape = new Fr[]
-                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            {
+                //(-11, 1, -0.6), (4, 2, 0.4),
+                //(-16, 1), (-5, 2),
+                //(14, 2), (4, 3),
+                (2, 2),
+                (18, 2), (18, -3),
+                (-7, 2, 0.9), (-7, -1, -0.4),
+                (-7, 1, -0.8), (4, 2, 0.3),
+                (-1, 10)            // circle
+            };
 
-            fShape = fShape.Concat(new Fr[] { (-47, 0.2) }).ToArray();
 
-            //return FourierShapes.SearchSeries(fShape, 2, 0.2, -10, 10, -50, -30, 1000);
-            //return FourierShapes.SearchSeries(fShape, -1, 2, -20, 20, -20, 20);
+            //return FourierShapes.SearchSeries(fShape, 1, 2, -10, 10, -10, 10, 400);
+            //return FourierShapes.SearchSeries(fShape, 1, 2, -20, 20, -20, 20, 100);
 
-            //var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            var sp = fShape.ToShape(1000);
 
-            //var a = kungFu.ToShape();
-            //var b = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToShape();
-            //var f = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToFormulaShape();
-
-            var sp = FourierShapes.Series(fShape, 0.05, 2560);
             var f = FourierShapes.SeriesFormula(fShape);
 
+            //var t = Parquets.Triangles(20,30,1).ToShape3().Perfecto(1.1).ToLines3(0.3,Color.Blue);
 
             var shape = new Shape[]
             {
-                //a.Move(-0.6, 0, 0).ApplyColor(Color.Red),
-                //b.FlipX().Move(0.6, 0, 0).ApplyColor(Color.Blue),
-                sp.ToSingleShape()/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                //t,
+                //rShape, psh, psh2,
+                //rShape2,
+                sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
+
                 f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.6, 0).ApplyColor(Color.Blue),
                 //vectorizer.GetText("武术", 300, "Arial", 1.5, 2.5, false).Perfecto(0.12).Move(0, -0.06, 0.025).ToLines3(0.5, Color.Blue),
-                
+                //a.Move(-0.6, 0, 0).ApplyColor(Color.Red),
+                //b.FlipX().Move(0.6, 0, 0).ApplyColor(Color.Blue),
+
                 //Shapes.CoodsNet
             }.ToSingleShape();
 
@@ -162,3 +159,31 @@ namespace View3D
         }
     }
 }
+
+//var fShape = new Fr[] { (-47, 0.2), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) };
+//var sp = FourierShapes.Series(fShape)[0];
+
+
+//var rp = sp.ToPolygon().ToRadiusPointsPolygon();
+//var psh = rp.ToGradientPointsPolygon().ToShape().ToSpots3(0.3, Color.Blue);
+//var psh2 = rp.ToGradientPointsPolygon().ToGradientPointsPolygon().ToShape().ToSpots3(0.3, Color.Chocolate);
+
+//var rp2 = rp.ToRadiusPointsPolygon();
+
+
+//var x = vectorizer.GetText("x").Perfecto(0.1).ToLines3(1, Color.Green);
+//var rShape = rp.ToShape().ToSpots3(0.3, Color.Green);
+//var rShape2 = rp2.ToShape().ToSpots3(0.5, Color.Blue);
+//var b = 1;
+
+
+//fShape = fShape.Concat(new Fr[] { (-47, 0.2) }).ToArray();
+
+
+//var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+
+//var a = kungFu.ToShape();
+//var b = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToShape();
+//var f = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToFormulaShape();
+
+//var sp = FourierShapes.Series(fShape, 0.05, 256).ToSingleShape();

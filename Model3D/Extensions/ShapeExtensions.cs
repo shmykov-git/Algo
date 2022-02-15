@@ -805,8 +805,10 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
-        public static Shape TriangulatePlanes(this Shape shape, int k, double? minSize = null)
+        // todo: менять плохие треугольники на хорошие
+        public static Shape TriangulatePlanes(this Shape shape, double? minSize = null, int? count = null)
         {
+            var k = minSize.HasValue ? (count ?? 20) : (count ?? 5);
             shape = shape.SimpleTriangulateOddPlanes();
 
             //int[][] GetSplitConvexes(int[] c)
@@ -849,5 +851,10 @@ namespace Model3D.Extensions
                 Convexes = convexes
             };
         }
+
+        public static Polygon ToPolygon(this Shape shape) => new Polygon()
+        {
+            Points = shape.Points2
+        };
     }
 }

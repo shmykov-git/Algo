@@ -10,6 +10,7 @@ namespace Model
 
         public Vector3 ab => b - a;
         public double Len => ab.Length;
+        public double Len2 => ab.Length2;
         public Vector3 Center => (a + b) / 2;
         public Vector3 One => ab.Normalize();
 

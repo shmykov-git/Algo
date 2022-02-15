@@ -16,9 +16,12 @@ namespace Model3D.Extensions
         public static Shape ToShape(this Polygon polygon, bool withVolume = false) =>
             ToShape(polygon, withVolume ? 0.1 : null);
 
-        public static Shape ToShape(this Polygon polygon, double? volume = null)
+        public static Shape ToTriangulatedShape(this Polygon polygon) =>
+            ToShape(polygon, null, true);
+
+        public static Shape ToShape(this Polygon polygon, double? volume, bool triangulate = false)
         {
-            if (!volume.HasValue)
+            if (!volume.HasValue && !triangulate)
                 return new Shape
                 {
                     Points2 = polygon.Points,
@@ -26,8 +29,16 @@ namespace Model3D.Extensions
                 };
 
             var convexes = FillEngine.FindConvexes(polygon);
-            var halfVolume = new Vector3(0, 0, volume.Value / 2);
             var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
+
+            if (!volume.HasValue)
+                return new Shape()
+                {
+                    Points2 = polygon.Points,
+                    Convexes = trConvexes
+                };
+
+            var halfVolume = new Vector3(0, 0, volume.Value / 2);
 
             return new Shape
             {

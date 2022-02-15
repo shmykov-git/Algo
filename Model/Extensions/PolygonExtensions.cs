@@ -148,5 +148,46 @@ namespace Model.Extensions
         {
             return polygon.IsLeft() ? polygon : polygon.Reverse();
         }
+
+        public static Polygon ToRadiusPointsPolygon(this Polygon polygon)
+        {
+            var sign = 1;
+            var ps = polygon.Points
+                .SelectCircleTriple((a, b, c) => new { m = (b - a) * (c - b), p = b })
+                .SelectCirclePair((a, b) =>
+                {
+                    var s = (int)(a.m - b.m).Sign();
+
+                    if (s == 0)
+                        s = 1;
+
+                    var res = s == 1 && sign == -1 ? a.p : Vector2.Zero;
+
+                    sign = s;
+
+                    return res;
+                })
+                .Where(v => v != Vector2.Zero)
+                .ToArray();
+
+            return new Polygon() {Points = ps};
+        }
+
+        public static Polygon ToGradientPointsPolygon(this Polygon polygon)
+        {
+            var ps = polygon.Points
+                .SelectCircleTriple((a, b, c) =>
+                {
+                    var p = new Line2(a, c).ProjectionPoint(b);
+
+                    if (new Line2(a, b).IsLeft(c))
+                        return p;
+                    else
+                        return 2 * b - p;
+                })
+                .ToArray();
+
+            return new Polygon() { Points = ps };
+        }
     }
 }

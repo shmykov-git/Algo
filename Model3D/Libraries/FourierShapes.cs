@@ -39,22 +39,21 @@ namespace Model.Libraries
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape[] Series(Fr[] members, double? volume = 0.05, int count = 256)
+        public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256)
         {
             var polygon = Polygons.FourierSeries(count, members);
             var polygons = Splitter.SplitIntersections(polygon);
 
-            var shapes = polygons.Select(p => p.ToShape(volume.HasValue).Rotate(Math.PI / 2)).ToArray();
+            var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume.HasValue)).Rotate(Math.PI / 2)).ToArray();
 
             var size = shapes.ToSingleShape().Size;
 
             var maxXY = Math.Max(size.x, size.y);
 
-            if (volume.HasValue)
-                shapes.Index().ForEach(i =>
-                {
-                    shapes[i] = shapes[i].Scale(1 / maxXY, 1 / maxXY, volume.Value / size.z);
-                });
+            shapes.Index().ForEach(i =>
+            {
+                shapes[i] = shapes[i].Scale(1 / maxXY, 1 / maxXY, triangulateOnly ? 1 : (volume.HasValue ? volume.Value / size.z : 1));
+            });
 
             return shapes;
         }

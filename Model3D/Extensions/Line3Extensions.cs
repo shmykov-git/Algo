@@ -64,5 +64,11 @@ namespace Model3D.Extensions
         {
             return lines.Select(l => new Line3(l.a + v, l.b + v)).ToArray();
         }
+
+        // todo: check
+        public static Vector3 ProjectionPoint(this Line3 l, Vector3 p)
+        {
+            return l.a + l.ab * ((p - l.a).MultS(l.ab) / l.Len2);
+        }
     }
 }
