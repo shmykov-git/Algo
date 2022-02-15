@@ -7,6 +7,9 @@ namespace Model3D.Extensions
 {
     public static class FourierExtensions
     {
+        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count);
+
         public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, bool triangulateOnly = false) =>
             FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count).ToSingleShape();
 
