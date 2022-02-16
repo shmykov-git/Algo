@@ -63,21 +63,6 @@ namespace Model.Libraries
             return Polygons.FourierSeries(count, members).ToShape(false).Rotate(Math.PI / 2).Perfecto();
         }
 
-        public static Shape SearchSeries5(int fromI, int toI, int fromJ, int toJ, int an, int bn, double a, double b, double c, double d, double da = 0, double db = 0, double dc = 0, double dd = 0)
-        {
-            return (
-                (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
-                .Select(v =>
-                    FourierShapes.Series5(an, bn, v.i, v.j, a, b, c, d, 100, false, da, db, dc, dd).Mult(0.8).Move(v.j, v.i, 0)
-                        .ToLines3(2, Color.Blue)
-                ).ToSingleShape() +
-                (toI - fromI + 1).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
-                (toJ - fromJ + 1).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
-            ).Perfecto();
-        }
-
         public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ, int count = 100,
             double da = 0, double db = 0)
         {
@@ -87,7 +72,7 @@ namespace Model.Libraries
             return (
                 (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.SingleSeries(main.Concat(new Fr[]{(v.i, a, da),(v.j, b, db)}).ToArray(), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
+                    FourierShapes.SingleSeries(main.Concat(new Fr[] { (v.i, a, da), (v.j, b, db) }).ToArray(), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
@@ -97,18 +82,32 @@ namespace Model.Libraries
             ).Perfecto();
         }
 
-        public static Shape SearchSeries3(int fromI, int toI, int fromJ, int toJ, double a, double b, double da = 0, double db = 0)
+        public static Shape SearchSeriesOffset(Fr[] main, int frI, int frJ, double step = 0.1, int count = 100)
         {
+            var fromI = -10;
+            var fromJ = -10;
+            var toI = 10;
+
+            var lenI = (int)(2/step) + 1;
+            var lenJ = (int)(2/step) + 1;
+
+            Fr[] Apply(int i, int j)
+            {
+                main[frI].dn = i * 0.1;
+                main[frJ].dn = j * 0.1;
+                return main;
+            }
+
             return (
-                (toI - fromI + 1, toJ - fromJ + 1).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
+                (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
-                    FourierShapes.Series3(v.i, v.j, a, b, 100, false, da, db).Mult(0.8).Move(v.j, v.i, 0)
+                    FourierShapes.SingleSeries(Apply(v.i, v.j), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
                         .ToLines3(2, Color.Blue)
                 ).ToSingleShape() +
-                (toI - fromI + 1).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, i + fromI, 0).ToLines3(3, Color.Red)).ToSingleShape() +
-                (toJ - fromJ + 1).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+                (lenI).SelectRange(i =>
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                (lenJ).SelectRange(j =>
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 

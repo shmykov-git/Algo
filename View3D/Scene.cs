@@ -126,14 +126,19 @@ namespace View3D
 
                 //(-11, -3), (-17, 2),
                 //(4, -10),
-                (11, -2), (-16, 1),
-                (-3, 5), (1, -2),
-                (1, 3),
+                //(11, -2), (-16, 1),
+                //(-3, 5), (1, -2),
+                //(1, 3),
+
+                //(-5, 5), (-19, 1),
+
+                (-5, 5), (-19, 1),
+                (4, 5, 0.1), (-18, 1, -1),
                 (-1, 10)            // circle
             };
 
-
-            //return FourierShapes.SearchSeries(fShape, -2, 1, -20, 20, -20, 20, 100);
+            //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
+            //return FourierShapes.SearchSeries(fShape, 5, 1, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, -1, 2, -10, 10, -10, 10, 100);
 
             var sp = fShape.ToShape(3000);
