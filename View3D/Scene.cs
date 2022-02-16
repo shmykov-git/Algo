@@ -120,22 +120,21 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                //(-3, -3), (-15, -1),
+                //(1, 8), (-5, -2),
+                //(3, 8), (-7, -2),
+                //(4, 8), (-7, -2),
+                //(5, 8),
+                //(3, 8), (-3, -2),
 
-                //(-2, -3), (15, -1),
-                //(5, -3), (18, -1),
-                //(-4, -3), (-9, -1),
-                //(8, -3), (-9, -1),
-                //(-5, -3), (4, -1),
-                //(4, -3), (8, -1),
-                //(-7, -3), (6, -1),
+                //(3, 8), (-16, -2),
+                (-1, 8), (-4, -2),
 
-                (4, 5), (-18, 1),
+                (2, -6), (20, 1),
                 (-1, 10)            // circle
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
-            //return FourierShapes.SearchSeries(fShape, -3, -1, -20, 20, -20, 20, 100);
+            //return FourierShapes.SearchSeries(fShape, 8, -2, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, -1, 2, -10, 10, -10, 10, 100);
 
             var sp = fShape.ToShape(3000);
