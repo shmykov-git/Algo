@@ -145,12 +145,12 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToBlowedShape(this IEnumerable<Shape> shapeList, double mult = 2) => shapeList.Select(s =>
+        public static Shape ToBlowedShape(this IEnumerable<Shape> shapeList, double mult = 2, double angle = 0) => shapeList.Select(s =>
         {
             var c = s.MassCenter;
             var move = (mult - 1) * c;
 
-            return s.Move(move);
+            return s.RotateMassCenter(angle).Move(move);
         }).ToSingleShape();
 
         public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
@@ -371,6 +371,10 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape ScaleX(this Shape shape, double mult) => Scale(shape, mult, 1, 1);
+        public static Shape ScaleY(this Shape shape, double mult) => Scale(shape, 1, mult, 1);
+        public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
+
         public static Shape Scale(this Shape shape, double x, double y, double z)
         {
             return new Shape
@@ -380,6 +384,10 @@ namespace Model3D.Extensions
                 Materials = shape.Materials
             };
         }
+
+        public static Shape MoveX(this Shape shape, double value) => Move(shape, value, 0, 0);
+        public static Shape MoveY(this Shape shape, double value) => Move(shape, 0, value, 0);
+        public static Shape MoveZ(this Shape shape, double value) => Move(shape, 0, 0, value);
 
         public static Shape Move(this Shape shape, double x, double y, double z)
         {
@@ -523,6 +531,8 @@ namespace Model3D.Extensions
         public static Shape Rotate(this Shape shape, double x, double y, double z, Vector3? lookUp = null) => Rotate(shape, new Vector3(x, y, z), lookUp);
 
         public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
+        public static Shape Rotate(this Shape shape, Vector3 center, double alfa) => shape.Move(-center).Rotate(Quaternion.FromAngleAxis(alfa, Vector3.ZAxis)).Move(center);
+        public static Shape RotateMassCenter(this Shape shape, double alfa) => shape.Rotate(shape.MassCenter, alfa);
         public static Shape RotateOx(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.XAxis));
         public static Shape RotateOx(this Shape shape, double x, double y, double z) => Rotate(shape, Quaternion.FromRotation(Vector3.XAxis, new Vector3(x, y, z).Normalize()));
 

@@ -128,15 +128,15 @@ namespace View3D
             //return FourierShapes.SearchSeries(fShape, -0.2, 0.3, -20, 20, -60, -20, 400);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sp = fShape.ToShape(3000);//.ToBlowedShape(3);
+            var sp = fShape.ToShapes(3000).ToBlowedShape(3, 0.5);
 
-            var f = FourierShapes.SeriesFormula(fShape);
+            var f = fShape.ToFormulaShape();
 
             var shape = new Shape[]
             {
                 sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
 
-                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.7, 0).ApplyColor(Color.Blue),
+                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
