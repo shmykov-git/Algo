@@ -115,29 +115,32 @@ namespace View3D
             // .ApplyZ(Funcs3Z.SphereR(1.2))
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines3(1, Color.Red)
-            // Vectorizer.GetContentShape(settings.GetContentFileName("s8.jpg"), 200).Where(v=>v.y>-0.45).MassCentered().Normed().ApplyZ(Funcs3Z.Waves).ToLines3(1, Color.Blue),
 
 
             var fShape = new Fr[]
             {
                 (-1, 10),
-                
-                (17, 5)
+                (14, 3), (4, 7),
+                (14, -6), (-13, 2),
+                (14, 1), (18, -2),
+
+                (-5, 2), (18, 3),
+                (16, -1), (-1, 2),
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
-            //return FourierShapes.SearchSeries(fShape, -0.2, 0.3, -20, 20, -60, -20, 400);
+            //return FourierShapes.SearchSeries(fShape, -1, 2, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sps = fShape.ToShapes(3000);
-            var sp = sps.ToRandomBlowedShape(4);
+            var sp = fShape.ToShape(3000);
+            //var sp = sps.ToBlowedShape(4, 0.5);
 
             var f = fShape.ToFormulaShape();
 
             var shape = new Shape[]
             {
-                sp.ToOy().Rotate(10,-1,-1)/*.ToLines3(1)*/.ApplyColor(Color.Red),
-                sps.ToSingleShape().ApplyColor(Color.Blue),
+                sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                //sps.ToSingleShape().ApplyColor(Color.Blue),
                 f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
@@ -147,31 +150,3 @@ namespace View3D
         }
     }
 }
-
-//var fShape = new Fr[] { (-47, 0.2), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) };
-//var sp = FourierShapes.Series(fShape)[0];
-
-
-//var rp = sp.ToPolygon().ToRadiusPointsPolygon();
-//var psh = rp.ToGradientPointsPolygon().ToShape().ToSpots3(0.3, Color.Blue);
-//var psh2 = rp.ToGradientPointsPolygon().ToGradientPointsPolygon().ToShape().ToSpots3(0.3, Color.Chocolate);
-
-//var rp2 = rp.ToRadiusPointsPolygon();
-
-
-//var x = vectorizer.GetText("x").Perfecto(0.1).ToLines3(1, Color.Green);
-//var rShape = rp.ToShape().ToSpots3(0.3, Color.Green);
-//var rShape2 = rp2.ToShape().ToSpots3(0.5, Color.Blue);
-//var b = 1;
-
-
-//fShape = fShape.Concat(new Fr[] { (-47, 0.2) }).ToArray();
-
-
-//var kungFu = new Fr[] {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
-
-//var a = kungFu.ToShape();
-//var b = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToShape();
-//var f = kungFu.Concat(new Fr[] {(-6, 1), (-3, 2)}).ToFormulaShape();
-
-//var sp = FourierShapes.Series(fShape, 0.05, 256).ToSingleShape();
