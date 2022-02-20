@@ -109,7 +109,7 @@ namespace View3D
             // Fourier Athlete // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
             // Fourier Perfect Man // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }).ToSingleShape();
             // Fourier search humans // var shape = FourierShapes.SearchSeries(new Fr[] { (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }, 1, 2, -20, 20, -20, 20);
-            // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) }); // active kung fu // var fShape = new Fr[] {(-47, 0.2), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) }); // (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) //Transform(TransformFuncs3.RotateX(0.1, 10))
 
 
             // .ApplyZ(Funcs3Z.SphereR(1.2))
@@ -120,42 +120,22 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                //(4, 4), (-3, -3),
-                //(6, 4), (-2, -3),
-                
-                //(-6, 4), (3, -3),
-                //(-6, 4), (4, -3),
-                //(6, 4), (-7, -3),
-                
-                //(8, 4), (8, -3),
-                (-17, 4), (-17, -3),
-
-
-                (2, -6), (20, 1),
-                (-1, 10)            // circle
+                (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
-            //return FourierShapes.SearchSeries(fShape, 4, -3, -20, 20, -20, 20, 100);
-            //return FourierShapes.SearchSeries(fShape, -1, 2, -10, 10, -10, 10, 100);
+            //return FourierShapes.SearchSeries(fShape, -0.2, 0.3, -20, 20, -60, -20, 400);
+            //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sp = fShape.ToShape(3000);
+            var sp = fShape.ToShape(3000);//.ToBlowedShape(3);
 
-            var f = FourierShapes.SeriesFormula(fShape);
-
-            //var t = Parquets.Triangles(20,30,1).ToShape3().Perfecto(1.1).ToLines3(0.3,Color.Blue);
+            //var f = FourierShapes.SeriesFormula(fShape);
 
             var shape = new Shape[]
             {
-                //t,
-                //rShape, psh, psh2,
-                //rShape2,
-                sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                sp.SplitPlanes(0.2).Rotate(Math.PI/2).Transform(TransformFuncs3.RotateX(0.1, 10)).Rotate(-Math.PI/2)/*.ToLines3(1)*/.ApplyColor(Color.Red),
 
-                f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.7, 0).ApplyColor(Color.Blue),
-                //vectorizer.GetText("武术", 300, "Arial", 1.5, 2.5, false).Perfecto(0.12).Move(0, -0.06, 0.025).ToLines3(0.5, Color.Blue),
-                //a.Move(-0.6, 0, 0).ApplyColor(Color.Red),
-                //b.FlipX().Move(0.6, 0, 0).ApplyColor(Color.Blue),
+                //f.Perfecto(2).Scale(0.6, 1, 1).Move(0, -0.7, 0).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();

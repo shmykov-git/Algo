@@ -145,6 +145,14 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape ToBlowedShape(this IEnumerable<Shape> shapeList, double mult = 2) => shapeList.Select(s =>
+        {
+            var c = s.MassCenter;
+            var move = (mult - 1) * c;
+
+            return s.Move(move);
+        }).ToSingleShape();
+
         public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
         {
             var shapes = shapeList.ToArray();
@@ -806,7 +814,7 @@ namespace Model3D.Extensions
         };
 
         // todo: менять плохие треугольники на хорошие
-        public static Shape TriangulatePlanes(this Shape shape, double? minSize = null, int? count = null)
+        public static Shape SplitPlanes(this Shape shape, double? minSize = null, int? count = null)
         {
             var k = minSize.HasValue ? (count ?? 20) : (count ?? 5);
             shape = shape.SimpleTriangulateOddPlanes();

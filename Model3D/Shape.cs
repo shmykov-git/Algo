@@ -69,6 +69,20 @@ namespace Model
             }
         }
 
+        public Vector3 MassCenter => Points3.Center();
+
+        public Vector3 SizeCenter
+        {
+            get
+            {
+                var bX = BorderX;
+                var bY = BorderY;
+                var bZ = BorderZ;
+
+                return new Vector3(.5 * (bX.a + bX.b), .5 * (bY.a + bY.b), .5 * (bZ.a + bZ.b));
+            }
+        }
+
         public (double a, double b) BorderX => (Points.Length == 0 ? 0 : Points.Min(p => p.x), Points.Length == 0 ? 0 : Points.Max(p => p.x));
         public (double a, double b) BorderY => (Points.Length == 0 ? 0 : Points.Min(p => p.y), Points.Length == 0 ? 0 : Points.Max(p => p.y));
         public (double a, double b) BorderZ => (Points.Length == 0 ? 0 : Points.Min(p => p.z), Points.Length == 0 ? 0 : Points.Max(p => p.z));
