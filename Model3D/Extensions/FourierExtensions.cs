@@ -18,5 +18,20 @@ namespace Model3D.Extensions
 
         public static Shape ToFormulaShape(this IEnumerable<Fr> frs) =>
             FourierShapes.SeriesFormula(frs.ToArray());
+
+        public static Fr[] Perfecto(this IEnumerable<Fr> frs)
+        {
+            return frs
+                .GroupBy(k => k.n + k.dn)
+                .Select(gk => new Fr()
+                {
+                    n = gk.Select(kk => kk.n).First(), dn = gk.Select(kk => kk.dn).First(), im = gk.Sum(kk => kk.im),
+                    r = gk.Sum(kk => kk.r)
+                })
+                .Where(k => k.r != 0 || k.im != 0)
+                .Where(k => k.n + k.dn != 0)
+                .OrderBy(k => k.n + k.dn)
+                .ToArray();
+        }
     }
 }

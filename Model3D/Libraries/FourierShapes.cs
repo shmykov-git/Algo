@@ -41,7 +41,7 @@ namespace Model.Libraries
 
         public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256)
         {
-            var polygon = Polygons.FourierSeries(count, members);
+            var polygon = Polygons.FourierSeries(count, members.Perfecto());
             var polygons = Splitter.SplitIntersections(polygon);
 
             var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume.HasValue)).Rotate(Math.PI / 2)).ToArray();
@@ -155,11 +155,7 @@ namespace Model.Libraries
                 return sx;
             }
 
-            var koffs = fShape
-                .GroupBy(k=> k.n + k.dn)
-                .Select(gk=>new Fr(){n=gk.Select(kk=>kk.n).First(), dn=gk.Select(kk=>kk.dn).First(), im = gk.Sum(kk=>kk.im), r=gk.Sum(kk=>kk.r)})
-                .Where(k=>k.r != 0 || k.im != 0)
-                .OrderBy(k=> k.n + k.dn)
+            var koffs = fShape.Perfecto()
                 .SelectWithIndex((k, ind) =>
                 vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold) + 
                 e + 
