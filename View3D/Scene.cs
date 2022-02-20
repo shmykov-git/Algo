@@ -120,23 +120,25 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                
-                (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)
+                (-1, 10),
+
+                (49, 5)
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, -0.2, 0.3, -20, 20, -60, -20, 400);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sp = fShape.ToShapes(3000).ToBlowedShape(3, 0.5);
+            var sps = fShape.ToShapes(3000);
+            var sp = sps.ToBlowedShape(3, 0.5);
 
             var f = fShape.ToFormulaShape();
 
             var shape = new Shape[]
             {
                 sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
-
-                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
+                sps.ToSingleShape().MoveZ(-0.2).ApplyColor(Color.Blue),
+                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).MoveZ(-0.2).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
