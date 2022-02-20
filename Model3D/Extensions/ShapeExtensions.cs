@@ -153,6 +153,19 @@ namespace Model3D.Extensions
             return s.RotateMassCenter(angle).Move(move);
         }).ToSingleShape();
 
+        public static Shape ToRandomBlowedShape(this IEnumerable<Shape> shapeList, double mult = 2, int seed = 0)
+        {
+            var rnd = new Random(seed);
+
+            return shapeList.Select(s =>
+            {
+                var c = s.MassCenter;
+                var move = (mult - 1) * c;
+
+                return s.RotateMassCenter(2 * Math.PI * rnd.NextDouble()).Move(move);
+            }).ToSingleShape();
+        }
+
         public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
         {
             var shapes = shapeList.ToArray();

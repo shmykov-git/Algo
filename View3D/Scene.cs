@@ -121,8 +121,8 @@ namespace View3D
             var fShape = new Fr[]
             {
                 (-1, 10),
-
-                (49, 5)
+                
+                (17, 5)
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
@@ -130,15 +130,15 @@ namespace View3D
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
             var sps = fShape.ToShapes(3000);
-            var sp = sps.ToBlowedShape(3, 0.5);
+            var sp = sps.ToRandomBlowedShape(4);
 
             var f = fShape.ToFormulaShape();
 
             var shape = new Shape[]
             {
-                sp/*.ToLines3(1)*/.ApplyColor(Color.Red),
-                sps.ToSingleShape().MoveZ(-0.2).ApplyColor(Color.Blue),
-                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).MoveZ(-0.2).ApplyColor(Color.Blue),
+                sp.ToOy().Rotate(10,-1,-1)/*.ToLines3(1)*/.ApplyColor(Color.Red),
+                sps.ToSingleShape().ApplyColor(Color.Blue),
+                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
