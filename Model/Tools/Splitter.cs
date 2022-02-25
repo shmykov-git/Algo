@@ -5,6 +5,8 @@ using System.Diagnostics;
 using Model.Extensions;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
+using Model.Fourier;
+using Model.Graphs;
 using Model.Trees;
 
 namespace Model.Tools
@@ -41,7 +43,147 @@ namespace Model.Tools
             };
         }
 
-        public static Polygon[] SplitIntersections(Polygon polygon)
+        public static Polygon[] SplitIntersections(Polygon polygon, FrOptions options = null)
+        {
+            options ??= new FrOptions();
+
+            // собрать направленные кривые. Точка входа и точка выхода (возможно одна точка)
+            // набор точке пересечений и связь кривых с точками
+            // в направленном графе найти все минимальные замкнутые пути
+
+            var points = polygon.Points;
+            var lines = polygon.Lines.ToArray();
+            var net = new Net<Vector2, int>(points.SelectWithIndex((p, i) => (p, i)), 2 * lines.Max(l => l.Len));
+
+            int Prev(int i) => (i + points.Length - 1) % points.Length;
+            int Next(int i) => (i + 1) % points.Length;
+
+            int? IntersectedIndex(int i)
+            {
+                return net
+                    .SelectNeighbors(points[i])
+                    .Where(j => j != i && j != Prev(i) && j != Next(i))
+                    .Where(j => lines[i].IsSectionIntersectedBy(lines[j]))
+                    .Select(j => (int?)j)
+                    .FirstOrDefault();
+            }
+
+            IEnumerable<int> GetRange(int i, int j)
+            {
+                if (i > j)
+                {
+                    foreach (var k in Enumerable.Range(i + 1, points.Length - i - 1))
+                        yield return k;
+                    foreach (var k in Enumerable.Range(0, j))
+                        yield return k;
+                }
+                else
+                {
+                    foreach (var k in Enumerable.Range(i + 1, j - i - 1))
+                        yield return k;
+                }
+            }
+
+            var nodes = polygon.Points.Index()
+                .Select(i => (i, j: IntersectedIndex(i)))
+                .Where(v => v.j.HasValue)
+                .Select(v => (v.i, j: v.j.Value, nodeKey: (v.i, v.j.Value).OrderedEdge()))
+                .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey))
+                .GroupBy(v => v.nodeKey)
+                .Select(gv => (nodeKey: gv.Key, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), list: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+                .ToArray();
+
+            if (!nodes.Any())
+                return new[] { polygon };
+
+            double Len(Vector2[] ps) => ps.SelectPair((a, b) => (b - a).Len).Sum();
+
+            Vector2[][] GetRangePoints(int aI, int bI)
+            {
+                Vector2[] GetPoints(IEnumerable<int> r) =>
+                    r.Select(i => points[i]).Concat(new[] {nodes[bI].p}).ToArray();
+
+                var rs1 = nodes[aI]
+                    .list.Where(v => v.nodeKey == nodes[aI].nodeKey && v.nextNodeKey == nodes[bI].nodeKey)
+                    .Select(v => GetRange(v.i, v.j));
+
+                var rs2 = nodes[bI]
+                    .list.Where(v => v.nodeKey == nodes[bI].nodeKey && v.nextNodeKey == nodes[aI].nodeKey)
+                    .Select(v => GetRange(v.i, v.j).Reverse());
+
+                return rs1.Select(GetPoints).Concat(rs2.Select(GetPoints)).ToArray();
+            }
+
+            Vector2[] GetMinRangePoints(int aI, int bI)
+            {
+                return GetRangePoints(aI, bI).OrderBy(Len).First();
+            }
+            //foreach (var node in nodes)
+            //{
+            //    Debug.WriteLine($"{node.p}");
+            //}
+            //return new Polygon[]
+            //{
+            //    new Polygon(){Points = nodes.Select(n=>n.p).ToArray()}
+            //};
+
+            var nodeList = nodes.Select(n => n.nodeKey).ToList();
+
+            var edges = nodes.SelectMany(n =>
+                n.list.Select(v => (i:nodeList.IndexOf(v.nodeKey), j:nodeList.IndexOf(v.nextNodeKey)))).ToArray();
+
+            var g = new Graph(edges);
+
+            var polygons = new List<Polygon>();
+
+            foreach (var e in g.edges.Where(e=>e.a==e.b).ToArray())
+            {
+                polygons.Add(new Polygon()
+                {
+                    Points = GetRangePoints(e.a.i, e.b.i)[0]
+                }.ToLeft());
+
+                g.RemoveEdge(e);
+            }
+
+            foreach (var ge in g.edges.GroupBy(e=>e.e).Where(ge => ge.Count() == 2).ToArray())
+            {
+                var e = ge.First();
+                var rs = GetRangePoints(e.a.i, e.b.i);
+
+                polygons.Add(new Polygon()
+                {
+                    Points = rs[0].Concat(rs[1].Reverse()).ToArray()
+                }.ToLeft());
+
+                g.RemoveEdge(e);
+            }
+
+            //g.WriteToDebug();
+
+            Polygon GetPolygon(Graph.Node[] path)
+            {
+                return new Polygon()
+                {
+                    Points = path.SelectCirclePair((a, b) => GetMinRangePoints(a.i, b.i)).SelectMany(v => v).ToArray()
+                }.ToLeft();
+            }
+
+
+            //return new Polygon[]
+            //{
+            //    new Polygon() {Points = g.Edges.SelectMany(e => new[] {points[e.i], points[e.j]}).ToArray()}
+            //};
+
+           
+            var gs = g.SplitToMinCircles();
+
+            polygons.AddRange(gs.Select(GetPolygon));
+
+            return polygons.ToArray();
+        }
+
+        public static Polygon[] SplitIntersections1(Polygon polygon)
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();

@@ -13,13 +13,10 @@ namespace Model3D.Extensions
             return polygon.Fill(triangulate).ToShape3();
         }
 
-        public static Shape ToShape(this Polygon polygon, bool withVolume = false) =>
-            ToShape(polygon, withVolume ? 0.1 : null);
-
         public static Shape ToTriangulatedShape(this Polygon polygon) =>
             ToShape(polygon, null, true);
 
-        public static Shape ToShape(this Polygon polygon, double? volume, bool triangulate = false)
+        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false)
         {
             if (!volume.HasValue && !triangulate)
                 return new Shape

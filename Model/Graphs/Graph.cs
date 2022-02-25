@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Model.Extensions;
 using Model.Libraries;
@@ -15,6 +16,12 @@ namespace Model.Graphs
         public readonly List<Node> nodes;
         public readonly List<Edge> edges;
 
+        public Graph()
+        {
+            nodes = new List<Node>();
+            edges = new List<Edge>();
+        }
+
         public Graph(IEnumerable<(int i, int j)> edges)
         {
             var n = edges.Select(v => Math.Max(v.i, v.j)).Max() + 1;
@@ -22,7 +29,7 @@ namespace Model.Graphs
 
             this.edges = edges.Select(e =>
             {
-                var edge = new Edge()
+                var edge = new Edge() 
                 {
                     a = nodes[e.i],
                     b = nodes[e.j]
@@ -45,6 +52,15 @@ namespace Model.Graphs
             nodes.Remove(node);
         }
 
+        public void AddEdge(int i, int j)
+        {
+            var a = new Node { i = i, edges = new List<Edge>() };
+            var b = new Node { i = j, edges = new List<Edge>() };
+            nodes.Add(a);
+            nodes.Add(b);
+            AddEdge(a, b);
+        }
+
         public void AddEdge(Node a, Node b)
         {
             AddEdge(new Edge() { a = a, b = b });
@@ -57,11 +73,39 @@ namespace Model.Graphs
             edge.b.edges.Add(edge);
         }
 
+        public void RemoveNode(Node node)
+        {
+            foreach (var e in node.edges)
+            {
+                RemoveEdge(e);
+            }
+
+            nodes.Remove(node);
+        }
+
+        public void RemoveEdgeWithEmptyNodes(Edge edge)
+        {
+            RemoveEdge(edge);
+
+            if (edge.a.edges.Count == 0)
+                RemoveNode(edge.a);
+
+            if (edge.b.edges.Count == 0)
+                RemoveNode(edge.b);
+        }
+
         public void RemoveEdge(Edge edge)
         {
             edges.Remove(edge);
             edge.a.edges.Remove(edge);
             edge.b.edges.Remove(edge);
+        }
+
+        public Graph Clone() => new Graph(Edges);
+
+        public void WriteToDebug()
+        {
+            Debug.WriteLine(string.Join(", ", Edges.Select(e=>$"{e}")));
         }
     }
 }

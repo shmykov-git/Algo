@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Meta;
 using Model.Extensions;
+using Model.Fourier;
 using Model.Tools;
 using Model3D.Extensions;
 using Model3D.Tools;
@@ -34,25 +35,20 @@ namespace Model.Libraries
             .Condition(fill, p => p.Fill())
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
-        public static Shape Series5(int an, int bn, int cn, int dn, double a, double b, double c, double d, int count, bool fill, double da = 0, double db = 0, double dc = 0, double dd = 0) => Polygons
-            .FourierSeries(count, (an, a, da), (bn, b, db), (cn, c, dc), (dn, d, dd), (-1, 1))
-            .Condition(fill, p => p.Fill())
-            .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
-
         public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256)
         {
             var polygon = Polygons.FourierSeries(count, members.Perfecto());
             var polygons = Splitter.SplitIntersections(polygon);
 
-            var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume.HasValue)).Rotate(Math.PI / 2)).ToArray();
+            var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
 
-            var size = shapes.ToSingleShape().Size;
+            var size = polygons.Select(p => p.ToShape().Rotate(Math.PI / 2)).ToSingleShape().Size;
 
             var maxXY = Math.Max(size.x, size.y);
 
             shapes.Index().ForEach(i =>
             {
-                shapes[i] = shapes[i].Scale(1 / maxXY, 1 / maxXY, triangulateOnly ? 1 : (volume.HasValue ? volume.Value / size.z : 1));
+                shapes[i] = shapes[i].Scale(1 / maxXY, 1 / maxXY, 1);
             });
 
             return shapes;
@@ -60,7 +56,7 @@ namespace Model.Libraries
 
         public static Shape SingleSeries(Fr[] members, int count = 256)
         {
-            return Polygons.FourierSeries(count, members).ToShape(false).Rotate(Math.PI / 2).Perfecto();
+            return Polygons.FourierSeries(count, members.Perfecto()).ToShape().Rotate(Math.PI / 2).Adjust();
         }
 
         public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ, int count = 100,
@@ -73,12 +69,12 @@ namespace Model.Libraries
                 (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
                     FourierShapes.SingleSeries(main.Concat(new Fr[] { (v.i, a, da), (v.j, b, db) }).ToArray(), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
-                        .ToLines3(2, Color.Blue)
+                        .ToLines(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
                 (lenJ).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
@@ -102,12 +98,12 @@ namespace Model.Libraries
                 (lenI, lenJ).SelectRange((i, j) => (i: i + fromI, j: j + fromJ))
                 .Select(v =>
                     FourierShapes.SingleSeries(Apply(v.i, v.j), count).Mult(0.8).Move(v.j, lenI - v.i, 0)
-                        .ToLines3(2, Color.Blue)
+                        .ToLines(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines3(3, Color.Red)).ToSingleShape() +
+                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
                 (lenJ).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines3(3, Color.Red)).ToSingleShape()
+                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
@@ -132,9 +128,9 @@ namespace Model.Libraries
             var bold = 6;
             var font = "Libertinus Math";
 
-            var e = vectorizer.GetText("e", n, font, 1 , 1, false).Mult(1d/n).ToLines3(bold);
-            var pref = vectorizer.GetText("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
-            var interval = vectorizer.GetText(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines3(bold);
+            var e = vectorizer.GetText("e", n, font, 1 , 1, false).Mult(1d/n).ToLines(bold);
+            var pref = vectorizer.GetText("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
+            var interval = vectorizer.GetText(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
 
             string FormatV(double x, string tail = "", bool plus = false)
             {
@@ -157,9 +153,9 @@ namespace Model.Libraries
 
             var koffs = fShape.Perfecto()
                 .SelectWithIndex((k, ind) =>
-                vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines3(bold) + 
+                vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) + 
                 e + 
-                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines3(bold))
+                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines(bold))
                 .Select(s=>s.AlignX(0));
 
             var f = new[] {pref, koffs.CompoundOx(0.3)}.CompoundOx(0.5);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Model.Extensions;
 
 namespace Model.Graphs
 {

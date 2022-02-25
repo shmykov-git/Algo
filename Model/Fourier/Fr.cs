@@ -1,4 +1,4 @@
-﻿namespace Model
+﻿namespace Model.Fourier
 {
     public class Fr
     {

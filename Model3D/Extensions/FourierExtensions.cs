@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Model;
+using Model.Fourier;
 using Model.Libraries;
 
 namespace Model3D.Extensions
@@ -13,8 +14,8 @@ namespace Model3D.Extensions
         public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, bool triangulateOnly = false) =>
             FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count).ToSingleShape();
 
-        public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256) =>
-            FourierShapes.Series(frs.ToArray(), null, false, count).ToSingleShape();
+        public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
+            FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
 
         public static Shape ToFormulaShape(this IEnumerable<Fr> frs) =>
             FourierShapes.SeriesFormula(frs.ToArray());

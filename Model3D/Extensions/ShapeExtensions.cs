@@ -189,24 +189,24 @@ namespace Model3D.Extensions
 
         public static Shape ToMetaShape(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
         {
-            return shape.ToSpots(multPoint, pointMaterial).Join(shape.ToLines(multLines, linesMaterial));
+            return shape.ToSpots(multPoint, pointMaterial).Join(shape.ToPlaneLines(multLines, linesMaterial));
         }
 
         public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null, Shape spotShape = null)
         {
-            return shape.ToLines3(multLines, linesColor)
+            return shape.ToLines(multLines, linesColor)
                 .Join(shape.ToSpots3(multPoint, pointColor, spotShape));
         }
 
         public static Shape ToCubeMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null)
         {
-            return shape.ToLines3(multLines, linesColor)
+            return shape.ToLines(multLines, linesColor)
                 .Join(shape.ToCubeSpots3(multPoint, pointColor));
         }
 
         public static Shape ToTetrahedronMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null)
         {
-            return shape.ToLines3(multLines, linesColor)
+            return shape.ToLines(multLines, linesColor)
                 .Join(shape.ToTetrahedronSpots3(multPoint, pointColor));
         }
 
@@ -235,7 +235,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = vectorizer.GetText(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ToLines3(mult, numColor);
+                var iText = vectorizer.GetText(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ToLines(mult, numColor);
                 texts.Add(iText);
             }
 
@@ -294,7 +294,7 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToLines3(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
+        public static Shape ToLines(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
 
         public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null)
         {
@@ -325,7 +325,7 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToLines(this Shape shape, double mult = 1, Material material = null)
+        public static Shape ToPlaneLines(this Shape shape, double mult = 1, Material material = null)
         {
             var width = 0.003 * mult;
             var points = shape.Points2;
