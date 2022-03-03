@@ -44,7 +44,7 @@ namespace Model.Graphs
 
         public void TakeOutNode(Node node)
         {
-            node.edges.Select(e => e.Another(node)).ToArray().ForEachCirclePair(AddEdge);
+            node.edges.Select(e => e.Another(node)).ToArray().ForEachCirclePair((a, b) => AddEdge(a, b));
 
             foreach (var e in node.edges.ToArray())
                 RemoveEdge(e);
@@ -52,18 +52,30 @@ namespace Model.Graphs
             nodes.Remove(node);
         }
 
-        public void AddEdge(int i, int j)
+        public Edge AddConnectedEdge((int i, int j) p)
+        {
+            var a = nodes.First(n => n.i == p.i);
+            var b = nodes.First(n => n.i == p.j);
+
+            return AddEdge(a, b);
+        }
+
+        public Edge AddEdge(int i, int j)
         {
             var a = new Node { i = i, edges = new List<Edge>() };
             var b = new Node { i = j, edges = new List<Edge>() };
             nodes.Add(a);
             nodes.Add(b);
-            AddEdge(a, b);
+            
+            return AddEdge(a, b);
         }
 
-        public void AddEdge(Node a, Node b)
+        public Edge AddEdge(Node a, Node b)
         {
-            AddEdge(new Edge() { a = a, b = b });
+            var e = new Edge() {a = a, b = b};
+            AddEdge(e);
+
+            return e;
         }
 
         public void AddEdge(Edge edge)
@@ -75,7 +87,7 @@ namespace Model.Graphs
 
         public void RemoveNode(Node node)
         {
-            foreach (var e in node.edges)
+            foreach (var e in node.edges.ToArray())
             {
                 RemoveEdge(e);
             }
@@ -103,9 +115,9 @@ namespace Model.Graphs
 
         public Graph Clone() => new Graph(Edges);
 
-        public void WriteToDebug()
+        public void WriteToDebug(string prefix = null)
         {
-            Debug.WriteLine(string.Join(", ", Edges.Select(e=>$"{e}")));
+            Debug.WriteLine($"{prefix}{string.Join(", ", edges.Select(e => $"{e}"))}");
         }
     }
 }

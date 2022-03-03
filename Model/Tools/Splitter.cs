@@ -47,10 +47,6 @@ namespace Model.Tools
         {
             options ??= new FrOptions();
 
-            // собрать направленные кривые. Точка входа и точка выхода (возможно одна точка)
-            // набор точке пересечений и связь кривых с точками
-            // в направленном графе найти все минимальные замкнутые пути
-
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
             var net = new Net<Vector2, int>(points.SelectWithIndex((p, i) => (p, i)), 2 * lines.Max(l => l.Len));
@@ -118,21 +114,46 @@ namespace Model.Tools
             {
                 return GetRangePoints(aI, bI).OrderBy(Len).First();
             }
-            //foreach (var node in nodes)
-            //{
-            //    Debug.WriteLine($"{node.p}");
-            //}
-            //return new Polygon[]
-            //{
-            //    new Polygon(){Points = nodes.Select(n=>n.p).ToArray()}
-            //};
+
+            Vector2[] GetPathRangePoints(int[] path) =>
+                path.SelectPair((aI, bI) =>
+                {
+                    var rs = GetMinRangePoints(aI, bI);
+
+                    //if (rs.Length != 1)
+                    //    throw new ArgumentException("Incorrect path");
+
+                    return rs;
+                }).SelectMany(v => v).ToArray();
+
+            Vector2[] GetEdgesRangePoints(Graph.Edge eA, Graph.Edge eB)
+            {
+                Debug.WriteLine($"metaA:{eA.meta.SJoin(", ")}, metaB:{eB.meta.SJoin(", ")}");
+
+                if (eA.meta.Length == 2 && eB.meta.Length == 2)
+                {
+                    var rs = GetRangePoints(eA.a.i, eA.b.i);
+
+                    return rs[0].Concat(rs[1].Reverse()).ToArray();
+                }
+                else
+                {
+                    var rsA = GetPathRangePoints(eA.meta);
+                    var rsB = GetPathRangePoints(eB.meta);
+
+                    return rsA.Concat(rsB.Reverse()).ToArray();
+                }
+            }
+
+
 
             var nodeList = nodes.Select(n => n.nodeKey).ToList();
 
             var edges = nodes.SelectMany(n =>
-                n.list.Select(v => (i:nodeList.IndexOf(v.nodeKey), j:nodeList.IndexOf(v.nextNodeKey)))).ToArray();
+                n.list.Select(v => (i:nodeList.IndexOf(v.nodeKey), j:nodeList.IndexOf(v.nextNodeKey)).OrderedEdge())).ToArray();
 
             var g = new Graph(edges);
+            g.WriteToDebug("Base graph: ");
 
             var polygons = new List<Polygon>();
 
@@ -146,39 +167,53 @@ namespace Model.Tools
                 g.RemoveEdge(e);
             }
 
-            foreach (var ge in g.edges.GroupBy(e=>e.e).Where(ge => ge.Count() == 2).ToArray())
+            while (true)
             {
-                var e = ge.First();
-                var rs = GetRangePoints(e.a.i, e.b.i);
-
-                polygons.Add(new Polygon()
+                foreach (var edgesPair in g.edges.GroupBy(e => e.e).Where(ge => ge.Count() == 2).Select(ge=>ge.ToArray()).ToArray())
                 {
-                    Points = rs[0].Concat(rs[1].Reverse()).ToArray()
-                }.ToLeft());
+                    var e = edgesPair[0]; // todo: longest path
+                    var e1 = edgesPair[1];
 
-                g.RemoveEdge(e);
-            }
+                    polygons.Add(new Polygon()
+                    {
+                        Points = GetEdgesRangePoints(e, e1)
+                    }.ToLeft());
 
-            //g.WriteToDebug();
+                    var removeE1 = e.a.edges.Count == 2 || e.b.edges.Count == 2;
 
-            Polygon GetPolygon(Graph.Node[] path)
-            {
-                return new Polygon()
+                    g.RemoveEdge(e);
+
+                    if (removeE1)
+                        g.RemoveEdge(e1);
+                }
+
+                if (g.edges.Count == 0)
+                    break;
+
+                g.WriteToDebug("before: ");
+                var isGrouped = g.MetaGroup();
+                g.WriteToDebug("after: ");
+
+                if (!isGrouped)
                 {
-                    Points = path.SelectCirclePair((a, b) => GetMinRangePoints(a.i, b.i)).SelectMany(v => v).ToArray()
-                }.ToLeft();
+                    // graph has only nodes with minimum 3 edges each
+                    var edge = g.edges.First(e =>
+                        e.a.edges.Count == 3 && e.b.edges.Count == 3 && e.a.Siblings.Intersect(e.b.Siblings).Any());
+
+                    var c = edge.a.Siblings.Intersect(edge.b.Siblings).First();
+                    var acE = edge.a.edges.First(e => e.Another(edge.a) == c);
+                    var bcE = edge.b.edges.First(e => e.Another(edge.b) == c);
+
+                    polygons.Add(new Polygon()
+                    {
+                        Points = GetPathRangePoints(edge.meta)
+                            .Concat(GetPathRangePoints(edge.b == acE.a ? acE.meta : acE.meta.Reverse().ToArray()))
+                            .Concat(GetPathRangePoints(acE.b == bcE.a ? bcE.meta : bcE.meta.Reverse().ToArray())).ToArray()
+                    }.ToLeft());
+
+                    g.RemoveEdge(edge);
+                }
             }
-
-
-            //return new Polygon[]
-            //{
-            //    new Polygon() {Points = g.Edges.SelectMany(e => new[] {points[e.i], points[e.j]}).ToArray()}
-            //};
-
-           
-            var gs = g.SplitToMinCircles();
-
-            polygons.AddRange(gs.Select(GetPolygon));
 
             return polygons.ToArray();
         }

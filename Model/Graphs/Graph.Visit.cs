@@ -7,6 +7,31 @@ namespace Model.Graphs
 {
     public partial class Graph
     {
+        public bool IsConnected(Node a, Node b)
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Queue<Node>(nodes.Count);
+            queue.Enqueue(a);
+
+            do
+            {
+                var n = queue.Dequeue();
+
+                if (n == b)
+                    return true;
+
+                if (!visited[n.i])
+                {
+                    visited[n.i] = true;
+
+                    foreach (var sn in n.Siblings)
+                        queue.Enqueue(sn);
+                }
+            } while (queue.Count > 0);
+
+            return false;
+        }
+
         public IEnumerable<Node> Visit(Node node = null)
         {
             var visited = new bool[nodes.Count];

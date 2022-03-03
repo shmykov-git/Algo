@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using MathNet.Numerics;
 using Model.Graphs;
 
 namespace Model.Extensions
 {
     public static class GraphExtensions
     {
+        public static Graph.Edge GetEdge(this (Graph.Node a, Graph.Node b) p) => p.a.ToEdge(p.b);
+
         public static Graph MinimizeConnections(this Graph g, int seed = 0)
         {
             var r = new Random(seed);
@@ -36,55 +39,59 @@ namespace Model.Extensions
         }
 
 
-        public static Graph.Node[][] SplitToMinCircles(this Graph graph)
+        public static Graph.Node[][] SplitToMinCircles(this Graph graph, Func<Graph.Edge, double> lenFn)
         {
             var main = graph.Clone();
 
             var res = new List<Graph.Node[]>();
 
             bool IsEmpty(Graph g) => g.nodes.All(n => n.edges.Count == 0);
-            
+
+            bool IsCorrect(Graph g) => g.nodes.All(n => n.edges.Count != 1) &&
+                                       g.nodes.Count(n => n.edges.Count.IsOdd()).IsEven();
+
             Graph.Node[] ExcludePathGraph(Graph g)
             {
-                var a = g.nodes.Where(n => n.edges.Count > 0).OrderBy(n=>n.edges.Count).First();
-                var edge = a.edges.First();
-                var b = edge.Another(a);
+                // тут где-то ошибка !!
+                var edge = g.edges.Where(e => e.a.edges.Count == 2 || e.b.edges.Count == 2).OrderBy(lenFn).First();
 
                 g.RemoveEdge(edge);
-                var path = g.FindPath(a, b).ToArray();
+                var path = g.FindPath(edge.a, edge.b).ToArray();
                 g.AddEdge(edge);
 
-                var pathEdges = path
-                    .SelectCirclePair((a, b) => (a, b))
-                    .Select(p => p.a.edges.First(e => e.b == p.b || e.a == p.b)).ToArray();
+                var pathEdges = path.SelectCirclePair().Select(GetEdge).ToArray();
 
-                var removeReverse = false;
+                var removeEdges = new List<Graph.Edge>();
+
+
                 foreach (var e in pathEdges)
                 {
-                    g.RemoveEdge(e);
+                    // нашли путь, теперь нужно правильно удалить эджи из этого пути. как?..
+                    // точки с числом связей == 3 важны - это входы других путей, которые нельзя игнорировать
+                    // эджи не могут быть удалены по одному, только удаленная группа сохранит корректность графа
+                    // тут непросто, т.к. решение об удалении части пути может зависет от одного дальнего нода в графе (есть нод -можно оставить, нет - нужно удалить, т.к. тут нет пути)
 
-                    if (e.a.edges.Count >= 2 || e.b.edges.Count >= 2)
-                    {
-                        removeReverse = true;
-                        break;
-                    }
+                    // вернуть алгоритм удаления между 3ками - получить список соединений этих 3чек
+                    // какие из этих связей можно удалять?
+
+                    // логическое объединение еджей в один путь
+                    // находить просто пары в логическом графе и убирать их длинный путь
+                    // ну т.е. продолжить идею поиска малых циклов 0, 1, 2... - не нужно обходить весь граф, только перебирать вершины
+
+
+                    removeEdges.Add(e); // todo: ...
                 }
 
-                if (removeReverse)
-                {
-                    foreach (var e in pathEdges.Reverse())
-                    {
-                        g.RemoveEdge(e);
+                Debug.WriteLine($"path edges: {path.SelectCirclePair().Select(p => (p.a.i, p.b.i)).SJoin()}");
+                Debug.WriteLine($"remove edges: {removeEdges.Select(e => e.e).SJoin()}");
 
-                        if (e.a.edges.Count >= 2 || e.b.edges.Count >= 2)
-                            break;
-                    }
-                }
+                removeEdges.ForEach(g.RemoveEdge);
 
                 return path;
             }
 
             main.WriteToDebug();
+            Debug.WriteLine($"{(IsCorrect(main) ? "Correct" : "Incorrect")}");
 
             while (!IsEmpty(main))
             {
@@ -93,6 +100,10 @@ namespace Model.Extensions
                 
                 Debug.WriteLine(string.Join(", ", circle.Select(n=>$"{n.i}")));
                 main.WriteToDebug();
+                Debug.WriteLine($"{(IsCorrect(main) ? "Correct" : "Incorrect")} {main.nodes.Where(n=>n.edges.Count==1).Select(n=>n.i).SJoin()}");
+
+                if (!IsCorrect(main))
+                    Debugger.Break();
             }
 
             return res.ToArray();

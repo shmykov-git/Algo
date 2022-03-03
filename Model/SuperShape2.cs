@@ -162,7 +162,7 @@ namespace Model
         {
             public int this[int i] => indices[i];
             public List<int> indices;
-            public IEnumerable<(int i, int j)> edges => indices.CirclePairs();
+            public IEnumerable<(int i, int j)> edges => indices.SelectCirclePair();
         }
     }
 }

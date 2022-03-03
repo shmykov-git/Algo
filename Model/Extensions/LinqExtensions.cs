@@ -68,8 +68,7 @@ namespace Model.Extensions
                     yield return enumerator.Current;
         }
 
-        public static IEnumerable<(T, T)> CirclePairs<T>(this IEnumerable<T> list) => list.SelectCirclePair((a, b) => (a, b));
-
+        public static IEnumerable<(T a, T b)> SelectCirclePair<T>(this IEnumerable<T> list) => list.SelectCirclePair((a, b) => (a, b));
         public static IEnumerable<TRes> SelectCirclePair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
         {
             var i = 0;
@@ -171,6 +170,7 @@ namespace Model.Extensions
             }
         }
 
+        public static IEnumerable<(T a, T b)> SelectPair<T>(this IEnumerable<T> list) => list.SelectPair((a, b) => (a, b));
         public static IEnumerable<TRes> SelectPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
         {
             var i = 0;
