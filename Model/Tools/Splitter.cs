@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Model.Extensions;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
 using Model.Fourier;
 using Model.Graphs;
@@ -126,7 +127,7 @@ namespace Model.Tools
                     return rs;
                 }).SelectMany(v => v).ToArray();
 
-            Vector2[] GetEdgesRangePoints(Graph.Edge eA, Graph.Edge eB)
+            (Vector2[] points, double aLen, double bLen)  GetEdgesRangePoints(Graph.Edge eA, Graph.Edge eB)
             {
                 Debug.WriteLine($"metaA:{eA.meta.SJoin(", ")}, metaB:{eB.meta.SJoin(", ")}");
 
@@ -134,18 +135,33 @@ namespace Model.Tools
                 {
                     var rs = GetRangePoints(eA.a.i, eA.b.i);
 
-                    return rs[0].Concat(rs[1].Reverse()).ToArray();
+                    return (rs[0].Concat(rs[1].Reverse()).ToArray(), Len(rs[0]), Len(rs[1]));
                 }
                 else
                 {
                     var rsA = GetPathRangePoints(eA.meta);
                     var rsB = GetPathRangePoints(eB.meta);
 
-                    return rsA.Concat(rsB.Reverse()).ToArray();
+                    return (rsA.Concat(rsB.Reverse()).ToArray(), Len(rsA), Len(rsB));
                 }
             }
 
+            int[] JoinMetas(int[] a, int[] b)
+            {
+                if (a[0] == b[0])
+                    return a[1..].Reverse().Concat(b).ToArray();
 
+                if (a[^1] == b[0])
+                    return a[..^1].Concat(b).ToArray();
+
+                if (a[0] == b[^1])
+                    return a[1..].Reverse().Concat(b.Reverse()).ToArray();
+
+                if (a[^1] == b[^1])
+                    return a[..^1].Concat(b.Reverse()).ToArray();
+
+                throw new ArgumentException("Cannot join metas");
+            }
 
             var nodeList = nodes.Select(n => n.nodeKey).ToList();
 
@@ -174,9 +190,14 @@ namespace Model.Tools
                     var e = edgesPair[0]; // todo: longest path
                     var e1 = edgesPair[1];
 
+                    var pInfo = GetEdgesRangePoints(e, e1);
+
+                    if (pInfo.aLen < pInfo.bLen)
+                        (e, e1) = (e1, e);
+
                     polygons.Add(new Polygon()
                     {
-                        Points = GetEdgesRangePoints(e, e1)
+                        Points = pInfo.points
                     }.ToLeft());
 
                     var removeE1 = e.a.edges.Count == 2 || e.b.edges.Count == 2;
@@ -197,18 +218,21 @@ namespace Model.Tools
                 if (!isGrouped)
                 {
                     // graph has only nodes with minimum 3 edges each
-                    var edge = g.edges.First(e =>
-                        e.a.edges.Count == 3 && e.b.edges.Count == 3 && e.a.Siblings.Intersect(e.b.Siblings).Any());
+                    var es = g.edges.Where(e =>
+                            e.a.edges.Count == 3 && e.b.edges.Count == 3 && e.a.Siblings.Intersect(e.b.Siblings).Any())
+                        .ToArray();
+
+                    var edge = es.OrderBy(e => Len(GetPathRangePoints(e.meta))).First();
 
                     var c = edge.a.Siblings.Intersect(edge.b.Siblings).First();
-                    var acE = edge.a.edges.First(e => e.Another(edge.a) == c);
-                    var bcE = edge.b.edges.First(e => e.Another(edge.b) == c);
+                    var aE = edge.a.edges.First(e => e.Another(edge.a) == c);
+                    var bE = edge.b.edges.First(e => e.Another(edge.b) == c);
+
+                    var meta = JoinMetas(JoinMetas(edge.meta, aE.meta), bE.meta);
 
                     polygons.Add(new Polygon()
                     {
-                        Points = GetPathRangePoints(edge.meta)
-                            .Concat(GetPathRangePoints(edge.b == acE.a ? acE.meta : acE.meta.Reverse().ToArray()))
-                            .Concat(GetPathRangePoints(acE.b == bcE.a ? bcE.meta : bcE.meta.Reverse().ToArray())).ToArray()
+                        Points = GetPathRangePoints(meta)
                     }.ToLeft());
 
                     g.RemoveEdge(edge);

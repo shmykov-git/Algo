@@ -124,7 +124,7 @@ namespace View3D
                 (4, -7), (-3, -8),
                 
                 (3, 5), (-9, 3),
-                (1, 3)
+                (1, 3), (-6, 5)
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
