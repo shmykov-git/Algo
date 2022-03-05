@@ -887,5 +887,12 @@ namespace Model3D.Extensions
         {
             Points = shape.Points2
         };
+
+        public static Shape Smooth(this Shape shape) => new Shape()
+        {
+            Points3 = shape.Points3.SelectCircleTriple((a,b,c)=>(a+b+c)/3).ToArray(),
+            Convexes = shape.Convexes,
+            Materials = shape.Materials
+        };
     }
 }
