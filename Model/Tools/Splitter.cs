@@ -156,6 +156,8 @@ namespace Model.Tools
             var node = g.nodes[baseInfoEx.e.j];
 
             var start = edge.Another(node);
+            int startCount = edge.a == edge.b ? 2 : 0;
+            int count = 0;
 
             do
             {
@@ -191,7 +193,11 @@ namespace Model.Tools
 
                 edge = edgeInfo.e;
                 node = edge.Another(node);
-            } while (edge.Another(node) != start);
+                count++;
+            } while (edge.Another(node) != start || count < startCount);
+
+            if (perimeter.Keys.Count == 0)
+                return polygons.ToArray();
 
             var pg = new Graph(perimeter.Keys);
 
