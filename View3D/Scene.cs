@@ -131,20 +131,20 @@ namespace View3D
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, 5, 3, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
-            var sps = fShape.ToShapes(50000, 0.01);
+            var sps = fShape.ToShapes(50000);
             //var sps = fShape.ToShapes(3000, null).Select(s => s.ToLines(0.3));
-            var sp = sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.05)).ToSingleShape();
+            //var sp = sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.05)).ToSingleShape();
             //var sp = sps.ToBlowedShape(4, 0.5);
 
-            //var f = fShape.ToFormulaShape();
+            var f = fShape.ToFormulaShape();
 
             var shape = new Shape[]
             {
-                sp.ApplyColor(Color.DarkGreen),
+                //sp.ApplyColor(Color.DarkGreen),
                 sps.ToSingleShape().MoveZ(0.03).ApplyColor(Color.Red),
-                fShape.ToLineShape(3000, 0.3).MoveZ(0.035).ApplyColor(Color.Blue),
+                //fShape.ToLineShape(3000, 0.3).MoveZ(0.035).ApplyColor(Color.Blue),
                 //sps.ToSingleShape().ApplyColor(Color.Blue),
-                //f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
+                f.Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
