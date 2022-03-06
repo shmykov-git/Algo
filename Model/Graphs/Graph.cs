@@ -36,7 +36,9 @@ namespace Model.Graphs
                 };
 
                 edge.a.edges.Add(edge);
-                edge.b.edges.Add(edge);
+                
+                if (edge.b != edge.a)
+                    edge.b.edges.Add(edge);
 
                 return edge;
             }).ToList();
@@ -81,8 +83,11 @@ namespace Model.Graphs
         public void AddEdge(Edge edge)
         {
             edges.Add(edge);
+            
             edge.a.edges.Add(edge);
-            edge.b.edges.Add(edge);
+            
+            if (edge.b != edge.a)
+                edge.b.edges.Add(edge);
         }
 
         public void RemoveNode(Node node)

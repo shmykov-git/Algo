@@ -30,6 +30,7 @@ namespace Model.Graphs
         {
             public int i;
             public List<Edge> edges;
+            public IEnumerable<(int i, int j)> Edges => edges.Select(e => (e.a.i, e.b.i));
 
             public Edge ToEdge(Node n) => edges.First(e => e.Another(this) == n);
             public bool IsConnected(Node n) => edges.Any(e => e.Another(this) == n);

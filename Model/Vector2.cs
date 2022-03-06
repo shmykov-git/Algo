@@ -27,7 +27,7 @@ namespace Model
         public Vector2 Normed => this / Len;
         public Vector2 Round(int e) => (x.Round(e), y.Round(e));
 
-        public Vector2 Normal => (y, -x);
+        public Vector2 Normal => (-y, x);
         public Vector2 ToLen(double len) => this * (len / Len);
 
         public Complex ToZ() => new Complex(x, y);

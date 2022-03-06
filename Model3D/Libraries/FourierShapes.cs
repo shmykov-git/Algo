@@ -38,7 +38,8 @@ namespace Model.Libraries
         public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256)
         {
             var polygon = Polygons.FourierSeries(count, members.Perfecto());
-            var polygons = Splitter.SplitIntersections(polygon);
+            //var polygons = Splitter.SplitIntersections(polygon);
+            var polygons = Splitter.FindPerimeter(polygon);
 
             var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
 

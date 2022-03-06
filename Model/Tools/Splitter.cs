@@ -6,6 +6,7 @@ using Model.Extensions;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices.ComTypes;
+using MathNet.Numerics;
 using Model.Fourier;
 using Model.Graphs;
 using Model.Trees;
@@ -42,6 +43,192 @@ namespace Model.Tools
                 Points = s.Points.Concat(edgeDatas.SelectMany(e => e.points)).ToArray(),
                 Convexes = s.ConvexesIndices.Select(convex => convex.SelectMany(edge => edgesConvexes[edge]).ToArray()).ToArray()
             };
+        }
+
+        public static Polygon[] FindPerimeter(Polygon polygon)
+        {
+            var points = polygon.Points;
+            var lines = polygon.Lines.ToArray();
+            var net = new Net<Vector2, int>(points.SelectWithIndex((p, i) => (p, i)), 2 * lines.Max(l => l.Len));
+
+            int Prev(int i) => (i + points.Length - 1) % points.Length;
+            int Next(int i) => (i + 1) % points.Length;
+
+            int? IntersectedIndex(int i)
+            {
+                return net
+                    .SelectNeighbors(points[i])
+                    .Where(j => j != i && j != Prev(i) && j != Next(i))
+                    .Where(j => lines[i].IsSectionIntersectedBy(lines[j]))
+                    .Select(j => (int?)j)
+                    .FirstOrDefault();
+            }
+
+            IEnumerable<int> GetRange(int i, int j)
+            {
+                if (i > j)
+                {
+                    foreach (var k in Enumerable.Range(i + 1, points.Length - i - 1))
+                        yield return k;
+                    foreach (var k in Enumerable.Range(0, j))
+                        yield return k;
+                }
+                else
+                {
+                    foreach (var k in Enumerable.Range(i + 1, j - i - 1))
+                        yield return k;
+                }
+            }
+
+            var nodes = polygon.Points.Index()
+                .Select(i => (i, j: IntersectedIndex(i)))
+                .Where(v => v.j.HasValue)
+                .Select(v => (v.i, j: v.j.Value, nodeKey: (v.i, v.j.Value).OrderedEdge()))
+                .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey))
+                .GroupBy(v => v.nodeKey)
+                .Select(gv => (nodeKey: gv.Key, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), list: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+                .ToArray();
+
+            if (!nodes.Any())
+                return new[] {polygon};
+
+            var polygons = new List<Polygon>();
+
+            var nodeList = nodes.Select(n => n.nodeKey).ToList();
+
+            Vector2[][] GetRangePoints(int aI, int bI)
+            {
+                Vector2[] GetPoints(IEnumerable<int> r) =>
+                    r.Select(i => points[i]).Concat(new[] { nodes[bI].p }).ToArray();
+
+                var rs1 = nodes[aI]
+                    .list.Where(v => v.nodeKey == nodes[aI].nodeKey && v.nextNodeKey == nodes[bI].nodeKey)
+                    .Select(v => GetRange(v.i, v.j));
+
+                var rs2 = nodes[bI]
+                    .list.Where(v => v.nodeKey == nodes[bI].nodeKey && v.nextNodeKey == nodes[aI].nodeKey)
+                    .Select(v => GetRange(v.i, v.j).Reverse());
+
+                return rs1.Select(GetPoints).Concat(rs2.Select(GetPoints)).ToArray();
+            }
+
+            var edges = nodes.SelectMany(n =>
+                    n.list.Select(v => (i: nodeList.IndexOf(v.nodeKey), j: nodeList.IndexOf(v.nextNodeKey)).OrderedEdge()))
+                .Distinct()
+                .ToArray();
+
+            var gEdges = edges
+                .SelectMany(v => new[] { v, v.Reverse() })
+                .Distinct()
+                .Select(v => (e: v, pss: GetRangePoints(v.i, v.j)))
+                .ToDictionary(v => v.e, v => v.pss);
+
+            var g = new Graph(edges);
+            g.WriteToDebug("Base graph: ");
+
+            double GetAngle(Vector2 a, Vector2 b, Vector2 c)
+            {
+                var ab = (b - a).Normed;
+                var bc = (c - b).Normed;
+
+                return Math.Atan2(ab.Normal * bc, ab * bc);
+            }
+
+            var perimeter = new Dictionary<(int i, int j), Vector2[]>();
+
+            Vector2[] GetPerimeterValue((int i, int j) e) => perimeter[e];
+                //perimeter.TryGetValue(e, out Vector2[] ps) ? ps : perimeter[e.Reverse()].Reverse().ToArray();
+
+            var baseInfo = g.edges.SelectMany(e => gEdges[e.e].Where(ps => ps.Length > 1).Select(ps => (e, ps)))
+                .OrderByDescending(v => v.ps.Max(vv => vv.x)).First();
+
+            var baseInfoEx = gEdges[baseInfo.e.e].Where(ps => ps.Length > 1)
+                .Select(ps=>(baseInfo.e.e, ps))
+                .Concat(gEdges[baseInfo.e.e.Reverse()].Where(ps => ps.Length > 1).Select(ps => (e:baseInfo.e.e.Reverse(), ps)))
+                .Select(v=>(v.e, v.ps))
+                .OrderBy(v=>v.ps[0].y)
+                .First();
+
+            var edgeInfo = (baseInfo.e, baseInfoEx.ps, 0d);
+            var prevEdgeInfo = edgeInfo;
+            var edge = baseInfo.e;
+            var node = g.nodes[baseInfoEx.e.j];
+
+            var start = edge;
+
+            do
+            {
+                //Debug.WriteLine(edge.e);
+
+                if (edge.a == edge.b)
+                {
+                    polygons.Add(new Polygon()
+                    {
+                        Points = edgeInfo.ps
+                    }.ToLeft());
+                }
+                else
+                {
+                    perimeter.Add((edge.Another(node).i, node.i), edgeInfo.ps);
+                }
+
+                var a = edgeInfo.ps.Length > 1 ? edgeInfo.ps[^2] : prevEdgeInfo.ps[^1];
+                var b = edgeInfo.ps[^1];
+
+                var edgeInfos = node.edges
+                    .Where(v => v.e != edge.e)
+                    .SelectMany(e =>
+                        gEdges[(node.i, e.Another(node).i)]
+                            .Select(ps => (e, ps, ang: GetAngle(a, b, ps[0]))))
+                    .OrderBy(v => v.ang)
+                    .ToArray();
+
+                prevEdgeInfo = edgeInfo;
+                edgeInfo = edgeInfos.First();
+
+                edge = edgeInfo.e;
+                node = edge.Another(node);
+            } while (edge != start);
+
+            var pg = new Graph(perimeter.Keys);
+
+            while (pg.MetaGroup())
+            {
+                foreach (var e in pg.edges.Where(e => e.a == e.b).ToArray())
+                {
+                    Debug.WriteLine($"{e}");
+
+                    polygons.Add(new Polygon()
+                    {
+                        Points = e.meta.SelectPair().SelectMany(GetPerimeterValue).ToArray()
+                    });
+
+                    pg.RemoveEdge(e);
+                }
+
+                var doublePairs = pg.edges.Where(e => e.a.edges.Any(ee => ee.e.Reverse() == e.e)).Select(e=>e.e.OrderedEdge()).Distinct().ToArray();
+
+                foreach (var p in doublePairs)
+                {
+                    var aE = pg.edges.First(e => e.e == p);
+                    var bE = pg.edges.First(e => e.e.Reverse() == p);
+
+                    var meta = Graph.JoinMetas(aE.meta, bE.meta);
+
+                    polygons.Add(new Polygon()
+                    {
+                        Points = meta.SelectPair().SelectMany(GetPerimeterValue).ToArray()
+                    });
+
+                    pg.RemoveEdge(aE);
+                    pg.RemoveEdge(bE);
+                }
+            }
+
+            if (pg.edges.Count > 0)
+                throw new ApplicationException("Incorrect perimeter");
+
+            return polygons.ToArray();
         }
 
         class Info
@@ -166,23 +353,6 @@ namespace Model.Tools
                 }
             }
 
-            int[] JoinMetas(int[] a, int[] b)
-            {
-                if (a[0] == b[0])
-                    return a[1..].Reverse().Concat(b).ToArray();
-
-                if (a[^1] == b[0])
-                    return a[..^1].Concat(b).ToArray();
-
-                if (a[0] == b[^1])
-                    return a[1..].Reverse().Concat(b.Reverse()).ToArray();
-
-                if (a[^1] == b[^1])
-                    return a[..^1].Concat(b.Reverse()).ToArray();
-
-                throw new ArgumentException("Cannot join metas");
-            }
-
             void TakeMeta(int[] meta) => meta.SelectPair().SelectMany(e => gEdges[e]).ForEach(v => v.info.taken = true);
 
             var g = new Graph(edges);
@@ -260,7 +430,7 @@ namespace Model.Tools
                     var aE = edge.a.edges.First(e => e.Another(edge.a) == c);
                     var bE = edge.b.edges.First(e => e.Another(edge.b) == c);
 
-                    var meta = JoinMetas(JoinMetas(edge.meta, aE.meta), bE.meta);
+                    var meta = Graph.JoinMetas(Graph.JoinMetas(edge.meta, aE.meta), bE.meta);
 
                     polygons.Add(new Polygon()
                     {
@@ -289,7 +459,7 @@ namespace Model.Tools
                     g.AddEdge(edge);
 
                     var pathEdges = path.SelectCirclePair((a, b) => a.ToEdge(b)).ToArray();
-                    var meta = pathEdges.Select(e => e.meta).Aggregate(JoinMetas);
+                    var meta = pathEdges.Select(e => e.meta).Aggregate(Graph.JoinMetas);
 
                     polygons.Add(new Polygon()
                     {

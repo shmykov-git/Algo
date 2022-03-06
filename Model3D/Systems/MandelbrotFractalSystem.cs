@@ -44,7 +44,7 @@ namespace Model3D.Systems
 
             (Model.Vector2 a, Model.Vector2 b) NextPoint((Model.Vector2 a, Model.Vector2 b) v)
             {
-                var dir = (v.a - v.b).Normal.ToLen(precision);
+                var dir = (v.b - v.a).Normal.ToLen(precision);
                 var c = v.a + dir;
                 var d = v.b + dir;
                 var isCInside = IsInside(c);

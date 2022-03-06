@@ -1,3 +1,4 @@
+using System;
 using Model.Extensions;
 using NUnit.Framework;
 
@@ -37,6 +38,29 @@ namespace Model.Test
 
             Assert.AreEqual(true, l1.IsSectionIntersectedBy(l2));
             Assert.AreEqual(false, l1.IsSectionIntersectedBy(l3));
+        }
+
+        [Test]
+        public void AngleTest()
+        {
+            double GetAngle(Vector2 a, Vector2 b, Vector2 c)
+            {
+                var ab = (b - a).Normed;
+                var bc = (c - b).Normed;
+
+                return Math.Atan2(ab.Normal * bc, ab * bc);
+            }
+
+            Vector2 a = (1, 0);
+            Vector2 b = (0, 0);
+
+            Vector2 c = (10, 1);
+            Vector2 d = (10, -1);
+            Vector2 e = (-1, 0);
+
+            var angC = GetAngle(a, b, c);
+            var angD = GetAngle(a, b, d);
+            var angE = GetAngle(a, b, e);
         }
     }
 }

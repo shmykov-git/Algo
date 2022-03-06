@@ -7,27 +7,39 @@ namespace Model.Graphs
 {
     public partial class Graph
     {
+        public static int[] JoinMetas(int[] a, int[] b)
+        {
+            if (a[0] == b[0])
+                return a[1..].Reverse().Concat(b).ToArray();
+
+            if (a[^1] == b[0])
+                return a[..^1].Concat(b).ToArray();
+
+            if (a[0] == b[^1])
+                return a[1..].Reverse().Concat(b.Reverse()).ToArray();
+
+            if (a[^1] == b[^1])
+                return a[..^1].Concat(b.Reverse()).ToArray();
+
+            throw new ArgumentException("Cannot join metas");
+        }
+
         public void GroupNode(Node n)
         {
             if (n.edges.Count != 2)
                 throw new ArgumentException($"Cannot group node {n.i} with {n.edges.Count} edges");
 
-            var eA = n.edges[0];
-            var eB = n.edges[1];
+            var a = n.edges[0];
+            var b = n.edges[1];
 
-            var a = eA.Another(n);
-            var b = eB.Another(n);
+            var nextEdge = a.b.i == b.a.i ? (a.a.i, b.b.i) : (b.a.i, a.b.i);
+            var meta = a.b.i == b.a.i ? JoinMetas(a.meta, b.meta) : JoinMetas(b.meta, a.meta);
 
-            var metaA = a.i == eA.meta[0] ? eA.meta : eA.meta.Reverse().ToArray();
-            var metaN = n.i == eB.meta[0] ? eB.meta : eB.meta.Reverse().ToArray();
+            RemoveEdge(a);
+            RemoveEdge(b);
+            var e = AddConnectedEdge(nextEdge);
 
-            RemoveEdge(eA);
-            RemoveEdge(eB);
-            var e = AddConnectedEdge((a.i, b.i).OrderedEdge());
-
-            e.meta = a.i < b.i 
-                ? metaA[0..^1].Concat(metaN).ToArray()
-                : metaA[0..^1].Concat(metaN).Reverse().ToArray();
+            e.meta = meta;
         }
 
         public bool MetaGroup()
@@ -41,8 +53,10 @@ namespace Model.Graphs
                 if (n == null)
                     break;
 
-                var nextEdge = (n.edges[0].Another(n).i, n.edges[1].Another(n).i).OrderedEdge();
-                
+                var a = n.edges[0];
+                var b = n.edges[1];
+                var nextEdge = a.b.i == b.a.i ? (a.a.i, b.b.i) : (b.a.i, a.b.i);
+
                 if (Edges.Count(e => e == nextEdge) >= 2)
                     break;
 
