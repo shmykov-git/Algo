@@ -149,16 +149,17 @@ namespace Model.Tools
                 .OrderBy(v=>v.ps[0].y)
                 .First();
 
+            var theSamePathAngel = 0.000001;
             var edgeInfo = (baseInfo.e, baseInfoEx.ps, 0d);
             var prevEdgeInfo = edgeInfo;
             var edge = baseInfo.e;
             var node = g.nodes[baseInfoEx.e.j];
 
-            var start = edge;
+            var start = edge.Another(node);
 
             do
             {
-                //Debug.WriteLine(edge.e);
+                //Debug.WriteLine((edge.Another(node).i, node.i));
 
                 if (edge.a == edge.b)
                 {
@@ -176,19 +177,21 @@ namespace Model.Tools
                 var b = edgeInfo.ps[^1];
 
                 var edgeInfos = node.edges
-                    .Where(v => v.e != edge.e)
                     .SelectMany(e =>
                         gEdges[(node.i, e.Another(node).i)]
                             .Select(ps => (e, ps, ang: GetAngle(a, b, ps[0]))))
+                    .Where(v=>Math.PI - v.ang.Abs()> theSamePathAngel)
                     .OrderBy(v => v.ang)
                     .ToArray();
+
+                //Debug.WriteLine($"angles: {edgeInfos.Select(e=>$"{e.ang:F2} {(node.i, e.e.Another(node).i)}").SJoin(", ")}");
 
                 prevEdgeInfo = edgeInfo;
                 edgeInfo = edgeInfos.First();
 
                 edge = edgeInfo.e;
                 node = edge.Another(node);
-            } while (edge != start);
+            } while (edge.Another(node) != start);
 
             var pg = new Graph(perimeter.Keys);
 
@@ -196,7 +199,7 @@ namespace Model.Tools
             {
                 foreach (var e in pg.edges.Where(e => e.a == e.b).ToArray())
                 {
-                    Debug.WriteLine($"{e}");
+                    //Debug.WriteLine($"{e}");
 
                     polygons.Add(new Polygon()
                     {
@@ -226,7 +229,7 @@ namespace Model.Tools
             }
 
             if (pg.edges.Count > 0)
-                throw new ApplicationException("Incorrect perimeter");
+                Debug.WriteLine("Incorrect perimeter!");
 
             return polygons.ToArray();
         }
