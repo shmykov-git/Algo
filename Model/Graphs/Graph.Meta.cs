@@ -61,7 +61,7 @@ namespace Model.Graphs
                     break;
 
                 GroupNode(n);
-                this.WriteToDebug($"{n} <- ");
+                //this.WriteToDebug($"{n} <- ");
 
                 res = true;
             }

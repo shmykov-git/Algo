@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.IO;
 using Model.Extensions;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
@@ -45,6 +46,16 @@ namespace Model.Tools
             };
         }
 
+        class Road
+        {
+            public (int i, int j) e;
+            public Vector2[] forward;
+            public Vector2[] backward;
+            public int[] fr;
+            public int[] br;
+            public override string ToString() => $"{e.i}->{e.j}";
+        }
+
         public static Polygon[] FindPerimeter(Polygon polygon)
         {
             var points = polygon.Points;
@@ -70,12 +81,12 @@ namespace Model.Tools
                 {
                     foreach (var k in Enumerable.Range(i + 1, points.Length - i - 1))
                         yield return k;
-                    foreach (var k in Enumerable.Range(0, j))
+                    foreach (var k in Enumerable.Range(0, j + 1))
                         yield return k;
                 }
                 else
                 {
-                    foreach (var k in Enumerable.Range(i + 1, j - i - 1))
+                    foreach (var k in Enumerable.Range(i + 1, j - i))
                         yield return k;
                 }
             }
@@ -86,7 +97,7 @@ namespace Model.Tools
                 .Select(v => (v.i, j: v.j.Value, nodeKey: (v.i, v.j.Value).OrderedEdge()))
                 .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey))
                 .GroupBy(v => v.nodeKey)
-                .Select(gv => (nodeKey: gv.Key, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), list: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+                .Select(gv => (nodeKey: gv.Key, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
                 .ToArray();
 
             if (!nodes.Any())
@@ -94,37 +105,65 @@ namespace Model.Tools
 
             var polygons = new List<Polygon>();
 
+            Road[] GetRoads(int aI, int bI)
+            {
+                Vector2[] GetPoints(IEnumerable<int> r, int nI) =>
+                    r.Select(i => points[i]).Concat(new[] { nodes[nI].p }).ToArray();
+
+                IEnumerable<(Vector2[] fw, Vector2[] bw, int[] fr, int[] br)> GetPointRange(int aaI, int bbI) => nodes[aaI]
+                    .roads.Where(v => v.nodeKey == nodes[aaI].nodeKey && v.nextNodeKey == nodes[bbI].nodeKey)
+                    .Select(v => (
+                        fw: GetPoints(GetRange(v.i, v.j), bbI),
+                        bw: GetPoints(GetRange(v.i, v.j).Reverse(), aaI), 
+                        fr: GetRange(v.i, v.j).ToArray(), 
+                        br: GetRange(v.i, v.j).Reverse().ToArray()));
+
+                if (aI > bI)
+                    (aI, bI) = (bI, aI);
+
+                if (aI == bI)
+                {
+                    var selfRoads = GetPointRange(aI, bI).ToArray();
+
+                    if (selfRoads.Length != 1)
+                        throw new Exception($"Incorrect self road node");
+
+                    return new[]
+                    {
+                        new Road()
+                        {
+                            e = (aI, bI),
+                            forward = selfRoads[0].fw,
+                            backward = selfRoads[0].bw,
+                            fr = selfRoads[0].fr,
+                            br = selfRoads[0].br
+                        }
+                    };
+                }
+
+                var roads = GetPointRange(aI, bI).Concat(GetPointRange(bI, aI).Select(v=>(fw:v.bw, bw:v.fw, fr:v.br, br:v.fr))).ToArray();
+
+                return roads.Select(r => new Road()
+                {
+                    e = (aI, bI),
+                    forward = r.fw,
+                    backward = r.bw,
+                    fr = r.fr,
+                    br = r.br
+                }).ToArray();
+            }
+            
             var nodeList = nodes.Select(n => n.nodeKey).ToList();
 
-            Vector2[][] GetRangePoints(int aI, int bI)
-            {
-                Vector2[] GetPoints(IEnumerable<int> r) =>
-                    r.Select(i => points[i]).Concat(new[] { nodes[bI].p }).ToArray();
-
-                var rs1 = nodes[aI]
-                    .list.Where(v => v.nodeKey == nodes[aI].nodeKey && v.nextNodeKey == nodes[bI].nodeKey)
-                    .Select(v => GetRange(v.i, v.j));
-
-                var rs2 = nodes[bI]
-                    .list.Where(v => v.nodeKey == nodes[bI].nodeKey && v.nextNodeKey == nodes[aI].nodeKey)
-                    .Select(v => GetRange(v.i, v.j).Reverse());
-
-                return rs1.Select(GetPoints).Concat(rs2.Select(GetPoints)).ToArray();
-            }
-
             var edges = nodes.SelectMany(n =>
-                    n.list.Select(v => (i: nodeList.IndexOf(v.nodeKey), j: nodeList.IndexOf(v.nextNodeKey)).OrderedEdge()))
+                    n.roads.Select(v => (i: nodeList.IndexOf(v.nodeKey), j: nodeList.IndexOf(v.nextNodeKey)).OrderedEdge()))
                 .Distinct()
                 .ToArray();
 
-            var gEdges = edges
-                .SelectMany(v => new[] { v, v.Reverse() })
-                .Distinct()
-                .Select(v => (e: v, pss: GetRangePoints(v.i, v.j)))
-                .ToDictionary(v => v.e, v => v.pss);
+            var edgeRoads = edges.ToDictionary(e => e, e => GetRoads(e.i, e.j));
 
             var g = new Graph(edges);
-            g.WriteToDebug("Base graph: ");
+            //g.WriteToDebug("Base graph: ");
 
             double GetAngle(Vector2 a, Vector2 b, Vector2 c)
             {
@@ -136,69 +175,59 @@ namespace Model.Tools
 
             var perimeter = new Dictionary<(int i, int j), Vector2[]>();
 
-            Vector2[] GetPerimeterValue((int i, int j) e) => perimeter[e];
-                //perimeter.TryGetValue(e, out Vector2[] ps) ? ps : perimeter[e.Reverse()].Reverse().ToArray();
+            // find right road to start with
+            var startRoadInfo = g.edges.SelectMany(e => edgeRoads[e.e].Select(r => (e, r)))
+                .OrderByDescending(v => v.r.forward.Max(vv => vv.x)).First();
 
-            var baseInfo = g.edges.SelectMany(e => gEdges[e.e].Where(ps => ps.Length > 1).Select(ps => (e, ps)))
-                .OrderByDescending(v => v.ps.Max(vv => vv.x)).First();
+            var startNode = startRoadInfo.r.forward[0].y > startRoadInfo.r.backward[0].y ? startRoadInfo.e.a : startRoadInfo.e.b;
 
-            var baseInfoEx = gEdges[baseInfo.e.e].Where(ps => ps.Length > 1)
-                .Select(ps=>(baseInfo.e.e, ps))
-                .Concat(gEdges[baseInfo.e.e.Reverse()].Where(ps => ps.Length > 1).Select(ps => (e:baseInfo.e.e.Reverse(), ps)))
-                .Select(v=>(v.e, v.ps))
-                .OrderBy(v=>v.ps[0].y)
-                .First();
+            var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
+            (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
+            Vector2[] GetWayPoints((Graph.Node b, Graph.Edge e, Road r) p) => GetWayDirectionKey(p) == p.e.e ? p.r.forward : p.r.backward; // тут
 
-            var theSamePathAngel = 0.000001;
-            var edgeInfo = (baseInfo.e, baseInfoEx.ps, 0d);
-            var prevEdgeInfo = edgeInfo;
-            var edge = baseInfo.e;
-            var node = g.nodes[baseInfoEx.e.j];
-
-            var start = edge.Another(node);
-            int startCount = edge.a == edge.b ? 2 : 0;
-            int count = 0;
+            var way = startWay;
+            Vector2[] prevWps = null; // todo: first road should have length > 1
 
             do
             {
-                //Debug.WriteLine((edge.Another(node).i, node.i));
+                //Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");
 
-                if (edge.a == edge.b)
+                var wps = GetWayPoints(way);
+
+                if (way.e.a == way.e.b)
                 {
                     polygons.Add(new Polygon()
                     {
-                        Points = edgeInfo.ps
+                        Points = wps
                     }.ToLeft());
                 }
                 else
                 {
-                    perimeter.Add((edge.Another(node).i, node.i), edgeInfo.ps);
+                    perimeter.Add(GetWayDirectionKey(way), wps);
                 }
 
-                var a = edgeInfo.ps.Length > 1 ? edgeInfo.ps[^2] : prevEdgeInfo.ps[^1];
-                var b = edgeInfo.ps[^1];
+                var a = wps.Length > 1 ? wps[^2] : prevWps[^1];
+                var b = wps[^1];
+                prevWps = wps;
 
-                var edgeInfos = node.edges
-                    .SelectMany(e =>
-                        gEdges[(node.i, e.Another(node).i)]
-                            .Select(ps => (e, ps, ang: GetAngle(a, b, ps[0]))))
-                    .Where(v=>Math.PI - v.ang.Abs()> theSamePathAngel)
+                var infos = way.b.edges
+                    .SelectMany(e => edgeRoads[e.e]
+                        .Where(r=>r != way.r)
+                        .Select(r=>(e.Another(way.b), e, r))
+                        .Select(p=>(p, ps:GetWayPoints(p)))
+                        .Select(v=>(v.p, v.ps, ang: GetAngle(a, b, v.ps[0]))))
                     .OrderBy(v => v.ang)
-                    .ToArray();
+                    .ToArray(); // todo: first
 
-                //Debug.WriteLine($"angles: {edgeInfos.Select(e=>$"{e.ang:F2} {(node.i, e.e.Another(node).i)}").SJoin(", ")}");
+                way = infos.First().p;
 
-                prevEdgeInfo = edgeInfo;
-                edgeInfo = edgeInfos.First();
-
-                edge = edgeInfo.e;
-                node = edge.Another(node);
-                count++;
-            } while (edge.Another(node) != start || count < startCount);
+                //Debug.WriteLine($"angles: {infos.Select(v => $"{v.ang:F2} {GetWayDirectionKey(v.p)}").SJoin(", ")}");
+            } while (startWay.r != way.r);
 
             if (perimeter.Keys.Count == 0)
                 return polygons.ToArray();
 
+            // get polygons from perimeter
             var pg = new Graph(perimeter.Keys);
 
             while (pg.MetaGroup())
@@ -207,9 +236,12 @@ namespace Model.Tools
                 {
                     //Debug.WriteLine($"{e}");
 
+                    //Debug.WriteLine(e.meta.SelectPair().SJoin());
+                    //Debug.WriteLine(e.meta.SelectPair().Select(dirE => perimeter[dirE]).SelectCirclePair((a, b) => (b[0] - a[^1]).Len).SJoin());
+
                     polygons.Add(new Polygon()
                     {
-                        Points = e.meta.SelectPair().SelectMany(GetPerimeterValue).ToArray()
+                        Points = e.meta.SelectPair().SelectMany(dirE => perimeter[dirE]).ToArray()
                     });
 
                     pg.RemoveEdge(e);
@@ -226,7 +258,7 @@ namespace Model.Tools
 
                     polygons.Add(new Polygon()
                     {
-                        Points = meta.SelectPair().SelectMany(GetPerimeterValue).ToArray()
+                        Points = meta.SelectPair().SelectMany(dirE => perimeter[dirE]).ToArray()
                     });
 
                     pg.RemoveEdge(aE);

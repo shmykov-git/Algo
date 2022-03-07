@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Model;
 using Model.Fourier;
@@ -17,8 +18,8 @@ namespace Model3D.Extensions
         public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
 
-        public static Shape ToNumShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
-            FourierShapes.SingleSeries(frs.ToArray(), count).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
+        public static Shape ToNumShapeR90(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
+            FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToLines(size);
 
         public static Shape ToFormulaShape(this IEnumerable<Fr> frs) =>
             FourierShapes.SeriesFormula(frs.ToArray());
