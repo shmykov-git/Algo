@@ -101,7 +101,7 @@ namespace Model.Tools
                 .SelectWithIndex((gv, ind) => (nodeKey: gv.Key, i:ind, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
                 .ToArray();
 
-            var theSamePointDistance2 = maxLineLen * maxLineLen / 4;
+            var theSamePointDistance2 = maxLineLen * maxLineLen / 2;
             bool IsTheSamePoint(Vector2 a, Vector2 b) => (b - a).Len2 < theSamePointDistance2;
 
             // нужно собрать группы точек new List<HashSet<int>>
