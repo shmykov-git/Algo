@@ -120,11 +120,11 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                //(-1, 10), (5, 3),
+                (-1, 10), (5, 3),
 
                 //(-1, 10), (2, -9), (9, 2), (10, -1),
-                
-                
+
+
                 (-1, 10),
                 (9, 3),
                 (4, -7), (-3, -8),
@@ -132,18 +132,18 @@ namespace View3D
 
 
                 (2, 5), (-18, 3),
-                (1, 3), (-6, -1), (100, -1)
+                (1, 3), (-6, -1), (200, -1),
 
 
-                //(-16, 1), (11, -2),
-                //(16, 1), (13, -2),
+                (-16, 1), (11, -2),
+                (16, 1), (13, -2),
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, 1, -2, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sps = fShape.ToShapes(5000, 0.02);
+            var sps = fShape.ToShapes(19464, 0.02);
 
             //Shape s = Shape.Empty;
             //try
@@ -158,18 +158,17 @@ namespace View3D
             //    }.ToShape().Rotate(Math.PI/2).Adjust().ToNumSpots3(0.07);
             //}
             //var sps = fShape.ToShapes(3000, null).Select(s => s.ToLines(0.3));
-            var sp = sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.02)).ToSingleShape();
-            //var sp = sps.ToBlowedShape(4, 0.5);
 
             var shape = new Shape[]
             {
-                //s,
-                sp.ApplyColor(Color.DarkGreen),
-                sps.ToSingleShape()/*.Rotate(-Math.PI/2)*/.ApplyColor(Color.Red),
-                fShape.ToLineShape(5000, 0.3)/*.Rotate(-Math.PI/2)*/.MoveZ(0.01).ApplyColor(Color.Blue),
-                fShape.ToLineShape(5000, 0.3)/*.Rotate(-Math.PI/2)*/.MoveZ(-0.01).ApplyColor(Color.Blue),
+                //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
+                
+                sps.ToSingleShape().ApplyColor(Color.Red),
+                fShape.ToLineShape(10000, 0.3).MoveZ(0.01).ApplyColor(Color.Blue),
+                fShape.ToLineShape(10000, 0.3).MoveZ(-0.01).ApplyColor(Color.Blue),
                 //fShape.ToNumShapeR90(100, 0.1).MoveZ(0.11).ApplyColor(Color.Blue),
                 //sps.ToSingleShape().ApplyColor(Color.Blue),
+                //sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.02)).ToSingleShape().ApplyColor(Color.DarkGreen),
                 fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.5).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
