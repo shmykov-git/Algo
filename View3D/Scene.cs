@@ -158,19 +158,19 @@ namespace View3D
             //    }.ToShape().Rotate(Math.PI/2).Adjust().ToNumSpots3(0.07);
             //}
             //var sps = fShape.ToShapes(3000, null).Select(s => s.ToLines(0.3));
-            //var sp = sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.05)).ToSingleShape();
+            var sp = sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.02)).ToSingleShape();
             //var sp = sps.ToBlowedShape(4, 0.5);
 
             var shape = new Shape[]
             {
                 //s,
-                //sp.ApplyColor(Color.DarkGreen),
+                sp.ApplyColor(Color.DarkGreen),
                 sps.ToSingleShape()/*.Rotate(-Math.PI/2)*/.ApplyColor(Color.Red),
                 fShape.ToLineShape(5000, 0.3)/*.Rotate(-Math.PI/2)*/.MoveZ(0.01).ApplyColor(Color.Blue),
                 fShape.ToLineShape(5000, 0.3)/*.Rotate(-Math.PI/2)*/.MoveZ(-0.01).ApplyColor(Color.Blue),
                 //fShape.ToNumShapeR90(100, 0.1).MoveZ(0.11).ApplyColor(Color.Blue),
                 //sps.ToSingleShape().ApplyColor(Color.Blue),
-                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
+                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.5).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();

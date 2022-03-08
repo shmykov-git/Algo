@@ -163,7 +163,7 @@ namespace Model.Tools
                         fr: GetRange(v.i, v.j).ToArray(), 
                         br: GetRange(v.i, v.j).Reverse().ToArray()));
 
-                Road[] GetRoads(IEnumerable<(Vector2[] fw, Vector2[] bw, int[] fr, int[] br)> roads) => roads
+                Road[] GetRds(IEnumerable<(Vector2[] fw, Vector2[] bw, int[] fr, int[] br)> roads) => roads
                     .Select(r => new Road()
                     {
                         e = (aI, bI),
@@ -180,12 +180,12 @@ namespace Model.Tools
                 {
                     var selfRoads = GetPointRange(aI, bI).ToArray();
 
-                    return GetRoads(selfRoads);
+                    return GetRds(selfRoads);
                 }
 
                 var roads = GetPointRange(aI, bI).Concat(GetPointRange(bI, aI).Select(v=>(fw:v.bw, bw:v.fw, fr:v.br, br:v.fr))).ToArray();
 
-                return GetRoads(roads);
+                return GetRds(roads);
             }
             
             var nodeList = nodes.Select(n => n.nodeKey).ToList();
@@ -197,7 +197,6 @@ namespace Model.Tools
 
             var edgeRoads = edges.ToDictionary(e => e, e => GetRoads(e.i, e.j));
 
-            // todo: 24 & 7 problem
             var g = new Graph(edges);
             //g.WriteToDebug("Base graph: ");
 
