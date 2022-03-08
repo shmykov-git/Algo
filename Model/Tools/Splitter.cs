@@ -60,7 +60,8 @@ namespace Model.Tools
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
-            var net = new Net<Vector2, int>(points.SelectWithIndex((p, i) => (p, i)), 2 * lines.Max(l => l.Len));
+            var maxLineLen = lines.Max(l => l.Len);
+            var net = new Net<Vector2, int>(points.SelectWithIndex((p, i) => (p, i)), 2 * maxLineLen);
 
             int Prev(int i) => (i + points.Length - 1) % points.Length;
             int Next(int i) => (i + 1) % points.Length;
@@ -91,14 +92,58 @@ namespace Model.Tools
                 }
             }
 
-            var nodes = polygon.Points.Index()
+            var baseNodes = polygon.Points.Index()
                 .Select(i => (i, j: IntersectedIndex(i)))
                 .Where(v => v.j.HasValue)
                 .Select(v => (v.i, j: v.j.Value, nodeKey: (v.i, v.j.Value).OrderedEdge()))
                 .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey))
                 .GroupBy(v => v.nodeKey)
-                .Select(gv => (nodeKey: gv.Key, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+                .SelectWithIndex((gv, ind) => (nodeKey: gv.Key, i:ind, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
                 .ToArray();
+
+            var theSamePointDistance2 = maxLineLen * maxLineLen / 4;
+            bool IsTheSamePoint(Vector2 a, Vector2 b) => (b - a).Len2 < theSamePointDistance2;
+
+            // нужно собрать группы точек new List<HashSet<int>>
+            var sames = baseNodes.SelectMany(a =>
+                    baseNodes.Where(b => a.i < b.i).Where(b => IsTheSamePoint(a.p, b.p)).Select(b => (i: a.i, j: b.i))).ToArray();
+
+            var sameHashes = new List<HashSet<int>>();
+            foreach (var same in sames)
+            {
+                var hashSet = sameHashes.FirstOrDefault(v => v.Contains(same.i) || v.Contains(same.j));
+                
+                if (hashSet == null)
+                {
+                    sameHashes.Add(new HashSet<int>(new []{same.i, same.j}));
+                }
+                else
+                {
+                    hashSet.Add(same.i);
+                    hashSet.Add(same.j);
+                }
+            }
+
+            int GetSame(int i) => sameHashes.FirstOrDefault(h => h.Contains(i))?.Min() ?? i;
+
+            var sameInds = baseNodes.ToDictionary(n => n.i, n => GetSame(n.i));
+            var sameKeys = sameInds.ToDictionary(kv => baseNodes[kv.Key].nodeKey, kv => baseNodes[kv.Value].nodeKey);
+
+            //var bi = baseNodes.Select(n => n.i).Where(i => i == sameInds[i]).BackIndices();
+
+            var nodes = baseNodes
+                .GroupBy(n => sameInds[n.i])
+                .OrderBy(gn => gn.Key)
+                .SelectWithIndex((gn, i) => (
+                    i,
+                    nodeKey: sameKeys[gn.First().nodeKey],
+                    p: gn.Select(v => v.p).Center(),
+                    roads: gn.SelectMany(n => n.roads).Select(r =>
+                        (r.i, r.j, nodeKey: sameKeys[r.nodeKey], nextNodeKey: sameKeys[r.nextNodeKey])).ToArray()
+                ))
+                .ToArray();
+            
+            //throw new DebugException<Vector2[]>(nodes.Select(n => n.p).ToArray());
 
             if (!nodes.Any())
                 return new[] {polygon};
@@ -118,6 +163,16 @@ namespace Model.Tools
                         fr: GetRange(v.i, v.j).ToArray(), 
                         br: GetRange(v.i, v.j).Reverse().ToArray()));
 
+                Road[] GetRoads(IEnumerable<(Vector2[] fw, Vector2[] bw, int[] fr, int[] br)> roads) => roads
+                    .Select(r => new Road()
+                    {
+                        e = (aI, bI),
+                        forward = r.fw,
+                        backward = r.bw,
+                        fr = r.fr,
+                        br = r.br
+                    }).ToArray();
+
                 if (aI > bI)
                     (aI, bI) = (bI, aI);
 
@@ -125,32 +180,12 @@ namespace Model.Tools
                 {
                     var selfRoads = GetPointRange(aI, bI).ToArray();
 
-                    if (selfRoads.Length != 1)
-                        throw new Exception($"Incorrect self road node");
-
-                    return new[]
-                    {
-                        new Road()
-                        {
-                            e = (aI, bI),
-                            forward = selfRoads[0].fw,
-                            backward = selfRoads[0].bw,
-                            fr = selfRoads[0].fr,
-                            br = selfRoads[0].br
-                        }
-                    };
+                    return GetRoads(selfRoads);
                 }
 
                 var roads = GetPointRange(aI, bI).Concat(GetPointRange(bI, aI).Select(v=>(fw:v.bw, bw:v.fw, fr:v.br, br:v.fr))).ToArray();
 
-                return roads.Select(r => new Road()
-                {
-                    e = (aI, bI),
-                    forward = r.fw,
-                    backward = r.bw,
-                    fr = r.fr,
-                    br = r.br
-                }).ToArray();
+                return GetRoads(roads);
             }
             
             var nodeList = nodes.Select(n => n.nodeKey).ToList();
@@ -162,6 +197,7 @@ namespace Model.Tools
 
             var edgeRoads = edges.ToDictionary(e => e, e => GetRoads(e.i, e.j));
 
+            // todo: 24 & 7 problem
             var g = new Graph(edges);
             //g.WriteToDebug("Base graph: ");
 
