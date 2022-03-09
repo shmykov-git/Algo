@@ -56,7 +56,7 @@ namespace Model.Tools
             public override string ToString() => $"{e.i}->{e.j}";
         }
 
-        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.5)
+        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeBaseDir = false)
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
@@ -90,9 +90,6 @@ namespace Model.Tools
                         yield return k;
                 }
             }
-
-            // один отрезок пересекает несколько, получается несколько узлов, с дорогой между ними
-            // каждый из них рассматривается потом как самостоятельный
 
             var baseNoGroupNodes = polygon.Points.Index()
                 .Select(i => (i, js: IntersectedIndex(i)))
@@ -221,6 +218,9 @@ namespace Model.Tools
 
             var startNode = nodes[startRoadInfo.e.a.i].p.y > nodes[startRoadInfo.e.b.i].p.y ? startRoadInfo.e.a : startRoadInfo.e.b;
 
+            if (changeBaseDir)
+                startNode = startRoadInfo.e.Another(startNode);
+
             var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
             (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
             Vector2[] GetWayPoints((Graph.Node b, Graph.Edge e, Road r) p) => GetWayDirectionKey(p) == p.e.e ? p.r.forward : p.r.backward; // тут
@@ -233,7 +233,7 @@ namespace Model.Tools
 
             do
             {
-                Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");
+                //Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");
 
                 var wps = GetWayPoints(way);
 
