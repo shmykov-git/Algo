@@ -122,33 +122,34 @@ namespace View3D
             {
                 //(-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)
                 
-                (10, -1),
-                (9, 3),
-                (4, -7),
-                (-3, -8),
-                (3, 5),
-                (-9, 3),
-                (2, 5),
-                (-18, 3),
-                (1, 3),
-                (-6, -1),
-                (200, -1),
-                (-16, 1),
-                (11, -2),
-                (16, 1),
-                (13, -2),
-                (-8, 5),
-                (-37, 2),
-                (1,2),
-                (3,4),
-                (-2,3),
-                (-1,5),
-                (5,1),
-                (16, -3),
+                //(10, -1),
+                //(9, 3),
+                //(4, -7),
+                //(-3, -8),
+                //(3, 5),
+                //(-9, 3),
+                //(2, 5),
+                //(-18, 3),
+                //(1, 3),
+                //(-6, -1),
+                //(200, -1),
+                //(-16, 1),
+                //(11, -2),
+                //(16, 1),
+                //(13, -2),
+                //(-8, 5),
+                //(-37, 2),
+                //(1,2),
+                //(3,4),
+                //(-2,3),
+                //(-1,5),
+                //(5,1),
+                //(16, -3),
 
-                //(-1, 10),  
-                //(17, 1), (20, -2),
-                //(5, -3), (-6, 4),
+                (-1, 10),
+                (17, 1), (20, -2),
+                (5, -3), (-6, 4),
+                (200, 0.2)
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
@@ -156,7 +157,7 @@ namespace View3D
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
             // todo: base dir problem
-            var sps = fShape.ToShapes(100, 0.01, 0.001, true);
+            var sps = fShape.ToShapes(5000, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
@@ -179,7 +180,7 @@ namespace View3D
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
                 sps.ToSingleShape().ApplyColor(Color.Red),
-                fShape.ToLineShape(100, 0.3).MoveZ(0.005).ApplyColor(Color.Blue),
+                fShape.ToLineShape(5000, 0.3).MoveZ(0.005).ApplyColor(Color.Blue),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),

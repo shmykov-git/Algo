@@ -218,6 +218,10 @@ namespace Model.Tools
 
             var startNode = nodes[startRoadInfo.e.a.i].p.y > nodes[startRoadInfo.e.b.i].p.y ? startRoadInfo.e.a : startRoadInfo.e.b;
 
+            if (nodes[startRoadInfo.e.a.i].p.y > 0)
+                startNode = startRoadInfo.e.Another(startNode);
+
+            // todo: remove
             if (changeBaseDir)
                 startNode = startRoadInfo.e.Another(startNode);
 
