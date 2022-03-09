@@ -9,14 +9,17 @@ namespace Model3D.Extensions
 {
     public static class FourierExtensions
     {
-        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count);
+        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.5, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision);
 
-        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count).ToSingleShape();
+        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.5, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision).ToSingleShape();
 
         public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
+
+        public static Shape ToNumShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
+            FourierShapes.SingleSeries(frs.ToArray(), count).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
 
         public static Shape ToNumShapeR90(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToLines(size);

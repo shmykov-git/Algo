@@ -226,5 +226,12 @@ namespace Model.Extensions
         {
             return Indexer.RemoveBi(items, removeItems);
         }
+
+        public static IEnumerable<(TItem a, TItem b)> CrossSelect<TItem>(this (TItem[] aItems, TItem[] bItems) items) =>
+            items.CrossSelect((a, b) => (a, b));
+        public static IEnumerable<TRes> CrossSelect<TItem, TRes>(this (TItem[] aItems, TItem[] bItems) items, Func<TItem, TItem, TRes> func)
+        {
+            return items.aItems.SelectMany(a => items.bItems.Select(b => func(a, b)));
+        }
     }
 }

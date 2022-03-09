@@ -56,7 +56,7 @@ namespace Model.Tools
             public override string ToString() => $"{e.i}->{e.j}";
         }
 
-        public static Polygon[] FindPerimeter(Polygon polygon)
+        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.5)
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
@@ -66,14 +66,13 @@ namespace Model.Tools
             int Prev(int i) => (i + points.Length - 1) % points.Length;
             int Next(int i) => (i + 1) % points.Length;
 
-            int? IntersectedIndex(int i)
+            int[] IntersectedIndex(int i)
             {
                 return net
                     .SelectNeighbors(points[i])
                     .Where(j => j != i && j != Prev(i) && j != Next(i))
                     .Where(j => lines[i].IsSectionIntersectedBy(lines[j]))
-                    .Select(j => (int?)j)
-                    .FirstOrDefault();
+                    .ToArray();
             }
 
             IEnumerable<int> GetRange(int i, int j)
@@ -92,19 +91,26 @@ namespace Model.Tools
                 }
             }
 
-            var baseNodes = polygon.Points.Index()
-                .Select(i => (i, j: IntersectedIndex(i)))
-                .Where(v => v.j.HasValue)
-                .Select(v => (v.i, j: v.j.Value, nodeKey: (v.i, v.j.Value).OrderedEdge()))
-                .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey))
-                .GroupBy(v => v.nodeKey)
-                .SelectWithIndex((gv, ind) => (nodeKey: gv.Key, i:ind, p: lines[gv.Key.i].IntersectionPoint(lines[gv.Key.j]), roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+            // один отрезок пересекает несколько, получается несколько узлов, с дорогой между ними
+            // каждый из них рассматривается потом как самостоятельный
+
+            var baseNoGroupNodes = polygon.Points.Index()
+                .Select(i => (i, js: IntersectedIndex(i)))
+                .Select(v => (v.i,
+                    jjs: v.js.Select(j => (j, p: lines[v.i].IntersectionPoint(lines[j])))
+                        .OrderBy(vv => (points[v.i] - vv.p).Len2).ToArray()))
+                .SelectMany(v => v.jjs.Select(vv => (v.i, vv.j, nodeKey: (v.i, vv.j).OrderedEdge(), vv.p)))
                 .ToArray();
 
-            var theSamePointDistance2 = maxLineLen * maxLineLen / 2;
+            var baseNodes = baseNoGroupNodes
+                .SelectCirclePair((a, b) => (a.i, j: b.i, a.nodeKey, nextNodeKey: b.nodeKey, a.p))
+                .GroupBy(v => v.nodeKey)
+                .SelectWithIndex((gv, ind) => (nodeKey: gv.Key, i:ind, gv.First().p, roads: gv.Select(v => (v.i, v.j, v.nodeKey, v.nextNodeKey)).ToArray()))
+                .ToArray();
+
+            var theSamePointDistance2 = maxLineLen * maxLineLen * pointPrecision.Pow2();
             bool IsTheSamePoint(Vector2 a, Vector2 b) => (b - a).Len2 < theSamePointDistance2;
 
-            // нужно собрать группы точек new List<HashSet<int>>
             var sames = baseNodes.SelectMany(a =>
                     baseNodes.Where(b => a.i < b.i).Where(b => IsTheSamePoint(a.p, b.p)).Select(b => (i: a.i, j: b.i))).ToArray();
 
@@ -142,7 +148,7 @@ namespace Model.Tools
                         (r.i, r.j, nodeKey: sameKeys[r.nodeKey], nextNodeKey: sameKeys[r.nextNodeKey])).ToArray()
                 ))
                 .ToArray();
-            
+
             //throw new DebugException<Vector2[]>(nodes.Select(n => n.p).ToArray());
 
             if (!nodes.Any())
@@ -164,6 +170,7 @@ namespace Model.Tools
                         br: GetRange(v.i, v.j).Reverse().ToArray()));
 
                 Road[] GetRds(IEnumerable<(Vector2[] fw, Vector2[] bw, int[] fr, int[] br)> roads) => roads
+                    .Where(r => aI != bI || r.fr.Length > 0)
                     .Select(r => new Road()
                     {
                         e = (aI, bI),
@@ -195,7 +202,7 @@ namespace Model.Tools
                 .Distinct()
                 .ToArray();
 
-            var edgeRoads = edges.ToDictionary(e => e, e => GetRoads(e.i, e.j));
+            var roads = edges.ToDictionary(e => e, e => GetRoads(e.i, e.j));
 
             var g = new Graph(edges);
             //g.WriteToDebug("Base graph: ");
@@ -208,13 +215,11 @@ namespace Model.Tools
                 return Math.Atan2(ab.Normal * bc, ab * bc);
             }
 
-            var perimeter = new Dictionary<(int i, int j), Vector2[]>();
-
             // find right road to start with
-            var startRoadInfo = g.edges.SelectMany(e => edgeRoads[e.e].Select(r => (e, r)))
+            var startRoadInfo = g.edges.SelectMany(e => roads[e.e].Select(r => (e, r)))
                 .OrderByDescending(v => v.r.forward.Max(vv => vv.x)).First();
 
-            var startNode = startRoadInfo.r.forward[0].y > startRoadInfo.r.backward[0].y ? startRoadInfo.e.a : startRoadInfo.e.b;
+            var startNode = nodes[startRoadInfo.e.a.i].p.y > nodes[startRoadInfo.e.b.i].p.y ? startRoadInfo.e.a : startRoadInfo.e.b;
 
             var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
             (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
@@ -223,9 +228,12 @@ namespace Model.Tools
             var way = startWay;
             Vector2[] prevWps = null; // todo: first road should have length > 1
 
+            var perimeter = new Dictionary<(int i, int j), Vector2[]>();
+            var stopCount = 10 * roads.Values.Sum(v => v.Length);
+
             do
             {
-                //Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");
+                Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");
 
                 var wps = GetWayPoints(way);
 
@@ -246,7 +254,7 @@ namespace Model.Tools
                 prevWps = wps;
 
                 var infos = way.b.edges
-                    .SelectMany(e => edgeRoads[e.e]
+                    .SelectMany(e => roads[e.e]
                         .Where(r=>r != way.r)
                         .Select(r=>(e.Another(way.b), e, r))
                         .Select(p=>(p, ps:GetWayPoints(p)))
@@ -257,6 +265,9 @@ namespace Model.Tools
                 way = infos.First().p;
 
                 //Debug.WriteLine($"angles: {infos.Select(v => $"{v.ang:F2} {GetWayDirectionKey(v.p)}").SJoin(", ")}");
+                if (stopCount-- == 0)
+                    throw new Exception("stopped");
+
             } while (startWay.r != way.r);
 
             if (perimeter.Keys.Count == 0)
