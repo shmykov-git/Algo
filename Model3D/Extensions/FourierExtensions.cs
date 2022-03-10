@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Model;
+using Model.Extensions;
 using Model.Fourier;
 using Model.Libraries;
 
@@ -9,11 +11,11 @@ namespace Model3D.Extensions
 {
     public static class FourierExtensions
     {
-        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision);
+        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool changeStartDir = false, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, changeStartDir);
 
-        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision).ToSingleShape();
+        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool changeStartDir = false, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, changeStartDir).ToSingleShape();
 
         public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
@@ -27,31 +29,5 @@ namespace Model3D.Extensions
         public static Shape ToFormulaShape(this IEnumerable<Fr> frs) =>
             FourierShapes.SeriesFormula(frs.ToArray());
 
-        public static Fr[] Perfecto(this IEnumerable<Fr> frs)
-        {
-            return frs
-                .GroupBy(k => k.n + k.dn)
-                .Select(gk => new Fr()
-                {
-                    n = gk.Select(kk => kk.n).First(), dn = gk.Select(kk => kk.dn).First(), im = gk.Sum(kk => kk.im),
-                    r = gk.Sum(kk => kk.r)
-                })
-                .Where(k => k.r != 0 || k.im != 0)
-                .Where(k => k.n + k.dn != 0)
-                .OrderBy(k => k.n + k.dn)
-                .ToArray();
-        }
-
-        public static Fr[] ModifyLast(this Fr[] frs, Action<Fr> action)
-        {
-            action(frs[^1]);
-            return frs;
-        }
-
-        public static Fr[] ModifyTwoLasts(this Fr[] frs, Action<Fr, Fr> action)
-        {
-            action(frs[^2], frs[^1]);
-            return frs;
-        }
     }
 }

@@ -42,65 +42,73 @@ namespace View3D
             // Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red)
             // Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
 
+            //var fShape = FShapes.Generate(0, 4, 8, (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4), (200, 0.2), (0, 5), (0, -6));
+
             var fShape = new Fr[]
             {
-                (10, -1),
-                (9, 3),
-                (4, -7),
-                (-3, -8),
-                (3, 5),
-                (-9, 3),
-                (2, 5),
-                (-18, 3),
-                (1, 3),
-                (-6, -1),
-                (200, -1),
-                (-16, 1),
-                (11, -2),
-                (13, 1),
-                (13, -2),
-                (-8, 5),
-                (-37, 2),
-                (1,2),
-                (3,4),
-                (-2,3),
-                (-1,5),
-                (5,1),
-                (16, -3),
+                //(14, 10), (16, 2), (-18, 1), (25, -1), (29, -1), (10, -1), (9, 3), (4, -7), (-3, -8), (3, 5), (-9, 3), (2, 5), (-18, 3), (1, 3), (-6, -1), (200, -1), (-16, 1), (11, -2), (16, 1), (13, -2), (-8, 5), (-37, 2), (1, 2), (3, 4), (-2, 3), (-1, 5), (5, 1), (16, -3), (2, 5), (-5, -6)
 
-                //(9, -3), (0, 4),
-                //(-19, -3), (16, 4),
-                (5, -3), (5, 4),
+                //    (10, -1),
+                //    (9, 3),
+                //    (4, -3),
+                //    (-3, -18),
+                //    (7, -5),
+                //    (-4, 3),
+                //    (2, 8),
+                //    (-10, 3),
+                //    (1, 3),
+                //    (-6, -1),
+                //    (200, -1),
+                //    (-16, 1),
+                //    (11, -2),
+                //    (17, 1),
+                //    (13, -2),
+                //    (-8, -5),
+                //    (37, -2),
+                //    (1, 2),
+                //    (7, 4),
+                //    (-2, 3),
+                //    (-1, 5),
+                //    (5, -2),
+                //    (16, -3),
 
-                //(-1, 10),
-                //(17, 1), (20, -2),
-                //(5, -3), (-6, 4),
-                //(200, 0.2)
+                //    (0, 2), (0, -9),
+
+                //    //(-19, -3), (16, 4),
+                //    //(0, -4), (0, 1),
+
+                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4), (200, 0.2),
+                (1, -4), (-5, 7),
+                (4, 3), (-2, 2),
+                (-3, -1), (-2, 0.5),
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, -3, 4, -20, 20, -20, 20, 500);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var sps = (10, 10).SelectMiddleRange((i, j) => fShape.ModifyTwoLasts((a, b) =>
-            {
-                a.n = i;
-                b.n = j;
-            }).ToShape(5000, 0.01).MoveX(2 * j).MoveY(2 * i));
+            //var sps = (10, 10).SelectMiddleRange((i, j) =>
+            //    (fShape.ModifyTwoLasts((a, b) =>
+            //     {
+            //         a.n = i;
+            //         b.n = j;
+            //     }).ToShape(500, 0.01).ApplyColor(Color.Red)
+            //     + vectorizer.GetText($"({i}, {j})").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Blue)
+            //    ).MoveX(2 * j).MoveY(2 * i));
 
-            //sps = fShape.ToShapes(5000, 0.01);
+            var sps = fShape.ToShapes(5000, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
             //{
-            //    var sps = fShape.ToShapes(100, 0.01, 0.001);
+            //    var sps = fShape.ToShapes(5000, 0.01);
             //}
             //catch (DebugException<Vector2[]> e)
             //{
             //    debugShape = new Polygon()
             //    {
             //        Points = e.Value
-            //    }.ToShape().Rotate(Math.PI / 2).Adjust(0.8).ToNumSpots3(0.2);
+            //    }.ToShape().ToLines(1, Color.Red)/*.Rotate(Math.PI / 2).Adjust(0.8).ToNumSpots3(0.2)*/;
             //}
 
             //var sps = fShape.ToShapes(3000, null).Select(s => s.ToLines(0.3));

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Model.Extensions
@@ -25,6 +27,18 @@ namespace Model.Extensions
             }
             
             return sum / count;
+        }
+
+        public static Vector2 SizeCenter(this IEnumerable<Vector2> vectors)
+        {
+            var points = vectors.ToArray();
+
+            var minX = points.Length == 0 ? 0 : points.Min(p => p.x);
+            var maxX = points.Length == 0 ? 0 : points.Max(p => p.x);
+            var minY = points.Length == 0 ? 0 : points.Min(p => p.y);
+            var maxY = points.Length == 0 ? 0 : points.Max(p => p.y);
+
+            return (0.5 * (minX + maxX), 0.5 * (minY + maxY));
         }
 
         public static Vector2 Sum(this IEnumerable<Vector2> vectors)

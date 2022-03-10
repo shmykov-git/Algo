@@ -8,8 +8,10 @@ using Model3D.Tools;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using MathNet.Numerics;
 using Meta;
 using Model.Graphs;
@@ -166,13 +168,31 @@ namespace Model3D.Extensions
             }).ToSingleShape();
         }
 
-        public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
+        public static Shape ToSingleShape1(this IEnumerable<Shape> shapeList)
         {
             var shapes = shapeList.ToArray();
 
             while (shapes.Length > 1)
             {
                 shapes = shapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
+            }
+
+            return shapes[0];
+        }
+
+        public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
+        {
+            var shapes = shapeList.ToArray();
+
+            if (shapes.Length == 0)
+                return Shape.Empty;
+
+            while (shapes.Length > 1)
+            {
+                var tasks = shapes.SelectByPair((a, b) => Task.Run(()=>a + (b ?? Shape.Empty))).ToArray();
+                //Debug.WriteLine(tasks.Length);
+                Task.WhenAll(tasks).Wait();
+                shapes = tasks.Select(t => t.Result).ToArray();
             }
 
             return shapes[0];

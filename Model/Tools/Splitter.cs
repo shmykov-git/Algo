@@ -5,6 +5,7 @@ using Model.Extensions;
 using System.Linq;
 using Model.Fourier;
 using Model.Graphs;
+using Model.Libraries;
 
 namespace Model.Tools
 {
@@ -50,7 +51,7 @@ namespace Model.Tools
             public override string ToString() => $"{e.i}->{e.j}";
         }
 
-        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01)
+        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeStartDir = false)
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
@@ -198,19 +199,20 @@ namespace Model.Tools
             var g = new Graph(edges);
             //g.WriteToDebug("Base graph: ");
 
-            double GetAngle(Vector2 a, Vector2 b, Vector2 c)
-            {
-                var ab = (b - a).Normed;
-                var bc = (c - b).Normed;
-
-                return Math.Atan2(ab.Normal * bc, ab * bc);
-            }
-
             // find right road to start with
             var startRoadInfo = g.edges.SelectMany(e => roads[e.e].Select(r => (e, r)))
                 .OrderByDescending(v => v.r.forward.Max(vv => vv.x)).First();
 
-            var startNode = startRoadInfo.r.forward.ToPolygon().IsLeft() ? startRoadInfo.e.b : startRoadInfo.e.a;
+            //throw new DebugException<Vector2[]>(startRoadInfo.r.forward);
+
+            //var center = points.Center();
+            //var startA = nodes[startRoadInfo.e.a.i].p;
+            //var startB = nodes[startRoadInfo.e.b.i].p;
+            // Angle.IsLeftDirection(startA, center, startB)
+            var startNode = startRoadInfo.r.forward.ToPolygon().IsLeft(false) ? startRoadInfo.e.b : startRoadInfo.e.a;
+            
+            if (changeStartDir)
+                startNode = startRoadInfo.e.Another(startNode);
 
             var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
             (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
@@ -250,7 +252,7 @@ namespace Model.Tools
                         .Where(r=>r != way.r)
                         .Select(r=>(e.Another(way.b), e, r))
                         .Select(p=>(p, ps:GetWayPoints(p)))
-                        .Select(v=>(v.p, v.ps, ang: GetAngle(a, b, v.ps[0]))))
+                        .Select(v=>(v.p, v.ps, ang: Angle.LeftDirection(a, b, v.ps[0]))))
                     .OrderBy(v => v.ang)
                     .ToArray(); // todo: first
 
@@ -258,7 +260,10 @@ namespace Model.Tools
 
                 //Debug.WriteLine($"angles: {infos.Select(v => $"{v.ang:F2} {GetWayDirectionKey(v.p)}").SJoin(", ")}");
                 if (stopCount-- == 0)
-                    throw new Exception("stopped");
+                {
+                    Debug.WriteLine("stopped");
+                    return new[] {Polygons.Flower(1, 6, 100).Mult(0.3)};
+                }
 
             } while (startWay.r != way.r);
 

@@ -1,6 +1,7 @@
 ﻿using Model.Tools;
 using System;
 using System.Linq;
+using Model.Libraries;
 
 namespace Model.Extensions
 {
@@ -136,10 +137,24 @@ namespace Model.Extensions
             return Paver.PaveExact(polygon, parquete, false);
         }
 
-        public static bool IsLeft(this Polygon polygon)
+        public static bool IsLeftByAngle(this Polygon polygon, bool isClosed = true)
         {
             var c = polygon.Points.Center();
-            var centerDistance = polygon.Points.SelectCirclePair((a, b) => new Line2(a, b).Fn(c)).Sum();
+
+            var centerDistance = isClosed
+                ? polygon.Points.SelectCirclePair((a, b) => Angle.LeftDirection(a,c,b)).Sum()
+                : polygon.Points.SelectPair((a, b) => Angle.LeftDirection(a, c, b)).Sum();
+
+            return centerDistance < 0;
+        }
+
+        public static bool IsLeft(this Polygon polygon, bool isClosed = true)
+        {
+            var c = polygon.Points.Center();
+
+            var centerDistance = isClosed
+                ? polygon.Points.SelectCirclePair((a, b) => new Line2(a, b).Fn(c)).Sum()
+                : polygon.Points.SelectPair((a, b) => new Line2(a, b).Fn(c)).Sum();
 
             return centerDistance < 0;
         }

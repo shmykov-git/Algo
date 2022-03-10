@@ -41,5 +41,7 @@
             r = v.rm.r,
             im = v.rm.im
         };
+
+        public override string ToString() => im == 0 ? $"({n+dn}, {r})" : $"({n + dn}, ({r}, {im}))";
     }
 }
