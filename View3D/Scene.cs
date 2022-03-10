@@ -156,8 +156,7 @@ namespace View3D
             //return FourierShapes.SearchSeries(fShape, -3, 4, -20, 20, -20, 20, 100);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            // todo: base dir problem
-            var sps = fShape.ToShapes(5000, 0.01);
+            var sps = fShape.ToShapes(50, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
@@ -180,7 +179,7 @@ namespace View3D
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
                 sps.ToSingleShape().ApplyColor(Color.Red),
-                fShape.ToLineShape(5000, 0.3).MoveZ(0.005).ApplyColor(Color.Blue),
+                fShape.ToLineShape(50, 0.3).MoveZ(0.005).ApplyColor(Color.Blue),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),

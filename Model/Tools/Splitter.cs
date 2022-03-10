@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.IO;
 using Model.Extensions;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices.ComTypes;
-using MathNet.Numerics;
 using Model.Fourier;
 using Model.Graphs;
-using Model.Trees;
 
 namespace Model.Tools
 {
@@ -56,7 +50,7 @@ namespace Model.Tools
             public override string ToString() => $"{e.i}->{e.j}";
         }
 
-        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeBaseDir = false)
+        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01)
         {
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
@@ -216,14 +210,7 @@ namespace Model.Tools
             var startRoadInfo = g.edges.SelectMany(e => roads[e.e].Select(r => (e, r)))
                 .OrderByDescending(v => v.r.forward.Max(vv => vv.x)).First();
 
-            var startNode = nodes[startRoadInfo.e.a.i].p.y > nodes[startRoadInfo.e.b.i].p.y ? startRoadInfo.e.a : startRoadInfo.e.b;
-
-            if (nodes[startRoadInfo.e.a.i].p.y > 0)
-                startNode = startRoadInfo.e.Another(startNode);
-
-            // todo: remove
-            if (changeBaseDir)
-                startNode = startRoadInfo.e.Another(startNode);
+            var startNode = startRoadInfo.r.forward.ToPolygon().IsLeft() ? startRoadInfo.e.b : startRoadInfo.e.a;
 
             var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
             (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
@@ -235,6 +222,7 @@ namespace Model.Tools
             var perimeter = new Dictionary<(int i, int j), Vector2[]>();
             var stopCount = 10 * roads.Values.Sum(v => v.Length);
 
+            // find perimeter
             do
             {
                 //Debug.WriteLine($"{GetWayDirectionKey(way)}, {(GetWayDirectionKey(way) == way.e.e ? "forward" : "backward")}");

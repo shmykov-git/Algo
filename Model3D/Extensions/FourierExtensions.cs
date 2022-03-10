@@ -9,11 +9,11 @@ namespace Model3D.Extensions
 {
     public static class FourierExtensions
     {
-        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool changeBaseDir = false, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, changeBaseDir);
+        public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision);
 
-        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool changeBaseDir = false, bool triangulateOnly = false) =>
-            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, changeBaseDir).ToSingleShape();
+        public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, bool triangulateOnly = false) =>
+            FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision).ToSingleShape();
 
         public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
