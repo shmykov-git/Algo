@@ -41,5 +41,17 @@ namespace Model3D.Extensions
                 .OrderBy(k => k.n + k.dn)
                 .ToArray();
         }
+
+        public static Fr[] ModifyLast(this Fr[] frs, Action<Fr> action)
+        {
+            action(frs[^1]);
+            return frs;
+        }
+
+        public static Fr[] ModifyTwoLasts(this Fr[] frs, Action<Fr, Fr> action)
+        {
+            action(frs[^2], frs[^1]);
+            return frs;
+        }
     }
 }

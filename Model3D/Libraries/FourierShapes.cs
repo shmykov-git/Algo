@@ -39,7 +39,6 @@ namespace Model.Libraries
             double pointPrecision = 0.01)
         {
             var polygon = Polygons.FourierSeries(count, members.Perfecto());
-            //var polygons = Splitter.SplitIntersections(polygon);
             var polygons = Splitter.FindPerimeter(polygon, pointPrecision);
 
             var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
