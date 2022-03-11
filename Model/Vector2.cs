@@ -48,6 +48,8 @@ namespace Model
 
         public static Vector2 Zero => (0, 0);
         public static Vector2 One => (1, 1);
+        public static Vector2 OneX => (1, 0);
+        public static Vector2 OneY => (0, 1);
 
         public static implicit operator Vector2((double a, double b) v)
         {

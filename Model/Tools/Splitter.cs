@@ -205,12 +205,31 @@ namespace Model.Tools
 
             //throw new DebugException<Vector2[]>(startRoadInfo.r.forward);
 
-            //var center = points.Center();
-            //var startA = nodes[startRoadInfo.e.a.i].p;
-            //var startB = nodes[startRoadInfo.e.b.i].p;
-            // Angle.IsLeftDirection(startA, center, startB)
-            var startNode = startRoadInfo.r.forward.ToPolygon().IsLeft(false) ? startRoadInfo.e.b : startRoadInfo.e.a;
-            
+            var forward = startRoadInfo.r.forward.Concat(new[]{ startRoadInfo.r.backward[^1]}).ToArray();
+            var pInd = forward.SelectWithIndex((p, i) => (p, i)).OrderByDescending(v => v.p.x).First().i;
+
+            bool IsLeft(Vector2 a, Vector2 b, Vector2 c, Vector2 d) =>
+                Angle.LeftDirection(a, b, c) < Angle.LeftDirection(a, b, d);
+
+            bool isLeft;
+            if (forward.Length > 2)
+            {
+                if (pInd == forward.Length - 1)
+                    pInd--;
+
+                if (pInd == 0)
+                    pInd++;
+
+                isLeft = IsLeft(forward[pInd] + Vector2.OneX, forward[pInd], forward[pInd + 1], forward[pInd - 1]);
+            }
+            else
+            {
+                var b = (forward[0] + forward[1]) / 2;
+                isLeft = IsLeft(b + Vector2.OneX, b, forward[1], forward[0]);
+            }
+
+            var startNode = isLeft ? startRoadInfo.e.b : startRoadInfo.e.a;
+
             if (changeStartDir)
                 startNode = startRoadInfo.e.Another(startNode);
 

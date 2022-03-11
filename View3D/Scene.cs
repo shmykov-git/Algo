@@ -77,27 +77,31 @@ namespace View3D
                 //    //(-19, -3), (16, 4),
                 //    //(0, -4), (0, 1),
 
-                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4), 
-                //(200, 0.2),
-                (1, -4), (-5, 7),
-                (4, 3), (-2, 2),
-                (-3, -1), (-2, 0.5),
+                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4),
+                (200, 0.2),
+
+                //(3, 3), (1, 5),
+                //(1, 3), (3, 5),
+                //(0, 3), (0, 5),
+                //(0, 3), (0, 5),
+                //(0, 3), (0, 5),
+                (0, 3), (-3, 5),
             };
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, -3, 4, -20, 20, -20, 20, 500);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            //var sps = (10, 10).SelectMiddleRange((i, j) =>
-            //    (fShape.ModifyTwoLasts((a, b) =>
-            //     {
-            //         a.n = i;
-            //         b.n = j;
-            //     }).ToShape(500, 0.01).ApplyColor(Color.Red)
-            //     + vectorizer.GetText($"({i}, {j})").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Blue)
-            //    ).MoveX(2 * j).MoveY(2 * i));
+            var searchShape = (10, 10).SelectMiddleRange((i, j) =>
+                (fShape.ModifyTwoLasts((a, b) =>
+                 {
+                     a.n = i;
+                     b.n = j;
+                 }).ToShape(200, 0.01).ApplyColor(Color.Red)
+                 + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Blue)
+                ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
 
-            var sps = fShape.ToShapes(5000, 0.01);
+            //var sps = fShape.ToShapes(1000, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
@@ -119,15 +123,17 @@ namespace View3D
                 //debugShape,
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
-                sps.ToSingleShape().ApplyColor(Color.Red),
-                fShape.ToLineShape(5000, 0.3).MoveZ(-0.005).ApplyColor(Color.Blue),
+                searchShape,
+
+                //sps.ToSingleShape().ApplyColor(Color.Red),
+                //fShape.ToLineShape(5000, 0.3).MoveZ(-0.005).ApplyColor(Color.Blue),
+                //fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),
                 //fShape.ToLineShape(4567, 0.3).MoveZ(-0.01).ApplyColor(Color.Blue),
                 //sps.ToSingleShape().ApplyColor(Color.Blue),
                 //sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.02)).ToSingleShape().ApplyColor(Color.DarkGreen),
-                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.5).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();

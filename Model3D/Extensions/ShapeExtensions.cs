@@ -168,17 +168,17 @@ namespace Model3D.Extensions
             }).ToSingleShape();
         }
 
-        public static Shape ToSingleShape1(this IEnumerable<Shape> shapeList)
-        {
-            var shapes = shapeList.ToArray();
+        //public static Shape ToSingleShape1(this IEnumerable<Shape> shapeList)
+        //{
+        //    var shapes = shapeList.ToArray();
 
-            while (shapes.Length > 1)
-            {
-                shapes = shapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
-            }
+        //    while (shapes.Length > 1)
+        //    {
+        //        shapes = shapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
+        //    }
 
-            return shapes[0];
-        }
+        //    return shapes[0];
+        //}
 
         public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
         {
