@@ -46,62 +46,32 @@ namespace View3D
 
             var fShape = new Fr[]
             {
-                //(14, 10), (16, 2), (-18, 1), (25, -1), (29, -1), (10, -1), (9, 3), (4, -7), (-3, -8), (3, 5), (-9, 3), (2, 5), (-18, 3), (1, 3), (-6, -1), (200, -1), (-16, 1), (11, -2), (16, 1), (13, -2), (-8, 5), (-37, 2), (1, 2), (3, 4), (-2, 3), (-1, 5), (5, 1), (16, -3), (2, 5), (-5, -6)
+                (-1, 10), (17, 1), (20, -2),
+                //(200, 0.2), 
+                (-5, -4), (6, 5),
+                (-8, 3), (-7, -4),
+                (10, 1), (3, 0.5),
 
-                //    (10, -1),
-                //    (9, 3),
-                //    (4, -3),
-                //    (-3, -18),
-                //    (7, -5),
-                //    (-4, 3),
-                //    (2, 8),
-                //    (-10, 3),
-                //    (1, 3),
-                //    (-6, -1),
-                //    (200, -1),
-                //    (-16, 1),
-                //    (11, -2),
-                //    (17, 1),
-                //    (13, -2),
-                //    (-8, -5),
-                //    (37, -2),
-                //    (1, 2),
-                //    (7, 4),
-                //    (-2, 3),
-                //    (-1, 5),
-                //    (5, -2),
-                //    (16, -3),
-
-                //    (0, 2), (0, -9),
-
-                //    //(-19, -3), (16, 4),
-                //    //(0, -4), (0, 1),
-
-                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4),
-                (200, 0.2),
-
-                //(3, 3), (1, 5),
-                //(1, 3), (3, 5),
-                //(0, 3), (0, 5),
-                //(0, 3), (0, 5),
-                //(0, 3), (0, 5),
-                (0, 3), (-3, 5),
+                //(0, -1), (0, -0.5),
+                
             };
+
+            var N = 5000;
 
             //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
             //return FourierShapes.SearchSeries(fShape, -3, 4, -20, 20, -20, 20, 500);
             //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            var searchShape = (10, 10).SelectMiddleRange((i, j) =>
-                (fShape.ModifyTwoLasts((a, b) =>
-                 {
-                     a.n = i;
-                     b.n = j;
-                 }).ToShape(200, 0.01).ApplyColor(Color.Red)
-                 + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Blue)
-                ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
+            //var searchShape = ((-10, 21), (-10, 21)).SelectRange((i, j) =>
+            //    (fShape.ModifyTwoLasts((a, b) =>
+            //     {
+            //         a.n = i;
+            //         b.n = j;
+            //     }).ToShape(N, 0.01).ApplyColor(Color.Blue)
+            //     + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Red)
+            //    ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
 
-            //var sps = fShape.ToShapes(1000, 0.01);
+            var sps = fShape.ToShapes(N, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
@@ -123,11 +93,11 @@ namespace View3D
                 //debugShape,
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
-                searchShape,
+                //searchShape,
 
-                //sps.ToSingleShape().ApplyColor(Color.Red),
-                //fShape.ToLineShape(5000, 0.3).MoveZ(-0.005).ApplyColor(Color.Blue),
-                //fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.Blue),
+                sps.ToSingleShape().ApplyColor(Color.Blue),
+                fShape.ToLineShape(N, 0.3).MoveZ(-0.005).ApplyColor(Color.Red),
+                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.DarkGreen),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),

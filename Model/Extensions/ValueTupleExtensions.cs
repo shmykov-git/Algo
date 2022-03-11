@@ -11,6 +11,11 @@ namespace Model.Extensions
             return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).Select(j => selectFn(i, j)));
         }
 
+        public static IEnumerable<T> SelectRange<T>(this ((int start, int count) m, (int start, int count) n) range, Func<int, int, T> selectFn)
+        {
+            return Enumerable.Range(range.m.start, range.m.count).SelectMany(i => Enumerable.Range(range.n.start, range.n.count).Select(j => selectFn(i, j)));
+        }
+
         public static IEnumerable<T> SelectMiddleRange<T>(this (int m, int n) range, Func<int, int, T> selectFn)
         {
             return Enumerable.Range(0, range.m).SelectMany(i =>

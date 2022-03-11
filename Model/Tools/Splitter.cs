@@ -53,6 +53,8 @@ namespace Model.Tools
 
         public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeStartDir = false)
         {
+            var errorPerimeter = new[] {Polygons.Flower(1, 6, 100).Mult(0.3)}; // no errors for many shapes
+
             var points = polygon.Points;
             var lines = polygon.Lines.ToArray();
             var maxLineLen = lines.Max(l => l.Len);
@@ -205,6 +207,9 @@ namespace Model.Tools
 
             //throw new DebugException<Vector2[]>(startRoadInfo.r.forward);
 
+            // todo: нужно отдельно рассмотреть граничные точки для которых выбрать дорогу
+            // todo: оставить как есть, если точка не граничная
+            // todo: строить "хвост" (точку startA) можно только к найденой точке, сейчас неправильно
             var forward = startRoadInfo.r.forward.Concat(new[]{ startRoadInfo.r.backward[^1]}).ToArray();
             var pInd = forward.SelectWithIndex((p, i) => (p, i)).OrderByDescending(v => v.p.x).First().i;
 
@@ -259,7 +264,11 @@ namespace Model.Tools
                 }
                 else
                 {
-                    perimeter.Add(GetWayDirectionKey(way), wps);
+                    if (!perimeter.TryAdd(GetWayDirectionKey(way), wps))
+                    {
+                        Debug.WriteLine("incorrect perimeter");
+                        return errorPerimeter;
+                    }
                 }
 
                 var a = wps.Length > 1 ? wps[^2] : prevWps[^1];
@@ -281,7 +290,7 @@ namespace Model.Tools
                 if (stopCount-- == 0)
                 {
                     Debug.WriteLine("stopped");
-                    return new[] {Polygons.Flower(1, 6, 100).Mult(0.3)};
+                    return errorPerimeter;
                 }
 
             } while (startWay.r != way.r);
