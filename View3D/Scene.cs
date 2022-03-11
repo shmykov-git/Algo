@@ -77,7 +77,8 @@ namespace View3D
                 //    //(-19, -3), (16, 4),
                 //    //(0, -4), (0, 1),
 
-                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4), (200, 0.2),
+                (-1, 10), (17, 1), (20, -2), (5, -3), (-6, 4), 
+                //(200, 0.2),
                 (1, -4), (-5, 7),
                 (4, 3), (-2, 2),
                 (-3, -1), (-2, 0.5),
@@ -119,14 +120,14 @@ namespace View3D
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
                 sps.ToSingleShape().ApplyColor(Color.Red),
-                //fShape.ToLineShape(5000, 0.3).MoveZ(0.005).ApplyColor(Color.Blue),
+                fShape.ToLineShape(5000, 0.3).MoveZ(-0.005).ApplyColor(Color.Blue),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),
                 //fShape.ToLineShape(4567, 0.3).MoveZ(-0.01).ApplyColor(Color.Blue),
                 //sps.ToSingleShape().ApplyColor(Color.Blue),
                 //sps.SelectWithIndex((s, i) => s.MoveZ(-i * 0.02)).ToSingleShape().ApplyColor(Color.DarkGreen),
-                //fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.5).ApplyColor(Color.Blue),
+                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.5).ApplyColor(Color.Blue),
 
                 //Shapes.CoodsNet
             }.ToSingleShape();
