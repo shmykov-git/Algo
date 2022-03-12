@@ -51,6 +51,20 @@ namespace Model.Tools
             public override string ToString() => $"{e.i}->{e.j}";
         }
 
+        struct Way
+        {
+            public Graph.Node b;
+            public Graph.Edge e;
+            public Road r;
+
+            public Way(Graph.Node b, Graph.Edge e, Road r)
+            {
+                this.b = b;
+                this.e = e;
+                this.r = r;
+            }
+        }
+
         public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeStartDir = false)
         {
             var errorPerimeter = new[] {Polygons.Flower(1, 6, 100).Mult(0.3)}; // no errors for many shapes
@@ -202,48 +216,54 @@ namespace Model.Tools
             //g.WriteToDebug("Base graph: ");
 
             // find right road to start with
-            var startRoadInfo = g.edges.SelectMany(e => roads[e.e].Select(r => (e, r)))
-                .OrderByDescending(v => v.r.forward.Max(vv => vv.x)).First();
 
-            //throw new DebugException<Vector2[]>(startRoadInfo.r.forward);
-
-            // todo: нужно отдельно рассмотреть граничные точки для которых выбрать дорогу
-            // todo: оставить как есть, если точка не граничная
-            // todo: строить "хвост" (точку startA) можно только к найденой точке, сейчас неправильно
-            var forward = startRoadInfo.r.forward.Concat(new[]{ startRoadInfo.r.backward[^1]}).ToArray();
-            var pInd = forward.SelectWithIndex((p, i) => (p, i)).OrderByDescending(v => v.p.x).First().i;
+            Way GetNodeWay(Vector2 a, Vector2 b, Graph.Node n, Road fromR = null)
+            {
+                return n.edges
+                    .SelectMany(e => roads[e.e]
+                        .Where(r => fromR == null || r != fromR)
+                        .Select(r => new Way(e.Another(n), e, r))
+                        .Select(w => (w, ps: GetWayPoints(w)))
+                        .Select(v => (v.w, v.ps, ang: Angle.LeftDirection(a, b, v.ps[0]))))
+                    .OrderBy(v => v.ang)
+                    .Select(v => v.w)
+                    .First();
+            }
 
             bool IsLeft(Vector2 a, Vector2 b, Vector2 c, Vector2 d) =>
                 Angle.LeftDirection(a, b, c) < Angle.LeftDirection(a, b, d);
 
-            bool isLeft;
-            if (forward.Length > 2)
+            Way GetRoadWay(Vector2 a, Road r, int frI)
             {
-                if (pInd == forward.Length - 1)
-                    pInd--;
+                var ps = r.backward[^1..].Concat(r.forward).ToArray();
+                frI++;
 
-                if (pInd == 0)
-                    pInd++;
+                var e = g.edges.First(e => e.e == r.e);
 
-                isLeft = IsLeft(forward[pInd] + Vector2.OneX, forward[pInd], forward[pInd + 1], forward[pInd - 1]);
-            }
-            else
-            {
-                var b = (forward[0] + forward[1]) / 2;
-                isLeft = IsLeft(b + Vector2.OneX, b, forward[1], forward[0]);
+                var isLeft = IsLeft(a, ps[frI], ps[frI + 1], ps[frI - 1]);
+                var n = isLeft ? e.b : e.a;
+                
+                return new Way(n, e, r);
             }
 
-            var startNode = isLeft ? startRoadInfo.e.b : startRoadInfo.e.a;
+            var rightNode = nodes.OrderByDescending(n => n.p.x).First();
+            var rightRoad = g.edges.SelectMany(e => roads[e.e]
+                    .Where(r => r.fr.Length > 0)
+                    .Select(r => (e, r, frI: r.fr.WithIndex().OrderByDescending(v=>points[v.v].x).Select(v=>v.i).First()))
+                    .Select(v => (v.e, v.r, v.frI, p:points[v.r.fr[v.frI]])))
+                .OrderByDescending(v => v.p.x).First();
 
-            if (changeStartDir)
-                startNode = startRoadInfo.e.Another(startNode);
+            var startWay = rightNode.p.x < rightRoad.p.x
+                ? GetRoadWay(rightRoad.p + Vector2.OneX, rightRoad.r, rightRoad.frI)
+                : GetNodeWay(rightNode.p + Vector2.OneX, rightNode.p, g.nodes[rightNode.i]);
 
-            var startWay = (b: startNode, startRoadInfo.e, startRoadInfo.r);
-            (int i, int j) GetWayDirectionKey((Graph.Node b, Graph.Edge e, Road r) p) => p.e.b == p.b ? p.e.e : p.e.e.Reverse();
-            Vector2[] GetWayPoints((Graph.Node b, Graph.Edge e, Road r) p) => GetWayDirectionKey(p) == p.e.e ? p.r.forward : p.r.backward; // тут
+            (int i, int j) GetWayDirectionKey(Way w) => w.e.b == w.b ? w.e.e : w.e.e.Reverse();
+            Vector2[] GetWayPoints(Way w) => GetWayDirectionKey(w) == w.e.e ? w.r.forward : w.r.backward;
 
             var way = startWay;
-            Vector2[] prevWps = null; // todo: first road should have length > 1
+            Vector2[] prevWps = rightNode.p.x < rightRoad.p.x
+                ? new[] {rightRoad.p + Vector2.OneX}
+                : new[] {rightNode.p + Vector2.OneX};
 
             var perimeter = new Dictionary<(int i, int j), Vector2[]>();
             var stopCount = 10 * roads.Values.Sum(v => v.Length);
@@ -275,16 +295,7 @@ namespace Model.Tools
                 var b = wps[^1];
                 prevWps = wps;
 
-                var infos = way.b.edges
-                    .SelectMany(e => roads[e.e]
-                        .Where(r=>r != way.r)
-                        .Select(r=>(e.Another(way.b), e, r))
-                        .Select(p=>(p, ps:GetWayPoints(p)))
-                        .Select(v=>(v.p, v.ps, ang: Angle.LeftDirection(a, b, v.ps[0]))))
-                    .OrderBy(v => v.ang)
-                    .ToArray(); // todo: first
-
-                way = infos.First().p;
+                way = GetNodeWay(a, b, way.b, way.r);
 
                 //Debug.WriteLine($"angles: {infos.Select(v => $"{v.ang:F2} {GetWayDirectionKey(v.p)}").SJoin(", ")}");
                 if (stopCount-- == 0)

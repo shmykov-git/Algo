@@ -47,31 +47,27 @@ namespace View3D
             var fShape = new Fr[]
             {
                 (-1, 10), (17, 1), (20, -2),
-                //(200, 0.2), 
-                (-5, -4), (6, 5),
-                (-8, 3), (-7, -4),
-                (10, 1), (3, 0.5),
+                (1000, 0.2),
+                (-1, 4), (2, 7),
 
-                //(0, -1), (0, -0.5),
-                
+                //(10, -4), (-5, -6),
+                //(8, -4), (-10, -6),
+                (9, -4), (-10, -6),
             };
 
-            var N = 5000;
+            var N = 200;
 
-            //return FourierShapes.SearchSeriesOffset(fShape, 2, 3);
-            //return FourierShapes.SearchSeries(fShape, -3, 4, -20, 20, -20, 20, 500);
-            //return FourierShapes.SearchSeries(fShape, 6, -2, -10, 10, -10, 10, 100);
 
-            //var searchShape = ((-10, 21), (-10, 21)).SelectRange((i, j) =>
-            //    (fShape.ModifyTwoLasts((a, b) =>
-            //     {
-            //         a.n = i;
-            //         b.n = j;
-            //     }).ToShape(N, 0.01).ApplyColor(Color.Blue)
-            //     + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Red)
-            //    ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
+            var searchShape = ((-10, 21), (-10, 21)).SelectRange((i, j) =>
+                (fShape.ModifyTwoLasts((a, b) =>
+                 {
+                     a.n = i;
+                     b.n = j;
+                 }).ToShape(N, 0.01).ApplyColor(Color.Blue)
+                 + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Red)
+                ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
 
-            var sps = fShape.ToShapes(N, 0.01);
+            //var sps = fShape.ToShapes(N, 0.01);
 
             //Shape debugShape = Shape.Empty;
             //try
@@ -93,11 +89,11 @@ namespace View3D
                 //debugShape,
                 //fShape.ToNumShape(100, 0.1).ApplyColor(Color.Blue),
 
-                //searchShape,
+                searchShape,
 
-                sps.ToSingleShape().ApplyColor(Color.Blue),
-                fShape.ToLineShape(N, 0.3).MoveZ(-0.005).ApplyColor(Color.Red),
-                fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.DarkGreen),
+                //sps.ToSingleShape().ApplyColor(Color.Blue),
+                //fShape.ToLineShape(N, 0.3).MoveZ(-0.005).ApplyColor(Color.Red),
+                //fShape.ToFormulaShape().Perfecto(2).ScaleX(0.6).MoveY(-0.7).ApplyColor(Color.DarkGreen),
 
                 //sps.ToBlowedShape(1.05).ApplyColor(Color.Red),
                 //fShape.ToNumShape(100, 0.1).MoveZ(0.01).ApplyColor(Color.Blue),

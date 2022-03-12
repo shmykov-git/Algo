@@ -31,6 +31,9 @@ namespace Model.Extensions
                 yield return (i++, enumerator.Current);
         }
 
+        public static IEnumerable<(T v, int i)> WithIndex<T>(this IEnumerable<T> list) =>
+            list.SelectWithIndex((v, i) => (v, i));
+
         public static IEnumerable<TRes> SelectWithIndex<T, TRes>(this IEnumerable<T> list, Func<T, int, TRes> func)
         {
             var i = 0;
