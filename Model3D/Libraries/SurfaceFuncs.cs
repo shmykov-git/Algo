@@ -3,6 +3,7 @@ using Model.Extensions;
 using Model.Libraries;
 using System;
 using Model;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Libraries
 {
@@ -64,5 +65,15 @@ namespace Model3D.Libraries
                 (1 + v / 2 * Math.Cos(u / 2)) * Math.Sin(u),
                 v / 2 * Math.Sin(u / 2)
             );
+
+        public static SurfaceFunc MathFlower => (double u, double v) =>
+        {
+            var len = new Vector2(u, v).Len;
+            var f = -10 / len +
+                    Math.Sin(len) +
+                    Math.Sqrt(200 + len * len + 10 * Math.Sin(u) + 10 * Math.Sin(v)) / 1000;
+
+            return new Vector3(u, v, 3 * f) / 10;
+        };
     }
 }

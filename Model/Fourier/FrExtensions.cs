@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Mapster;
 using Model.Extensions;
 
 namespace Model.Fourier
@@ -33,8 +34,10 @@ namespace Model.Fourier
 
         public static Fr[] ModifyTwoLasts(this Fr[] frs, Action<Fr, Fr> action)
         {
-            action(frs[^2], frs[^1]);
-            return frs;
+            var frsCopy = frs.Adapt<Fr[]>();
+
+            action(frsCopy[^2], frsCopy[^1]);
+            return frsCopy;
         }
 
         public static void WriteToDebug(this Fr[] frs, string prefix = null)

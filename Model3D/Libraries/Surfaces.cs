@@ -248,6 +248,21 @@ namespace Model3D.Libraries
             Convexes = Squares(vn, un)
         };
 
+        public static Shape MathFlower(int un, int vn, double r = 15) => new Shape()
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.MathFlower,
+                UFrom = -r,
+                UTo = r,
+                UN = un,
+                VFrom = -r,
+                VTo = r,
+                VN = vn
+            }.GetPoints(),
+            Convexes = Squares(vn, un)
+        };
+
         private static int[][] Squares(int un, int vn, bool bothFaces = false)
         {
             int GetNum(int u, int v) => vn * u + v;

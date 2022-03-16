@@ -65,6 +65,7 @@ namespace Model.Tools
             }
         }
 
+        // todo: remove changeStartDir
         public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeStartDir = false)
         {
             var errorPerimeter = new[] {Polygons.Flower(1, 6, 100).Mult(0.3)}; // no errors for many shapes
@@ -142,8 +143,6 @@ namespace Model.Tools
 
             var sameInds = baseNodes.ToDictionary(n => n.i, n => GetSame(n.i));
             var sameKeys = sameInds.ToDictionary(kv => baseNodes[kv.Key].nodeKey, kv => baseNodes[kv.Value].nodeKey);
-
-            //var bi = baseNodes.Select(n => n.i).Where(i => i == sameInds[i]).BackIndices();
 
             var nodes = baseNodes
                 .GroupBy(n => sameInds[n.i])

@@ -81,5 +81,8 @@
         // Fourier Kung Fu, let's start // var shape = FourierShapes.Series(new Fr[] { (-11, 1, 0.1), (-9,1),(-6,2,0.15),(-3,2),(-1,13),(1,1),(2,-2),(4,3),(9,-1) });
         // Fourier, kung fu best // (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) //Transform(TransformFuncs3.RotateX(0.1, 10))
         // Fourier, elephant // (10, -1), (9, 3), (4, -7), (-3, -8), (3, 5), (-9, 3), (2, 5), (-18, 3), (1, 3), (-6, -1), (200, -1), (-16, 1), (11, -2), (16, 1), (13, -2), (-8, 5), (-37, 2), (1,2), (3,4), (-2,3), (-1,5), (5,1), (16, -3),
+        // Fourier, for search // (-1, 10), (17, 1), (20, -2), (200, 0.2), (-1, 4), (2, 7),
+        
+        // compositions: .ApplyZ(Funcs3Z.SphereR(1.2)); Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red); Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
     }
 }
