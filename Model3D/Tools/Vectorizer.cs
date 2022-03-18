@@ -91,7 +91,7 @@ namespace Model3D.Tools
 
             var edges = nodes.Select(n => n.v)
                 .SelectMany(a => dirs.Select(d => (i: a.i + d.i, j: a.j + d.j)).Where(v => map[v.i][v.j]).Select(b => (i: dic[a].k, j: dic[b].k))
-                .Select(v => v.i < v.j ? v : (i: v.j, j: v.i)))
+                .Select(v => v.OrderedEdge()))
                 .Distinct()
                 .ToList();
 
