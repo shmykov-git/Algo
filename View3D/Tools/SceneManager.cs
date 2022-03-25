@@ -49,13 +49,23 @@ namespace View3D.Tools
             main.Entity = CreateMesh(shape, addNormals);
 
             var m = material ?? defaultMaterial;
+            //var t = new Texture(@"C:\Users\SHMYKOV\OneDrive\Изображения\паркет.png");
 
             main.Material = new PbrMaterial()
             {
-                MetallicFactor = 0.9,
-                RoughnessFactor = 0.9,
-                EmissiveColor = new Vector3(m.Color)
+                MetallicFactor = settings.MetallicFactor,
+                RoughnessFactor = 0,
+                //OcclusionTexture = t,
+                EmissiveColor = new Vector3(m.Color),
             };
+
+            //main.Material = new PhongMaterial()
+            //{
+            //    //Shininess = 0,
+            //    //ReflectionFactor = 0,
+            //    //EmissiveColor = new Vector3(m.Color)
+            //    DiffuseColor = new Vector3(m.Color)
+            //};
         }
 
         private Mesh CreateMesh(Model.Shape shape, bool addNormals)

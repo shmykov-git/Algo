@@ -21,6 +21,8 @@ namespace View3D
             { FileFormat.WavefrontOBJ, "obj" },
         };
 
+        public double MetallicFactor => 0.7; // 0 - пластик, 1 - метал (не блестит)
+
         public string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Scene");
         public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\Content");
         public string FullFileName => Path.Combine(OutputDirectory, FileName);

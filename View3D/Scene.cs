@@ -39,51 +39,14 @@ namespace View3D
 
         public Shape GetShape()
         {
-            //var s = vectorizer.GetText("汉字", 300, multX: 5).ToLines(0.2, Color.Red);
-
-            var th = 0.1;
-            var h = 2.56;
-            var dz = 7.46;
-            var dx = 6.14;
-            var dc = 0.64;
-
-            var c1 = Color.FromArgb(185, 122, 86);
-            var c2 = Color.FromArgb(120, 79, 55);
-            var c3 = Color.FromArgb(199, 141, 108);
-            var c4 = Color.White;
-
-            var walls = new (Vector2 size, Vector2 move, Color c)[]
-            {
-                ((th, dz), (dx / 2, 0), c1),
-                ((th, dz), (-dx / 2, 0), c1),
-                ((th, 2.09), (1, -1+dc), c2),
-                ((th, 2.1), (1.1, dz/2-1.05), c1),
-
-                ((dx, th), (0, -dz / 2), c1),
-                ((dx/4, th), (-3*dx/8, dc), c2),
-                ((dx/6, th), (1*dx/8, dc), c2),
-                ((2, th), (dx/2-1, dz/2-2.1), c1),
-
-            };
-
-            var s = walls.Select(w =>
-                    Shapes.Cube.Scale(w.size.x, h, w.size.y).Move(w.move.x, h / 2, w.move.y).ApplyColor(w.c))
-                .ToSingleShape();
-
-
-            //var w1 = Shapes.Cube.Scale(th, h, dz).Align(0.5, 0, 0.5).MoveX(dx / 2).ApplyColor(Color.DarkSalmon);
-            //var w2 = Shapes.Cube.Scale(th, h, dz).Align(0.5, 0, 0.5).MoveX(-dx / 2).ApplyColor(Color.DarkSalmon);
-            //var w3 = Shapes.Cube.Scale(dx, h, th).Align(0.5, 0, 0.5).MoveZ(-dz / 2).ApplyColor(Color.DarkSalmon);
-
-            //var w4 = Shapes.Cube.Scale(dx, h, th).Align(0.5, 0, 0.5).MoveZ(-dz / 2).ApplyColor(Color.DarkSalmon);
+            var fShape = new Fr[]
+                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            var s = fShape.ToShape(3000, 0.02).ApplyColor(Color.Red);
 
             var shape = new Shape[]
             {
                s,
-
-               Surfaces.Plane(2, 2).Perfecto().ToOy().Scale(dx, th / 10, dz).Move(0, 0, 0).ApplyColor(c3),
-               Surfaces.Plane(2, 2).Perfecto().ToOy().FlipY().Scale(dx, th / 10, dz).Move(0, h, 0).ApplyColor(c4),
-
+               fShape.ToLineShape(3000).MoveZ(0.01),
                 //Shapes.ArrowCoods.Mult(5)
             }.ToSingleShape();
 
