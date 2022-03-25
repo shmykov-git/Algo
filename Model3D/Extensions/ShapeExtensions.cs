@@ -297,10 +297,10 @@ namespace Model3D.Extensions
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Cube.MassCentered().Mult(0.02 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpots3WithMaterial(mult, Shapes.Cube.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToTetrahedronSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.MassCentered().Mult(0.04 * mult), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
@@ -315,11 +315,13 @@ namespace Model3D.Extensions
         }
 
         public static Shape ToLines(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
+        public static Shape ToShapedLines(this Shape shape, Shape lineShape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null, true, lineShape);
 
-        public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null)
+        public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null, bool stretch = true, Shape lineShape = null)
         {
-            var line3 = Surfaces.Cylinder(5, 2);
-            var n = line3.PointsCount;
+            lineShape = lineShape == null ? Surfaces.Cylinder(5, 2) : lineShape.Align(0.5, 0.5, 0);
+
+            var n = lineShape.PointsCount;
 
             var width = 0.003 * mult;
             var points = shape.Points3;
@@ -331,7 +333,9 @@ namespace Model3D.Extensions
                 var ab = b - a;
                 var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
 
-                var line = line3.Scale(width, width, 0.8*width + ab.Length).Move(0, 0, -0.4 * width).Transform(p => q * p).Move(a);
+                var line = stretch 
+                    ? lineShape.Scale(width, width, 0.8*width + ab.Length).Move(0, 0, -0.4 * width).Transform(p => q * p).Move(a)
+                    : lineShape.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
 
                 return line;
             }

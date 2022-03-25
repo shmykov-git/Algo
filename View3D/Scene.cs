@@ -17,6 +17,7 @@ using MathNet.Numerics;
 using Model.Fourier;
 using Model.Graphs;
 using Model.Tools;
+using Model3D.Systems;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
 
@@ -39,14 +40,21 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var fShape = new Fr[]
-                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
-            var s = fShape.ToShape(3000, 0.02).ApplyColor(Color.Red);
+            //var fShape = new Fr[]
+            //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+
+            //var s = fShape.ToShape(3000, 0.02).ApplyColor(Color.Red);
+
+            //var s = Polygons.Square.PutInside(Polygons.Spiral(15, 979).Mult(1.23)).MakeShape().Perfecto().(0.01);//.Transform(Multiplications.Cube);
+            //var s = Surfaces.Cylinder(8, 61).MassCentered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0 / 20, new[] { -3, -2, -0.5, 0, 1.1, 2.2, 3 })) + Shapes.Cube;
+            //var s = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().Normed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
+            //var s = Surfaces.MobiusStrip(512, 80).ToMaze(0, MazeType.SimpleRandom).ToLines().Rotate(Rotates.Z_Y).ApplyColor(Color.Black);
+            var s = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
 
             var shape = new Shape[]
             {
                s,
-               fShape.ToLineShape(3000).MoveZ(0.01),
+               //fShape.ToLineShape(3000).MoveZ(0.01),
                 //Shapes.ArrowCoods.Mult(5)
             }.ToSingleShape();
 

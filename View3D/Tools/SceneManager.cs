@@ -54,7 +54,7 @@ namespace View3D.Tools
             main.Material = new PbrMaterial()
             {
                 MetallicFactor = settings.MetallicFactor,
-                RoughnessFactor = 0,
+                //RoughnessFactor = 1,
                 //OcclusionTexture = t,
                 EmissiveColor = new Vector3(m.Color),
             };
@@ -75,8 +75,8 @@ namespace View3D.Tools
 
             if (addNormals)
             {
-                var normals = PolygonModifier.GenerateNormal(mesh);
-                mesh.VertexElements.Add(normals);
+                //var normals = PolygonModifier.GenerateNormal(mesh);
+                //mesh.VertexElements.Add(normals);
 
                 var uv = PolygonModifier.GenerateUV(mesh);
                 mesh.VertexElements.Add(uv);
