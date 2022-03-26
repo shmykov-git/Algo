@@ -39,6 +39,9 @@ namespace Model.Extensions
             };
         }
 
+        public static Polygon MoveX(this Polygon polygon, double x) => polygon.Move((x, 0));
+        public static Polygon MoveY(this Polygon polygon, double y) => polygon.Move((0, y));
+
         public static Polygon Move(this Polygon polygon, Vector2 size)
         {
             return polygon.Transform(p => p + size);
