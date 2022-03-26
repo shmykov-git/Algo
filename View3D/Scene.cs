@@ -56,11 +56,12 @@ namespace View3D
 
             var s2 = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);//.ToShape(0.02).ApplyColor(Color.Red);
 
+            var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16/0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
 
             var shape = new Shape[]
             {
                 //s,
-               s1, s2,
+               s1, s2, s3
                //fShape.ToLineShape(3000).MoveZ(0.01),
                 //Shapes.ArrowCoods.Mult(5)
             }.ToSingleShape();
