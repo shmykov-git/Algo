@@ -1,4 +1,12 @@
-﻿namespace View3D
+﻿using System.Drawing;
+using Model;
+using Model.Extensions;
+using Model.Fourier;
+using Model3D.Extensions;
+using Model3D.Libraries;
+using Model3D.Systems;
+
+namespace View3D
 {
     partial class Scene
     {
@@ -84,5 +92,21 @@
         // Fourier, for search // (-1, 10), (17, 1), (20, -2), (200, 0.2), (-1, 4), (2, 7),
 
         // compositions: .ApplyZ(Funcs3Z.SphereR(1.2)); Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red); Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
+
+        public Shape GetExamplePolygons()
+        {
+            var fShape = new Fr[]
+                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+
+            var mb = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000);
+            var s1 = mb.ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue);
+            var s2 = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);
+            var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16 / 0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
+            var s4 = Surfaces.Plane(100, 100).Perfecto(3).MoveX(-0.5).Cut(mb.ToPolygon()).MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Blue);
+
+            var shape = new[] { s1, s2, s3, s4 }.ToSingleShape();
+
+            return shape;
+        }
     }
 }

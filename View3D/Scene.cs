@@ -58,10 +58,13 @@ namespace View3D
 
             var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16/0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
 
+            var s4 = Surfaces.Plane(100, 100).Perfecto(3).MoveX(-0.5).Cut(mb.ToPolygon()).MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Blue);
+
             var shape = new Shape[]
             {
                 //s,
-               s1, s2, s3
+               s1, s2, s3, s4,
+
                //fShape.ToLineShape(3000).MoveZ(0.01),
                 //Shapes.ArrowCoods.Mult(5)
             }.ToSingleShape();

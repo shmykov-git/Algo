@@ -918,5 +918,16 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes,
             Materials = shape.Materials
         };
+
+        public static Shape CutOutside(this Shape shape, Polygon cutPolygon) => shape.Cut(cutPolygon, true);
+
+        public static Shape Cut(this Shape shape, Polygon cutPolygon, bool needOutside = false)
+        {
+            var ss = shape.ToShape2().ToSuperShape();
+            ss.Cut(cutPolygon, !needOutside);
+
+            return ss.ToShape().ToShape3();
+        }
+
     }
 }
