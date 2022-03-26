@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using Model.Extensions;
 
 namespace Model3D.Systems
 {
@@ -38,6 +40,7 @@ namespace Model3D.Systems
 
         public static Model.Vector2[] GetPoints(double power, double precision, int maxIterations = 100, int limit = 100000)
         {
+            var precision2 = precision.Pow2();
             var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);
 
             bool IsInside(Model.Vector2 v) => MandelbrotDistance(power, v.ToZ(), maxIterations) == 0;
@@ -79,9 +82,9 @@ namespace Model3D.Systems
                 if (limit-- == 0)
                     break;
 
-            } while ((v.b - v0.b).Len2 > precision * precision);
+            } while ((v.b - v0.b).Len2 > precision2);
 
-            return res.ToArray();
+            return res.OrderSafeDistinct().ToArray();
         }
     }
 }

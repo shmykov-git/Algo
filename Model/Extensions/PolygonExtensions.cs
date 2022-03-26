@@ -205,6 +205,6 @@ namespace Model.Extensions
             return new Polygon() { Points = ps };
         }
 
-        public static Polygon ToPolygon(this Vector2[] points) => new Polygon() {Points = points};
+        public static Polygon ToPolygon(this Vector2[] points) => new Polygon() { Points = points };
     }
 }

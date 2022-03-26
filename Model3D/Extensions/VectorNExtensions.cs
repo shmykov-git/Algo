@@ -140,5 +140,7 @@ namespace Model3D.Extensions
                 z = a.z * bSize.z / aSize.z
             };
         }
+
+        public static Shape ToShape(this IEnumerable<Vector2> points, double? volume = null, bool triangulate = false) => points.ToArray().ToPolygon().ToShape(volume, triangulate);
     }
 }

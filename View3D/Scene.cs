@@ -49,11 +49,15 @@ namespace View3D
             //var s = Surfaces.Cylinder(8, 61).MassCentered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0 / 20, new[] { -3, -2, -0.5, 0, 1.1, 2.2, 3 })) + Shapes.Cube;
             //var s = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().Normed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
             //var s = Surfaces.MobiusStrip(512, 80).ToMaze(0, MazeType.SimpleRandom).ToLines().Rotate(Rotates.Z_Y).ApplyColor(Color.Black);
-            var s = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
+
+            var s1 = MandelbrotFractalSystem.GetPoints(2, 0.0009, 1000).ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
+
+            var s2 = MandelbrotFractalSystem.GetPoints(2, 0.0009, 1000).ToShape(0.01).ApplyColor(Color.Green);//.ToShape(0.02).ApplyColor(Color.Red);
+
 
             var shape = new Shape[]
             {
-               s,
+               s1, s2,
                //fShape.ToLineShape(3000).MoveZ(0.01),
                 //Shapes.ArrowCoods.Mult(5)
             }.ToSingleShape();
