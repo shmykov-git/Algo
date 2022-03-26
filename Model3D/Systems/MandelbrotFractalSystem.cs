@@ -38,7 +38,10 @@ namespace Model3D.Systems
             return (c-step, c);
         }
 
-        public static Model.Vector2[] GetPoints(double power, double precision, int maxIterations = 100, int limit = 100000)
+        public static Model.Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 100,
+            int limit = 100000) => GetPoints(new Complex(power.re, power.im), precision, maxIterations, limit);
+
+        public static Model.Vector2[] GetPoints(Complex power, double precision, int maxIterations = 100, int limit = 100000)
         {
             var precision2 = precision.Pow2();
             var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);

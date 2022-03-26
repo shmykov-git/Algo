@@ -50,7 +50,7 @@ namespace View3D
             //var s = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().Normed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
             //var s = Surfaces.MobiusStrip(512, 80).ToMaze(0, MazeType.SimpleRandom).ToLines().Rotate(Rotates.Z_Y).ApplyColor(Color.Black);
 
-            var mb = MandelbrotFractalSystem.GetPoints(10, 0.0019, 1000);
+            var mb = MandelbrotFractalSystem.GetPoints((2, 0.1), 0.0019, 1000);
 
             var s1 = mb.ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
 
