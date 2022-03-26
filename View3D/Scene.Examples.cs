@@ -99,12 +99,13 @@ namespace View3D
                 {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
             var mb = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000);
-            var s1 = mb.ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue);
-            var s2 = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);
-            var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16 / 0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
-            var s4 = Surfaces.Plane(100, 100).Perfecto(3).MoveX(-0.5).Cut(mb.ToPolygon()).MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Blue);
 
-            var shape = new[] { s1, s2, s3, s4 }.ToSingleShape();
+            var mbFilled = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);
+            var mbOutLine = mb.ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue);
+            var frInsideLine = fShape.ToLineShape(1000, 0.2).ScaleZ(16 / 0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
+            var cutNet = Surfaces.Plane(100, 100).Perfecto(3).MoveX(-0.5).Cut(mb.ToPolygon()).MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Blue);
+
+            var shape = new[] { mbFilled, mbOutLine, frInsideLine, cutNet }.ToSingleShape();
 
             return shape;
         }
