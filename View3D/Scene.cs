@@ -40,8 +40,8 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var fShape = new Fr[]
-                {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+            //var fShape = new Fr[]
+            //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
 
             //var s = fShape.ToShapes(3000, 0.02)[0].ApplyColor(Color.Red);
 
@@ -50,23 +50,27 @@ namespace View3D
             //var s = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().Normed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
             //var s = Surfaces.MobiusStrip(512, 80).ToMaze(0, MazeType.SimpleRandom).ToLines().Rotate(Rotates.Z_Y).ApplyColor(Color.Black);
 
-            var mb = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000);
+            // todo: триангуляция правильными треугольниками
+            // todo: найти полигоны периметра, объединить полигоны, залить 
 
-            var s1 = mb.ToShape().ToLines(0.2).ScaleZ(15).ApplyColor(Color.Blue);// + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
+            var mb = MandelbrotFractalSystem.GetPoints(2, 0.005, 1000);
 
-            var s2 = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);//.ToShape(0.02).ApplyColor(Color.Red);
+            var s1 = mb.ToShape().ToLines().ApplyColor(Color.Red);// + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
 
-            var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16/0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Blue);
+            //var s2 = mb.ToPolygon().PutInside(fShape.ToShapes(1000)[0].ToPolygon().Mult(0.6).MoveX(-0.15)).ToShape(0.01).ApplyColor(Color.Green);//.ToShape(0.02).ApplyColor(Color.Red);
 
-            var s4 = Surfaces.Plane(100, 100).Perfecto(3).MoveX(-0.5).Cut(mb.ToPolygon()).MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Blue);
+            //var s3 = fShape.ToLineShape(1000, 0.2).ScaleZ(16 / 0.6).Mult(0.6).MoveX(-0.15).ApplyColor(Color.Red);
+
+            var net = Shapes.PlaneByTriangles(20, 40).Mult(2).MoveX(-0.5);
+            var s4 = net.Cut(mb.ToPolygon()).ToLines(0.5).ApplyColor(Color.Blue);
 
             var shape = new Shape[]
             {
                 //s,
-               s1, s2, s3, s4,
+               s1,/* s2, s3,*/ s4,
 
-               //fShape.ToLineShape(3000).MoveZ(0.01),
-                //Shapes.ArrowCoods.Mult(5)
+               net.MoveZ(-0.1).ToLines(0.5).ApplyColor(Color.Green),
+                Shapes.CoodsWithText
             }.ToSingleShape();
 
             return shape;//.Rotate(Rotates.Z_Y);

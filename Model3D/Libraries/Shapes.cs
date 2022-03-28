@@ -259,5 +259,7 @@ namespace Model.Libraries
                 new[] {1, 11, 14, 5, 4}
             }
         }.Normed();
+
+        public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
     }
 }
