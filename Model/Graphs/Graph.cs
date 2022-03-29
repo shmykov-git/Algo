@@ -16,6 +16,8 @@ namespace Model.Graphs
         public readonly List<Node> nodes;
         public readonly List<Edge> edges;
 
+        public bool IsEmpty => edges.Count == 0;
+
         public Graph()
         {
             nodes = new List<Node>();

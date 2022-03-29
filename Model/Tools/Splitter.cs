@@ -65,8 +65,7 @@ namespace Model.Tools
             }
         }
 
-        // todo: remove changeStartDir
-        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01, bool changeStartDir = false)
+        public static Polygon[] FindPerimeter(Polygon polygon, double pointPrecision = 0.01)
         {
             var errorPerimeter = new[] {Polygons.Flower(1, 6, 100).Mult(0.3)}; // no errors for many shapes
 

@@ -236,5 +236,8 @@ namespace Model.Extensions
         {
             return items.aItems.SelectMany(a => items.bItems.Select(b => func(a, b)));
         }
+
+        public static TItem[] ManyToArray<TItem>(this IEnumerable<TItem>[] manyItems) =>
+            manyItems.SelectMany(v => v).ToArray();
     }
 }

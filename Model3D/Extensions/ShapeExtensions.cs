@@ -42,9 +42,9 @@ namespace Model3D.Extensions
             Materials = shape.Materials
         };
 
-        public static Shape ApplyZ(this Shape shape, Func3Z func, Func3Z func2 = null) => new Shape
+        public static Shape ApplyZ(this Shape shape, Func3Z func) => new Shape
         {
-            Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y) + (func2?.Invoke(p.x, p.y) ?? 0), p.w)).ToArray(),
+            Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y), p.w)).ToArray(),
             Convexes = shape.Convexes
         };
 
@@ -122,6 +122,26 @@ namespace Model3D.Extensions
                 }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
             };
         }
+
+        public static Shape AddPerimeterVolume(this Shape shape, double z)
+        {
+            var halfVolume = new Vector4(0, 0, z, 0) * 0.5;
+            var perimeters = shape.GetPerimeters();
+
+            return new Shape
+            {
+                Points = shape.Points.Select(p => p - halfVolume)
+                    .Concat(shape.Points.Select(p => p + halfVolume)).ToArray(),
+
+                Convexes = new IEnumerable<int[]>[]
+                {
+                    shape.Convexes,
+                    shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()),
+                    perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }))
+                }.SelectMany(v=>v).ToArray()
+            };
+        }
+
 
         public static Shape AddSphereVolume(this Shape shape, double thicknessMult = 1.1)
         {
@@ -756,7 +776,7 @@ namespace Model3D.Extensions
         public static Shape Normalize(this Shape shape)
         {
             var shapePoints = shape.Points3.Select(p => p.ToV3D()).ToArray();
-            var points = shapePoints.Distinct().ToList();
+            var points = shapePoints.OrderSafeDistinct().ToList();
             var convexes = shape.Convexes.Transform(i => points.IndexOf(shapePoints[i]));
             convexes = convexes.Select(convex => convex.OrderSafeDistinct().ToArray()).Where(convex => convex.Length >= 3).ToArray();
 
@@ -929,5 +949,6 @@ namespace Model3D.Extensions
             return ss.ToShape().ToShape3();
         }
 
+        public static int[][] GetPerimeters(this Shape shape) => PerimeterEngine.FindPerimeter(shape);
     }
 }

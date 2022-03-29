@@ -36,12 +36,15 @@ namespace Model.Libraries
             .TurnOut().ToShape3().Rotate(Math.PI / 2).Perfecto();
 
         public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256,
-            double pointPrecision = 0.01, bool changeStartDir = false)
+            double pointPrecision = 0.01, int[] indices = null)
         {
             var polygon = Polygons.FourierSeries(count, members.Perfecto());
-            var polygons = Splitter.FindPerimeter(polygon, pointPrecision, changeStartDir);
+            var polygons = Splitter.FindPerimeter(polygon, pointPrecision);
 
-            var shapes = polygons.Select(p => (triangulateOnly ? p.ToTriangulatedShape() : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
+            if (indices != null)
+                polygons = indices.Select(i => polygons[i]).ToArray();
+
+            var shapes = polygons.Select(p => (triangulateOnly ? p.ToShape(null, true) : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
 
             var size = polygons.Select(p => p.ToShape().Rotate(Math.PI / 2)).ToSingleShape().Size;
 
