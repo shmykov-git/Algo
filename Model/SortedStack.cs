@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Model
 {
-    public class SortedStack<T>
+    public class SortedStack<T> : IEnumerable<T>
     {
         private readonly List<T> data;
         private readonly List<double> dataValues;
@@ -13,6 +14,8 @@ namespace Model
             data = new List<T>(capacity);
             dataValues = new List<double>(capacity);
         }
+
+        public T this[int j] => data[j];
 
         public T[] ToArray() => data.ToArray();
 
@@ -51,16 +54,38 @@ namespace Model
             Push(item, value);
         }
 
-        public T Pop()
+        public T Pop(int i = 0)
         {
-            if (data.Count == 0)
+            if (data.Count <= i || i < 0)
                 return default;
 
-            var item = data[0];
-            data.RemoveAt(0);
-            dataValues.RemoveAt(0);
+            var item = data[i];
+            data.RemoveAt(i);
+            dataValues.RemoveAt(i);
 
             return item;
         }
+
+        public bool Pop(T item)
+        {
+            var i = data.IndexOf(item);
+
+            if (i == -1)
+                return false;
+
+            data.RemoveAt(i);
+            dataValues.RemoveAt(i);
+
+            return true;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            var i = 0;
+            while (i<Count)
+                yield return this[i++];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

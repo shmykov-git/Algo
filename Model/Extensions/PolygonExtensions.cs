@@ -209,5 +209,15 @@ namespace Model.Extensions
         }
 
         public static Polygon ToPolygon(this Vector2[] points) => new Polygon() { Points = points };
+
+        public static Polygon Randomize(this Polygon polygon, double shift = 0.00001, int seed = 0)
+        {
+            var rnd = new Random(seed);
+            var delta = shift * polygon.MinLinesLen;
+
+            var points = polygon.Points.Select(p => p + (delta * rnd.NextDouble(), delta * rnd.NextDouble())).ToArray();
+
+            return new Polygon() {Points = points};
+        }
     }
 }

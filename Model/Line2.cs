@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Model
 {
@@ -22,6 +23,13 @@ namespace Model
         public double FnAngleA(Vector2 x) => Math.Atan2(Fn(x), FnA(x));
 
         public bool IsLeft(Vector2 x) => Fn(x) < 0;
+
+        public Func<Vector2, bool> GetIsLeftFn(double epsilon = 0)
+        {
+            var n = Normal;
+            var a = A;
+            return x => (x - a) * n < epsilon;
+        }
 
         public double Distance(Vector2 x) => Math.Abs(Fn(x));
 

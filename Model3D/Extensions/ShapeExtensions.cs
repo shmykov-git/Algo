@@ -950,5 +950,24 @@ namespace Model3D.Extensions
         }
 
         public static int[][] GetPerimeters(this Shape shape) => PerimeterEngine.FindPerimeter(shape);
+
+        public static Shape[] SplitByConvexes(this Shape shape, bool withVolume = true)
+        {
+            return shape.Convexes.Select((c,i) => new Shape()
+            {
+                Points = c.Select(i => shape.Points[i]).ToArray(),
+                Convexes = withVolume
+                    ? new[]
+                    {
+                        c.Index().ToArray(),
+                        c.Index().Reverse().ToArray()
+                    }
+                    : new[]
+                    {
+                        c.Index().ToArray()
+                    },
+                Materials = shape.Materials == null ? null : (withVolume ? new[]{shape.Materials[i], shape.Materials[i] } : new[] { shape.Materials[i] })
+            }).ToArray();
+        }
     }
 }

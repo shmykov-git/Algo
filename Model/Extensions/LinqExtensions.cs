@@ -100,6 +100,8 @@ namespace Model.Extensions
             }));
         }
 
+        public static IEnumerable<(T a, T b, T c)> SelectCircleTriple<T>(this IEnumerable<T> list) =>
+            list.SelectCircleTriple((a, b, c) => (a, b, c));
         public static IEnumerable<TRes> SelectCircleTriple<T, TRes>(this IEnumerable<T> list, Func<T, T, T, TRes> func)
         {
             var i = 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using Model.Extensions;
@@ -38,10 +39,10 @@ namespace Model3D.Systems
             return (c-step, c);
         }
 
-        public static Model.Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 100,
-            int limit = 100000) => GetPoints(new Complex(power.re, power.im), precision, maxIterations, limit);
+        public static Model.Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 1000, double insideCoff = 0.99,
+            int limit = 100000) => GetPoints(new Complex(power.re, power.im), precision, maxIterations, insideCoff, limit);
 
-        public static Model.Vector2[] GetPoints(Complex power, double precision, int maxIterations = 100, int limit = 100000)
+        public static Model.Vector2[] GetPoints(Complex power, double precision, int maxIterations = 1000, double insideCoff = 0.99, int limit = 100000)
         {
             var precision2 = precision.Pow2();
             var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);
@@ -80,14 +81,16 @@ namespace Model3D.Systems
             do
             {
                 v = NextPoint(v);
-                res.Add(v.b);
+                var p = v.a + insideCoff * (v.b - v.a);
+                
+                res.Add(p);
 
                 if (limit-- == 0)
                     break;
 
             } while ((v.b - v0.b).Len2 > precision2);
 
-            return res.OrderSafeDistinct().ToArray();
+            return res.ToArray();
         }
     }
 }

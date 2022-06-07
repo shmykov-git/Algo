@@ -16,7 +16,7 @@ namespace Model3D.Extensions
             return polygon.Fill(triangulate).ToShape3();
         }
 
-        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false)
+        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0)
         {
             if (!volume.HasValue && !triangulate)
                 return new Shape
@@ -25,8 +25,20 @@ namespace Model3D.Extensions
                     Convexes = new[] { polygon.Points.Index().ToArray() }
                 };
 
-            var convexes = FillEngine.FindConvexes(polygon);
-            var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
+            //var convexes = FillEngine.FindConvexes(polygon);
+            //throw new DebugException<(Shape p, Shape t)>((polygon.ToShape(), new Shape()
+            //{
+            //    Points2 = polygon.Points,
+            //    Convexes = convexes
+            //}));
+            //var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
+
+            var trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
+            //throw new DebugException<(Shape p, Shape t)>((polygon.ToShape(), new Shape()
+            //{
+            //    Points2 = polygon.Points,
+            //    Convexes = trConvexes
+            //}));
 
             if (!volume.HasValue)
                 return new Shape()
@@ -49,16 +61,16 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null)
+        public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null, double incorrectFix = 0)
         {
             var border = polygon.Border;
-            var size = border.max - border.min;
-            var center = 0.5 * (border.max + border.min);
+            var size = border.b - border.a;
+            var center = 0.5 * (border.a + border.b);
 
             var n = countTriangle;
             var m = (int) (n * size.y / (size.x * 3d.Sqrt()));
-
-            var net = Shapes.PlaneByTriangles(m, n).Mult(size.x).Move(center.ToV3());
+            // что с масштабом?
+            var net = Shapes.PlaneByTriangles(m, n).Mult(1.3*size.x).Move(center.ToV3());
             var cutNet = net.Cut(polygon);
             var cutPoints = cutNet.Points2;
 
@@ -66,7 +78,7 @@ namespace Model3D.Extensions
             var perimeterPolygons = perimeters.Select(p => p.Select(i => cutPoints[i]).ToArray().ToPolygon()).ToArray();
 
             var borderPolygon = perimeterPolygons.Aggregate(polygon, JoinInside);
-            var triangulatedBorder = borderPolygon.ToShape(triangulate:true);
+            var triangulatedBorder = borderPolygon.ToShape(triangulate: true, incorrectFix: incorrectFix);
 
             var triangulatedShape = (triangulatedBorder + cutNet).Normalize();
 

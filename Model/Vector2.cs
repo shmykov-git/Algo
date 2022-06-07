@@ -140,7 +140,7 @@ namespace Model
 
         public override string ToString()
         {
-            return $"({x}, {y})";
+            return $"({x.Round(8)}, {y.Round(8)})";
         }
 
         public bool Equals(Vector2 other)
