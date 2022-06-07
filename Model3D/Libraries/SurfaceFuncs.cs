@@ -25,6 +25,21 @@ namespace Model3D.Libraries
         }
 
         public static SurfaceFunc Sphere => (double u, double v) => new Vector3(Math.Cos(u) * Math.Sin(v), Math.Sin(u) * Math.Sin(v), Math.Cos(v));
+        public static SurfaceFunc Heart
+        {
+            get
+            {
+                var heart2 = Funcs2.Heart();
+
+                return (double u, double v) =>
+                {
+                    var xy = heart2(u);
+
+                    return new Vector3(xy.x*Math.Sin(v), xy.y * Math.Sin(v), 0.1*Math.Cos(v));
+                };
+            }
+        }
+
         public static SurfaceFunc Torus(double a) => (double u, double v) => new Vector3(Math.Cos(u) * (a + Math.Sin(v)), Math.Sin(u) * (a + Math.Sin(v)), Math.Cos(v));
         public static SurfaceFunc Cylinder => (double u, double v) => new Vector3(Math.Cos(u), Math.Sin(u), v);
         public static SurfaceFunc Circle => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), 0);

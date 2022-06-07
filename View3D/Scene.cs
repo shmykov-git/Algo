@@ -77,63 +77,13 @@ namespace View3D
             //        + e.Value.ps.ToPolygon().ToShape().ToNumSpots3(0.3, Color.Green)
             //        ;//+ mb.ToShape().ToSpots3(0.2, Color.Blue);
             //}
-            
 
             //var s4 = net.Cut(mb.ToPolygon()).ToLines(0.5).ApplyColor(Color.Blue);
-
-            var r = new Random(0);
-            var k = 2;
-            var wSpeed = 0.5;
-            var gravityPower = 0.7;
-            var count = 25;
-            var gPoint = new Vector3(8, 0, 0);
-
-            Vector3 GetPowerPoint(double power, Vector3 to, Vector3 p, int count)
-            {
-
-                double? w0 = null;
-
-                for (var i = 0; i < count; i++)
-                {
-                    var offset = power / (to - p).Length2;
-                    var w = Math.Sqrt(1 / offset);
-                    if (!w0.HasValue)
-                        w0 = w;
-
-                    var wk = w / w0.Value;
-
-                    p = p + offset * (to - p) + (to - p).MultV(Vector3.YAxis).ToLen(wSpeed * wk);
-                }
-
-                return p;
-            }
-
-            Shape GetShape(Shape s)
-            {
-                var dir = s.MassCenter.Normalize();
-                var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
-                var dist = 0.8*(0.6 + 0.4*r.NextDouble());
-
-                var point = (1 + k * dist) * dir;
-                var powerPoint = GetPowerPoint(gravityPower, gPoint, point, count);
-
-                return s.Move(-dir).Rotate(Quaternion.FromEulerAngle(rot))
-                    .Move(powerPoint);
-            }
-
+            
             var shape = new Shape[]
             {
-                Shapes.Ball.Mult(0.3).ApplyColor(Color.Black).Move(gPoint),
-
-                Shapes.Ball
-                    .ApplyColorGradientX(Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White)
-                    .SplitByConvexes()
-                    .Select(GetShape)
-                    .ToSingleShape(),
-                    //.ApplyColorSphereGradient(Color.Blue, Color.Blue, null, null, null, null),
-                //mb.ToShape().ToNumSpots3(0.1, Color.Black)
-                //mb.ToShape().ToSpots3(0.2, Color.Blue),
-               
+                vectorizer.GetContentShape("b7").ApplyZ(Funcs3Z.Hyperboloid).Rotate(10,10,1).Move(0.7,1.0,0).ToLines().Mult(0.5).ApplyColor(Color.DeepPink),
+               Surfaces.Heart(50, 25).Perfecto().ToLines(0.3).ApplyColor(Color.Blue),
                 //Shapes.CoodsWithText
             }.ToSingleShape();
 

@@ -1,7 +1,11 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Linq;
+using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
 using Model.Fourier;
+using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
@@ -92,6 +96,63 @@ namespace View3D
         // Fourier, for search // (-1, 10), (17, 1), (20, -2), (200, 0.2), (-1, 4), (2, 7),
 
         // compositions: .ApplyZ(Funcs3Z.SphereR(1.2)); Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red); Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
+
+        public Shape BlackHole()
+        {
+            var blowRadius = 1.6;
+            var angleSpeed = 0.5;
+            var gravityPower = 0.7;
+            var gravityPoint = new Vector3(8, 0, 0);
+            var iterationsCount = 25;
+
+            var r = new Random(0);
+
+            Vector3 GetPowerPoint(double power, Vector3 to, Vector3 p, int count)
+            {
+
+                double? w0 = null;
+
+                for (var i = 0; i < count; i++)
+                {
+                    var offset = power / (to - p).Length2;
+                    var w = Math.Sqrt(1 / offset);
+                    if (!w0.HasValue)
+                        w0 = w;
+
+                    var wk = w / w0.Value;
+
+                    p = p + offset * (to - p) + (to - p).MultV(Vector3.YAxis).ToLen(angleSpeed * wk);
+                }
+
+                return p;
+            }
+
+            Shape GetShape(Shape s)
+            {
+                var dir = s.MassCenter.Normalize();
+                var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
+                var dist = blowRadius * (0.6 + 0.4 * r.NextDouble());
+
+                var point = (1 + dist) * dir;
+                var powerPoint = GetPowerPoint(gravityPower, gravityPoint, point, iterationsCount);
+
+                return s.Move(-dir).Rotate(Quaternion.FromEulerAngle(rot))
+                    .Move(powerPoint);
+            }
+
+            var shape = new Shape[]
+            {
+                Shapes.Ball.Mult(0.3).ApplyColor(Color.Black).Move(gravityPoint),
+
+                Shapes.Ball
+                    .ApplyColorGradientX(Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White)
+                    .SplitByConvexes()
+                    .Select(GetShape)
+                    .ToSingleShape()
+            }.ToSingleShape();
+
+            return shape;
+        }
 
         public Shape GetExamplePolygons()
         {
