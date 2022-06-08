@@ -97,15 +97,31 @@ namespace View3D
 
         // compositions: .ApplyZ(Funcs3Z.SphereR(1.2)); Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red); Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
 
-        public Shape BlackHole()
+        public class BlachHoleOptions
         {
-            var blowRadius = 1.6;
-            var angleSpeed = 0.5;
-            var gravityPower = 0.7;
+            public Shape Shape;
+            public double? BlowRadius;
+            public double? BlowFactor;
+            public double? AngleSpeed;
+            public double? GravityPower;
+            public bool NoRotation;
+            public int? InterationsCount;
+        }
+
+        public Shape BlackHole(BlachHoleOptions options = null)
+        {
+            options ??= new BlachHoleOptions();
+
+            var blowRadius = options.BlowRadius ?? 1.6;
+            var blowFactor = options.BlowFactor ?? 0.4;
+            var angleSpeed = options.AngleSpeed??0.5;
+            var gravityPower = options.GravityPower??0.7;
             var gravityPoint = new Vector3(8, 0, 0);
-            var iterationsCount = 25;
+            var useRotation = !options.NoRotation;
+            var iterationsCount = options.InterationsCount??25;
 
             var r = new Random(0);
+            var blowedShape = options.Shape ?? Shapes.Ball;
 
             Vector3 GetPowerPoint(double power, Vector3 to, Vector3 p, int count)
             {
@@ -131,20 +147,22 @@ namespace View3D
             {
                 var dir = s.MassCenter.Normalize();
                 var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
-                var dist = blowRadius * (0.6 + 0.4 * r.NextDouble());
+                var dist = blowRadius * (1 + blowFactor * (r.NextDouble()-1));
 
                 var point = (1 + dist) * dir;
                 var powerPoint = GetPowerPoint(gravityPower, gravityPoint, point, iterationsCount);
 
-                return s.Move(-dir).Rotate(Quaternion.FromEulerAngle(rot))
-                    .Move(powerPoint);
+                if (useRotation)
+                    s = s.Move(-dir).Rotate(Quaternion.FromEulerAngle(rot)).Move(dir);
+
+                return s.Move(powerPoint - dir);
             }
 
             var shape = new Shape[]
             {
                 Shapes.Ball.Mult(0.3).ApplyColor(Color.Black).Move(gravityPoint),
 
-                Shapes.Ball
+                blowedShape
                     .ApplyColorGradientX(Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White)
                     .SplitByConvexes()
                     .Select(GetShape)
