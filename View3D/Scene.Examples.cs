@@ -107,7 +107,9 @@ namespace View3D
             public double? AngleSpeed;
             public double? GravityPower;
             public bool NoRotation;
+            public bool? TryBeauty;
             public int? InterationsCount;
+            public Color?[] Colors;
         }
 
         // bh&h
@@ -131,13 +133,31 @@ namespace View3D
             var gravityPoint = new Vector3(8, 0, 0);
             var useRotation = !options.NoRotation;
             var iterationsCount = options.InterationsCount??25;
+            var tryBeauty = options.TryBeauty??true;
+            var palette = options.Colors ?? new Color?[]
+            {
+                Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White
+            };
 
             var r = new Random(0);
             var blowedShape = options.Shape ?? Shapes.Ball;
 
-            Vector3 GetPowerPoint(double power, Vector3 to, Vector3 p, int count)
+            Vector3 GetNativePowerPoint(double power, Vector3 to, Vector3 p, int count)
             {
+                var v = (to - p).MultV(Vector3.YAxis).ToLen(angleSpeed);
 
+                for (var i = 0; i < count; i++)
+                {
+                    var gForce = (to-p).ToLen(power / (to - p).Length2);
+                    v += gForce;
+                    p += v;
+                }
+
+                return p;
+            }
+
+            Vector3 GetBeautyPowerPoint(double power, Vector3 to, Vector3 p, int count)
+            {
                 double? w0 = null;
 
                 for (var i = 0; i < count; i++)
@@ -157,15 +177,18 @@ namespace View3D
 
             Shape GetShape(Shape s)
             {
-                var dir = s.MassCenter.Normalize();
+                var center = s.MassCenter;
+                var dir = center.Normalize();
                 var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
                 var dist = blowRadius * (1 + blowFactor * (r.NextDouble()-1));
 
                 var point = (1 + dist) * dir;
-                var powerPoint = GetPowerPoint(gravityPower, gravityPoint, point, iterationsCount);
+                var powerPoint = tryBeauty 
+                    ? GetBeautyPowerPoint(gravityPower, gravityPoint, point, iterationsCount)
+                    : GetNativePowerPoint(gravityPower, gravityPoint, point, iterationsCount);
 
                 if (useRotation)
-                    s = s.Move(-dir).Rotate(Quaternion.FromEulerAngle(rot)).Move(dir);
+                    s = s.Move(-center).Rotate(Quaternion.FromEulerAngle(rot)).Move(center);
 
                 return s.Move(powerPoint - dir);
             }
@@ -175,10 +198,13 @@ namespace View3D
                 Shapes.Ball.Mult(0.3).ApplyColor(Color.Black).Move(gravityPoint),
 
                 blowedShape
-                    .ApplyColorGradientX(Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White)
+                    //.ApplyColorGradientX(palette)
                     .SplitByConvexes()
                     .Select(GetShape)
                     .ToSingleShape()
+                    .ApplyColorSphereGradient(gravityPoint, palette.Reverse().ToArray()),
+
+                //Shapes.CoodsWithText,
             }.ToSingleShape();
 
             return shape;

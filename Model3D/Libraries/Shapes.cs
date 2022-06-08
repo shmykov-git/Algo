@@ -46,7 +46,7 @@ namespace Model.Libraries
             .Scale(lineR, lineR, lineLn/(m-1))
         ).Normalize();
 
-        public static Shape Coods => new Shape
+        public static Shape LineCoods => new Shape
         {
             Points3 = new Vector3[]
             {
@@ -89,7 +89,7 @@ namespace Model.Libraries
             }
         }.Mult(0.01).ToLines(0.7, Color.Red);
 
-        public static Shape ArrowCoods
+        public static Shape Coods
         {
             get
             {
@@ -100,7 +100,7 @@ namespace Model.Libraries
         }
 
         public static Shape CoodsWithText =>
-            ArrowCoods +
+            Coods +
             IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red) +
             vectorizer.GetText("x", 100, "Georgia").Mult(0.03).Move(0.95, -0.06, 0).ToLines(0.6, Color.Red) +
             vectorizer.GetText("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ToLines(0.6, Color.Red) +

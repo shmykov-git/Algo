@@ -86,11 +86,15 @@ namespace View3D
 
             return BlackHole(new BlachHoleOptions()
             {
-                Shape = vectorizer.GetContentShape("b7").ApplyZ(Funcs3Z.Hyperboloid).ToLines().Mult(3.5),
-                NoRotation = true,
+                Shape = Surfaces.Plane(100, 100).Perfecto(4),
+                Colors = new Color?[]{ Color.Black, Color.Black, Color.White},
+                NoRotation = false,
+                TryBeauty = true,
+                AngleSpeed = 0.17,
+                GravityPower = 0.2,
                 BlowFactor = 0,
                 BlowRadius = 0,
-                InterationsCount = 37
+                InterationsCount = 120
             });
 
             var shape = new Shape[]
