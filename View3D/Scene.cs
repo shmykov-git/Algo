@@ -86,11 +86,11 @@ namespace View3D
 
             return BlackHole(new BlachHoleOptions()
             {
-                Shape = Surfaces.Heart(200, 100).Perfecto(3.5),
-                NoRotation = false,
+                Shape = vectorizer.GetContentShape("b7").ApplyZ(Funcs3Z.Hyperboloid).ToLines().Mult(3.5),
+                NoRotation = true,
                 BlowFactor = 0,
                 BlowRadius = 0,
-                InterationsCount = 40
+                InterationsCount = 37
             });
 
             var shape = new Shape[]
