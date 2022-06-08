@@ -90,7 +90,7 @@ namespace Model3D.Libraries
             {
                 Fn = SurfaceFuncs.Heart,
                 UFrom = 0,
-                UTo = -2 * Math.PI,
+                UTo = 2 * Math.PI,
                 UN = un,
                 VFrom = 0,
                 VTo = Math.PI,

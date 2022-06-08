@@ -97,6 +97,8 @@ namespace View3D
 
         // compositions: .ApplyZ(Funcs3Z.SphereR(1.2)); Shapes.IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red); Shapes.GolfBall.Move(0.7, 1.5, 2).ToLines(1, Color.Red)
 
+        #region BlackHole
+
         public class BlachHoleOptions
         {
             public Shape Shape;
@@ -107,6 +109,16 @@ namespace View3D
             public bool NoRotation;
             public int? InterationsCount;
         }
+
+        // bh&h
+        //return BlackHole(new BlachHoleOptions()
+        //{
+        //    Shape = Surfaces.Heart(200, 100).Perfecto(3.5),
+        //    NoRotation = false,
+        //    BlowFactor = 0,
+        //    BlowRadius = 0,
+        //    InterationsCount = 40
+        //});
 
         public Shape BlackHole(BlachHoleOptions options = null)
         {
@@ -171,6 +183,7 @@ namespace View3D
 
             return shape;
         }
+        #endregion
 
         public Shape GetExamplePolygons()
         {
