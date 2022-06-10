@@ -141,6 +141,15 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Vector3 Rotate(this Vector3 v, double x, double y, double z) => v.Rotate(new Vector3(x, y, z));
+
+        public static Vector3 Rotate(this Vector3 v, Vector3 r)
+        {
+            var q = Quaternion.FromRotation(Vector3.ZAxis, r.Normalize());
+
+            return q * v;
+        }
+
         public static Shape ToShape(this IEnumerable<Vector2> points, double? volume = null, bool triangulate = false) => points.ToArray().ToPolygon().ToShape(volume, triangulate);
     }
 }

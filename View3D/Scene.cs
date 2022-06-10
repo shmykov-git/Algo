@@ -42,6 +42,7 @@ namespace View3D
 
         #endregion
 
+
         public Shape GetShape()
         {
             #region триангуляция (не работает нормально)
@@ -87,7 +88,61 @@ namespace View3D
 
             #endregion
 
-            var s = vectorizer.GetContentShape("h5", 150).Perfecto().ToLines(0.3).ApplyColor(Color.Blue);
+            return CubeGalaxiesIntersection();
+
+            var pShape = Shapes.Cube.Perfecto(0.1);
+
+
+            Vector3 Rotate(Vector3 v, Vector3 r)
+            {
+                var q = Quaternion.FromRotation(Vector3.ZAxis, r.Normalize());
+
+                return q * v;
+            }
+
+            var scene = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Color color)[]
+            {
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5), new Vector3(-2.5, 0, 0), s=>0.5 * s.MassCenter.MultV(Vector3.YAxis), Color.Black),
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5).Rotate(1, 1, 1), new Vector3(2.5, 0, 0), s=>0.5 * s.MassCenter.MultV(Rotate(Vector3.YAxis, new Vector3(1,1,1))), Color.Black),
+            };
+
+            var particles = scene
+                .SelectMany((s,k) => s.s.SplitByConvexes()
+                    .Select(ss => new Particle()
+                    {
+                        Mass = 0.01,
+                        Pos = ss.MassCenter + s.shift,
+                        Speed = s.speed(ss),
+                        Color = s.color
+                    }))
+                .Select((p, i) =>
+                {
+                    p.i = i;
+                    return p;
+                }).ToArray();
+
+            var gPower = 0.1;
+
+            void Step()
+            {
+                var speedChanges = particles.Select(a => particles.Where(b=>a!=b).Select(b => (b.Pos-a.Pos).ToLen(a.Mass*b.Mass * gPower / (b.Pos - a.Pos).Length2)).Sum()).ToArray();
+                foreach (var p in particles)
+                {
+                    p.Speed += speedChanges[p.i];
+                    p.Pos += p.Speed;
+                }
+            }
+
+            void Animate(int steps)
+            {
+                for(var i=0;i<steps;i++)
+                    Step();
+            }
+
+            Animate(10);
+
+            var s = particles.Where(p=>p.Pos.Length<10).Select(p => pShape.Move(p.Pos).ApplyColor(p.Color)).ToSingleShape()
+                .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
 
             var shape = new Shape[]
             {

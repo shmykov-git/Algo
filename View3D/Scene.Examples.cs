@@ -212,6 +212,85 @@ namespace View3D
         }
         #endregion
 
+        #region CubeGalaxiesIntersection
+
+        class Particle
+        {
+            public int i;
+            public double Mass;
+            public Vector3 Pos;
+            public Vector3 Speed;
+            public Color Color;
+            public Func<Shape, Shape> ModifyFn;
+        }
+
+        public Shape CubeGalaxiesIntersection()
+        {
+            var gravityPower = 0.1;
+            var particleShape = Shapes.Cube.Perfecto(0.1);
+
+            var data = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Func<Shape, Shape> modifyFn, Color color)[]
+            {
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5), 
+                    new Vector3(-2.5, 0, 0),
+                    s => 0.5 * s.MassCenter.MultV(Vector3.YAxis), 
+                    s=>s,
+                    Color.Black),
+                
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5).Rotate(1, 1, 1), 
+                    new Vector3(2.5, 0, 0),
+                    s => 0.5 * s.MassCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)), 
+                    s=>s.Rotate(1,1,1),
+                    Color.Black),
+            };
+
+            var particles = data
+                .SelectMany(s => s.s.SplitByConvexes()
+                    .Select(ss => new Particle()
+                    {
+                        Mass = 0.01,
+                        Pos = ss.MassCenter + s.shift,
+                        Speed = s.speed(ss),
+                        Color = s.color,
+                        ModifyFn = s.modifyFn
+                    }))
+                .Select((p, i) =>
+                {
+                    p.i = i;
+                    return p;
+                }).ToArray();
+
+            void Step()
+            {
+                var accelerations = particles.Select(a =>
+                        particles.Where(b => a != b).Select(b =>
+                            (b.Pos - a.Pos).ToLen(a.Mass * b.Mass * gravityPower / (b.Pos - a.Pos).Length2)).Sum())
+                    .ToArray();
+
+                foreach (var p in particles)
+                {
+                    p.Speed += accelerations[p.i];
+                    p.Pos += p.Speed;
+                }
+            }
+
+            void Animate(int steps)
+            {
+                for (var i = 0; i < steps; i++)
+                    Step();
+            }
+
+            Animate(10);
+
+            var shape = particles.Where(p => p.Pos.Length < 10).Select(p => p.ModifyFn(particleShape).Move(p.Pos).ApplyColor(p.Color))
+                .ToSingleShape()
+                .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
+
+            return shape;
+        }
+
+        #endregion
+
         public Shape Lion()
         {
             var k = 0.27;
