@@ -673,6 +673,19 @@ namespace Model3D.Extensions
             return shape.Move(-shift);
         }
 
+        public static Shape AlignY(this Shape shape, double y)
+        {
+            var borderY = shape.BorderY;
+
+            var shift = new Vector3(
+                0,
+                borderY.a + y * (borderY.b - borderY.a),
+                0
+            );
+
+            return shape.Move(-shift);
+        }
+
         public static Shape AlignZ(this Shape shape, double z)
         {
             var borderZ = shape.BorderZ;
