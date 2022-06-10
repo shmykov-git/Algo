@@ -22,6 +22,7 @@ namespace Model3D.Libraries
         public static Func3Z Sphere = (x, y) => Math.Sqrt(Math.Abs(1 - x * x - y * y));
         public static Func3Z SphereM = (x, y) => -Math.Sqrt(Math.Abs(1 - x * x - y * y));
         public static Func3Z SphereR(double r) => (x, y) => Math.Sqrt(Math.Abs(r * r - x * x - y * y));
+        public static Func3Z SphereRC(double r) => (x, y) => Math.Sqrt(Math.Abs(r * r - x * x - y * y)) - r;
         public static Func3Z SphereMR(double r) => (x, y) => -Math.Sqrt(Math.Abs(r * r - x * x - y * y));
     }
 }

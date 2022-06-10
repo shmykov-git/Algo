@@ -6,6 +6,8 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Tools;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -13,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
+using Mapster.Utils;
 using MathNet.Numerics;
 using Model.Fourier;
 using Model.Graphs;
@@ -41,7 +44,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            #region улучшить алгоритм триангуляции (без добавления)
+            #region триангуляция (не работает нормально)
 
             //var fShape = new Fr[]
             //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
@@ -81,29 +84,14 @@ namespace View3D
             //}
 
             //var s4 = net.Cut(mb.ToPolygon()).ToLines(0.5).ApplyColor(Color.Blue);
+
             #endregion
 
-
-            return BlackHole(new BlachHoleOptions()
-            {
-                Shape = Surfaces.Plane(100, 100).Perfecto(4),
-                Colors = new Color?[]{ Color.Black, Color.Black, Color.White},
-                NoRotation = false,
-                TryBeauty = true,
-                AngleSpeed = 0.17,
-                GravityPower = 0.2,
-                BlowFactor = 0,
-                BlowRadius = 0,
-                InterationsCount = 120
-            });
+            var s = vectorizer.GetContentShape("h5", 150).Perfecto().ToLines(0.3).ApplyColor(Color.Blue);
 
             var shape = new Shape[]
             {
-                //vectorizer.GetContentShape("b7").ApplyZ(Funcs3Z.Hyperboloid).Rotate(10,10,1).Move(0.7,1.0,0).ToLines().Mult(0.5).ApplyColor(Color.DeepPink),
-               Surfaces.Heart(50, 25).Perfecto().ToLines(0.3).ApplyColor(Color.Blue),
-
-
-                //Shapes.CoodsWithText
+                s
             }.ToSingleShape();
 
             return shape;

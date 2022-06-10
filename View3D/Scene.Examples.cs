@@ -9,6 +9,7 @@ using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
+using View3D.Libraries;
 
 namespace View3D
 {
@@ -211,7 +212,51 @@ namespace View3D
         }
         #endregion
 
-        public Shape GetExamplePolygons()
+        public Shape Lion()
+        {
+            var k = 0.27;
+            var dk = 0.01;
+
+            var s = vectorizer.GetContentShape("l5");
+            var s1 = s.Where(v => v.Length < k).ApplyZ(Funcs3Z.SphereR(0.5)).AlignZ(0).ToLines()
+                .ApplyColorGradientZ(Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.White);
+
+            var s2 = s.Where(v => v.Length > k - dk).ToLines()
+                .ApplyColor(Color.Blue);
+
+            var l = vectorizer.GetContentShape("l6").ApplyZ(Funcs3Z.SphereRC(1.5)).Perfecto(0.35).Rotate(Rotates.Z_Y);
+            var l1 = l.Rotate(0, -1, 10).Move(-0.2, -0.8, 0.2).ToLines()
+                .ApplyColorGradientZ(Color.Blue, Color.White);
+            var l2 = l.Rotate(0, -1, 1).Move(0.2, -0.6, -0.3).ToLines()
+                .ApplyColorGradientZ(Color.Blue, Color.Blue);
+
+            var shape = new Shape[]
+            {
+                s1, s2, l1, l2
+            }.ToSingleShape();
+
+            return shape;
+        }
+
+        public Shape Footprint()
+        {
+            var s = vectorizer.GetContentShape("w21").Perfecto(2).ApplyZ(Funcs3Z.Hyperboloid).MoveZ(2).ToLines(2)
+                .ApplyColor(Color.Blue);
+
+            var r = 10;
+            var fnz = Funcs3Z.SphereR(r);
+
+            var shape = new Shape[]
+            {
+                EnumerableV2.Wedge(10, true).Select(p=>2*p).Select(p => s.Move(p.ToV3(fnz(p.x,p.y)-r))).ToSingleShape(),
+                Surfaces.Plane(50, 50).Perfecto(10).ApplyZ(fnz).Centered().ToLines(4).ApplyColor(Color.Red),
+                Shapes.GolfBall.Mult(30).ToLines(20).Move(0, 45, 20).ApplyColor(Color.DarkOrange)
+            }.ToSingleShape().Rotate(Rotates.Z_Y);
+
+            return shape;
+        }
+
+        public Shape Polygons()
         {
             var fShape = new Fr[]
                 {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
