@@ -88,8 +88,12 @@ namespace View3D
 
             #endregion
 
-            var l = vectorizer.GetContentShape("lenin1").Perfecto().ToLines().ApplyColor(Color.Blue);
+            var s = vectorizer.GetContentShape("w22").Perfecto().ToLines(0.25).ApplyColor(Color.Blue);
 
+            var r = new Random(0);
+            
+            var ps = (3000).SelectRange(_ => r.NextV3()).ToArray();
+            var ss = ps.Select(p => Shapes.Tetrahedron.Mult(0.01).Move(p)).ToSingleShape().Perfecto(1.5).Where(v=>v.Length < 0.75).ApplyColor(Color.White);
 
             var shape = new Shape[]
             {
@@ -101,9 +105,8 @@ namespace View3D
                 //vectorizer.GetContentShape("p4").AlignY(1).Mult(0.5).Move(0, -0.5, -0.5).ToLines().ApplyColor(Color.Blue),
                 //vectorizer.GetContentShape("lenin1").Mult(0.2).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue),
                 //Surfaces.Plane(2,2).Perfecto(0.3).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue)
-                l.FlipX().Rotate(0, -1, 4).MoveX(-0.4), 
-                l.Rotate(0, 1, 4).MoveX(0.4),
-                vectorizer.GetText("Just Do It").Perfecto(0.3).ToLines(0.4).Rotate(1,0,5).MoveY(-0.43).ApplyColor(Color.DeepPink)
+                s,
+                ss
 
             }.ToSingleShape();
 
