@@ -42,7 +42,6 @@ namespace View3D
 
         #endregion
 
-
         public Shape GetShape()
         {
             #region триангуляция (не работает нормально)
@@ -88,24 +87,20 @@ namespace View3D
 
             #endregion
 
-            var s = vectorizer.GetContentShape("w22").Perfecto().ToLines(0.25).ApplyColor(Color.Blue);
-
+            var s = vectorizer.GetContentShape("w23").Perfecto().ToLines(1).ApplyColor(Color.Blue);
+            
             var r = new Random(0);
             
-            var ps = (3000).SelectRange(_ => r.NextV3()).ToArray();
-            var ss = ps.Select(p => Shapes.Tetrahedron.Mult(0.01).Move(p)).ToSingleShape().Perfecto(1.5).Where(v=>v.Length < 0.75).ApplyColor(Color.White);
+            var ps = EnumerableV2.Wedge(10).Skip(1).ToArray();
+            var ss = ps.Select(p => Surfaces.Sphere(40, 20).Perfecto(1.2*(1-p.Len/5)).Rotate(r.NextV3()).Move(1.5*p.ToV3()).ToLines().ApplyColor(Color.White)).ToSingleShape()
+                .FlipY().ToOy();
+
+            var a = Math.PI / 3;
 
             var shape = new Shape[]
             {
-                //Shapes.Cube.SplitLines(20).ToLines()
-                //    .ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black,Color.Black, Color.Black, Color.Black, Color.White),
-                //vectorizer.GetContentShape("l7").AlignX(1).Mult(0.3).Move(-0.5,0,0.2).ToLines().ApplyColor(Color.Blue),
-                //vectorizer.GetContentShape("l8").Mult(0.2).Move(0.3, -0.3, 0.5).ToLines().ApplyColor(Color.Blue),
-                //vectorizer.GetContentShape("s13").Mult(0.25).Move(0.3, -0.5, 0.5).ToLines(0.3).ApplyColor(Color.Blue),
-                //vectorizer.GetContentShape("p4").AlignY(1).Mult(0.5).Move(0, -0.5, -0.5).ToLines().ApplyColor(Color.Blue),
-                //vectorizer.GetContentShape("lenin1").Mult(0.2).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue),
-                //Surfaces.Plane(2,2).Perfecto(0.3).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue)
-                s,
+                s.Move(-0.05, -0.1, 0.2),
+                Surfaces.SphereAngle(40, 20, -Math.PI/2 + a/2, 3*Math.PI/2 - a/2).Perfecto(1.2).ToOy().ToLines(1).ApplyColor(Color.White),
                 ss
 
             }.ToSingleShape();

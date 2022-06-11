@@ -84,6 +84,22 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
+        public static Shape SphereAngle(int un, int vn, double from, double to, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Sphere,
+                UFrom = from,
+                UTo = to,
+                UN = un,
+                VFrom = 0,
+                VTo = Math.PI,
+                VN = vn,
+                UClosed = false,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+        }.Normalize();
+
         public static Shape Heart(int un, int vn, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
