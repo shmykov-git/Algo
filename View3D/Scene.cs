@@ -88,17 +88,23 @@ namespace View3D
 
             #endregion
 
-            
+            var l = vectorizer.GetContentShape("lenin1").Perfecto().ToLines().ApplyColor(Color.Blue);
+
+
             var shape = new Shape[]
             {
-                Shapes.Cube.SplitLines(20).ToLines()
-                    .ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black,Color.Black, Color.Black, Color.Black, Color.White),
-                vectorizer.GetContentShape("l7").AlignX(1).Mult(0.3).Move(-0.5,0,0.2).ToLines().ApplyColor(Color.Blue),
-                vectorizer.GetContentShape("l8").Mult(0.2).Move(0.3, -0.3, 0.5).ToLines().ApplyColor(Color.Blue),
-                vectorizer.GetContentShape("s13").Mult(0.25).Move(0.3, -0.5, 0.5).ToLines(0.3).ApplyColor(Color.Blue),
-                vectorizer.GetContentShape("p4").AlignY(1).Mult(0.5).Move(0, -0.5, -0.5).ToLines().ApplyColor(Color.Blue),
-                vectorizer.GetContentShape("lenin1").Mult(0.2).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue),
-                Surfaces.Plane(2,2).Perfecto(0.3).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue)
+                //Shapes.Cube.SplitLines(20).ToLines()
+                //    .ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black,Color.Black, Color.Black, Color.Black, Color.White),
+                //vectorizer.GetContentShape("l7").AlignX(1).Mult(0.3).Move(-0.5,0,0.2).ToLines().ApplyColor(Color.Blue),
+                //vectorizer.GetContentShape("l8").Mult(0.2).Move(0.3, -0.3, 0.5).ToLines().ApplyColor(Color.Blue),
+                //vectorizer.GetContentShape("s13").Mult(0.25).Move(0.3, -0.5, 0.5).ToLines(0.3).ApplyColor(Color.Blue),
+                //vectorizer.GetContentShape("p4").AlignY(1).Mult(0.5).Move(0, -0.5, -0.5).ToLines().ApplyColor(Color.Blue),
+                //vectorizer.GetContentShape("lenin1").Mult(0.2).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue),
+                //Surfaces.Plane(2,2).Perfecto(0.3).Move(-0.25, 0.25, -0.5).ToLines().ApplyColor(Color.Blue)
+                l.FlipX().Rotate(0, -1, 4).MoveX(-0.4), 
+                l.Rotate(0, 1, 4).MoveX(0.4),
+                vectorizer.GetText("Just Do It").Perfecto(0.3).ToLines(0.4).Rotate(1,0,5).MoveY(-0.43).ApplyColor(Color.DeepPink)
+
             }.ToSingleShape();
 
             return shape;
