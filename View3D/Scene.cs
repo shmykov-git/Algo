@@ -87,21 +87,15 @@ namespace View3D
 
             #endregion
 
-            var s = vectorizer.GetContentShape("w23").Perfecto().ToLines(1).ApplyColor(Color.Blue);
+            var ss = CubeGalaxiesIntersection(1, 20, 0.1, 1.5, 10).Perfecto(1.3).Rotate(1, -2, 3);
+
+            var s = vectorizer.GetContentShape("s14").ToLines(0.5).ApplyColor(Color.Blue);
             
-            var r = new Random(0);
 
-           
-            var ps = EnumerableV2.Wedge(15).Skip(1).ToArray();
-            var ss = ps.Select(p => Surfaces.Sphere((int)(40 * (1 - p.y.Abs() / 5)), (int)(20* (1 - p.y.Abs() / 5))).Perfecto(1.2*(1-p.y.Abs() / 5)).Rotate(r.NextRotation()).Move(1.5*p.ToV3()).ToLines().ApplyColor(Color.White)).ToSingleShape()
-                .FlipY().ToOy();
-
-            var a = Math.PI / 3;
 
             var shape = new Shape[]
             {
-                s.Move(-0.05, -0.1, 0.2),
-                Surfaces.SphereAngle(40, 20, -Math.PI/2 + a/2, 3*Math.PI/2 - a/2).Perfecto(1.2).ToOy().ToLines(1).ApplyColor(Color.White),
+                s,
                 ss
 
             }.ToSingleShape();

@@ -224,20 +224,19 @@ namespace View3D
             public Func<Shape, Shape> ModifyFn;
         }
 
-        public Shape CubeGalaxiesIntersection()
+        public Shape CubeGalaxiesIntersection(double gravityPower = 0.1, int count = 10, double pSize = 0.1, double cubeStretch = 5, double sceneSize = 10)
         {
-            var gravityPower = 0.1;
-            var particleShape = Shapes.Cube.Perfecto(0.1);
+            var particleShape = Shapes.Cube.Perfecto(pSize);
 
             var data = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Func<Shape, Shape> modifyFn, Color color)[]
             {
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5), 
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch), 
                     new Vector3(-2.5, 0, 0),
                     s => 0.5 * s.MassCenter.MultV(Vector3.YAxis), 
                     s=>s,
                     Color.Black),
                 
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(5).Rotate(1, 1, 1), 
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1), 
                     new Vector3(2.5, 0, 0),
                     s => 0.5 * s.MassCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)), 
                     s=>s.Rotate(1,1,1),
@@ -280,9 +279,9 @@ namespace View3D
                     Step();
             }
 
-            Animate(10);
+            Animate(count);
 
-            var shape = particles.Where(p => p.Pos.Length < 10).Select(p => p.ModifyFn(particleShape).Move(p.Pos).ApplyColor(p.Color))
+            var shape = particles.Where(p => p.Pos.Length < sceneSize).Select(p => p.ModifyFn(particleShape).Move(p.Pos).ApplyColor(p.Color))
                 .ToSingleShape()
                 .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
 
