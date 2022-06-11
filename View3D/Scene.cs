@@ -87,17 +87,18 @@ namespace View3D
 
             #endregion
 
-            var ss = CubeGalaxiesIntersection(1, 20, 0.1, 1.5, 10).Perfecto(1.3).Rotate(1, -2, 3);
-
-            var s = vectorizer.GetContentShape("s14").ToLines(0.5).ApplyColor(Color.Blue);
-            
-
+            var s = vectorizer.GetContentShape("l9").ToLines(0.5)
+                .ApplyColorSphereGradient(new Vector3(-0.5, -0.5, 0), Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Blue, Color.White, Color.White, Color.White);
+                
 
             var shape = new Shape[]
             {
                 s,
-                ss
-
+                Shapes.IcosahedronSp2.Mult(0.005).Move(-0.31,0.105,0).ApplyColor(Color.Red)
+                //Shapes.CylinderR(50, 1, 1).Perfecto(0.5).ScaleZ(0.1).ToOy().Move(-0.05, -0.41, 0).ApplyColor(Color.White),
+                //Shapes.Ball.Perfecto(0.06).Move(-0.23, -0.375, 0).ApplyColor(Color.White)
+            //Surfaces.Cylinder(20,2).Perfecto(0.5).ScaleZ(0.1).ToOy().Move(-0.05, -0.41, 0).ApplyColor(Color.White)    
+            //, Shapes.CoodsWithText ,Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;

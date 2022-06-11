@@ -26,7 +26,7 @@ namespace Model3D.Tools
                 throw new ArgumentException($"Cannot find content file {name}");
 
             if (files.Length > 1)
-                Console.Write($"Fount {files.Length} files for {name}!");
+                Console.Write($"Found {files.Length} files for {name}!");
 
             return files.First();
         }
