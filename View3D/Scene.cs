@@ -90,9 +90,10 @@ namespace View3D
             var s = vectorizer.GetContentShape("w23").Perfecto().ToLines(1).ApplyColor(Color.Blue);
             
             var r = new Random(0);
-            
-            var ps = EnumerableV2.Wedge(10).Skip(1).ToArray();
-            var ss = ps.Select(p => Surfaces.Sphere(40, 20).Perfecto(1.2*(1-p.Len/5)).Rotate(r.NextV3()).Move(1.5*p.ToV3()).ToLines().ApplyColor(Color.White)).ToSingleShape()
+
+           
+            var ps = EnumerableV2.Wedge(15).Skip(1).ToArray();
+            var ss = ps.Select(p => Surfaces.Sphere((int)(40 * (1 - p.y.Abs() / 5)), (int)(20* (1 - p.y.Abs() / 5))).Perfecto(1.2*(1-p.y.Abs() / 5)).Rotate(r.NextRotation()).Move(1.5*p.ToV3()).ToLines().ApplyColor(Color.White)).ToSingleShape()
                 .FlipY().ToOy();
 
             var a = Math.PI / 3;
