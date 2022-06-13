@@ -6,6 +6,7 @@ using Model;
 using Model.Extensions;
 using Model.Fourier;
 using Model.Libraries;
+using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
@@ -224,7 +225,7 @@ namespace View3D
             public Func<Shape, Shape> ModifyFn;
         }
 
-        public Shape CubeGalaxiesIntersection(double gravityPower = 0.1, int count = 10, double pSize = 0.1, double cubeStretch = 5, double sceneSize = 10)
+        public Shape CubeGalaxiesIntersection(double netSize = 0.5, double gravityPower = 0.1, int count = 10, double pSize = 0.1, double cubeStretch = 5, double sceneSize = 10)
         {
             var particleShape = Shapes.Cube.Perfecto(pSize);
 
@@ -259,11 +260,15 @@ namespace View3D
                     return p;
                 }).ToArray();
 
+            var net = new Net3<Particle>(particles.Select(p => ((Func<Vector3>)(() => p.Pos), p)), netSize);
+
             void Step()
             {
                 var accelerations = particles.Select(a =>
-                        particles.Where(b => a != b).Select(b =>
-                            (b.Pos - a.Pos).ToLen(a.Mass * b.Mass * gravityPower / (b.Pos - a.Pos).Length2)).Sum())
+                        //particles
+                        net.SelectNeighbors(a.Pos)
+                        .Where(b => a != b).Select(b =>
+                        (b.Pos - a.Pos).ToLen(a.Mass * b.Mass * gravityPower / (b.Pos - a.Pos).Length2)).Sum())
                     .ToArray();
 
                 foreach (var p in particles)
@@ -271,6 +276,8 @@ namespace View3D
                     p.Speed += accelerations[p.i];
                     p.Pos += p.Speed;
                 }
+
+                net.Update();
             }
 
             void Animate(int steps)

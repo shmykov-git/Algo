@@ -998,5 +998,16 @@ namespace Model3D.Extensions
                 Materials = shape.Materials == null ? null : (withVolume ? new[]{shape.Materials[i], shape.Materials[i] } : new[] { shape.Materials[i] })
             }).ToArray();
         }
+
+        public static Shape ToPerimeterShape(this Shape shape)
+        {
+            var perimeter = PerimeterEngine.FindPerimeter(shape);
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = perimeter.SelectMany(p => p.SelectCirclePair((i, j) => new[] {i, j})).ToArray()
+            };
+        }
     }
 }

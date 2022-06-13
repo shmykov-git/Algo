@@ -100,6 +100,22 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
+        public static Shape SectionShapeY(Shape shape, int vn, double from, double to, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.CylinderShapeFuncY(shape),
+                UFrom = 0,
+                UTo = shape.PointsCount - 1,
+                UN = shape.PointsCount,
+                VFrom = from,
+                VTo = to,
+                VN = vn,
+                VClosed = false,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, shape.PointsCount) : Squares(vn, shape.PointsCount)
+        }.Normalize();
+
         public static Shape Heart(int un, int vn, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo

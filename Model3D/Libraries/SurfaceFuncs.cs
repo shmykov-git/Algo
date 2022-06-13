@@ -11,6 +11,21 @@ namespace Model3D.Libraries
 
     public static class SurfaceFuncs
     {
+        public static SurfaceFunc ShapeFuncY(Shape shape, Func2 fn)
+        {
+            var points = shape.Points2;
+
+            return (double u, double v) =>
+            {
+                var p = points[(int) u];
+                var f = fn(v);
+
+                return new Vector3(p.x * f.x, p.y, p.x * f.y);
+            };
+        }
+
+        public static SurfaceFunc CylinderShapeFuncY(Shape shape) => ShapeFuncY(shape, Funcs2.Circle());
+
         public static SurfaceFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);
 
         public static SurfaceFunc Paraboloid => (double u, double v) => new Vector3(u, v, u * u + v * v);
