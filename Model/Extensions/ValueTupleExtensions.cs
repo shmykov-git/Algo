@@ -32,6 +32,11 @@ namespace Model.Extensions
             return Enumerable.Range(0, range).Select(i => selectFn(i));
         }
 
+        public static void ForEach(this int range, Action<int> action)
+        {
+            Enumerable.Range(0, range).ForEach(action);
+        }
+
         public static IEnumerable<T> SelectMiddleRange<T>(this int range, Func<int, T> selectFn)
         {
             return Enumerable.Range(0, range).Select(i => selectFn(i - range/2));

@@ -150,6 +150,10 @@ namespace Model3D.Extensions
             return q * v;
         }
 
+        public static Vector3 ToV3(this Vector v)
+        {
+            return new Vector3(v[0], v[1], v[2]);
+        }
         public static Shape ToShape(this IEnumerable<Vector2> points, double? volume = null, bool triangulate = false) => points.ToArray().ToPolygon().ToShape(volume, triangulate);
     }
 }

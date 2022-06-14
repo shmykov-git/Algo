@@ -10,6 +10,7 @@ using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
+using Model3D.Tools;
 using View3D.Libraries;
 
 namespace View3D
@@ -215,17 +216,16 @@ namespace View3D
 
         #region CubeGalaxiesIntersection
 
-        class Particle
+        class Particle : IAnimatorParticleItem
         {
             public int i;
-            public double Mass;
-            public Vector3 Pos;
-            public Vector3 Speed;
+            public Vector3 Position { get; set; }
+            public Vector3 Speed { get; set; }
             public Color Color;
             public Func<Shape, Shape> ModifyFn;
         }
 
-        public Shape CubeGalaxiesIntersection(double netSize = 0.5, double gravityPower = 0.1, int count = 10, double pSize = 0.1, double cubeStretch = 5, double sceneSize = 10)
+        public Shape CubeGalaxiesIntersection(double? netSize = 0.5, double gravityPower = 0.00001, int count = 10, double pSize = 0.1, double cubeStretch = 5, double sceneSize = 10)
         {
             var particleShape = Shapes.Cube.Perfecto(pSize);
 
@@ -248,8 +248,7 @@ namespace View3D
                 .SelectMany(s => s.s.SplitByConvexes()
                     .Select(ss => new Particle()
                     {
-                        Mass = 0.01,
-                        Pos = ss.MassCenter + s.shift,
+                        Position = ss.MassCenter + s.shift,
                         Speed = s.speed(ss),
                         Color = s.color,
                         ModifyFn = s.modifyFn
@@ -260,39 +259,26 @@ namespace View3D
                     return p;
                 }).ToArray();
 
-            var net = new Net3<Particle>(particles.Select(p => ((Func<Vector3>)(() => p.Pos), p)), netSize);
-
-            void Step()
+            var animator = new Animator(new AnimatorOptions()
             {
-                var accelerations = particles.Select(a =>
-                        //particles
-                        net.SelectNeighbors(a.Pos)
-                        .Where(b => a != b).Select(b =>
-                        (b.Pos - a.Pos).ToLen(a.Mass * b.Mass * gravityPower / (b.Pos - a.Pos).Length2)).Sum())
-                    .ToArray();
+                UseParticleGravityAttraction = true,
+                GravityAttractionPower = gravityPower,
+                NetSize = netSize,
+                NetFrom = new Vector3(-6, -6, -6),
+                NetTo = new Vector3(6, 6, 6)
+            });
 
-                foreach (var p in particles)
-                {
-                    p.Speed += accelerations[p.i];
-                    p.Pos += p.Speed;
-                }
+            animator.AddItems(particles);
+            animator.Animate(count);
 
-                net.Update();
-            }
-
-            void Animate(int steps)
-            {
-                for (var i = 0; i < steps; i++)
-                    Step();
-            }
-
-            Animate(count);
-
-            var shape = particles.Where(p => p.Pos.Length < sceneSize).Select(p => p.ModifyFn(particleShape).Move(p.Pos).ApplyColor(p.Color))
+            var shape = particles.Where(p => p.Position.Length < sceneSize).Select(p => p.ModifyFn(particleShape).Move(p.Position).ApplyColor(p.Color))
                 .ToSingleShape()
                 .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
 
-            return shape;
+            //var fieldPoint = Shapes.Tetrahedron.Mult(0.1).ApplyColor(Color.Blue);
+            //var field = animator.NetField.Select(p => fieldPoint.Move(p)).ToSingleShape();
+
+            return shape/* + field + Shapes.CoodsWithText*/;
         }
 
         #endregion

@@ -15,6 +15,15 @@ namespace Model.Extensions
                 action(enumerator.Current);
         }
 
+        public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)
+        {
+            var i = 0;
+            var enumerator = list.GetEnumerator();
+
+            while (enumerator.MoveNext())
+                action(enumerator.Current, i++);
+        }
+
         public static IEnumerable<int> Index<T>(this IEnumerable<T> list)
         {
             var i = 0;

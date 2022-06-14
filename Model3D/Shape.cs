@@ -4,6 +4,7 @@ using Model3D.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model3D;
 
 namespace Model
 {
@@ -20,6 +21,16 @@ namespace Model
         public (int, int)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e=>e.OrderedEdge())).Distinct().ToArray();
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
+
+        public Vector3[][] Planes
+        {
+            get
+            {
+                var ps = Points3;
+
+                return Convexes.Select(c => c.Select(i => ps[i]).ToArray()).ToArray();
+            }
+        }
 
         public Vector3[] Points3
         {

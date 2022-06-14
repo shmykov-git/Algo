@@ -1,8 +1,12 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Aspose.ThreeD.Utilities;
+using Model;
+using Model.Extensions;
+using Model3;
 using Model3D.Extensions;
-using System;
 
-namespace Model
+namespace Model3D
 {
     public class Plane
     {
@@ -15,6 +19,8 @@ namespace Model
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
         public Func<Vector3, double> Fn => x => Normal.MultS(x - c);
+
+        public Func<Vector3, Vector3> ProjectionFn => p => p - Normal.ToLen(Fn(p));
 
         public Plane(Vector3 a, Vector3 b, Vector3 c)
         {

@@ -13,7 +13,7 @@ namespace Model.Tools
 
         public static (double x, double y) Minimize(Func<double, double, double> fn, (double x, double y) v0, double tolerance = 1E-8)
         {
-            return FindMinimum.OfFunction(fn, v0.x, v0.y, tolerance).ToValueTuple();
+            return FindMinimum.OfFunction(fn, v0.x, v0.y, tolerance);
         }
 
         //var count = 0;

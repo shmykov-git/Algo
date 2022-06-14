@@ -42,6 +42,20 @@ namespace View3D
 
         #endregion
 
+        class Item : IAnimatorParticleItem
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Speed { get; set; }
+        }
+
+        class PlaneItem : IAnimatorPlaneItem
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Speed { get; set; }
+            public Vector3[] Convex { get; set; }
+            public Vector3 Normal { get; set; }
+        }
+
         public Shape GetShape()
         {
             #region триангуляция (не работает нормально)
@@ -87,23 +101,78 @@ namespace View3D
 
             #endregion
 
-            return CubeGalaxiesIntersection(0.5 );
+            var r = 0.1;
 
-            //var s = vectorizer.GetContentShape("w25").ToLines(0.5).AlignX(1).ApplyColor(Color.Blue);
-            //.ApplyColorSphereGradient(new Vector3(-0.5, -0.5, 0), Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Blue, Color.White, Color.White, Color.White);
+            var cube = Shapes.Cube.Mult(5).ApplyColor(Color.Black);
+            var particle = Shapes.IcosahedronSp2.Mult(r).ApplyColor(Color.Blue);
 
-            //var l = vectorizer.GetContentShape("w25").ToPerimeterShape().AlignX(1).MoveX(-0.5);
-                //.ApplyColor(Color.Blue);
-                //var s = l.ToLines(0.1).ApplyColor(Color.Blue);
-                //var s = Surfaces.SectionShapeY(l, 10, 0, Math.PI/2)/*.ToLines(0.1)*/.ApplyColor(Color.Blue);
+            var rnd = new Random(0);
+            var particles = Shapes.Cube.SplitPlanes(0.5).Mult(2.8).Points3.Select(p => p + rnd.NextV3(0.05)).ToArray();
 
-                var s = Surfaces.Sphere(50, 25).ToLines(0.5).ApplyColor(Color.Blue).ToOy();
+            //var particles = new Vector3[]
+            //{
+            //    new Vector3(-0.15, 0, 0),
+            //    new Vector3(0.15, 0, 0),
+            //};
+
+            //var particles = new Vector3[]
+            //{
+            //    new Vector3(-0.15, 0, 0),
+            //    new Vector3(0.15, 0, 0),
+            //    new Vector3(-0.15, 0.2, 0),
+            //    new Vector3(0.15, -0.13, 0),
+            //    new Vector3(0, 0.25, 0),
+            //};
+
+            //var particles = new Vector3[]
+            //{
+            //    new Vector3(-0.15, 0, 0),
+            //    new Vector3(0.15, 0, 0),
+            //    new Vector3(-0.15, 0.2, 0),
+            //    new Vector3(0.15, -0.13, 0),
+            //    new Vector3(0, 0.25, 0),
+            //};
+
+            //particles = particles
+            //    .Concat(particles.Select(p => p + new Vector3(0, 0, 0.25)))
+            //    .Concat(particles.Select(p => p + new Vector3(0, 0, -0.25)))
+            //    .ToArray();
+
+            //particles = particles
+            //    .Concat(particles.Select(p => p + new Vector3(1, 0, 0)))
+            //    .ToArray();
+
+
+            var planeItems = cube.Planes.Select(c=>new PlaneItem()
+            {
+                Convex = c,
+                Position = c.Center()
+            }).ToArray();
+
+            var items = particles.Select(p=>new Item{Position = p, Speed = new Vector3(0,0,0)}).ToArray();
+
+            var animator = new Animator(new AnimatorOptions()
+            {
+                UseGravity = false,
+                GravityPower = 0.1,
+
+                UseParticleLiquidAcceleration = true,
+                LiquidPower = 0.01,
+                InteractionFactor = 10,
+                ParticleRadius = r,
+            });
+
+            animator.AddItems(items);
+            animator.AddPlanes(planeItems);
+
+            animator.Animate(40);
 
             var shape = new Shape[]
             {
-                s,
+                cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10),
+                items.Select(item => particle.Move(item.Position)).ToSingleShape(),
 
-                //Shapes.CoodsWithText ,Shapes.CoodsNet
+                Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;

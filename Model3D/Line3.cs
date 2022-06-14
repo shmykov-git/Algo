@@ -1,7 +1,8 @@
-﻿using Aspose.ThreeD.Utilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Aspose.ThreeD.Utilities;
+using Model3D.Extensions;
 
-namespace Model
+namespace Model3D
 {
     public class Line3
     {
@@ -13,6 +14,8 @@ namespace Model
         public double Len2 => ab.Length2;
         public Vector3 Center => (a + b) / 2;
         public Vector3 One => ab.Normalize();
+
+        public bool IsLeft(Vector3 x) => ab.MultV(ab.MultV(x - b)).MultS(x - b) < 0;
 
         public static Line3 ZLineOne => new Line3(new Vector3(0, 0, 0), new Vector3(0, 0, 1));
 
