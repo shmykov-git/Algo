@@ -8,7 +8,7 @@ namespace Model.Test
     public class PlaneTests
     {
         [Test]
-        public void ProjectionTest()
+        public void ProjectionFnTest()
         {
             var a = new Vector3(1, 0, 0);
             var b = new Vector3(0, 1, 0);

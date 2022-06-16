@@ -101,13 +101,22 @@ namespace View3D
 
             #endregion
 
-            var r = 0.1;
+            var particleRadius = 0.2;
 
-            var cube = Shapes.Cube.Mult(5).ApplyColor(Color.Black);
-            var particle = Shapes.IcosahedronSp2.Mult(r).ApplyColor(Color.Blue);
+            var cube = Shapes.Cube.Mult(5);
+            var insideSphere = Shapes.IcosahedronSp3.Perfecto(3).Where(v => v.y > -0.1).MoveY(-2.5);
+            //var insideCube = Shapes.Cube.Mult(1.5).MoveY(-1.75);
+            var particle = Shapes.IcosahedronSp2.Mult(particleRadius).ApplyColor(Color.Blue);
 
             var rnd = new Random(0);
-            var particles = Shapes.Cube.SplitPlanes(0.5).Mult(2.8).Points3.Select(p => p + rnd.NextV3(0.05)).ToArray();
+
+            var particles = 
+                (
+                    Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveX(1) +
+                    Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveX(-1) +
+                    Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveZ(1) +
+                    Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveZ(-1)
+                ).Points3.Select(p => p + rnd.NextV3(0.05)).ToArray();
 
             //var particles = new Vector3[]
             //{
@@ -142,37 +151,98 @@ namespace View3D
             //    .Concat(particles.Select(p => p + new Vector3(1, 0, 0)))
             //    .ToArray();
 
+            var logicCube = cube.AddBorder(particleRadius);
+            var cubePlanes = logicCube.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c.Reverse().ToArray(),
+                Position = c.Center()
+            });
 
-            var planeItems = cube.Planes.Select(c=>new PlaneItem()
+            //var insideSceneCube = insideCube.AddBorder(-particleRadius).SplitByConvexes(false).Skip(1).ToSingleShape();
+            //var insideCubePlanes = insideSceneCube.Planes.Select(c => new PlaneItem()
+            //{
+            //    Convex = c,
+            //    Position = c.Center()
+            //});
+
+
+            var insideLogicSphere = insideSphere.AddBorder(-particleRadius);
+            var insideSpherePlanes = insideLogicSphere.Planes.Select(c => new PlaneItem()
             {
                 Convex = c,
                 Position = c.Center()
-            }).ToArray();
+            });
+
+            var planes = cubePlanes.Concat(insideSpherePlanes).ToArray();
+
+            var sceneSize = logicCube.GetBorders();
 
             var items = particles.Select(p=>new Item{Position = p, Speed = new Vector3(0,0,0)}).ToArray();
 
+            var netSize = 0.25;
+
             var animator = new Animator(new AnimatorOptions()
             {
-                UseGravity = false,
-                GravityPower = 0.1,
+                UseGravity = true,
+                GravityPower = 0.01,
 
                 UseParticleLiquidAcceleration = true,
-                LiquidPower = 0.01,
-                InteractionFactor = 10,
-                ParticleRadius = r,
+                LiquidPower = 0.001,
+                InteractionFactor = 5,
+                ParticleRadius = particleRadius,
+                ParticlePlaneThikness = 3,
+                MaxParticleMove = 2,
+
+                NetSize = netSize,
+                NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),
+                NetTo = sceneSize.max
             });
 
             animator.AddItems(items);
-            animator.AddPlanes(planeItems);
+            animator.AddPlanes(planes);
 
-            animator.Animate(40);
+            //return (10).SelectRange(n =>
+            //{
+            //    animator.Animate(2);
+
+            //    return items /*.Where(item=>item.Position.Length < 15)*/.Select(item => particle.Move(item.Position))
+            //        .ToSingleShape().MoveY(n*3);
+            //}).ToSingleShape();
+
+            animator.Animate(30);
+
+            List<Item> newItems = new List<Item>();
+            //(20).ForEach(k =>
+            //{
+            //    var items = Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveY(1).Points3.Select(p => 
+            //        new Item
+            //        {
+            //            Position = p, Speed = new Vector3(0, 0, 0)
+            //        }).ToArray();
+
+            //    animator.AddItems(items);
+            //    newItems.AddRange(items);
+
+            //    animator.Animate(15);
+            //});
+
+            // todo: продавливание!
 
             var shape = new Shape[]
             {
-                cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10),
-                items.Select(item => particle.Move(item.Position)).ToSingleShape(),
+                cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10).ApplyColor(Color.Black),
+                insideSphere.ToShapedLines(Shapes.CylinderR(7, 1, 1), 3).ApplyColor(Color.Black),
 
-                Shapes.CoodsWithText, Shapes.CoodsNet
+                //insideLogicSphere.ToLines(3, Color.Blue),
+                //sceneCube.ToLines(3, Color.Blue),
+                //ss.Select((s,i)=>s.MoveX(3*(i-5))).ToSingleShape(),
+
+                items.Select(item => particle.Move(item.Position)).ToSingleShape(),
+                newItems.Select(item => particle.Move(item.Position)).ToSingleShape(),
+
+                //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
+
+                //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
             return shape;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -23,6 +24,8 @@ namespace Model3D.Tools
         public double ParticleRadius;
         public double InteractionFactor = Math.E;
         public double LiquidPower;
+        public double ParticlePlaneThikness = 2;
+        public double MaxParticleMove = 2.5;
 
         public Vector3? NetFrom;
         public Vector3? NetTo;
@@ -56,6 +59,7 @@ namespace Model3D.Tools
         private double dMin;
         private double dMin2;
         private double zeroDist2;
+        private double planeThikness2;
         private Vector3 zeroV3 = new Vector3(0, 0, 0);
 
         public Animator(AnimatorOptions options)
@@ -66,6 +70,8 @@ namespace Model3D.Tools
         #endregion
 
         public Vector3[] NetField => net?.NetField;
+        public Vector3[] NetParticles => net?.NetItems.OfType<Particle>().Select(p => p.Item.Position).ToArray();
+        public Vector3[] NetPlanes => net?.NetItems.OfType<Plane>().Select(p => p.Position).ToArray();
 
         public void AddItems(IAnimatorParticleItem[] items)
         {
@@ -104,31 +110,35 @@ namespace Model3D.Tools
 
             if (net != null)
             {
-                var fieldDistance = options.NetSize / 2;
+                var fieldDistance = options.NetSize;
 
                 var newPlanes = planes.SelectMany(pl =>
                 {
                     var plane = new Model3D.Plane(pl.Convex[0], pl.Convex[1], pl.Convex[2]);
                     var distanceFn = plane.Fn;
-                    var projectionFn = plane.ProjectionFn;
 
                     return net.NetField
-                        .Where(pos => distanceFn(pos).Abs() < fieldDistance)
-                        .Where(pos => IsInside(pl.Convex, projectionFn(pos))) // todo: check
-                        .Select(pos => new Plane
+                        .Where(netPos => distanceFn(netPos).Abs() < fieldDistance)
+                        .Where(netPos => pl.Convex.IsInside(netPos))
+                        .Select(netPos => new Plane
                         {
-                            Item = pl, 
+                            Item = pl,
                             ItemBase = pl,
-                            Position = pos,
+                            Normal = plane.NOne,
+                            Position = netPos,
+                            PositionFn = () => netPos,
                             ProjectionFn = plane.ProjectionFn
                         });
                 }).Select((p,i) =>
                 {
                     p.i = i;
+
                     return p;
                 }).ToArray();
 
                 this.planes = newPlanes;
+
+                net.AddItems(newPlanes);
             }
         }
 
@@ -137,23 +147,20 @@ namespace Model3D.Tools
             dMin = 2 * options.ParticleRadius;
             dMin2 = dMin.Pow2();
             zeroDist2 = dMin2 * options.InteractionFactor.Pow2();
+            planeThikness2 = (options.ParticlePlaneThikness * 2 * options.ParticleRadius).Pow2();
         }
 
         IEnumerable<NetItem> GetNeighbors(Vector3 position) => net == null ? particles : net.SelectNeighbors(position);
-
-        bool IsInside(Vector3[] convex, Vector3 pos)
-        {
-            return convex.SelectCirclePair((a, b) => new Line3(a, b)).All(line => line.IsLeft(pos));
-        }
 
         Vector3 GetAttractionAcceleration(Vector3 a, Vector3 b) =>
             (b - a).ToLen(options.GravityAttractionPower / (b - a).Length2);
 
         Vector3 GetGravityAcceleration() => options.GravityPower * options.GravityDirection;
 
-        Vector3 GetLiquidAcceleration(IAnimatorParticleItem aP, Vector3 b)
+        Vector3 GetLiquidAcceleration(IAnimatorParticleItem aP, IAnimatorItem bP, Func<Vector3> bPositionFn = null)
         {
             var a = aP.Position;
+            var b = bPositionFn?.Invoke() ?? bP.Position;
 
             var d2 = (b - a).Length2;
 
@@ -171,24 +178,28 @@ namespace Model3D.Tools
 
                 return acc;
             }
-
-            return zeroV3;
-        }
-
-        Vector3 GetLiquidAcceleration(IAnimatorParticleItem a, INet3Item b)
-        {
-            switch (b)
+            else
             {
-                case Particle bParticle:
-                    return GetLiquidAcceleration(a, bParticle.Item.Position);
-                
-                case Plane bPlane:
-                    return GetLiquidAcceleration(a, bPlane.ProjectionFn(b.PositionFn()));
+                // repulsion power
 
-                default:
-                    throw new NotImplementedException();
+                return zeroV3;
             }
         }
+
+        //Vector3 GetLiquidAcceleration(IAnimatorParticleItem a, NetItem b)
+        //{
+        //    switch (b)
+        //    {
+        //        case Particle bParticle:
+        //            return GetLiquidAcceleration(a, bParticle.Item);
+                
+        //        case Plane bPlane:
+        //            return GetLiquidAcceleration(a, bPlane.ItemBase, bPlane.PositionFn);
+
+        //        default:
+        //            throw new NotImplementedException();
+        //    }
+        //}
 
         public void Animate(int count)
         {
@@ -227,11 +238,22 @@ namespace Model3D.Tools
             {
                 var liquidAccelerations = particles.Select(a =>
                         GetNeighbors(a.Item.Position)
+                        .OfType<Particle>()
                         .Where(b => a != b)
-                        .Select(b => GetLiquidAcceleration(a.Item, b)).Sum())
+                        .Select(b => GetLiquidAcceleration(a.Item, b.Item)).Sum())
                     .ToArray();
 
                 liquidAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
+
+                //liquidAccelerations = particles.Select(a =>
+                //        GetNeighbors(a.Item.Position)
+                //            .OfType<Plane>()
+                //            .GroupBy(p => p.Item)
+                //            .Select(gp => gp.First())
+                //            .Select(b => GetLiquidAcceleration(a.Item, b.Item)).Sum())
+                //    .ToArray();
+
+                //liquidAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
 
                 //Debug.WriteLine($"{minDist}, {liquidAccelerations.Min(v=>v.Length)}, {liquidAccelerations.Max(v => v.Length)}");
             }
@@ -244,24 +266,60 @@ namespace Model3D.Tools
 
             if (options.UseParticleLiquidAcceleration)
             {
-                // particle collisions
+                // particle with particle collisions
 
-                var offsets = particles.Select(a => (particle: a, infos:
+                var particleCollisions = particles.Select(a => (particle: a, infos:
                         GetNeighbors(a.Item.Position)
+                            .OfType<Particle>()
                             .Where(b => a != b)
-                            .Select(b => (b, ab: b.PositionFn() - a.PositionFn(), speed:b.ItemBase.Speed))
+                            .Select(b => (b, ab: b.Item.Position - a.Item.Position, speed:b.ItemBase.Speed))
                             .Where(v => v.ab.Length2 < dMin2)
                             .Select(v => (move: -v.ab.ToLen(dMin - v.ab.Length), v.speed))
                             .ToArray()))
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
 
-                foreach (var (particle, infos) in offsets)
+                foreach (var (particle, infos) in particleCollisions)
                 {
-                    var move = infos.Select(v => v.move).Sum();
                     var speed = infos.Select(v => v.speed).Concat(new []{ particle.Item.Speed }).Center();
-                    //var nMove = move.Normalize();
                     particle.Item.Speed = speed;
+
+                    var move = infos.Select(v => v.move).Sum();
+                    if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
+                        move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
+
+                    particle.Item.Position += move;
+                }
+
+                // particle with plane collisions
+
+                var planeCollisions = particles.Select(a => (particle: a, infos:
+                        GetNeighbors(a.Item.Position)
+                            .OfType<Plane>()
+                            .GroupBy(p=>p.Item)
+                            .Select(gp=>gp.First())
+                            .Select(b => (b, ab: b.ProjectionFn(a.Item.Position) - a.Item.Position))
+                            .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0))
+                            .Where(v => v.closing ? v.ab.Length2 < dMin2 : v.ab.Length2 < planeThikness2)
+                            .Where(v => v.b.Item.Convex.IsInside(a.Item.Position))
+                            //.Select(v => (v.b, move: -v.ab.ToLen(dMin - v.ab.Length)))
+                            .Select(v => v.closing ? -v.ab.ToLen(dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + dMin))
+                            .ToArray()))
+                    .Where(v => v.infos.Length > 0)
+                    .ToArray();
+
+                foreach (var (particle, infos) in planeCollisions)
+                {
+                    var move = infos.Sum();
+                    
+                    if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
+                        move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
+
+                    var nMove = move.Normalize();
+                    particle.Item.Speed -= 2 * nMove * nMove.MultS(particle.Item.Speed);
+
+                    // todo: иммунитет частицы на сдвиг и скорость в направлениях (от всех плоскостий из колизии)
+
                     particle.Item.Position += move;
                 }
             }
@@ -281,6 +339,7 @@ namespace Model3D.Tools
         {
             public int i;
             public Vector3 Position;
+            public Vector3 Normal;
             public IAnimatorPlaneItem Item;
             public Func<Vector3, Vector3> ProjectionFn;
         }

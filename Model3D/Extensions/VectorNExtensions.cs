@@ -154,6 +154,13 @@ namespace Model3D.Extensions
         {
             return new Vector3(v[0], v[1], v[2]);
         }
+
         public static Shape ToShape(this IEnumerable<Vector2> points, double? volume = null, bool triangulate = false) => points.ToArray().ToPolygon().ToShape(volume, triangulate);
+
+        public static bool IsInside(this Vector3[] vs, Vector3 x)
+        {
+            return vs.SelectCircleTriple((a, b, c) => (b - a).MultV(c - b).MultS((b - a).MultV(x - b)) < 0 ? -1 : 1)
+                .Sum().Abs() == vs.Length;
+        }
     }
 }

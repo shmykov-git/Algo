@@ -4,6 +4,7 @@ using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model3D.Tools;
 
 namespace Model3D
 {
@@ -30,6 +31,8 @@ namespace Model3D
 
         public Vector3[] NetField => netData.SelectMany((a, i) =>
             a.SelectMany((b, j) => b.Select((c, k) => netSize * new Vector3(i + 0.5, j + 0.5, k + 0.5) + from))).ToArray();
+
+        public TNetItem[] NetItems => data.Select(item=>item.Value).ToArray();
 
         public (int i, int j, int k) GetIndex(Vector3 v) => (
             (int) ((v.x - from.x) / netSize),

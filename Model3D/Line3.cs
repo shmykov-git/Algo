@@ -15,8 +15,6 @@ namespace Model3D
         public Vector3 Center => (a + b) / 2;
         public Vector3 One => ab.Normalize();
 
-        public bool IsLeft(Vector3 x) => ab.MultV(ab.MultV(x - b)).MultS(x - b) < 0;
-
         public static Line3 ZLineOne => new Line3(new Vector3(0, 0, 0), new Vector3(0, 0, 1));
 
         public IEnumerable<Vector3> Points()

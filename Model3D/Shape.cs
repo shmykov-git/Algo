@@ -38,12 +38,12 @@ namespace Model
             set => Points = value.Select(p => p.ToV4()).ToArray();
         }
 
-        public Vector4[] Normals
+        public Vector3[] Normals
         {
             get
             {
                 var points = Points3;
-                return Convexes.Where(c => c.Length > 2).Select(c => new Plane(points[c[0]], points[c[1]], points[c[2]]).Normal.ToV4()).ToArray();
+                return Convexes.Where(c => c.Length > 2).Select(c => new Plane(points[c[0]], points[c[1]], points[c[2]]).Normal).ToArray();
             }
         }
 

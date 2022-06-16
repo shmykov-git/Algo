@@ -418,6 +418,15 @@ namespace Model3D.Extensions
 
         public static Material[] MaterialsOrDefault(this Shape shape) => shape.Materials ?? shape.Convexes.Index().Select(i => (Material)null).ToArray();
 
+        public static Shape AddBorder(this Shape shape, double b)
+        {
+            var border = shape.GetBorders();
+            var size = border.max - border.min;
+
+            return shape.Move(-border.min).Scale(1.0 + 2 * b / size.x, 1.0 + 2 * b / size.y, 1.0 + 2 * b / size.z)
+                .Move(border.min - b * new Vector3(1, 1, 1));
+        }
+
         public static Shape Mult(this Shape shape, double k)
         {
             return new Shape
@@ -1008,6 +1017,11 @@ namespace Model3D.Extensions
                 Points = shape.Points,
                 Convexes = perimeter.SelectMany(p => p.SelectCirclePair((i, j) => new[] {i, j})).ToArray()
             };
+        }
+
+        public static Shape MovePlanes(this Shape shape, double distance)
+        {
+            return shape.SplitByConvexes(false).Select(s => s.Move(s.Normals[0].ToLen(distance))).ToSingleShape();
         }
     }
 }

@@ -18,9 +18,25 @@ namespace Model3D
         public Vector3 cb => b - c;
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
-        public Func<Vector3, double> Fn => x => Normal.MultS(x - c);
+        public Func<Vector3, double> Fn
+        {
+            get
+            {
+                var n = NOne;
 
-        public Func<Vector3, Vector3> ProjectionFn => p => p - Normal.ToLen(Fn(p));
+                return x => n.MultS(x - c);
+            }
+        }
+
+        public Func<Vector3, Vector3> ProjectionFn
+        {
+            get
+            {
+                var n = NOne;
+
+                return x => x - n * n.MultS(x - c);
+            }
+        }
 
         public Plane(Vector3 a, Vector3 b, Vector3 c)
         {
