@@ -17,6 +17,7 @@ namespace Model3D.Libraries
         public static Func3Z CylinderM = (x, y) => -Math.Sqrt(Math.Abs(1 - y * y));
         public static Func3Z CylinderXM = (x, y) => -Math.Sqrt(Math.Abs(1 - x * x));
         public static Func3Z CylinderR(double r) => (x, y) => Math.Sqrt(Math.Abs(r * r - y * y));
+        public static Func3Z CylinderRX(double r) => (x, y) => Math.Sqrt(Math.Abs(r * r - x * x));
         public static Func3Z CylinderXMR(double r) => (x, y) => -Math.Sqrt(Math.Abs(r * r - x * x));
         public static Func3Z Waves = (x, y) => Math.Sin((x * x + y * y).Sqrt() *40)/50;
         public static Func3Z Sphere = (x, y) => Math.Sqrt(Math.Abs(1 - x * x - y * y));
