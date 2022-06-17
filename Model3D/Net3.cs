@@ -16,6 +16,7 @@ namespace Model3D
     /// <summary>
     /// 3D local collisions complexity optimization from O(n^2) to O(n)
     /// </summary>
+    // todo: net should support out items
     public class Net3<TNetItem> where TNetItem : INet3Item
     {
         public int nx;

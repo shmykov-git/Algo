@@ -441,6 +441,7 @@ namespace Model3D.Extensions
         public static Shape ScaleY(this Shape shape, double mult) => Scale(shape, 1, mult, 1);
         public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
 
+        public static Shape Scale(this Shape shape, Vector3 v) => shape.Scale(v.x, v.y, v.z);
         public static Shape Scale(this Shape shape, double x, double y, double z)
         {
             return new Shape

@@ -293,7 +293,7 @@ namespace Model3D.Tools
                         move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
 
                     // direction immunity compensation
-
+                    // todo: safe particle impulse
                     foreach (var plane in particle.DirectionImmunities.Keys.ToArray())
                     {
                         var directionImmunity = particle.DirectionImmunities[plane];
