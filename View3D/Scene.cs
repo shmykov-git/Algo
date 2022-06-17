@@ -102,11 +102,12 @@ namespace View3D
             #endregion
 
             var particleRadius = 0.2;
+            var cubeSize = 4;
 
-            var cube = Shapes.Cube.Mult(5);
-            var insideSphere = Shapes.IcosahedronSp3.Perfecto(3).Where(v => v.y > -0.1).MoveY(-2.5);
+            var cube = Shapes.Cube.Mult(cubeSize);
+            var insideSphere = Shapes.IcosahedronSp2.Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize/2);
             //var insideCube = Shapes.Cube.Mult(1.5).MoveY(-1.75);
-            var particle = Shapes.IcosahedronSp2.Mult(particleRadius).ApplyColor(Color.Blue);
+            var particle = Shapes.IcosahedronSp1.Mult(particleRadius).ApplyColor(Color.Blue);
 
             var rnd = new Random(0);
 
@@ -166,7 +167,7 @@ namespace View3D
             //});
 
 
-            var insideLogicSphere = insideSphere.AddBorder(-particleRadius);
+            var insideLogicSphere = insideSphere.MovePlanes(-particleRadius);
             var insideSpherePlanes = insideLogicSphere.Planes.Select(c => new PlaneItem()
             {
                 Convex = c,
@@ -201,23 +202,15 @@ namespace View3D
             animator.AddItems(items);
             animator.AddPlanes(planes);
 
-            //return (10).SelectRange(n =>
-            //{
-            //    animator.Animate(2);
-
-            //    return items /*.Where(item=>item.Position.Length < 15)*/.Select(item => particle.Move(item.Position))
-            //        .ToSingleShape().MoveY(n*3);
-            //}).ToSingleShape();
-
-            animator.Animate(30);
 
             List<Item> newItems = new List<Item>();
             //(20).ForEach(k =>
             //{
-            //    var items = Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveY(1).Points3.Select(p => 
+            //    var items = Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveY(1).Points3.Select(p =>
             //        new Item
             //        {
-            //            Position = p, Speed = new Vector3(0, 0, 0)
+            //            Position = p,
+            //            Speed = new Vector3(0, 0, 0)
             //        }).ToArray();
 
             //    animator.AddItems(items);
@@ -228,7 +221,7 @@ namespace View3D
 
             // todo: продавливание!
 
-            var shape = new Shape[]
+            Shape GetShape() => new Shape[]
             {
                 cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10).ApplyColor(Color.Black),
                 insideSphere.ToShapedLines(Shapes.CylinderR(7, 1, 1), 3).ApplyColor(Color.Black),
@@ -244,6 +237,18 @@ namespace View3D
 
                 //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
+
+            animator.Animate(300);
+
+            //return (4, 4).SelectRange((i,j) =>
+            //{
+            //    animator.Animate(1);
+
+            //    return GetShape().Move(j * 6, -i * 6, 0);
+            //}).ToSingleShape();
+
+
+            var shape = GetShape();
 
             return shape;
         }

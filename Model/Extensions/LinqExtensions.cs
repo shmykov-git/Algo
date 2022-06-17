@@ -5,6 +5,12 @@ using System.Linq;
 
 namespace Model.Extensions
 {
+    public enum ForEachAction
+    {
+        Keep,
+        Remove
+    }
+
     public static class LinqExtensions
     {
         public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
@@ -13,6 +19,30 @@ namespace Model.Extensions
 
             while (enumerator.MoveNext())
                 action(enumerator.Current);
+        }
+
+        public static void ForEachRemovable<T>(this IList<T> list, Func<T, ForEachAction> func)
+        {
+            var i = 0;
+            do
+            {
+                var value = list[i];
+                var state = func(value);
+
+                switch (state)
+                {
+                    case ForEachAction.Keep:
+                        i++;
+                        break;
+
+                    case ForEachAction.Remove:
+                        list.RemoveAt(i);
+                        break;
+
+                    default:
+                        throw new NotImplementedException(state.ToString());
+                }
+            } while (i < list.Count);
         }
 
         public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)

@@ -210,9 +210,10 @@ namespace Model3D.Tools
         private void Step(int number)
         {
             particles.ForEach(p =>
-            {
-                p.Acceleration = zeroV3;
-            });
+                p.StepState = new ParticleStepState()
+                {
+                    Acceleration = zeroV3,
+                });
 
             // calculate attraction accelerations
             if (options.UseParticleGravityAttraction)
@@ -223,44 +224,46 @@ namespace Model3D.Tools
                             .Select(b => GetAttractionAcceleration(a.Item.Position, b.PositionFn())).Sum())
                     .ToArray();
                 
-                attractionAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
+                attractionAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
             }
 
             // calculate gravity accelerations
             if (options.UseGravity)
             {
                 var gravityAccelerations = particles.Select(_ => GetGravityAcceleration()).ToArray();
-                gravityAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
+                gravityAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
             }
 
             // calculate liquid accelerations
             if (options.UseParticleLiquidAcceleration)
             {
-                var liquidAccelerations = particles.Select(a =>
+                // particle attract to particle
+                var particleLiquidAccelerations = particles.Select(a =>
                         GetNeighbors(a.Item.Position)
                         .OfType<Particle>()
                         .Where(b => a != b)
                         .Select(b => GetLiquidAcceleration(a.Item, b.Item)).Sum())
                     .ToArray();
 
-                liquidAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
+                particleLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
-                //liquidAccelerations = particles.Select(a =>
-                //        GetNeighbors(a.Item.Position)
-                //            .OfType<Plane>()
-                //            .GroupBy(p => p.Item)
-                //            .Select(gp => gp.First())
-                //            .Select(b => GetLiquidAcceleration(a.Item, b.Item)).Sum())
-                //    .ToArray();
+                // particle attract to plane
+                var planeLiquidAccelerations = particles.Select(a =>
+                    GetNeighbors(a.Item.Position)
+                        .OfType<Plane>()
+                        .GroupBy(p => p.Item)
+                        .Select(gp => gp.First())
+                        .Select(b => GetLiquidAcceleration(a.Item, b.Item, () => b.ProjectionFn(a.Item.Position)))
+                        .Sum()).ToArray();
 
-                //liquidAccelerations.ForEach((a, i) => particles[i].Acceleration += a);
+                planeLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
                 //Debug.WriteLine($"{minDist}, {liquidAccelerations.Min(v=>v.Length)}, {liquidAccelerations.Max(v => v.Length)}");
             }
 
             foreach (var p in particles)
             {
-                p.Item.Speed += p.Acceleration;
+                p.Item.Speed += p.StepState.Acceleration;
                 p.Item.Position += p.Item.Speed;
             }
 
@@ -285,8 +288,27 @@ namespace Model3D.Tools
                     particle.Item.Speed = speed;
 
                     var move = infos.Select(v => v.move).Sum();
+
                     if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
                         move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
+
+                    // direction immunity compensation
+
+                    foreach (var plane in particle.DirectionImmunities.Keys.ToArray())
+                    {
+                        var directionImmunity = particle.DirectionImmunities[plane];
+
+                        var immunityLen = directionImmunity.MultS(move);
+
+                        if (immunityLen < 0)
+                        {
+                            move -= immunityLen * directionImmunity;
+                        }
+                        else
+                        {
+                            particle.DirectionImmunities.Remove(plane);
+                        }
+                    }
 
                     particle.Item.Position += move;
                 }
@@ -299,18 +321,18 @@ namespace Model3D.Tools
                             .GroupBy(p=>p.Item)
                             .Select(gp=>gp.First())
                             .Select(b => (b, ab: b.ProjectionFn(a.Item.Position) - a.Item.Position))
-                            .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0))
+                            .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0, plane: v.b))
                             .Where(v => v.closing ? v.ab.Length2 < dMin2 : v.ab.Length2 < planeThikness2)
                             .Where(v => v.b.Item.Convex.IsInside(a.Item.Position))
                             //.Select(v => (v.b, move: -v.ab.ToLen(dMin - v.ab.Length)))
-                            .Select(v => v.closing ? -v.ab.ToLen(dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + dMin))
+                            .Select(v => (move: v.closing ? -v.ab.ToLen(dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + dMin), v.plane))
                             .ToArray()))
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
 
                 foreach (var (particle, infos) in planeCollisions)
                 {
-                    var move = infos.Sum();
+                    var move = infos.Select(info => info.move).Sum();
                     
                     if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
                         move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
@@ -318,9 +340,18 @@ namespace Model3D.Tools
                     var nMove = move.Normalize();
                     particle.Item.Speed -= 2 * nMove * nMove.MultS(particle.Item.Speed);
 
-                    // todo: иммунитет частицы на сдвиг и скорость в направлениях (от всех плоскостий из колизии)
-
                     particle.Item.Position += move;
+
+                    foreach (var info in infos)
+                    {
+                        if (!particle.DirectionImmunities.ContainsKey(info.plane))
+                            particle.DirectionImmunities[info.plane] = info.plane.Normal;
+                    }
+
+                    foreach (var plane in particle.DirectionImmunities.Keys.Except(infos.Select(info => info.plane)).ToArray())
+                    {
+                        particle.DirectionImmunities.Remove(plane);
+                    }
                 }
             }
 
@@ -347,9 +378,15 @@ namespace Model3D.Tools
         class Particle : NetItem
         {
             public int i;
-            public Vector3 Acceleration;
             public IAnimatorParticleItem Item;
-            public override string ToString() => $"{Item.Position}, {Item.Speed}, {Acceleration}";
+            public ParticleStepState StepState;
+            public Dictionary<Plane, Vector3> DirectionImmunities = new Dictionary<Plane, Vector3>();
+            public override string ToString() => $"{Item.Position}, {Item.Speed}, {StepState.Acceleration}";
+        }
+
+        struct ParticleStepState
+        {
+            public Vector3 Acceleration;
         }
     }
 }
