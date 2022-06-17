@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
+using Mapster;
 using Model;
 using Model.Extensions;
+using Model.Libraries;
 using Model3D.Extensions;
 
 namespace Model3D.Tools
@@ -110,16 +112,30 @@ namespace Model3D.Tools
 
             if (net != null)
             {
+                var netCheckPoints = Shapes.Icosahedron.Perfecto(options.NetSize.Value).Planes.Select(p=>p.Center()).ToArray();
+
                 var fieldDistance = options.NetSize;
 
                 var newPlanes = planes.SelectMany(pl =>
                 {
-                    var plane = new Model3D.Plane(pl.Convex[0], pl.Convex[1], pl.Convex[2]);
+                    var planeConvex = pl.Convex;
+                    var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
                     var distanceFn = plane.Fn;
 
+                    bool IsNetIntersected(Vector3 p)
+                    {
+                        if (planeConvex.IsInside(p))
+                            return true;
+
+                        if (netCheckPoints.Any(v => planeConvex.IsInside(v + p)))
+                            return true;
+
+                        return false;
+                    }
+
                     return net.NetField
-                        .Where(netPos => distanceFn(netPos).Abs() < fieldDistance)
-                        .Where(netPos => pl.Convex.IsInside(netPos))
+                        .Where(p => distanceFn(p).Abs() < fieldDistance)
+                        .Where(IsNetIntersected)
                         .Select(netPos => new Plane
                         {
                             Item = pl,

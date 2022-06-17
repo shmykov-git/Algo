@@ -38,6 +38,43 @@ namespace Model3D
             }
         }
 
+        /// <summary>
+        /// https://intuit.ru/studies/courses/70/70/lecture/2096?page=3
+        /// </summary>
+        public Func<Vector3, Vector3, Vector3?> IntersectionFn
+        {
+            get
+            {
+                var n = NOne;
+                var r0 = c;
+                var d = -n.MultS(r0);
+
+                return (x0, x1) =>
+                {
+                    var l = x1 - x0;
+                    var nl = n.MultS(l);
+
+                    if (nl.Abs() < 0.000000001)
+                        return null;
+
+                    var t0 = -(n.MultS(x0) + d) / nl;
+
+                    return x0 + t0 * l;
+                };
+            }
+        }
+
+        public Func<Line3, Vector3?> LineIntersectionFn
+        {
+            get
+            {
+                var fn = Fn;
+                var intersectionFn = IntersectionFn;
+
+                return l => fn(l.a).Sgn() == fn(l.b).Sgn() ? null : intersectionFn(l.a, l.b);
+            }
+        }
+
         public Plane(Vector3 a, Vector3 b, Vector3 c)
         {
             this.a = a;

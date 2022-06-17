@@ -40,6 +40,16 @@ namespace Model3D
             return new Line3(l.a, l.b);
         }
 
+        public static Line3 operator +(Line3 l, Vector3 x)
+        {
+            return new Line3(l.a + x, l.b + x);
+        }
+
+        public static Line3 operator -(Line3 l, Vector3 x)
+        {
+            return new Line3(l.a - x, l.b - x);
+        }
+
         public static implicit operator Line3(((double x, double y, double z) a, (double x, double y, double z) b) l)
         {
             return new Line3(new Vector3(l.a.x, l.a.y, l.a.z), new Vector3(l.b.x, l.b.y, l.b.z));

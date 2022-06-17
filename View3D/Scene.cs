@@ -103,19 +103,19 @@ namespace View3D
 
             var rnd = new Random(0);
 
-            var particleRadius = 0.2;
+            var particleRadius = 0.1;
+            var netSize = 0.25;
             var cubeSize = new Vector3(8, 6, 8);
 
             // Visible Scene
-            var particle = Shapes.IcosahedronSp1.Mult(particleRadius).ApplyColor(Color.Blue);
+            var particle = Shapes.Icosahedron.Mult(particleRadius).ApplyColor(Color.Blue);
 
             var cube = Shapes.Cube.Scale(cubeSize);
             var ground = Surfaces.Plane(2, 2).Perfecto().Rotate(Rotates.Z_mY).Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y/2-0.25);
-            var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2);
+            var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MovePlanes(-particleRadius);
             var insideSphere = Shapes.Ball.Perfecto(3).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2);
-            var logicGutter = Surfaces.Plane(20, 2).Perfecto().Scale(2, 50, 1).MoveZ(-1).ApplyZ(Funcs3Z.CylinderXMR(1.1)).Rotate(0, 2, 1).Move(0, 3, -3);
-            var gutter = Surfaces.Plane(20, 2).Perfecto().Scale(2, 50, 1).AddVolumeZ(0.2).MoveZ(-1).ApplyZ(Funcs3Z.CylinderXMR(1.1))
-                .Rotate(0, 2, 1).Move(0, 3, -3);
+            var logicGutter = Surfaces.Plane(20, 2).Perfecto().Scale(2, 50, 1).MoveZ(-1).ApplyZ(Funcs3Z.CylinderXMR(1.1)).Rotate(0, 2, 1).Move(0, 3, -3).MovePlanes(-particleRadius);
+            var gutter = Surfaces.Plane(20, 2).Perfecto().Scale(2, 50, 1).AddVolumeZ(0.5).MoveZ(-1).ApplyZ(Funcs3Z.CylinderXMR(1.1)).Rotate(0, 2, 1).Move(0, 3, -3);
 
             // ----------
 
@@ -128,13 +128,13 @@ namespace View3D
                 Position = c.Center()
             });
 
-            var sphereCollider = logicSphere.MovePlanes(-particleRadius).Planes.Select(c => new PlaneItem()
+            var sphereCollider = logicSphere.Planes.Select(c => new PlaneItem()
             {
                 Convex = c,
                 Position = c.Center()
             });
 
-            var gutterCollider = logicGutter.MovePlanes(particleRadius).Planes.Select(c => new PlaneItem()
+            var gutterCollider = logicGutter.Planes.Select(c => new PlaneItem()
             {
                 Convex = c,
                 Position = c.Center()
@@ -142,7 +142,7 @@ namespace View3D
 
             var particles =
             (
-                Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveY(2).MoveZ(-3)/*.MoveX(1)*/
+                Shapes.Cube.SplitPlanes(0.2).Mult(1.5).MoveY(2).MoveZ(-3)/*.MoveX(1)*/
                 //Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveX(-1) +
                 //Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveZ(1) +
                 //Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveZ(-1)
@@ -156,11 +156,10 @@ namespace View3D
                 .Concat(sphereCollider)
                 .Concat(gutterCollider)
                 .ToArray();
+
             var sceneSize = logicCube.GetBorders();
             var items = particles.Select(p=>new Item{Position = p, Speed = new Vector3(0,0,0)}).ToArray();
             var newItems = new List<Item>();
-
-            var netSize = 0.25;
 
             var animator = new Animator(new AnimatorOptions()
             {
@@ -171,7 +170,7 @@ namespace View3D
                 LiquidPower = 0.001,
                 InteractionFactor = 5,
                 ParticleRadius = particleRadius,
-                ParticlePlaneThikness = 3,
+                ParticlePlaneThikness = 2,
                 MaxParticleMove = 2,
 
                 NetSize = netSize,
@@ -179,8 +178,11 @@ namespace View3D
                 NetTo = sceneSize.max
             });
 
+            Debug.WriteLine($"{DateTime.Now}: Adding Items");
             animator.AddItems(items);
+            Debug.WriteLine($"{DateTime.Now}: Adding Planes");
             animator.AddPlanes(sceneCollider);
+            Debug.WriteLine($"{DateTime.Now}: Build Scene");
 
             // ----------
 
@@ -204,31 +206,43 @@ namespace View3D
             {
                 //cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10).ApplyColor(Color.Black),
                 ground.ApplyColor(Color.Black),
-                insideSphere/*.ToShapedLines(Shapes.CylinderR(7, 1, 1), 3)*/.ApplyColor(Color.Black),
+                insideSphere.ApplyColor(Color.Black),
                 gutter.ApplyColor(Color.Black),
 
+                //logicGutter.ToLines().ApplyColor(Color.Green),
+                //logicSphere.ToLines(3, Color.BlueViolet),
                 //insideLogicSphere.ToLines(3, Color.Blue),
                 //sceneCube.ToLines(3, Color.Blue),
                 //ss.Select((s,i)=>s.MoveX(3*(i-5))).ToSingleShape(),
 
-                items.Select(item => particle.Move(item.Position)).ToSingleShape(),
-                newItems.Select(item => particle.Move(item.Position)).ToSingleShape(),
+                items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
+                newItems.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
 
                 //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
+                //animator.NetPlanes.Select(p => Shapes.Cube.Perfecto(netSize).ToLines().Move(p)).ToSingleShape().ApplyColor(Color.Green),
 
                 //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
-            //animator.Animate(200);
 
-            return (5, 5).SelectRange((i, j) =>
+            return (4, 4).SelectSnakeRange((i, j) =>
             {
                 animator.Animate(5);
+
+                //var items = Shapes.Cube.SplitPlanes(0.5).Mult(1.5).MoveY(2).MoveZ(-3).Points3.Select(p =>
+                //    new Item
+                //    {
+                //        Position = p,
+                //        Speed = new Vector3(0, 0, 0)
+                //    }).ToArray();
+
+                //animator.AddItems(items);
+                //newItems.AddRange(items);
 
                 return GetShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
             }).ToSingleShape();
 
-
+            animator.Animate(0);
             var shape = GetShape();
 
             return shape;

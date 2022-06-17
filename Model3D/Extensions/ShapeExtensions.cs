@@ -1024,9 +1024,27 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape MovePlanes(this Shape shape, double distance)
+        public static Shape MovePlanes(this Shape shape, double distance, double mult = 1)
         {
-            return shape.SplitByConvexes(false).Select(s => s.Move(s.Normals[0].ToLen(distance))).ToSingleShape();
+            return shape.SplitByConvexes(false).Select(s =>
+            {
+                var c = s.MassCenter;
+
+                return s.Move(-c).Mult(mult).Move(c).Move(s.Normals[0].ToLen(distance));
+            }).ToSingleShape();
+        }
+
+        public static bool IsInside(this Shape shape, Vector3 p)
+        {
+            return shape.Planes
+                .Select(points => new Plane(points[0], points[1], points[2]).Fn(p) < 0 ? -1 : 1)
+                .Sum()
+                .Abs() == shape.Convexes.Length;
+        }
+
+        public static bool IsInside(this Shape shape, Vector3 a, Vector3 b)
+        {
+            return true;
         }
     }
 }
