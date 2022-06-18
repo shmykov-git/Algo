@@ -137,7 +137,7 @@ namespace Model3D.Extensions
                 {
                     shape.Convexes,
                     shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()),
-                    perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }))
+                    perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { j, j + shape.Points.Length, i + shape.Points.Length, i })),
                 }.SelectMany(v=>v).ToArray()
             };
         }
@@ -1034,17 +1034,22 @@ namespace Model3D.Extensions
             }).ToSingleShape();
         }
 
+        public static Shape ReversePlanes(this Shape shape)
+        {
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Select(c => c.Reverse().ToArray()).ToArray(),
+                Materials = shape.Materials,
+            };
+        }
+
         public static bool IsInside(this Shape shape, Vector3 p)
         {
             return shape.Planes
                 .Select(points => new Plane(points[0], points[1], points[2]).Fn(p) < 0 ? -1 : 1)
                 .Sum()
                 .Abs() == shape.Convexes.Length;
-        }
-
-        public static bool IsInside(this Shape shape, Vector3 a, Vector3 b)
-        {
-            return true;
         }
     }
 }

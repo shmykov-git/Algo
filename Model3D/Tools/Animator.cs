@@ -25,6 +25,7 @@ namespace Model3D.Tools
         public bool UseParticleLiquidAcceleration;
         public double ParticleRadius;
         public double InteractionFactor = Math.E;
+        public double FrictionFactor = 0.5;
         public double LiquidPower;
         public double ParticlePlaneThikness = 2;
         public double MaxParticleMove = 2.5;
@@ -173,7 +174,18 @@ namespace Model3D.Tools
 
         Vector3 GetGravityAcceleration() => options.GravityPower * options.GravityDirection;
 
-        Vector3 GetLiquidAcceleration(IAnimatorParticleItem aP, IAnimatorItem bP, Func<Vector3> bPositionFn = null)
+        Vector3 GetLiquidPlaneAcceleration(IAnimatorParticleItem aP, Plane bP)
+        {
+            var particleAcceleration = GetLiquidParticleAcceleration(aP, bP.Item, () => bP.ProjectionFn(aP.Position));
+            var frictionAcceleration =
+                (bP.ProjectionFn(zeroV3) - bP.ProjectionFn(aP.Speed)).ToLenWithCheck(options.FrictionFactor * particleAcceleration.Length);
+
+            // todo: gravity compensation
+
+            return particleAcceleration + frictionAcceleration;
+        }
+
+        Vector3 GetLiquidParticleAcceleration(IAnimatorParticleItem aP, IAnimatorItem bP, Func<Vector3> bPositionFn = null)
         {
             var a = aP.Position;
             var b = bPositionFn?.Invoke() ?? bP.Position;
@@ -201,21 +213,6 @@ namespace Model3D.Tools
                 return zeroV3;
             }
         }
-
-        //Vector3 GetLiquidAcceleration(IAnimatorParticleItem a, NetItem b)
-        //{
-        //    switch (b)
-        //    {
-        //        case Particle bParticle:
-        //            return GetLiquidAcceleration(a, bParticle.Item);
-                
-        //        case Plane bPlane:
-        //            return GetLiquidAcceleration(a, bPlane.ItemBase, bPlane.PositionFn);
-
-        //        default:
-        //            throw new NotImplementedException();
-        //    }
-        //}
 
         public void Animate(int count)
         {
@@ -258,7 +255,7 @@ namespace Model3D.Tools
                         GetNeighbors(a.Item.Position)
                         .OfType<Particle>()
                         .Where(b => a != b)
-                        .Select(b => GetLiquidAcceleration(a.Item, b.Item)).Sum())
+                        .Select(b => GetLiquidParticleAcceleration(a.Item, b.Item)).Sum())
                     .ToArray();
 
                 particleLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
@@ -269,7 +266,7 @@ namespace Model3D.Tools
                         .OfType<Plane>()
                         .GroupBy(p => p.Item)
                         .Select(gp => gp.First())
-                        .Select(b => GetLiquidAcceleration(a.Item, b.Item, () => b.ProjectionFn(a.Item.Position)))
+                        .Select(b => GetLiquidPlaneAcceleration(a.Item, b))
                         .Sum()).ToArray();
 
                 planeLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
