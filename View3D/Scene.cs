@@ -221,11 +221,11 @@ namespace View3D
                 //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
-            //animator.Animate(50*9);
+            animator.Animate(25 * 9);
 
-            return (4, 4).SelectSnakeRange((i, j) =>
+            return (3, 4).SelectSnakeRange((i, j) =>
             {
-                animator.Animate(25);
+                animator.Animate(20);
 
                 //var items = Shapes.Cube.SplitPlanes(0.5).Mult(1.5).MoveY(2).MoveZ(-3).Points3.Select(p =>
                 //    new Item
