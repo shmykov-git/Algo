@@ -4,8 +4,8 @@ namespace Model3D.Systems
 {
     public class FountainOptions
     {
-        public Vector3 SceneSize = new Vector3(12, 20, 12);
-        public (int m, int n) SceneSteps = (2, 4);
+        public Vector3 SceneSize = new Vector3(20, 20, 20);
+        public (int m, int n) SceneSteps = (1, 1);
         public int ParticlePerEmissionCount = 2;
         public int ParticleCount = 5000;
         public double ParticleRadius = 0.1;
@@ -15,9 +15,10 @@ namespace Model3D.Systems
         public double GravityPower = 0.001;
         public double LiquidPower = 0.0001;
         public int Seed = 0;
-        public int SkipAnimations = 100;
+        public int SkipAnimations = 1500;
         public int EmissionAnimations = 1;
-        public int StepAnimations = 100;
+        public int StepAnimations = 300;
         public int? StepDebugNotify = 50;
+        public bool JustAddShamrock = true;
     }
 }

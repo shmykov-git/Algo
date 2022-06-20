@@ -51,6 +51,9 @@ namespace Model3D.Systems
                 .MoveY(-cubeSize.y / 2 + 5.5);
             var logicLevel3 = level3.MovePlanes(-particleRadius);
 
+            var shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
+            var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2).MovePlanes(-particleRadius);
+
             Item[] GetNewItems(int n) => (n).SelectRange(_ => new Item
             {
                 Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0),
@@ -83,6 +86,12 @@ namespace Model3D.Systems
                 Convex = c,
                 Position = c.Center()
             });
+
+            var shamrockCollider = logicShamrock.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c,
+                Position = c.Center()
+            });
             // ----------
 
 
@@ -94,6 +103,7 @@ namespace Model3D.Systems
                 level1Collider,
                 level2Collider,
                 level3Collider,
+                options.JustAddShamrock ? shamrockCollider : Array.Empty<PlaneItem>()
             }.ManyToArray();
 
             var sceneSize = logicCube.GetBorders();
@@ -136,6 +146,7 @@ namespace Model3D.Systems
                 level1.ApplyColor(Color.Black),
                 level2.ApplyColor(Color.Black),
                 level3.ApplyColor(Color.Black),
+                options.JustAddShamrock ? shamrock.ApplyColor(Color.Black) : Shape.Empty,
 
                 //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
             }.ToSingleShape();
@@ -158,12 +169,18 @@ namespace Model3D.Systems
             if (options.SkipAnimations > 0)
                 (options.SkipAnimations / options.EmissionAnimations).ForEach(EmissionStep);
 
-            var shape = options.SceneSteps.SelectSnakeRange((i, j) =>
+            var firstShape = GetStepShape();
+
+            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i, j)).Skip(1).Select(v =>
             {
+                var (i, j) = v;
+
                 (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
 
                 return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
-            }).ToSingleShape();
+            });
+
+            var shape = new[] {firstShape}.Concat(shapes).ToSingleShape();
 
             Debug.WriteLine($"Scene: {sw.Elapsed}");
             sw.Stop();
