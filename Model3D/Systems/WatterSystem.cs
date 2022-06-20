@@ -20,7 +20,7 @@ namespace Model3D.Systems
     public class WaterfallOptions
     {
         public Vector3 SceneSize = new Vector3(12, 15, 12);
-        public (int m, int n) SceneTemplate = (4, 4);
+        public (int m, int n) SceneSteps = (4, 4);
         public int ParticleCount = 500;
         public double ParticleRadius = 0.1;
         public double NetSize = 0.25;
@@ -28,6 +28,7 @@ namespace Model3D.Systems
         public Vector3 GutterOffset = new Vector3(0, 0, 0);
         public Vector3 GutterRotation = new Vector3(0, 6, 1);
         public Vector3 SphereOffset = new Vector3(0, 0, 0);
+        public double SphereRadius = 3;
         public Vector3 WatterOffset = new Vector3(0, 0, 0);
         public Vector3 Gravity = new Vector3(0, -1, 0);
         public double GravityPower = 0.001;
@@ -35,6 +36,7 @@ namespace Model3D.Systems
         public int Seed = 0;
         public int SkipAnimations = 0;
         public int StepAnimations = 40;
+        public int? StepDebugNotify = 50;
     }
 
     public static class WatterSystem
@@ -56,8 +58,8 @@ namespace Model3D.Systems
             var ground = Surfaces.Plane(2, 2).Perfecto().Rotate(Rotates.Z_mY).Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25);
             var logicCube = cube.AddBorder(particleRadius);
 
-            var sphere = Shapes.Ball.Perfecto(3).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset);
-            var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset).MovePlanes(-particleRadius);
+            var sphere = Shapes.Ball.Perfecto(options.SphereRadius).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset);
+            var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(options.SphereRadius).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset).MovePlanes(-particleRadius);
 
             var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(4, 50, 1).AddPerimeterVolume(.6);
             gutterTmp = options.GutterCurvature.Abs() < 0.001
@@ -119,7 +121,9 @@ namespace Model3D.Systems
 
                 NetSize = netSize,
                 NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),
-                NetTo = sceneSize.max
+                NetTo = sceneSize.max,
+
+                StepDebugNotify = options.StepDebugNotify
             });
 
             var sw = Stopwatch.StartNew();
@@ -145,7 +149,7 @@ namespace Model3D.Systems
 
             animator.Animate(options.SkipAnimations);
 
-            var shape = options.SceneTemplate.SelectSnakeRange((i, j) =>
+            var shape = options.SceneSteps.SelectSnakeRange((i, j) =>
             {
                 animator.Animate(options.StepAnimations);
 

@@ -58,16 +58,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return WatterSystem.Waterfall(new WaterfallOptions()
-            {
-                SceneSize = new Vector3(15, 18, 15),
-                SphereOffset = new Vector3(0, 0, 1),
-                GutterRotation = new Vector3(0, 2, 1),
-                GutterCurvature = 0,
-                ParticleCount = 1000,
-                SkipAnimations = 0,
-                StepAnimations = 40
-            });
+            return Waterfall();
 
 
 

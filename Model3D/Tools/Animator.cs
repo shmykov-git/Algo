@@ -35,6 +35,8 @@ namespace Model3D.Tools
         public Vector3? NetFrom;
         public Vector3? NetTo;
         public double? NetSize;
+
+        public int? StepDebugNotify = 10;
     }
 
     public interface IAnimatorItem
@@ -66,6 +68,8 @@ namespace Model3D.Tools
         private double zeroDist2;
         private double planeThikness2;
         private Vector3 zeroV3 = new Vector3(0, 0, 0);
+        private int stepNumber = 0;
+        private Stopwatch sw;
 
         public Animator(AnimatorOptions options)
         {
@@ -123,6 +127,9 @@ namespace Model3D.Tools
                     planes.SelectInParallel(pl =>
                     {
                         var planeConvex = pl.Convex;
+                        var convexCenter = planeConvex.Center();
+                        var convexRadius = planeConvex.Max(v => (convexCenter - v).Length);
+                        var farFieldDistance2 = (options.NetSize.Value + convexRadius).Pow2();
                         var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
                         var distanceFn = plane.Fn;
 
@@ -138,6 +145,7 @@ namespace Model3D.Tools
                         }
 
                         return net.NetField
+                            .Where(p => (convexCenter - p).Length2 < farFieldDistance2)
                             .Where(p => distanceFn(p).Abs() < fieldDistance)
                             .Where(IsNetIntersected)
                             .Select(netPos => new Plane
@@ -221,10 +229,15 @@ namespace Model3D.Tools
 
         public void Animate(int count)
         {
+            sw = Stopwatch.StartNew();
+
             Calculations();
-            (count).ForEach(Step);
+            (count).ForEach(i => Step(stepNumber + i));
+            stepNumber += count;
+            
+            sw.Stop();
         }
-        
+
         private void Step(int number)
         {
             particles.ForEach(p =>
@@ -375,9 +388,13 @@ namespace Model3D.Tools
                 });
             }
 
-            //Debug.WriteLine($"{particles[0].Item.Position}, {particles[0].Item.Speed}");
-
             net?.Update();
+
+            if (options.StepDebugNotify.HasValue && (number + 1) % options.StepDebugNotify.Value == 0)
+            {
+                Debug.WriteLine($"Step {number + 1}: {sw.Elapsed}");
+                sw.Restart();
+            }
         }
 
         class NetItem : INet3Item
