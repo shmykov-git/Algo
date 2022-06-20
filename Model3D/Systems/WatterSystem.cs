@@ -17,30 +17,160 @@ using Vector2 = Model.Vector2;
 
 namespace Model3D.Systems
 {
-    public class WaterfallOptions
-    {
-        public Vector3 SceneSize = new Vector3(12, 15, 12);
-        public (int m, int n) SceneSteps = (4, 4);
-        public int ParticleCount = 500;
-        public double ParticleRadius = 0.1;
-        public double NetSize = 0.25;
-        public double GutterCurvature = 1; // from 0 to 2
-        public Vector3 GutterOffset = new Vector3(0, 0, 0);
-        public Vector3 GutterRotation = new Vector3(0, 6, 1);
-        public Vector3 SphereOffset = new Vector3(0, 0, 0);
-        public double SphereRadius = 3;
-        public Vector3 WatterOffset = new Vector3(0, 0, 0);
-        public Vector3 Gravity = new Vector3(0, -1, 0);
-        public double GravityPower = 0.001;
-        public double LiquidPower = 0.0001;
-        public int Seed = 0;
-        public int SkipAnimations = 0;
-        public int StepAnimations = 40;
-        public int? StepDebugNotify = 50;
-    }
-
     public static class WatterSystem
     {
+        public static Shape Fountain(FountainOptions options = null)
+        {
+            options ??= new FountainOptions();
+            var rnd = new Random(options.Seed);
+
+            var particleRadius = options.ParticleRadius;
+            var particleCount = options.ParticleCount;
+            var netSize = options.NetSize;
+            var cubeSize = options.SceneSize;
+
+            // Visible Scene with logic scene
+            var particle = Shapes.Icosahedron.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
+
+            var cube = Shapes.Cube.Scale(cubeSize);
+            var ground = Surfaces.Plane(2, 2).Perfecto().ToOyM().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25);
+            var logicCube = cube.AddBorder(particleRadius);
+
+            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-cubeSize.y / 2 + 0.5);
+            var logicLevel1 = level1.MovePlanes(-particleRadius);
+
+            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-cubeSize.y / 2 + 3.5);
+            var logicLevel2 = level2.MovePlanes(-particleRadius);
+
+            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
+                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-cubeSize.y / 2 + 5.5);
+            var logicLevel3 = level3.MovePlanes(-particleRadius);
+
+            Item[] GetNewItems(int n) => (n).SelectRange(_ => new Item
+            {
+                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0),
+                Speed = options.ParticleSpeed
+            }).ToArray();
+            // ----------
+
+
+            // Scene Colliders
+            var cubeCollider = logicCube.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c.Reverse().ToArray(),
+                Position = c.Center()
+            });
+
+            var level1Collider = logicLevel1.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c,
+                Position = c.Center()
+            });
+
+            var level2Collider = logicLevel2.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c,
+                Position = c.Center()
+            });
+
+            var level3Collider = logicLevel3.Planes.Select(c => new PlaneItem()
+            {
+                Convex = c,
+                Position = c.Center()
+            });
+            // ----------
+
+
+            // Configuration
+
+            var sceneCollider = new[]
+            {
+                cubeCollider,
+                level1Collider,
+                level2Collider,
+                level3Collider,
+            }.ManyToArray();
+
+            var sceneSize = logicCube.GetBorders();
+
+            var animator = new Animator(new AnimatorOptions()
+            {
+                UseGravity = true,
+                GravityDirection = options.Gravity,
+                GravityPower = options.GravityPower,
+
+                UseParticleLiquidAcceleration = true,
+                LiquidPower = options.LiquidPower,
+                InteractionFactor = 5,
+                ParticleRadius = particleRadius,
+                ParticlePlaneThikness = 2,
+                MaxParticleMove = 2,
+
+                NetSize = netSize,
+                NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),
+                NetTo = sceneSize.max,
+
+                StepDebugNotify = options.StepDebugNotify
+            });
+
+            var sw = Stopwatch.StartNew();
+            animator.AddPlanes(sceneCollider);
+            Debug.WriteLine($"Planes: {sw.Elapsed}");
+            sw.Restart();
+
+            // ----------
+
+
+            var items = new List<Item>();
+
+            Shape GetStepShape() => new Shape[]
+            {
+                ground.ApplyColor(Color.Black),
+
+                items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
+                level1.ApplyColor(Color.Black),
+                level2.ApplyColor(Color.Black),
+                level3.ApplyColor(Color.Black),
+
+                //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
+            }.ToSingleShape();
+
+            void EmissionStep(int k)
+            {
+                if (particleCount > 0)
+                {
+                    var newItems = GetNewItems(options.ParticlePerEmissionCount);
+
+                    animator.AddItems(newItems);
+                    items.AddRange(newItems);
+
+                    particleCount -= options.ParticlePerEmissionCount;
+                }
+
+                animator.Animate(options.EmissionAnimations);
+            }
+
+            if (options.SkipAnimations > 0)
+                (options.SkipAnimations / options.EmissionAnimations).ForEach(EmissionStep);
+
+            var shape = options.SceneSteps.SelectSnakeRange((i, j) =>
+            {
+                (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
+
+                return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
+            }).ToSingleShape();
+
+            Debug.WriteLine($"Scene: {sw.Elapsed}");
+            sw.Stop();
+
+            return shape;
+        }
+
         public static Shape Waterfall(WaterfallOptions options = null)
         {
             options ??= new WaterfallOptions();
@@ -162,7 +292,7 @@ namespace Model3D.Systems
             return shape;
         }
 
-        #region watterfall model
+        #region watter model
 
         class Item : IAnimatorParticleItem
         {

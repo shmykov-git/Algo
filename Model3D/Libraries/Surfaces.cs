@@ -100,6 +100,22 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
+        public static Shape SphereAngle2(int un, int vn, double from, double to, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Sphere,
+                UFrom = 0,
+                UTo = 2*Math.PI,
+                UN = un,
+                VFrom = from,
+                VTo = to,
+                VN = vn,
+                UClosed = false,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+        }.Normalize();
+
         public static Shape SectionShapeY(Shape shape, int vn, double from, double to, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
@@ -246,6 +262,21 @@ namespace Model3D.Libraries
                 UN = un,
                 VFrom = 0,
                 VTo = vn - 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squares(vn, un)
+        };
+
+        public static Shape CircleAngle(int un, int vn, double from, double to) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Circle,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = from,
+                VTo = to,
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)

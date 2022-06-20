@@ -36,7 +36,7 @@ namespace Model3D.Tools
         public Vector3? NetTo;
         public double? NetSize;
 
-        public int? StepDebugNotify = 10;
+        public int? StepDebugNotify = 50;
     }
 
     public interface IAnimatorItem
@@ -69,7 +69,7 @@ namespace Model3D.Tools
         private double planeThikness2;
         private Vector3 zeroV3 = new Vector3(0, 0, 0);
         private int stepNumber = 0;
-        private Stopwatch sw;
+        private Stopwatch? sw;
 
         public Animator(AnimatorOptions options)
         {
@@ -81,9 +81,21 @@ namespace Model3D.Tools
         public Vector3[] NetField => net?.NetField;
         public Vector3[] NetParticles => net?.NetItems.OfType<Particle>().Select(p => p.Item.Position).ToArray();
         public Vector3[] NetPlanes => net?.NetItems.OfType<Plane>().Select(p => p.Position).ToArray();
+        
+        private bool HasNet => options.NetSize.HasValue && options.NetTo.HasValue && options.NetFrom.HasValue;
+
+        private void InitNet()
+        {
+            if (net != null || !HasNet)
+                return;
+
+            net = new Net3<NetItem>(options.NetFrom.Value, options.NetTo.Value, options.NetSize.Value);
+        }
 
         public void AddItems(IAnimatorParticleItem[] items)
         {
+            InitNet();
+
             var offset = particles?.Length ?? 0;
 
             var newParticles = items.Select((p, i) => new Particle
@@ -96,20 +108,8 @@ namespace Model3D.Tools
 
             particles = particles == null ? newParticles : particles.Concat(newParticles).ToArray();
 
-            if (options.NetSize.HasValue)
-            {
-                if (net == null)
-                {
-                    net = options.NetFrom.HasValue && options.NetTo.HasValue
-                        ? new Net3<NetItem>(particles, options.NetFrom.Value, options.NetTo.Value,
-                            options.NetSize.Value)
-                        : new Net3<NetItem>(particles, options.NetSize.Value);
-                }
-                else
-                {
-                    net.AddItems(newParticles);
-                }
-            }
+            if (net != null)
+                net.AddItems(newParticles);
         }
 
         public void AddPlanes(IAnimatorPlaneItem[] planes)
@@ -117,57 +117,58 @@ namespace Model3D.Tools
             if (this.planes != null)
                 throw new ArgumentException("Cannot init planes twice");
 
-            if (net != null)
-            {
-                var netCheckPoints = Shapes.Icosahedron.Perfecto(options.NetSize.Value).Planes.Select(p=>p.Center()).ToArray();
+            InitNet();
 
-                var fieldDistance = options.NetSize;
+            var netCheckPoints = Shapes.Icosahedron.Perfecto(options.NetSize.Value).Planes.Select(p => p.Center())
+                .ToArray();
 
-                var newPlanes =
-                    planes.SelectInParallel(pl =>
+            var fieldDistance = options.NetSize;
+
+            var newPlanes =
+                planes.SelectInParallel(pl =>
+                {
+                    var planeConvex = pl.Convex;
+                    var convexCenter = planeConvex.Center();
+                    var convexRadius = planeConvex.Max(v => (convexCenter - v).Length);
+                    var farFieldDistance2 = (options.NetSize.Value + convexRadius).Pow2();
+                    var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
+                    var distanceFn = plane.Fn;
+
+                    bool IsNetIntersected(Vector3 p)
                     {
-                        var planeConvex = pl.Convex;
-                        var convexCenter = planeConvex.Center();
-                        var convexRadius = planeConvex.Max(v => (convexCenter - v).Length);
-                        var farFieldDistance2 = (options.NetSize.Value + convexRadius).Pow2();
-                        var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
-                        var distanceFn = plane.Fn;
+                        if (planeConvex.IsInside(p))
+                            return true;
 
-                        bool IsNetIntersected(Vector3 p)
+                        if (netCheckPoints.Any(v => planeConvex.IsInside(v + p)))
+                            return true;
+
+                        return false;
+                    }
+
+                    return net.NetField
+                        .Where(p => (convexCenter - p).Length2 < farFieldDistance2)
+                        .Where(p => distanceFn(p).Abs() < fieldDistance)
+                        .Where(IsNetIntersected)
+                        .Select(netPos => new Plane
                         {
-                            if (planeConvex.IsInside(p))
-                                return true;
+                            Item = pl,
+                            ItemBase = pl,
+                            Normal = plane.NOne,
+                            Position = netPos,
+                            PositionFn = () => netPos,
+                            ProjectionFn = plane.ProjectionFn
+                        }).ToArray();
+                }).SelectMany(v => v).Select((p, i) =>
+                {
+                    p.i = i;
 
-                            if (netCheckPoints.Any(v => planeConvex.IsInside(v + p)))
-                                return true;
+                    return p;
+                }).ToArray();
 
-                            return false;
-                        }
+            this.planes = newPlanes;
 
-                        return net.NetField
-                            .Where(p => (convexCenter - p).Length2 < farFieldDistance2)
-                            .Where(p => distanceFn(p).Abs() < fieldDistance)
-                            .Where(IsNetIntersected)
-                            .Select(netPos => new Plane
-                            {
-                                Item = pl,
-                                ItemBase = pl,
-                                Normal = plane.NOne,
-                                Position = netPos,
-                                PositionFn = () => netPos,
-                                ProjectionFn = plane.ProjectionFn
-                            }).ToArray();
-                    }).SelectMany(v => v).Select((p, i) =>
-                    {
-                        p.i = i;
-
-                        return p;
-                    }).ToArray();
-
-                this.planes = newPlanes;
-
+            if (net != null)
                 net.AddItems(newPlanes);
-            }
         }
 
         private void Calculations()
@@ -229,13 +230,11 @@ namespace Model3D.Tools
 
         public void Animate(int count)
         {
-            sw = Stopwatch.StartNew();
+            sw ??= Stopwatch.StartNew();
 
             Calculations();
             (count).ForEach(i => Step(stepNumber + i));
             stepNumber += count;
-            
-            sw.Stop();
         }
 
         private void Step(int number)
@@ -390,7 +389,7 @@ namespace Model3D.Tools
 
             net?.Update();
 
-            if (options.StepDebugNotify.HasValue && (number + 1) % options.StepDebugNotify.Value == 0)
+            if (options.StepDebugNotify.HasValue && (number + 1) % options.StepDebugNotify.Value == 0 && sw != null)
             {
                 Debug.WriteLine($"Step {number + 1}: {sw.Elapsed}");
                 sw.Restart();
