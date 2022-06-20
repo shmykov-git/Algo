@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
+using Meta;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
@@ -21,6 +22,8 @@ namespace Model3D.Systems
     {
         public static Shape Fountain(FountainOptions options = null)
         {
+            var vectorizer = DI.Get<Vectorizer>();
+
             options ??= new FountainOptions();
             var rnd = new Random(options.Seed);
 
@@ -51,8 +54,21 @@ namespace Model3D.Systems
                 .MoveY(-cubeSize.y / 2 + 5.5);
             var logicLevel3 = level3.MovePlanes(-particleRadius);
 
-            var shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
-            var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2).MovePlanes(-particleRadius);
+            var (shamrock, logicShamrock, fire) = (Shape.Empty, Shape.Empty, Shape.Empty);
+
+            if (options.JustAddShamrock)
+            {
+                shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
+                logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2)
+                    .MovePlanes(-particleRadius);
+
+                fire = vectorizer.GetContentShape("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
+                    .MoveY(-cubeSize.y / 2 + 3).ToLines(10);
+                fire = fire.Rotate(1, 0, 1).Move(cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, 1).Move(-cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(1, 0, -1).Move(cubeSize.x / 2, 0, -cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, -1).Move(-cubeSize.x / 2, 0, -cubeSize.z / 2);
+            }
 
             Item[] GetNewItems(int n) => (n).SelectRange(_ => new Item
             {
@@ -146,8 +162,8 @@ namespace Model3D.Systems
                 level1.ApplyColor(Color.Black),
                 level2.ApplyColor(Color.Black),
                 level3.ApplyColor(Color.Black),
-                options.JustAddShamrock ? shamrock.ApplyColor(Color.Black) : Shape.Empty,
-
+                options.JustAddShamrock ? shamrock.ApplyColor(Color.Black) + fire.ApplyColor(Color.Red) : Shape.Empty,
+                
                 //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
             }.ToSingleShape();
 
