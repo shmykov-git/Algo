@@ -192,6 +192,7 @@ namespace Model3D.Extensions
             }).ToSingleShape();
         }
 
+        // using nothing
         //public static Shape ToSingleShape1(this IEnumerable<Shape> shapeList)
         //{
         //    var shapes = shapeList.ToArray();
@@ -204,6 +205,26 @@ namespace Model3D.Extensions
         //    return shapes[0];
         //}
 
+        // using tasks
+        //public static Shape ToSingleShape2(this IEnumerable<Shape> shapeList)
+        //{
+        //    var shapes = shapeList.ToArray();
+
+        //    if (shapes.Length == 0)
+        //        return Shape.Empty;
+
+        //    while (shapes.Length > 1)
+        //    {
+        //        var tasks = shapes.SelectByPair((a, b) => Task.Run(()=>a + (b ?? Shape.Empty))).ToArray();
+        //        //Debug.WriteLine(tasks.Length);
+        //        Task.WhenAll(tasks).Wait();
+        //        shapes = tasks.Select(t => t.Result).ToArray();
+        //    }
+
+        //    return shapes[0];
+        //}
+
+        // using algo threadpool
         public static Shape ToSingleShape(this IEnumerable<Shape> shapeList)
         {
             var shapes = shapeList.ToArray();
@@ -213,10 +234,8 @@ namespace Model3D.Extensions
 
             while (shapes.Length > 1)
             {
-                var tasks = shapes.SelectByPair((a, b) => Task.Run(()=>a + (b ?? Shape.Empty))).ToArray();
-                //Debug.WriteLine(tasks.Length);
-                Task.WhenAll(tasks).Wait();
-                shapes = tasks.Select(t => t.Result).ToArray();
+                shapes = shapes.SelectByPair((a, b) => (a, b: b ?? Shape.Empty)).ToArray()
+                    .SelectInParallel(v => v.a + v.b);
             }
 
             return shapes[0];

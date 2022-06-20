@@ -1,7 +1,13 @@
 ﻿using Model.Tools;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Meta;
+using Meta.Tools;
+using ThreadPool = Meta.Tools.ThreadPool;
 
 namespace Model.Extensions
 {
@@ -13,6 +19,8 @@ namespace Model.Extensions
 
     public static class LinqExtensions
     {
+        private static ThreadPool threadPool = DI.Get<ThreadPool>();
+
         public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
         {
             var enumerator = list.GetEnumerator();
@@ -280,5 +288,73 @@ namespace Model.Extensions
 
         public static TItem[] ManyToArray<TItem>(this IEnumerable<TItem>[] manyItems) =>
             manyItems.SelectMany(v => v).ToArray();
+
+        public static TOut[] SelectInParallel<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
+        {
+            if (items.Length == 0)
+                return Array.Empty<TOut>();
+
+            var e = new AutoResetEvent(false);
+            var runningTasksCounter = 0;
+            var results = new TOut[items.Length];
+
+            var n = threadPool.ThreadsCount < items.Length ? threadPool.ThreadsCount : items.Length;
+            var offset = 0;
+            var c = 0;
+
+            (n).ForEach(i =>
+            {
+                Interlocked.Increment(ref runningTasksCounter);
+
+                var m = items.Length / n + (i < items.Length % n ? 1 : 0);
+                var k = offset;
+                offset += m;
+
+                threadPool.Run(() =>
+                {
+                    (m).ForEach(j => results[k + j] = processFn(items[k + j]));
+                    (m).ForEach(_=>Interlocked.Increment(ref c));
+
+                    var counter = Interlocked.Decrement(ref runningTasksCounter);
+
+                    if (counter == 0)
+                        e.Set();
+                });
+            });
+
+            e.WaitOne();
+
+            return results;
+        }
+
+        public static void ForEachInParallel<TIn>(this TIn[] items, Action<TIn> processFn)
+        {
+            if (items.Length == 0)
+                return;
+
+            var e = new AutoResetEvent(false);
+            var counter = 0;
+            var chunk = (items.Length - 1) / (2 * threadPool.ThreadsCount) + 1;
+
+            items
+                .Select((item, i) => (item, i))
+                .GroupBy(v => v.i / chunk)
+                .ForEach(gv =>
+                {
+                    var i = gv.Key * chunk;
+                    Interlocked.Increment(ref counter);
+
+                    threadPool.Run(() =>
+                    {
+                        gv.ForEach(v => processFn(v.item));
+                        var v = Interlocked.Decrement(ref counter);
+
+                        if (v == 0)
+                            e.Set();
+                    });
+                });
+
+            e.WaitOne();
+        }
     }
 }

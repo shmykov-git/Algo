@@ -1,21 +1,22 @@
 ﻿using System;
+using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Meta
 {
     public static class DI
     {
-        private static IServiceCollection services = new ServiceCollection();
-        private static IServiceProvider provider;
+        private static ServiceCollection services = new ServiceCollection();
+        private static ServiceProvider provider;
 
         public static void Configure(Action<IServiceCollection> configureFn)
         {
             configureFn(services);
         }
 
-        public static void Build()
+        public static ServiceProvider Build()
         {
-            provider = services.BuildServiceProvider();
+            return provider = services.BuildServiceProvider();
         }
 
         public static TService Get<TService>() => provider.GetService<TService>();

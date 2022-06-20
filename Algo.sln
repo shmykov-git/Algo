@@ -12,13 +12,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E1290E10-F335-483E-A170-67F9B71F986E}"
 	ProjectSection(SolutionItems) = preProject
 		notes.txt = notes.txt
+		tasks.cs = tasks.cs
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "View3D", "View3D\View3D.csproj", "{B0FE1C38-E4DC-4802-8077-C36824EB9405}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model3D", "Model3D\Model3D.csproj", "{1C745446-4C99-40EA-9AE5-79CD4C868D21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meta", "Meta\Meta.csproj", "{0EBAF94A-772A-43C9-A750-CEC8F11201AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meta", "Meta\Meta.csproj", "{0EBAF94A-772A-43C9-A750-CEC8F11201AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,9 +3,11 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
 using Mapster;
+using Meta.Tools;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
@@ -117,41 +119,42 @@ namespace Model3D.Tools
 
                 var fieldDistance = options.NetSize;
 
-                var newPlanes = planes.SelectMany(pl =>
-                {
-                    var planeConvex = pl.Convex;
-                    var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
-                    var distanceFn = plane.Fn;
-
-                    bool IsNetIntersected(Vector3 p)
+                var newPlanes =
+                    planes.SelectInParallel(pl =>
                     {
-                        if (planeConvex.IsInside(p))
-                            return true;
+                        var planeConvex = pl.Convex;
+                        var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
+                        var distanceFn = plane.Fn;
 
-                        if (netCheckPoints.Any(v => planeConvex.IsInside(v + p)))
-                            return true;
-
-                        return false;
-                    }
-
-                    return net.NetField
-                        .Where(p => distanceFn(p).Abs() < fieldDistance)
-                        .Where(IsNetIntersected)
-                        .Select(netPos => new Plane
+                        bool IsNetIntersected(Vector3 p)
                         {
-                            Item = pl,
-                            ItemBase = pl,
-                            Normal = plane.NOne,
-                            Position = netPos,
-                            PositionFn = () => netPos,
-                            ProjectionFn = plane.ProjectionFn
-                        });
-                }).Select((p,i) =>
-                {
-                    p.i = i;
+                            if (planeConvex.IsInside(p))
+                                return true;
 
-                    return p;
-                }).ToArray();
+                            if (netCheckPoints.Any(v => planeConvex.IsInside(v + p)))
+                                return true;
+
+                            return false;
+                        }
+
+                        return net.NetField
+                            .Where(p => distanceFn(p).Abs() < fieldDistance)
+                            .Where(IsNetIntersected)
+                            .Select(netPos => new Plane
+                            {
+                                Item = pl,
+                                ItemBase = pl,
+                                Normal = plane.NOne,
+                                Position = netPos,
+                                PositionFn = () => netPos,
+                                ProjectionFn = plane.ProjectionFn
+                            }).ToArray();
+                    }).SelectMany(v => v).Select((p, i) =>
+                    {
+                        p.i = i;
+
+                        return p;
+                    }).ToArray();
 
                 this.planes = newPlanes;
 
@@ -231,11 +234,10 @@ namespace Model3D.Tools
             // calculate attraction accelerations
             if (options.UseParticleGravityAttraction)
             {
-                var attractionAccelerations = particles.Select(a =>
+                var attractionAccelerations = particles.SelectInParallel(a =>
                         GetNeighbors(a.Item.Position)
                             .Where(b => a != b)
-                            .Select(b => GetAttractionAcceleration(a.Item.Position, b.PositionFn())).Sum())
-                    .ToArray();
+                            .Select(b => GetAttractionAcceleration(a.Item.Position, b.PositionFn())).Sum());
                 
                 attractionAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
             }
@@ -243,7 +245,7 @@ namespace Model3D.Tools
             // calculate gravity accelerations
             if (options.UseGravity)
             {
-                var gravityAccelerations = particles.Select(_ => GetGravityAcceleration()).ToArray();
+                var gravityAccelerations = particles.SelectInParallel(_ => GetGravityAcceleration());
                 gravityAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
             }
 
@@ -251,23 +253,25 @@ namespace Model3D.Tools
             if (options.UseParticleLiquidAcceleration)
             {
                 // particle attract to particle
-                var particleLiquidAccelerations = particles.Select(a =>
+
+                // todo: SelectInParallel, сделать свой пул потоков (yield, sleep)
+                // todo: тут проблема времени создания потоков для каждого шага итерации (500 шагов) 500x16 потоков
+                var particleLiquidAccelerations = particles.SelectInParallel(a =>
                         GetNeighbors(a.Item.Position)
-                        .OfType<Particle>()
-                        .Where(b => a != b)
-                        .Select(b => GetLiquidParticleAcceleration(a.Item, b.Item)).Sum())
-                    .ToArray();
+                            .OfType<Particle>()
+                            .Where(b => a != b)
+                            .Select(b => GetLiquidParticleAcceleration(a.Item, b.Item)).Sum());
 
                 particleLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
                 // particle attract to plane
-                var planeLiquidAccelerations = particles.Select(a =>
+                var planeLiquidAccelerations = particles.SelectInParallel(a =>
                     GetNeighbors(a.Item.Position)
                         .OfType<Plane>()
                         .GroupBy(p => p.Item)
                         .Select(gp => gp.First())
                         .Select(b => GetLiquidPlaneAcceleration(a.Item, b))
-                        .Sum()).ToArray();
+                        .Sum());
 
                 planeLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
@@ -284,7 +288,7 @@ namespace Model3D.Tools
             {
                 // particle with particle collisions
 
-                var particleCollisions = particles.Select(a => (particle: a, infos:
+                var particleCollisions = particles.SelectInParallel(a => (particle: a, infos:
                         GetNeighbors(a.Item.Position)
                             .OfType<Particle>()
                             .Where(b => a != b)
@@ -295,9 +299,11 @@ namespace Model3D.Tools
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
 
-                foreach (var (particle, infos) in particleCollisions)
+                particleCollisions.ForEach(collision =>
                 {
-                    var speed = infos.Select(v => v.speed).Concat(new []{ particle.Item.Speed }).Center();
+                    var (particle, infos) = collision;
+
+                    var speed = infos.Select(v => v.speed).Concat(new[] { particle.Item.Speed }).Center();
                     particle.Item.Speed = speed;
 
                     var move = infos.Select(v => v.move).Sum();
@@ -324,11 +330,12 @@ namespace Model3D.Tools
                     }
 
                     particle.Item.Position += move;
-                }
+                });
+
 
                 // particle with plane collisions
 
-                var planeCollisions = particles.Select(a => (particle: a, infos:
+                var planeCollisions = particles.SelectInParallel(a => (particle: a, infos:
                         GetNeighbors(a.Item.Position)
                             .OfType<Plane>()
                             .GroupBy(p=>p.Item)
@@ -343,10 +350,12 @@ namespace Model3D.Tools
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
 
-                foreach (var (particle, infos) in planeCollisions)
+                planeCollisions.ForEach(collision =>
                 {
+                    var (particle, infos) = collision;
+
                     var move = infos.Select(info => info.move).Sum();
-                    
+
                     if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
                         move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
 
@@ -365,7 +374,7 @@ namespace Model3D.Tools
                     {
                         particle.DirectionImmunities.Remove(plane);
                     }
-                }
+                });
             }
 
             //Debug.WriteLine($"{particles[0].Item.Position}, {particles[0].Item.Speed}");

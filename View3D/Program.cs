@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using Meta;
+using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Model.Interfaces;
 using Model3D.Tools;
@@ -19,8 +20,10 @@ namespace View3D
                 .AddSingleton<SceneManager>()
                 .AddSingleton<ContentFinder>()
                 .AddSingleton<Scene>()
-                .AddSingleton<Vectorizer>());
-            DI.Build();
+                .AddSingleton<Vectorizer>()
+                .AddSingleton<ThreadPool>());
+            
+            using var serviceProvider = DI.Build();
 
             var settings = DI.Get<Settings>();
             var sceneManager = DI.Get<SceneManager>();

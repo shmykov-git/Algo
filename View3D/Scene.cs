@@ -58,49 +58,6 @@ namespace View3D
 
         public Shape GetShape()
         {
-            #region триангуляция (не работает нормально)
-
-            //var fShape = new Fr[]
-            //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
-
-            //var s = fShape.ToShape(3000, 0.02, indices: new[] { 0 }).ApplyColor(Color.Red);
-
-
-
-            //var mb = Polygons.Polygon5;
-
-            //var mb = MandelbrotFractalSystem.GetPoints(2, 0.003, 1000, 0.99).ToPolygon();
-
-            //return /*mb.ToShape().ToNumSpots3(0.3, Color.Blue) +*/ mb.ToShape().ToLines(0.5, Color.Red);
-
-
-            //var s1 = mb.ToShape().ToLines().ApplyColor(Color.Red);// + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
-
-            //Shape s;
-
-            //try
-            //{
-            //    //    var ts = Triangulator.Triangulate(mb, 0.01);
-            //    //    s = new Shape() { Points2 = mb.Points, Convexes = ts }.ApplyColor(Color.Red);
-            //    //s = ts.SelectWithIndex((t,i)=>new Shape() {Points2 = mb.Points, Convexes = new []{t}}.MoveZ(0)).ToSingleShape();
-            //    s = mb.ToTriangulatedShape(40,incorrectFix:0)/*.Perfecto().ApplyZ(Funcs3Z.Hyperboloid)*/.ApplyColor(Color.Blue).ToLines(0.1, Color.Blue);//); 
-            //}
-            //catch (DebugException<(Shape polygon, Shape triangulation)> e)
-            //{
-            //    s = e.Value.triangulation.ToLines(0.2,
-            //        Color.Blue); // + e.Value.polygon.ToMetaShape3(0.2, 0.2, Color.Green, Color.Red);
-            //}
-            //catch (DebugException<(Polygon p, int[][] t, Vector2[] ps)> e)
-            //{
-            //    s = new Shape() {Points2 = e.Value.p.Points, Convexes = e.Value.t}.ApplyColor(Color.Red)
-            //        + e.Value.ps.ToPolygon().ToShape().ToNumSpots3(0.3, Color.Green)
-            //        ;//+ mb.ToShape().ToSpots3(0.2, Color.Blue);
-            //}
-
-            //var s4 = net.Cut(mb.ToPolygon()).ToLines(0.5).ApplyColor(Color.Blue);
-
-            #endregion
-
             var rnd = new Random(0);
 
             var particleRadius = 0.1;
@@ -175,31 +132,19 @@ namespace View3D
                 NetTo = sceneSize.max
             });
 
-            Debug.WriteLine($"{DateTime.Now}: Adding Items");
+            var sw = Stopwatch.StartNew();
             animator.AddItems(items);
-            Debug.WriteLine($"{DateTime.Now}: Adding Planes");
+            Debug.WriteLine($"Items: {sw.Elapsed}");
+            sw.Restart();
+
             animator.AddPlanes(sceneCollider);
-            Debug.WriteLine($"{DateTime.Now}: Build Scene");
+            Debug.WriteLine($"Planes: {sw.Elapsed}");
+            sw.Restart();
 
             // ----------
 
 
-            //(20).ForEach(k =>
-            //{
-            //    var items = Shapes.Cube.SplitPlanes(0.5).Mult(1).MoveY(1).Points3.Select(p =>
-            //        new Item
-            //        {
-            //            Position = p,
-            //            Speed = new Vector3(0, 0, 0)
-            //        }).ToArray();
-
-            //    animator.AddItems(items);
-            //    newItems.AddRange(items);
-
-            //    animator.Animate(15);
-            //});
-
-            Shape GetShape() => new Shape[]
+            Shape GetStepShape() => new Shape[]
             {
                 //cube.ToShapedLines(Shapes.CylinderR(30, 1, 1), 10).ApplyColor(Color.Black),
                 ground.ApplyColor(Color.Black),
@@ -208,22 +153,18 @@ namespace View3D
 
                 //logicGutter.ToLines().ApplyColor(Color.Green),
                 //logicSphere.ToLines(3, Color.BlueViolet),
-                //insideLogicSphere.ToLines(3, Color.Blue),
-                //sceneCube.ToLines(3, Color.Blue),
-                //ss.Select((s,i)=>s.MoveX(3*(i-5))).ToSingleShape(),
 
                 items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
                 newItems.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
 
                 //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
-                //animator.NetPlanes.Select(p => Shapes.Cube.Perfecto(netSize).ToLines().Move(p)).ToSingleShape().ApplyColor(Color.Green),
 
                 //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
             animator.Animate(25 * 9);
 
-            return (3, 4).SelectSnakeRange((i, j) =>
+            var shape = (3, 4).SelectSnakeRange((i, j) =>
             {
                 animator.Animate(20);
 
@@ -237,13 +178,17 @@ namespace View3D
                 //animator.AddItems(items);
                 //newItems.AddRange(items);
 
-                return GetShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
+                return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
             }).ToSingleShape();
 
-            animator.Animate(25);
-            var shape = GetShape();
+            Debug.WriteLine($"Scene: {sw.Elapsed}");
+            sw.Stop();
 
             return shape;
+
+            animator.Animate(25);
+
+            return GetStepShape();
         }
     }
 }
