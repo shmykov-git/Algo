@@ -58,11 +58,25 @@ namespace View3D
 
         public Shape GetShape()
         {
+            return WatterSystem.Waterfall(new WaterfallOptions()
+            {
+                SceneSize = new Vector3(15, 18, 15),
+                SphereOffset = new Vector3(0, 0, 1),
+                GutterRotation = new Vector3(0, 2, 1),
+                GutterCurvature = 0,
+                ParticleCount = 1000,
+                SkipAnimations = 0,
+                StepAnimations = 40
+            });
+
+
+
             var rnd = new Random(0);
 
             var particleRadius = 0.1;
+            var particleCount = 5000;
             var netSize = 0.25;
-            var cubeSize = new Vector3(12, 12, 12);
+            var cubeSize = new Vector3(12, 15, 12);
 
             // Visible Scene (models)
             var particle = Shapes.Icosahedron.Mult(1.2*particleRadius).ApplyColor(Color.Blue);
@@ -74,11 +88,16 @@ namespace View3D
             var sphere = Shapes.Ball.Perfecto(3).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(4);
             var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(4).MovePlanes(-particleRadius);
 
-            var gutter = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(4, 50, 1).AddPerimeterVolume(.6).MoveZ(-1)/*.ApplyZ(Funcs3Z.CylinderXMR(1.1))*/.Rotate(0, 6, 1).Move(0, 4, -2);
+            var gutter = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(4, 50, 1).AddPerimeterVolume(.6)
+                //.MoveZ(-2.5)
+                .MoveZ(-2).ApplyZ(Funcs3Z.CylinderXMR(4)).MoveZ(3.5)
+                .Rotate(0, 6, 1).Move(0, cubeSize.y / 2 - 2, -2);
             var logicGutter = gutter.AddBorder(-particleRadius);
 
-            var particles = Shapes.Cube.SplitPlanes(0.2).Mult(1.5).MoveY(5).MoveZ(-3)
-                .Points3.Select(p => p + rnd.NextV3(0.05)).ToArray();
+            var particles = (particleCount).SelectRange(_ => rnd.NextCenteredV3(1.5) + new Vector3(0, cubeSize.y / 2 - 1, -3))
+                .ToArray();
+                //Shapes.Cube.SplitPlanes(0.15).Mult(1.5).MoveY(cubeSize.y/2-1).MoveZ(-3)
+                //.Points3.Select(p => p + rnd.NextV3(0.05)).ToArray();
             // ----------
 
 
@@ -162,11 +181,11 @@ namespace View3D
                 //Shapes.CoodsWithText, Shapes.CoodsNet
             }.ToSingleShape();
 
-            animator.Animate(25 * 9);
+            //animator.Animate(25 * 9);
 
-            var shape = (3, 4).SelectSnakeRange((i, j) =>
+            var shape = (4, 4).SelectSnakeRange((i, j) =>
             {
-                animator.Animate(20);
+                animator.Animate(50);
 
                 //var items = Shapes.Cube.SplitPlanes(0.5).Mult(1.5).MoveY(2).MoveZ(-3).Points3.Select(p =>
                 //    new Item

@@ -180,8 +180,10 @@ namespace Model3D.Tools
         Vector3 GetLiquidPlaneAcceleration(IAnimatorParticleItem aP, Plane bP)
         {
             var particleAcceleration = GetLiquidParticleAcceleration(aP, bP.Item, () => bP.ProjectionFn(aP.Position));
+
+            var zeroPr = bP.ProjectionFn(zeroV3);
             var frictionAcceleration =
-                (bP.ProjectionFn(zeroV3) - bP.ProjectionFn(aP.Speed)).ToLenWithCheck(options.FrictionFactor * particleAcceleration.Length);
+                (zeroPr - bP.ProjectionFn(aP.Speed)).ToLenWithCheck(options.FrictionFactor * particleAcceleration.Length);
 
             // todo: gravity compensation
 
@@ -245,17 +247,14 @@ namespace Model3D.Tools
             // calculate gravity accelerations
             if (options.UseGravity)
             {
-                var gravityAccelerations = particles.SelectInParallel(_ => GetGravityAcceleration());
-                gravityAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
+                var a = GetGravityAcceleration();
+                particles.ForEach(p => p.StepState.Acceleration += a);
             }
 
             // calculate liquid accelerations
             if (options.UseParticleLiquidAcceleration)
             {
                 // particle attract to particle
-
-                // todo: SelectInParallel, сделать свой пул потоков (yield, sleep)
-                // todo: тут проблема времени создания потоков для каждого шага итерации (500 шагов) 500x16 потоков
                 var particleLiquidAccelerations = particles.SelectInParallel(a =>
                         GetNeighbors(a.Item.Position)
                             .OfType<Particle>()
@@ -344,7 +343,6 @@ namespace Model3D.Tools
                             .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0, plane: v.b))
                             .Where(v => v.closing ? v.ab.Length2 < dMin2 : v.ab.Length2 < planeThikness2)
                             .Where(v => v.b.Item.Convex.IsInside(a.Item.Position))
-                            //.Select(v => (v.b, move: -v.ab.ToLen(dMin - v.ab.Length)))
                             .Select(v => (move: v.closing ? -v.ab.ToLen(dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + dMin), v.plane))
                             .ToArray()))
                     .Where(v => v.infos.Length > 0)
