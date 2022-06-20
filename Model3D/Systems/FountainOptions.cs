@@ -9,7 +9,7 @@ namespace Model3D.Systems
         public int ParticlePerEmissionCount = 2;
         public int ParticleCount = 5000;
         public double ParticleRadius = 0.1;
-        public Vector3 ParticleSpeed = new Vector3(0.002, 0.12, 0.004);
+        public Vector3 ParticleSpeed = new Vector3(0.002, 0.16, 0.004);
         public double NetSize = 0.25;
         public Vector3 Gravity = new Vector3(0, -1, 0);
         public double GravityPower = 0.001;
