@@ -45,7 +45,7 @@ namespace View3D
         public Shape GetShape()
         {
 
-            return WatterSystem.Fountain();
+            return Fountain();
 
             var shape = new Shape[]
             {

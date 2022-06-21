@@ -357,5 +357,22 @@ namespace View3D
                 StepAnimations = 50,
                 SceneSteps = (2, 3)
             });
+
+        public Shape Fountain() =>
+            WatterSystem.Fountain(new FountainOptions()
+            {
+                SceneSize = new Vector3(12, 18, 12),
+                ParticleCount = 2000,
+                ParticlePerEmissionCount = 2,
+                EmissionAnimations = 1,
+                ParticleSpeed = new Vector3(0.002, 0.12, 0.004),
+                Gravity = new Vector3(0, -1, 0),
+                GravityPower = 0.001,
+                LiquidPower = 0.0001,
+                SkipAnimations = 100,
+                StepAnimations = 200,
+                SceneSteps = (2, 2),
+                JustAddShamrock = false
+            });
     }
 }
