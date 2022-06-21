@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using Model.Extensions;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Systems
 {
@@ -29,7 +28,7 @@ namespace Model3D.Systems
         }
 
 
-        private static (Model.Vector2 a, Model.Vector2 b) FindBounds(Complex power, Complex c0, double precision, int maxIterations)
+        private static (Vector2 a, Vector2 b) FindBounds(Complex power, Complex c0, double precision, int maxIterations)
         {
             var step = new Complex(precision, 0);
             var c = c0;
@@ -39,17 +38,17 @@ namespace Model3D.Systems
             return (c-step, c);
         }
 
-        public static Model.Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 1000, double insideCoff = 0.99,
+        public static Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 1000, double insideCoff = 0.99,
             int limit = 100000) => GetPoints(new Complex(power.re, power.im), precision, maxIterations, insideCoff, limit);
 
-        public static Model.Vector2[] GetPoints(Complex power, double precision, int maxIterations = 1000, double insideCoff = 0.99, int limit = 100000)
+        public static Vector2[] GetPoints(Complex power, double precision, int maxIterations = 1000, double insideCoff = 0.99, int limit = 100000)
         {
             var precision2 = precision.Pow2();
             var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);
 
-            bool IsInside(Model.Vector2 v) => MandelbrotDistance(power, v.ToZ(), maxIterations) == 0;
+            bool IsInside(Vector2 v) => MandelbrotDistance(power, v.ToZ(), maxIterations) == 0;
 
-            (Model.Vector2 a, Model.Vector2 b) NextPoint((Model.Vector2 a, Model.Vector2 b) v)
+            (Vector2 a, Vector2 b) NextPoint((Vector2 a, Vector2 b) v)
             {
                 var dir = (v.b - v.a).Normal.ToLen(precision);
                 var c = v.a + dir;
@@ -73,7 +72,7 @@ namespace Model3D.Systems
                 }
             }
 
-            var res = new List<Model.Vector2>();
+            var res = new List<Vector2>();
 
             var v = NextPoint(v0);
             res.Add(v.b);

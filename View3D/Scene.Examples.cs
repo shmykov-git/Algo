@@ -10,6 +10,7 @@ using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
+using Model3D.Systems.Model;
 using Model3D.Tools;
 using View3D.Libraries;
 

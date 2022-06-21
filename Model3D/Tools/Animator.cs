@@ -60,7 +60,7 @@ namespace Model3D.Tools
         #region ctor
 
         private readonly AnimatorOptions options;
-        private Particle[] particles;
+        private Particle[] particles = new Particle[0];
         private Plane[] planes;
         private Net3<NetItem> net;
         private double dMin;
@@ -96,7 +96,7 @@ namespace Model3D.Tools
         {
             InitNet();
 
-            var offset = particles?.Length ?? 0;
+            var offset = particles.Length;
 
             var newParticles = items.Select((p, i) => new Particle
             {
@@ -106,7 +106,7 @@ namespace Model3D.Tools
                 PositionFn = () => p.Position,
             }).ToArray();
 
-            particles = particles == null ? newParticles : particles.Concat(newParticles).ToArray();
+            particles = particles.Concat(newParticles).ToArray();
 
             if (net != null)
                 net.AddItems(newParticles);

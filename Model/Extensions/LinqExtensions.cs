@@ -286,7 +286,7 @@ namespace Model.Extensions
             return items.aItems.SelectMany(a => items.bItems.Select(b => func(a, b)));
         }
 
-        public static TItem[] ManyToArray<TItem>(this IEnumerable<TItem>[] manyItems) =>
+        public static TItem[] ManyToArray<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
             manyItems.SelectMany(v => v).ToArray();
 
         public static TOut[] SelectInParallel<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)

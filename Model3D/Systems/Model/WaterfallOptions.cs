@@ -1,6 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 
-namespace Model3D.Systems
+namespace Model3D.Systems.Model
 {
     public class WaterfallOptions
     {

@@ -12,19 +12,78 @@ using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using Model3D.Systems.Model;
 using Model3D.Tools;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Systems
 {
+
     public static class WaterSystem
     {
         public static Shape Fountain(FountainOptions options = null)
         {
             var vectorizer = DI.Get<Vectorizer>();
-
             options ??= new FountainOptions();
+
+            var rnd = new Random(options.Seed);
+            var cubeSize = options.SceneSize;
+            var particleRadius = options.ParticleRadius;
+
+            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-cubeSize.y / 2 + 0.5);
+
+            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-cubeSize.y / 2 + 3.5);
+
+            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
+                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-cubeSize.y / 2 + 5.5);
+
+            var models = new List<WaterCubePlaneModel>
+            {
+                new() {VisibleShape = level1},
+                new() {VisibleShape = level2},
+                new() {VisibleShape = level3}
+            };
+
+            if (options.JustAddShamrock)
+            {
+                var shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
+                var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2)
+                    .MovePlanes(-particleRadius);
+
+                var fire = vectorizer.GetContentShape("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
+                    .MoveY(-cubeSize.y / 2 + 3).ToLines(10);
+                fire = fire.Rotate(1, 0, 1).Move(cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, 1).Move(-cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(1, 0, -1).Move(cubeSize.x / 2, 0, -cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, -1).Move(-cubeSize.x / 2, 0, -cubeSize.z / 2);
+
+                models.Add(new WaterCubePlaneModel() { VisibleShape = shamrock, LogicShape = logicShamrock});
+                models.Add(new WaterCubePlaneModel() { VisibleShape = fire, SkipLogic = true});
+            }
+
+
+            Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
+            {
+                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0),
+                Speed = options.ParticleSpeed
+            }).ToArray();
+
+            return CubePlatform(new WaterCubeModel()
+            {
+                GetStepItemsFn = GetStepItems,
+                PlaneModels = models
+            }, options);
+        }
+
+        public static Shape CubePlatform(WaterCubeModel model, WaterCubeOptions options = null)
+        {
+            options ??= new WaterCubeOptions();
             var rnd = new Random(options.Seed);
 
             var particleRadius = options.ParticleRadius;
@@ -38,89 +97,47 @@ namespace Model3D.Systems
             var cube = Shapes.Cube.Scale(cubeSize);
             var ground = Surfaces.Plane(2, 2).Perfecto().ToOyM().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25);
             var logicCube = cube.AddBorder(particleRadius);
-
-            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
-                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
-                .MoveY(-cubeSize.y / 2 + 0.5);
-            var logicLevel1 = level1.MovePlanes(-particleRadius);
-
-            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
-                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
-                .MoveY(-cubeSize.y / 2 + 3.5);
-            var logicLevel2 = level2.MovePlanes(-particleRadius);
-
-            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
-                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
-                .MoveY(-cubeSize.y / 2 + 5.5);
-            var logicLevel3 = level3.MovePlanes(-particleRadius);
-
-            var (shamrock, logicShamrock, fire) = (Shape.Empty, Shape.Empty, Shape.Empty);
-
-            if (options.JustAddShamrock)
-            {
-                shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
-                logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2)
-                    .MovePlanes(-particleRadius);
-
-                fire = vectorizer.GetContentShape("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
-                    .MoveY(-cubeSize.y / 2 + 3).ToLines(10);
-                fire = fire.Rotate(1, 0, 1).Move(cubeSize.x / 2, 0, cubeSize.z / 2) +
-                       fire.Rotate(-1, 0, 1).Move(-cubeSize.x / 2, 0, cubeSize.z / 2) +
-                       fire.Rotate(1, 0, -1).Move(cubeSize.x / 2, 0, -cubeSize.z / 2) +
-                       fire.Rotate(-1, 0, -1).Move(-cubeSize.x / 2, 0, -cubeSize.z / 2);
-            }
-
-            Item[] GetNewItems(int n) => (n).SelectRange(_ => new Item
-            {
-                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0),
-                Speed = options.ParticleSpeed
-            }).ToArray();
             // ----------
 
 
             // Scene Colliders
-            var cubeCollider = logicCube.Planes.Select(c => new PlaneItem()
-            {
-                Convex = c.Reverse().ToArray(),
-                Position = c.Center()
-            });
+            IEnumerable<PlaneItem> GetCollider(Shape logicShape, bool reverseNormals = false) =>
+                logicShape.Planes.Select(c => new PlaneItem()
+                {
+                    Convex = reverseNormals ? c.Reverse().ToArray() : c,
+                    Position = c.Center()
+                });
 
-            var level1Collider = logicLevel1.Planes.Select(c => new PlaneItem()
-            {
-                Convex = c,
-                Position = c.Center()
-            });
+            var cubeCollider = GetCollider(logicCube, true);
 
-            var level2Collider = logicLevel2.Planes.Select(c => new PlaneItem()
+            Shape GetLogicShape(WaterCubePlaneModel model)
             {
-                Convex = c,
-                Position = c.Center()
-            });
+                if (model.SkipLogic)
+                    return Shape.Empty;
 
-            var level3Collider = logicLevel3.Planes.Select(c => new PlaneItem()
-            {
-                Convex = c,
-                Position = c.Center()
-            });
+                var logicShape = model.LogicShape ?? model.VisibleShape;
 
-            var shamrockCollider = logicShamrock.Planes.Select(c => new PlaneItem()
-            {
-                Convex = c,
-                Position = c.Center()
-            });
+                return model.ColliderStrategy switch
+                {
+                    WaterCubeColliderStrategy.MovePlanes => logicShape.MovePlanes(-particleRadius),
+                    WaterCubeColliderStrategy.AddBorder => logicShape.AddBorder(particleRadius),
+                    _ => throw new NotImplementedException(model.ColliderStrategy.ToString())
+                };
+            }
+
+            var modelColliders = model.PlaneModels.Select(GetLogicShape).Select(logicShape => GetCollider(logicShape));
+
             // ----------
 
 
             // Configuration
 
             var sceneCollider = new[]
-            {
-                cubeCollider,
-                level1Collider,
-                level2Collider,
-                level3Collider,
-                shamrockCollider
-            }.ManyToArray();
+                {
+                    cubeCollider,
+                }
+                .Concat(modelColliders)
+                .ManyToArray();
 
             var sceneSize = logicCube.GetBorders();
 
@@ -154,24 +171,33 @@ namespace Model3D.Systems
 
             var items = new List<Item>();
 
+            if (model.GetInitItemsFn != null)
+                items.AddRange(model.GetInitItemsFn(options.ParticleInitCount).Select(item => new Item()
+                {
+                    Position = item.Position,
+                    Speed = item.Speed
+                }));
+
             Shape GetStepShape() => new Shape[]
             {
                 ground.ApplyColor(Color.Black),
 
                 items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
-                level1.ApplyColor(Color.Black),
-                level2.ApplyColor(Color.Black),
-                level3.ApplyColor(Color.Black),
-                options.JustAddShamrock ? shamrock.ApplyColor(Color.Black) + fire.ApplyColor(Color.Red) : Shape.Empty,
-                
+                model.PlaneModels.Where(m => !m.SkipVisible).Select(m => m.VisibleShape).ToSingleShape(),
+
                 //animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape().ApplyColor(Color.Green),
             }.ToSingleShape();
 
             void EmissionStep(int k)
             {
-                if (particleCount > 0)
+                if (model.GetStepItemsFn != null && particleCount > 0)
                 {
-                    var newItems = GetNewItems(options.ParticlePerEmissionCount);
+                    var newItems = model.GetStepItemsFn(options.ParticlePerEmissionCount)
+                        .Select(item => new Item()
+                        {
+                            Position = item.Position,
+                            Speed = item.Speed
+                        }).ToArray();
 
                     animator.AddItems(newItems);
                     items.AddRange(newItems);
@@ -196,7 +222,7 @@ namespace Model3D.Systems
                 return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
             });
 
-            var shape = new[] {firstShape}.Concat(shapes).ToSingleShape();
+            var shape = new[] { firstShape }.Concat(shapes).ToSingleShape();
 
             Debug.WriteLine($"Scene: {sw.Elapsed}");
             sw.Stop();

@@ -21,6 +21,7 @@ using Model.Fourier;
 using Model.Graphs;
 using Model.Tools;
 using Model3D.Systems;
+using Model3D.Systems.Model;
 using View3D.Libraries;
 using Triangulator = Model.Tools.Triangulator;
 using Vector2 = Model.Vector2;
@@ -31,7 +32,7 @@ namespace View3D
     {
         #region ctor
 
-            private readonly Settings settings;
+        private readonly Settings settings;
         private readonly Vectorizer vectorizer;
 
         public Scene(Settings settings, Vectorizer vectorizer)
@@ -44,8 +45,30 @@ namespace View3D
 
         public Shape GetShape()
         {
+            var models = new List<WaterCubePlaneModel>();
 
-            return Fountain();
+            var s = Surfaces.MobiusStrip(120, 20).SplitByConvexes().ToSingleShape().Normalize().Rotate(1, 1, 1).Mult(3).ApplyColor(Color.Black);
+            models.Add(new WaterCubePlaneModel() {VisibleShape = s, SkipLogic = true});
+
+            return WaterSystem.CubePlatform(
+                new WaterCubeModel()
+                {
+                    PlaneModels = models,
+                },
+                new WaterCubeOptions()
+                {
+                    SceneSize = new Vector3(12, 18, 12),
+                    ParticleCount = 2000,
+                    ParticlePerEmissionCount = 2,
+                    EmissionAnimations = 1,
+                    ParticleSpeed = new Vector3(0.002, 0.12, 0.004),
+                    Gravity = new Vector3(0, -1, 0),
+                    GravityPower = 0.001,
+                    LiquidPower = 0.0001,
+                    SkipAnimations = 100,
+                    StepAnimations = 200,
+                    SceneSteps = (1, 1)
+                });
 
             var shape = new Shape[]
             {
