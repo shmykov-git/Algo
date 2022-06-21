@@ -18,7 +18,7 @@ using Vector2 = Model.Vector2;
 
 namespace Model3D.Systems
 {
-    public static class WatterSystem
+    public static class WaterSystem
     {
         public static Shape Fountain(FountainOptions options = null)
         {
@@ -119,7 +119,7 @@ namespace Model3D.Systems
                 level1Collider,
                 level2Collider,
                 level3Collider,
-                options.JustAddShamrock ? shamrockCollider : Array.Empty<PlaneItem>()
+                shamrockCollider
             }.ManyToArray();
 
             var sceneSize = logicCube.GetBorders();

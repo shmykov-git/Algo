@@ -345,7 +345,7 @@ namespace View3D
         }
 
         public Shape Waterfall() =>
-            WatterSystem.Waterfall(new WaterfallOptions()
+            WaterSystem.Waterfall(new WaterfallOptions()
             {
                 SceneSize = new Vector3(15, 20, 15),
                 SphereOffset = new Vector3(0, 0, 0),
@@ -359,7 +359,7 @@ namespace View3D
             });
 
         public Shape Fountain() =>
-            WatterSystem.Fountain(new FountainOptions()
+            WaterSystem.Fountain(new FountainOptions()
             {
                 SceneSize = new Vector3(12, 18, 12),
                 ParticleCount = 2000,
