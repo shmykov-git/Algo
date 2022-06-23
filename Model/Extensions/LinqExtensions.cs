@@ -89,7 +89,10 @@ namespace Model.Extensions
                 yield return func(enumerator.Current, i++);
         }
 
-        // Четные
+       
+        /// <summary>
+        /// Четные
+        /// </summary>
         public static IEnumerable<T> Evens<T>(this IEnumerable<T> list)
         {
             var i = 0;
@@ -99,7 +102,9 @@ namespace Model.Extensions
                     yield return enumerator.Current;
         }
 
-        // Нечетные
+        /// <summary>
+        /// Нечетные
+        /// </summary>
         public static IEnumerable<T> Odds<T>(this IEnumerable<T> list)
         {
             var i = 0;
@@ -295,17 +300,14 @@ namespace Model.Extensions
                 return Array.Empty<TOut>();
 
             var e = new AutoResetEvent(false);
-            var runningTasksCounter = 0;
             var results = new TOut[items.Length];
 
             var n = threadPool.ThreadsCount < items.Length ? threadPool.ThreadsCount : items.Length;
             var offset = 0;
-            var c = 0;
+            var completed = new bool[n];
 
             (n).ForEach(i =>
             {
-                Interlocked.Increment(ref runningTasksCounter);
-
                 var m = items.Length / n + (i < items.Length % n ? 1 : 0);
                 var k = offset;
                 offset += m;
@@ -313,11 +315,9 @@ namespace Model.Extensions
                 threadPool.Run(() =>
                 {
                     (m).ForEach(j => results[k + j] = processFn(items[k + j]));
-                    (m).ForEach(_=>Interlocked.Increment(ref c));
+                    completed[i] = true;
 
-                    var counter = Interlocked.Decrement(ref runningTasksCounter);
-
-                    if (counter == 0)
+                    if (completed.All(v=>v))
                         e.Set();
                 });
             });

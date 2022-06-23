@@ -87,6 +87,13 @@ namespace Model3D.Extensions
             return v * (lenFn(v.Length) / v.Length);
         }
 
+        public static Vector3 ToLenWithCheck(this Vector3 v, Func<double, double> lenFn, double epsilon = 0.000000001)
+        {
+            var ln = v.Length;
+
+            return ln < epsilon ? v : v * (lenFn(ln) / ln);
+        }
+
         public static Vector3 ToXY(this Vector3 v)
         {
             return new Vector3(v.x, v.y, 0);

@@ -56,6 +56,18 @@ namespace Model3D.Extensions
             {
                 Points3 = pBi.items.ToArray(),
                 Convexes = shape.Convexes.Transform(i => pBi.bi[i]).CleanBi()
+            }.CleanPoints();
+        }
+
+        private static Shape CleanPoints(this Shape shape)
+        {
+            var indices = shape.Convexes.SelectMany(c => c).Distinct().ToHashSet();
+            var indBi = shape.Points.Index().WhereBi(i => indices.Contains(i));
+
+            return new Shape()
+            {
+                Points = indBi.items.Select(i => shape.Points[i]).ToArray(),
+                Convexes = shape.Convexes.Transform(i => indBi.bi[i]),
             };
         }
 
@@ -107,19 +119,21 @@ namespace Model3D.Extensions
 
         public static Shape AddVolume(this Shape shape, double x, double y, double z)
         {
-            var halfVolume = new Vector4(x, y, z, 0) * 0.5;
+            var ps = shape.Points3;
+            var ln = ps.Length;
+            var halfVolume = new Vector3(x, y, z) * 0.5;
 
             return new Shape
             {
-                Points = shape.Points.Select(p => p - halfVolume)
-                    .Concat(shape.Points.Select(p => p + halfVolume)).ToArray(),
+                Points3 = ps.Select(p => p + halfVolume)
+                    .Concat(ps.Select(p => p - halfVolume)).ToArray(),
 
                 Convexes = shape.Convexes.SelectMany(convex => new int[][]
                 {
                     convex,
-                    convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()
+                    convex.Reverse().Select(i => i + ln).ToArray()
 
-                }.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
+                }.Concat(convex.SelectCirclePair((i, j) => new int[] {j, i, i + ln, j + ln}).ToArray())).ToArray(),
             };
         }
 
@@ -450,6 +464,26 @@ namespace Model3D.Extensions
                 .Move(border.min - b * new Vector3(1, 1, 1));
         }
 
+        public static Shape ResizeByNormals(this Shape shape, double distance)
+        {
+            var ps = shape.Points3;
+
+            Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
+            Vector3 GetNP(IEnumerable<Vector3> vs) => vs.Center().ToLenWithCheck(ln => distance / ln);
+
+            var psMoves = shape.Convexes.SelectMany(c => c.Select(i => (i, c))).GroupBy(v => v.i).Select(gv =>
+                    (i: gv.Key,
+                        n: GetNP(gv.Select(v => GetN(v.c)))))
+                .OrderBy(v => v.i).Select(v => v.n).ToArray();
+
+            return new Shape()
+            {
+                Points3 = ps.Select((p, i) => p + psMoves[i]).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape Mult(this Shape shape, double k)
         {
             return new Shape
@@ -459,7 +493,36 @@ namespace Model3D.Extensions
                 Materials = shape.Materials
             };
         }
+        
+        public static Shape Multiplicate(this Shape shape, Func<Shape, Shape>[] funcs)
+        {
+            return funcs.Select(fn => fn(shape)).ToSingleShape();
+        }
 
+        public static Shape AddNormalVolume(this Shape shape, double distance)
+        {
+            var up = distance > 0;
+            var ln = shape.Points.Length;
+
+            var sizedShape = shape.ResizeByNormals(distance);
+
+            var edges = shape.Convexes
+                .SelectMany(c => c.SelectCirclePair((i, j) => (e: (i, j), oe: (i, j).OrderedEdge())))
+                .GroupBy(v => v.oe).Where(gv => gv.Count() == 1).Select(gv => gv.First()).ToArray();
+
+            return new Shape()
+            {
+                Points = shape.Points.Concat(sizedShape.Points).ToArray(),
+                Convexes = new[]
+                {
+                    shape.Convexes.ReverseConvexes(up),
+                    sizedShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
+                    edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
+                }.ManyToArray()
+            };
+        }
+
+        public static Shape ScaleXY(this Shape shape, double multX, double multY) => Scale(shape, multX, multY, 1);
         public static Shape ScaleX(this Shape shape, double mult) => Scale(shape, mult, 1, 1);
         public static Shape ScaleY(this Shape shape, double mult) => Scale(shape, 1, mult, 1);
         public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
@@ -622,6 +685,7 @@ namespace Model3D.Extensions
         public static Shape Rotate(this Shape shape, double x, double y, double z, Vector3? lookUp = null) => Rotate(shape, new Vector3(x, y, z), lookUp);
 
         public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
+        public static Shape RotateOy(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.YAxis));
         public static Shape Rotate(this Shape shape, Vector3 center, double alfa) => shape.Move(-center).Rotate(Quaternion.FromAngleAxis(alfa, Vector3.ZAxis)).Move(center);
         public static Shape RotateMassCenter(this Shape shape, double alfa) => shape.Rotate(shape.MassCenter, alfa);
         public static Shape RotateOx(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.XAxis));
@@ -973,6 +1037,37 @@ namespace Model3D.Extensions
             return shape.Normalize();
         }
 
+        public static Shape FilterPlanes(this Shape shape, Func<Plane, bool> filterFn)
+        {
+            var ps = shape.Points3;
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Where(c => filterFn(new Plane(ps[c[0]], ps[c[1]], ps[c[2]]))).ToArray(),
+            }.CleanPoints();
+        }
+
+        public static Shape FilterConvexPlanes(this Shape shape, Func<Vector3[], Plane, bool> filterFn)
+        {
+            var ps = shape.Points3;
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Where(c => filterFn(c.Select(i=>ps[i]).ToArray(), new Plane(ps[c[0]], ps[c[1]], ps[c[2]]))).ToArray(),
+            }.CleanPoints();
+        }
+
+        public static Shape FilterConvexes(this Shape shape, Func<int[], bool> filterFn)
+        {
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Where(filterFn).ToArray(),
+            }.CleanPoints();
+        }
+
         private static Shape SimpleTriangulateOddPlanes(this Shape shape)
         {
             // Odd - нечетные
@@ -1054,12 +1149,12 @@ namespace Model3D.Extensions
             }).ToSingleShape();
         }
 
-        public static Shape ReversePlanes(this Shape shape)
+        public static Shape ReversePlanes(this Shape shape, bool needReverse = true)
         {
             return new Shape()
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Select(c => c.Reverse().ToArray()).ToArray(),
+                Convexes = needReverse ? shape.Convexes.ReverseConvexes().ToArray() : shape.Convexes,
                 Materials = shape.Materials,
             };
         }

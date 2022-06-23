@@ -21,6 +21,11 @@ namespace Model.Extensions
             return lists.Select(list => list.Select(i => transformFn(i)).ToArray()).ToArray();
         }
 
+        public static IEnumerable<int[]> ReverseConvexes(this IEnumerable<int[]> lists, bool needReverse = true)
+        {
+            return needReverse ? lists.Select(list => list.Reverse().ToArray()).ToArray() : lists;
+        }
+
         public static int[][] CleanBi(this IEnumerable<int[]> lists)
         {
             return lists.Where(list=>!list.Contains(-1)).ToArray();

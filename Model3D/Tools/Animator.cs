@@ -29,7 +29,7 @@ namespace Model3D.Tools
         public double InteractionFactor = Math.E;
         public double FrictionFactor = 0.5;
         public double LiquidPower;
-        public double ParticlePlaneThikness = 2;
+        public double ParticlePlaneThikness = 4;
         public double MaxParticleMove = 2.5;
 
         public Vector3? NetFrom;
@@ -52,7 +52,7 @@ namespace Model3D.Tools
     public interface IAnimatorPlaneItem : IAnimatorItem
     {
         public Vector3[] Convex { get; set; }
-        public Vector3 Normal { get; set; }
+        public double ForwardThickness { get; set; }
     }
 
     public class Animator
@@ -63,10 +63,10 @@ namespace Model3D.Tools
         private Particle[] particles = new Particle[0];
         private Plane[] planes;
         private Net3<NetItem> net;
-        private double dMin;
-        private double dMin2;
-        private double zeroDist2;
-        private double planeThikness2;
+        private double dParticleMin;
+        private double dParticleMin2;
+        private double zeroParticleDist2;
+        private double planeBackwardThickness2;
         private Vector3 zeroV3 = new Vector3(0, 0, 0);
         private int stepNumber = 0;
         private Stopwatch? sw;
@@ -123,6 +123,7 @@ namespace Model3D.Tools
                 .ToArray();
 
             var fieldDistance = options.NetSize;
+            var k = Math.Sqrt(3) / 4;
 
             var newPlanes =
                 planes.SelectInParallel(pl =>
@@ -130,7 +131,7 @@ namespace Model3D.Tools
                     var planeConvex = pl.Convex;
                     var convexCenter = planeConvex.Center();
                     var convexRadius = planeConvex.Max(v => (convexCenter - v).Length);
-                    var farFieldDistance2 = (options.NetSize.Value + convexRadius).Pow2();
+                    var farFieldDistance2 = (k * options.NetSize.Value + convexRadius).Pow2();
                     var plane = new Model3D.Plane(planeConvex[0], planeConvex[1], planeConvex[2]);
                     var distanceFn = plane.Fn;
 
@@ -154,6 +155,7 @@ namespace Model3D.Tools
                             Item = pl,
                             ItemBase = pl,
                             Normal = plane.NOne,
+                            Coeffs = GetLiquidCoeffs(options.ParticleRadius, pl.ForwardThickness),
                             Position = netPos,
                             PositionFn = () => netPos,
                             ProjectionFn = plane.ProjectionFn
@@ -171,12 +173,21 @@ namespace Model3D.Tools
                 net.AddItems(newPlanes);
         }
 
+        (double dMin, double dMin2, double zeroDist2) GetLiquidCoeffs(double aRadius, double bRadius)
+        {
+            var dist = aRadius + bRadius;
+            var dist2 = dist.Pow2();
+            var zeroDist2 = dist2 * options.InteractionFactor.Pow2();
+
+            return (dist, dist2, zeroDist2);
+        }
+
         private void Calculations()
         {
-            dMin = 2 * options.ParticleRadius;
-            dMin2 = dMin.Pow2();
-            zeroDist2 = dMin2 * options.InteractionFactor.Pow2();
-            planeThikness2 = (options.ParticlePlaneThikness * 2 * options.ParticleRadius).Pow2();
+            (dParticleMin, dParticleMin2, zeroParticleDist2) =
+                GetLiquidCoeffs(options.ParticleRadius, options.ParticleRadius);
+
+            planeBackwardThickness2 = (options.ParticlePlaneThikness * options.ParticleRadius).Pow2();
         }
 
         IEnumerable<NetItem> GetNeighbors(Vector3 position) => net == null ? particles : net.SelectNeighbors(position);
@@ -188,7 +199,8 @@ namespace Model3D.Tools
 
         Vector3 GetLiquidPlaneAcceleration(IAnimatorParticleItem aP, Plane bP)
         {
-            var particleAcceleration = GetLiquidParticleAcceleration(aP, bP.Item, () => bP.ProjectionFn(aP.Position));
+            var (_, dPlaneMin2, zeroPlaneDist2) = GetLiquidCoeffs(options.ParticleRadius, bP.Item.ForwardThickness);
+            var particleAcceleration = GetLiquidAcceleration(dPlaneMin2, zeroPlaneDist2, aP, bP.Item, () => bP.ProjectionFn(aP.Position));
 
             var zeroPr = bP.ProjectionFn(zeroV3);
             var frictionAcceleration =
@@ -199,7 +211,7 @@ namespace Model3D.Tools
             return particleAcceleration + frictionAcceleration;
         }
 
-        Vector3 GetLiquidParticleAcceleration(IAnimatorParticleItem aP, IAnimatorItem bP, Func<Vector3> bPositionFn = null)
+        Vector3 GetLiquidAcceleration(double dMin2, double zeroDist2, IAnimatorParticleItem aP, IAnimatorItem bP, Func<Vector3> bPositionFn = null)
         {
             var a = aP.Position;
             var b = bPositionFn?.Invoke() ?? bP.Position;
@@ -220,12 +232,9 @@ namespace Model3D.Tools
 
                 return acc;
             }
-            else
-            {
-                // repulsion power
-
-                return zeroV3;
-            }
+            
+            // no repulsion power
+            return zeroV3;
         }
 
         public void Animate(int count)
@@ -271,7 +280,7 @@ namespace Model3D.Tools
                         GetNeighbors(a.Item.Position)
                             .OfType<Particle>()
                             .Where(b => a != b)
-                            .Select(b => GetLiquidParticleAcceleration(a.Item, b.Item)).Sum());
+                            .Select(b => GetLiquidAcceleration(dParticleMin2, zeroParticleDist2, a.Item, b.Item)).Sum());
 
                 particleLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
@@ -304,8 +313,8 @@ namespace Model3D.Tools
                             .OfType<Particle>()
                             .Where(b => a != b)
                             .Select(b => (b, ab: b.Item.Position - a.Item.Position, speed:b.ItemBase.Speed))
-                            .Where(v => v.ab.Length2 < dMin2)
-                            .Select(v => (move: -v.ab.ToLen(dMin - v.ab.Length), v.speed))
+                            .Where(v => v.ab.Length2 < dParticleMin2)
+                            .Select(v => (move: -v.ab.ToLen(dParticleMin - v.ab.Length), v.speed))
                             .ToArray()))
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
@@ -353,9 +362,9 @@ namespace Model3D.Tools
                             .Select(gp=>gp.First())
                             .Select(b => (b, ab: b.ProjectionFn(a.Item.Position) - a.Item.Position))
                             .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0, plane: v.b))
-                            .Where(v => v.closing ? v.ab.Length2 < dMin2 : v.ab.Length2 < planeThikness2)
+                            .Where(v => v.closing ? v.ab.Length2 < v.b.Coeffs.dMin2 : v.ab.Length2 < planeBackwardThickness2)
                             .Where(v => v.b.Item.Convex.IsInside(a.Item.Position))
-                            .Select(v => (move: v.closing ? -v.ab.ToLen(dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + dMin), v.plane))
+                            .Select(v => (move: v.closing ? -v.ab.ToLen(v.b.Coeffs.dMin - v.ab.Length) : v.ab.ToLen(v.ab.Length + v.b.Coeffs.dMin), v.plane))
                             .ToArray()))
                     .Where(v => v.infos.Length > 0)
                     .ToArray();
@@ -407,6 +416,7 @@ namespace Model3D.Tools
             public int i;
             public Vector3 Position;
             public Vector3 Normal;
+            public (double dMin, double dMin2, double zeroDist2) Coeffs;
             public IAnimatorPlaneItem Item;
             public Func<Vector3, Vector3> ProjectionFn;
         }

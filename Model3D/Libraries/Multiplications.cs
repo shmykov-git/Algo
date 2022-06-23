@@ -10,11 +10,11 @@ namespace View3D.Libraries
             Transformations = new Transform[]
             {
                 p => p + new Vector4(0, 0, 0.5),
-                p => p - new Vector4(0, 0, 0.5),
                 p => Rotates.Z_X * (p + new Vector4(0, 0, 0.5)),
-                p => Rotates.Z_X  * (p + new Vector4(0, 0, 0.5)) - new Vector4(1, 0, 0),
-                p => Rotates.Z_Y  * (p + new Vector4(0, 0, 0.5)),
-                p => Rotates.Z_Y * (p + new Vector4(0, 0, 0.5)) - new Vector4(0, 1, 0),
+                p => Rotates.Z_X * (Rotates.Z_X * (p + new Vector4(0, 0, 0.5))),
+                p => Rotates.Z_mX * (p + new Vector4(0, 0, 0.5)),
+                p => Rotates.Z_Y * (p + new Vector4(0, 0, 0.5)),
+                p => Rotates.Z_mY * (p + new Vector4(0, 0, 0.5)),
             }
         };
 

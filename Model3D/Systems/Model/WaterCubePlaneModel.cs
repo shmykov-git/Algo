@@ -11,21 +11,23 @@ namespace Model3D.Systems.Model
         public Func<int, IAnimatorParticleItem[]> GetStepItemsFn;
 
         public List<WaterCubePlaneModel> PlaneModels;
+        public bool RunCalculations = true;
+        public bool DebugColliders;
+        public bool DebugCollidersLogicOnly;
+        public bool DebugCollidersSkipCube;
+        public bool DebugCollidersSkipShift;
+        public bool DebugCollidersAsLines;
+        public double DebugCollidersAsLinesThikness = 1;
+        public bool DebugNetPlanes;
     }
 
     public class WaterCubePlaneModel
     {
         public Shape VisibleShape;
-        public Shape LogicShape;
-        public WaterCubeColliderStrategy ColliderStrategy = WaterCubeColliderStrategy.MovePlanes;
-        public bool ReversePlaneNormals;
-        public bool SkipLogic;
+        public Shape ColliderShape;
+        public double ColliderShift = 0;
+        public bool SkipCollider;
         public bool SkipVisible;
-    }
-
-    public enum WaterCubeColliderStrategy
-    {
-        AddBorder,
-        MovePlanes
+        public bool Debug;
     }
 }

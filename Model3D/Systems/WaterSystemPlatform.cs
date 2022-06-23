@@ -1,0 +1,206 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using Aspose.ThreeD.Utilities;
+using Model;
+using Model.Extensions;
+using Model.Libraries;
+using Model3D.Extensions;
+using Model3D.Libraries;
+using Model3D.Systems.Model;
+using Model3D.Tools;
+
+namespace Model3D.Systems
+{
+    public static class WaterSystemPlatform
+    {
+        public static Shape Cube(WaterCubeModel model, WaterCubeOptions options = null)
+        {
+            options ??= new WaterCubeOptions();
+
+            if (!model.RunCalculations)
+                options.SceneSteps = (1, 1);
+
+            var rnd = new Random(options.Seed);
+
+            var particleRadius = options.ParticleRadius;
+            var particleCount = options.ParticleCount;
+            var netSize = options.NetSize;
+            var cubeSize = options.SceneSize;
+
+            // Visible Scene with logic scene
+            var particle = Shapes.Icosahedron.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
+
+            var cube = Shapes.Cube.Scale(cubeSize);
+            var cubeGround = Surfaces.Plane(2, 2).Perfecto().ToOy().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
+            var logicCube = cube.ReversePlanes();
+
+            model.PlaneModels.Add(new WaterCubePlaneModel()
+            {
+                VisibleShape = cubeGround,
+                ColliderShape = logicCube,
+                SkipCollider = model.DebugCollidersSkipCube,
+                ColliderShift = particleRadius
+            });
+            // ----------
+
+
+            // Scene Colliders
+
+            Shape GetColliderShape(WaterCubePlaneModel model, bool withShift)
+            {
+                if (model.SkipCollider || model.ColliderShape == null)
+                    return Shape.Empty;
+
+                return withShift ? model.ColliderShape.ResizeByNormals(-model.ColliderShift) : model.ColliderShape;
+            }
+
+            IEnumerable<PlaneItem> GetCollider(WaterCubePlaneModel model)
+            {
+                var logicShape = GetColliderShape(model, true);
+
+                return logicShape.Planes.Select(c => new PlaneItem()
+                {
+                    Convex = c,
+                    Position = c.Center(),
+                    ForwardThickness = model.ColliderShift
+                });
+            }
+
+            // ----------
+
+
+            // Configuration
+
+            var sceneSize = logicCube.GetBorders();
+            var sceneColliders = model.PlaneModels.SelectMany(GetCollider).ToArray();
+
+            var animator = new Animator(new AnimatorOptions()
+            {
+                UseGravity = true,
+                GravityDirection = options.Gravity,
+                GravityPower = options.GravityPower,
+
+                UseParticleLiquidAcceleration = true,
+                LiquidPower = options.LiquidPower,
+                FrictionFactor = options.FrictionFactor,
+                InteractionFactor = 5,
+                ParticleRadius = particleRadius,
+                ParticlePlaneThikness = options.ParticlePlaneBackwardThikness,
+                MaxParticleMove = 2,
+
+                NetSize = netSize,
+                NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),
+                NetTo = sceneSize.max,
+
+                StepDebugNotify = options.StepDebugNotify
+            });
+
+            var sw = Stopwatch.StartNew();
+
+            if (model.RunCalculations)
+                animator.AddPlanes(sceneColliders);
+
+            Debug.WriteLine($"Planes: {sw.Elapsed}");
+            sw.Restart();
+
+            // ----------
+
+
+            var items = new List<Item>();
+
+            if (model.GetInitItemsFn != null)
+                items.AddRange(model.GetInitItemsFn(options.ParticleInitCount).Select(item => new Item()
+                {
+                    Position = item.Position,
+                    Speed = item.Speed
+                }));
+
+            Shape GetStepShape() => new Shape[]
+            {
+                items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
+                
+                model.DebugCollidersLogicOnly 
+                    ? Shape.Empty 
+                    : model.PlaneModels.Where(m => !m.SkipVisible).Where(m=>!m.Debug || !model.RunCalculations).Select(m => m.VisibleShape).ToSingleShape(),
+
+                model.DebugColliders
+                    ? model.DebugCollidersAsLines
+                        ? model.PlaneModels.Select(m=>GetColliderShape(m, !model.DebugCollidersSkipShift)).ToSingleShape()
+                            .ToLines(model.DebugCollidersAsLinesThikness).ApplyColor(Color.Green)
+                        : model.PlaneModels.Select(m => GetColliderShape(m, !model.DebugCollidersSkipShift)).ToSingleShape().ApplyColor(Color.Green)
+                    : Shape.Empty,
+
+                model.DebugNetPlanes && animator.NetPlanes != null
+                    ? animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape()
+                        .ApplyColor(Color.Green)
+                    : Shape.Empty,
+            }.ToSingleShape();
+
+            void EmissionStep(int k)
+            {
+                if (!model.RunCalculations)
+                    return;
+
+                if (model.GetStepItemsFn != null && particleCount > 0)
+                {
+                    var newItems = model.GetStepItemsFn(options.ParticlePerEmissionCount)
+                        .Select(item => new Item()
+                        {
+                            Position = item.Position,
+                            Speed = item.Speed
+                        }).ToArray();
+
+                    animator.AddItems(newItems);
+                    items.AddRange(newItems);
+
+                    particleCount -= options.ParticlePerEmissionCount;
+                }
+
+                animator.Animate(options.EmissionAnimations);
+            }
+
+            if (options.SkipAnimations > 0)
+                (options.SkipAnimations / options.EmissionAnimations).ForEach(EmissionStep);
+
+            var firstShape = GetStepShape();
+
+            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i, j)).Skip(1).Select(v =>
+            {
+                var (i, j) = v;
+
+                (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
+
+                return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
+            });
+
+            var shape = new[] { firstShape }.Concat(shapes).ToSingleShape();
+
+            Debug.WriteLine($"Scene: {sw.Elapsed}");
+            sw.Stop();
+
+            return shape;
+        }
+
+        #region watter model
+
+        public class Item : IAnimatorParticleItem
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Speed { get; set; }
+        }
+
+        public class PlaneItem : IAnimatorPlaneItem
+        {
+            public Vector3 Position { get; set; }
+            public Vector3 Speed { get; set; }
+            public Vector3[] Convex { get; set; }
+            public double ForwardThickness { get; set; }
+        }
+
+        #endregion
+
+    }
+}

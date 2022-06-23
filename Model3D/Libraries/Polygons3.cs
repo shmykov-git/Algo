@@ -9,7 +9,7 @@ namespace Model3D.Libraries
         {
             Points = new Func3Info
             {
-                Fn = Funcs3.Spiral,
+                Fn = Funcs3.Spiral(),
                 From = 0,
                 To = n * 2 * Math.PI,
                 N = count,

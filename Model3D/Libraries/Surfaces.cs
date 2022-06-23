@@ -4,6 +4,7 @@ using Model.Extensions;
 using Model3D.Extensions;
 using System;
 using System.Linq;
+using MathNet.Numerics;
 
 namespace Model3D.Libraries
 {
@@ -222,7 +223,7 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un, bothFaces)
         }.Normalize();
 
-        public static Shape MobiusStrip(int un, int vn, bool triangulate = false) => new Shape
+        public static Shape MobiusStrip(int un, int vn, bool triangulate = false, bool bothFaces = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -234,7 +235,7 @@ namespace Model3D.Libraries
                 VTo = 1,
                 VN = vn,
             }.GetPoints(),
-            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un, bothFaces)
         }.Normalize();
 
         public static Shape Cylinder(int un, int vn) => new Shape
@@ -250,6 +251,21 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)
+        };
+
+        public static Shape ChessCylinder(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Cylinder,
+                UFrom = 0,
+                UTo = 2 * Math.PI,
+                UN = un,
+                VFrom = 0,
+                VTo = vn - 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = ChessSquares(vn, un)
         };
 
         public static Shape Circle(int un, int vn) => new Shape
@@ -355,6 +371,16 @@ namespace Model3D.Libraries
                 {
                     GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v)
                 }).ToArray();
+        }
+
+        private static int[][] ChessSquares(int un, int vn)
+        {
+            int GetNum(int u, int v) => vn * u + v;
+
+            return (un - 1, vn - 1).SelectRange((u, v) => (u, v)).Where(x=>(x.u+x.v).IsEven()).Select(x => new int[]
+            {
+                GetNum(x.u, x.v), GetNum(x.u, x.v + 1), GetNum(x.u + 1, x.v + 1), GetNum(x.u + 1, x.v)
+            }).ToArray();
         }
 
         private static int[][] Triangles(int un, int vn)

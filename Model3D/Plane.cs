@@ -39,9 +39,37 @@ namespace Model3D
         }
 
         /// <summary>
+        /// Пересечение прямой и плоскости
         /// https://intuit.ru/studies/courses/70/70/lecture/2096?page=3
+        /// x = x0 + (n * (r0 - x0) / n * (x1 - x0)) * (x1 - x0)
+        /// x0, x1 - точки построения прямой
+        /// r0, n - точка плоскости и единичная нормаль плоскости
+        /// x - точка пересечения прямой и плоскости
         /// </summary>
         public Func<Vector3, Vector3, Vector3?> IntersectionFn
+        {
+            get
+            {
+                var n = NOne;
+                var r0 = c;
+
+                return (x0, x1) =>
+                {
+                    var xx = x1 - x0;
+                    var n_xx = n.MultS(xx);
+
+                    if (n_xx.Abs() < 0.000000001)
+                        return null;
+
+                    var xr = r0 - x0;
+                    var n_xr = n.MultS(xr);
+
+                    return x0 + (n_xr / n_xx) * xx;
+                };
+            }
+        }
+
+        public Func<Vector3, Vector3, Vector3?> IntersectionFn1
         {
             get
             {
@@ -57,13 +85,12 @@ namespace Model3D
                     if (nl.Abs() < 0.000000001)
                         return null;
 
-                    var t0 = -(n.MultS(x0) + d) / nl;
+                    var t0 = -(n.MultS(x0) + -n.MultS(r0)) / nl;
 
                     return x0 + t0 * l;
                 };
             }
         }
-
         public Func<Line3, Vector3?> LineIntersectionFn
         {
             get
