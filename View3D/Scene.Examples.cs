@@ -375,5 +375,19 @@ namespace View3D
                 SceneSteps = (2, 2),
                 JustAddShamrock = false
             });
+
+        public Shape Slide() =>
+            WaterSystem.Slide(new SlideOptions()
+            {
+                SceneSize = new Vector3(16, 16, 16),
+                SceneSteps = (1, 1),
+                StepAnimations = 200,
+                SkipAnimations = 1600,
+                WaterSpeed = 0.07,
+                FrictionFactor = 0.6,
+                ParticlePerEmissionCount = 2,
+                ParticleCount = 10000,
+                ParticlePlaneBackwardThikness = 2
+            });
     }
 }

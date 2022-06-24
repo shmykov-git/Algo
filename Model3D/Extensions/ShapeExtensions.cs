@@ -899,20 +899,14 @@ namespace Model3D.Extensions
 
         public static Shape Normalize(this Shape shape)
         {
-            var shapePoints = shape.Points3.Select(p => p.ToV3D()).ToArray();
-            var points = shapePoints.OrderSafeDistinct().ToList();
-            var convexes = shape.Convexes.Transform(i => points.IndexOf(shapePoints[i]));
-            convexes = convexes.Select(convex => convex.OrderSafeDistinct().ToArray()).Where(convex => convex.Length >= 3).ToArray();
+            var bi = shape.Points3.Select(p => p.ToV3D()).ToArray().DistinctBi();
+            var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
+            var convexes = shape.Convexes.Transform(i => bi.bi[i]).Where(convex => convex.Length >= 3).ToArray();
 
-            var allMaterials = shape.Materials?.Distinct().ToArray();
-            // todo: support all materials
-            var materials = ((allMaterials?.Length ?? 0) == 1) ? convexes.Index().Select(_ => allMaterials[0]).ToArray() : null;
-
-            return new Shape
+            return new Shape()
             {
-                Points3 = points.Select(p=>p.ToV3()).ToArray(),
-                Convexes = convexes,
-                Materials = materials
+                Points = points, 
+                Convexes = convexes
             };
         }
 
@@ -1156,6 +1150,26 @@ namespace Model3D.Extensions
                 Points = shape.Points,
                 Convexes = needReverse ? shape.Convexes.ReverseConvexes().ToArray() : shape.Convexes,
                 Materials = shape.Materials,
+            };
+        }
+
+        public static Shape WithBackPlanes(this Shape shape, Color? color = null)
+        {
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = new[]
+                {
+                    shape.Convexes,
+                    shape.Convexes.ReverseConvexes()
+                }.ManyToArray(),
+                Materials = shape.Materials == null
+                    ? null
+                    : new[]
+                    {
+                        shape.Materials,
+                        color == null ? shape.Materials : shape.Materials.Select(_=>Materials.GetByColor(color.Value))
+                    }.ManyToArray(),
             };
         }
 

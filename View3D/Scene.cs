@@ -40,18 +40,19 @@ namespace View3D
         {
             this.settings = settings;
             this.vectorizer = vectorizer;
-        }    
+        }
 
         #endregion
 
-        class SlideOptions : WaterCubeOptions
+        public class Options : WaterCubeOptions
         {
             public double WaterSpeed = 0.07;
         }
 
+
         public Shape GetShape()
         {
-            var options = new SlideOptions()
+            var options = new Options()
             {
                 SceneSize = new Vector3(16, 16, 16),
                 SceneSteps = (1, 1),
@@ -65,98 +66,67 @@ namespace View3D
             };
 
             var rnd = new Random(options.Seed);
-            var cubeSize = options.SceneSize;
-            //var particleRadius = options.ParticleRadius;
+            var sceneSize = options.SceneSize;
 
 
-            //var mebius = Surfaces.MobiusStrip(120, 20, bothFaces:true).Perfecto(3).ToOy()
-            //    .MoveY(-cubeSize.y / 2 + 3).ApplyColor(Color.Black);
+            var shamrock = Surfaces.Shamrock(480, 40, true).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2)
+                .Where(v=>(v-new Vector3(-3, -5, 3)).Length >= 6.5).ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
+            //var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2);
 
-            //var dini = Surfaces.DiniSurface(60, 30, bothFaces: true).Perfecto(5).ToOy().ScaleY(0.5).AlignY(0).MoveY(-cubeSize.y / 2)
-            //    .Multiplicate(new Func<Shape,Shape>[]
-            //    {
-            //        s => s.Move(cubeSize.x / 2, 0, cubeSize.z / 2),
-            //        s => s.Move(cubeSize.x / 2, 0, -cubeSize.z / 2),
-            //        s => s.Move(-cubeSize.x / 2, 0, cubeSize.z / 2),
-            //        s => s.Move(-cubeSize.x / 2, 0, -cubeSize.z / 2),
-            //    }).ApplyColor(Color.Black);
+            var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(Color.Red);
 
-            var ground = Surfaces.Plane(9, 9).FilterConvexes(c=>c[0].IsEven()).Perfecto().Scale(cubeSize).ToOy().AddNormalVolume(0.25).AlignY(0).MoveY(-cubeSize.y / 2).ApplyColor(Color.Black);
-            var logicGround = ground
-                .FilterPlanes(p => p.NOne.MultS(-Vector3.YAxis) < 0.999)
-                .FilterConvexPlanes((convex,_) =>
-                {
-                    var c = convex.Center();
+            var text = vectorizer.GetText("I'll be back", 300, "Royal Inferno").Perfecto(10)
+                .ToOxM().Move(-3,0,0)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ToLines(3).ApplyColor(Color.Red);
 
-                    if (c.x < -0.99 * cubeSize.x / 2 || c.x > 0.99 * cubeSize.x / 2)
-                        return false;
+            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-sceneSize.y / 2 + 0.5);
 
-                    if (c.z < -0.99 * cubeSize.z / 2 || c.z > 0.99 * cubeSize.z / 2)
-                        return false;
+            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-sceneSize.y / 2 + 3.5);
 
-                    return true;
-                });
+            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
+                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-sceneSize.y / 2 + 5.5);
 
-            //return logicGround.ResizeByNormals(-options.ParticleRadius).ApplyColor(Color.Blue);
+            var fountain = (level1 + level2 + level3)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8)
+                .ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
 
-            Shape TransformSpiral(Shape s) => s.Normalize().Scale(1, 1, 1 / Math.PI).Perfecto(11)
-                .CurveZ(Funcs3.Spiral(1.25)).Mult(4).ToOyM().RotateOy(Math.PI / 10)
-                .Move(0, -cubeSize.y / 2 + 9.5, -2);
-
-            //var spikeValue = -particleRadius * 0.3;
-            var spiral = TransformSpiral(Surfaces.ChessCylinder(15, 123)).AddNormalVolume(0.15).ApplyColor(Color.Black);
-            var logicSpiral = TransformSpiral(Surfaces.Cylinder(15, 123)).ReversePlanes();
-
-            var logicBox = Surfaces.Plane(23, 23).Perfecto().Transform(Multiplications.Cube)
-                .FilterConvexes(c => c[0].IsEven()).Where(v => v.y < -0.3)
-                .Mult(10).AlignY(0).MoveY(-cubeSize.y / 2 + 1).ReversePlanes();
-            
-            var box = logicBox.AddNormalVolume(-0.15).Normalize().ApplyColor(Color.Black);
-
-            //Shape TransformSphere(Shape s) => s.Where(v=>v.y < 0.2).Perfecto(5).FilterConvexes(c => (c[0] + c[2]) % 2 == 0)
-            //    .Move(0, -cubeSize.y / 2 + 2.5, 3);
-
-            //var ball = Shapes.GolfBall4;
-            //var sphere = TransformSphere(ball).AddNormalVolume(0.1).ApplyColor(Color.Black);
-            //var logicSphere = TransformSphere(ball).ReversePlanes();
+            //WaterSystemPlatform.Item[] GetStepItems(int n) => (n).SelectRange(_ => new WaterSystemPlatform.Item
+            //{
+            //    Position = rnd.NextCenteredV3(0.3) + new Vector3(2, -cubeSize.y / 2 + 14, 2.5),
+            //    Speed = -options.WaterSpeed * waterDir
+            //}).ToArray();
 
 
-            var waterDir = new Vector3(-0.6, -0.15, 1);
-            var tap = Shapes.Cube.Perfecto(0.9).AlignZ(0).Scale(1, 1, 2.5).Rotate(waterDir, Vector3.YAxis)
-                .Move(2, -cubeSize.y / 2 + 14, 2.5).ApplyColor(Color.Black);
-
-            WaterSystemPlatform.Item[] GetStepItems(int n) => (n).SelectRange(_ => new WaterSystemPlatform.Item
-            {
-                Position = rnd.NextCenteredV3(0.3) + new Vector3(2, -cubeSize.y / 2 + 14, 2.5),
-                Speed = -options.WaterSpeed * waterDir
-            }).ToArray();
+            // todo: направить фонтан (коллайдеры)
 
             return WaterSystemPlatform.Cube(
                 new WaterCubeModel()
                 {
-                    RunCalculations = true,
-                    DebugColliders = false,
+                    RunCalculations = false,
+                    DebugColliders = true,
                     DebugCollidersLogicOnly = false,
-                    DebugCollidersSkipCube = false,
-                    DebugCollidersSkipShift = false,
+                    DebugCollidersSkipCube = true,
+                    DebugCollidersSkipShift = true,
                     DebugCollidersAsLines = true,
                     DebugCollidersAsLinesThikness = 2,
                     DebugNetPlanes = false,
 
                     PlaneModels = new List<WaterCubePlaneModel>()
                     {
-                        //new() {VisibleShape = mebius, SkipCollider = true},
-                        //new() {VisibleShape = dini, SkipCollider = true},
-                        new() {VisibleShape = spiral, ColliderShape = logicSpiral, ColliderShift = options.ParticleRadius},
-                        //new() {VisibleShape = sphere, ColliderShape = logicSphere},
-                        new() {VisibleShape = box, ColliderShape = logicBox},
-                        new() {VisibleShape = tap},
-                        new() {VisibleShape = ground, ColliderShape = logicGround},
+                        new() {VisibleShape = shamrock, /*ColliderShape = logicShamrock, ColliderShift = options.ParticleRadius*/},
+                        new() {VisibleShape = ball},
+                        new() {VisibleShape = text},
+                        new() {VisibleShape = fountain},
 
                         //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), SkipCollider = true},
                     },
-                    GetStepItemsFn = GetStepItems
-                }, options).Rotate(1, 0, 1);
+                    //GetStepItemsFn = GetStepItems
+                }, options);
 
             var shape = new Shape[]
             {
