@@ -46,28 +46,45 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return IllBeBack();
+            var sceneSize = new Vector3(14, 16, 14);
 
             var options = new WaterCubeOptions()
             {
-                SceneSize = new Vector3(16, 32, 16),
-                SkipAnimations = 600,
+                SceneSize = sceneSize,
+                SkipAnimations = 400,
                 SceneSteps = (1, 1),
                 StepAnimations = 200,
                 WaterEnabled = true,
-                WaterSpeed = 0.2,
-                WaterDir = new Vector3(0.04, 1.5, 0.04),
-                WaterPosition = new Vector3(0, -15.5, 0),
-                ParticlePerEmissionCount = 2,
-                FrictionFactor = 0.6,
+                WaterSpeed = 0.066,
+                WaterDir = new Vector3(0.2, 1, 0.2),
+                WaterPosition = new Vector3(-2, -sceneSize.y/2 + 8, -2),
+                ParticlePerEmissionCount = 10,
+                LiquidPower = 0.0002,
+                FrictionFactor = 0.8,
                 ParticleCount = 10000,
                 ParticlePlaneBackwardThikness = 2
             };
 
             var rnd = new Random(options.Seed);
-            var sceneSize = options.SceneSize;
+            
+            var ballCollider = Shapes.IcosahedronSp3.Perfecto(5).Move(0, -sceneSize.y/2+5, 0);
+            var ball = Shapes.Ball.Perfecto(5).Move(0, -sceneSize.y / 2 + 5, 0).ApplyColorGradientY(Color.Red, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black);
 
+            var b1 = Shapes.Ball.Perfecto(0.5).Move(-1.8+0.5, -sceneSize.y / 2 + 8+0.8, -1.8-0.5).ApplyColor(Color.Red);
+            var b2 = Shapes.Ball.Perfecto(0.5).Move(-1.8-0.5, -sceneSize.y / 2 + 8+0.8, -1.8+0.5).ApplyColor(Color.Red);
+            var bs = b1 + b2;
 
+            var cylinder = Shapes.CylinderR(50, 2).Perfecto(6).ToOy().AlignY(0).Move(-3, -sceneSize.y / 2, 0).ApplyColor(Color.Red);
+            var cylinderCollider = Shapes.CylinderR(10, 2).Perfecto(6).ToOy().AlignY(0).Move(-3, -sceneSize.y / 2, 0);
+
+            var diniBase = Surfaces.DiniSurface(60, 30, bothFaces: true).Perfecto(5).ToOy().ScaleY(0.5).AlignY(0).MoveY(-sceneSize.y / 2);
+            var dini = new[]
+            {
+                diniBase.ApplyColorGradientY(Color.Black, Color.Black, Color.Red).Move(-4, 0, -6),
+                diniBase.ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Red).Move(4, 0, 3),
+                diniBase.ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Red).Move(-4, 0, 6),
+                diniBase.ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Red).Move(5, 0, -3.5),
+            }.ToSingleShape();
 
             return WaterSystemPlatform.Cube(
                 new WaterCubeModel()
@@ -83,11 +100,14 @@ namespace View3D
 
                     PlaneModels = new List<WaterCubePlaneModel>()
                     {
-                        //new() {VisibleShape = shamrock, /*ColliderShape = logicShamrock, ColliderShift = options.ParticleRadius*/},
+                        new() { VisibleShape = ball, ColliderShape = ballCollider, ColliderShift = options.ParticleRadius },
+                        new() {VisibleShape = bs},
+                        new() {VisibleShape = cylinder, ColliderShape = cylinderCollider},
+                        new() {VisibleShape = dini},
 
                         //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), DebugColliderSkip = true},
                     }
-                }, options);
+                }, options).ToOx();
         }
     }
 }
