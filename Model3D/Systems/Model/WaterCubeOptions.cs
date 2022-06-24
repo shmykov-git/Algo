@@ -16,6 +16,10 @@ namespace Model3D.Systems.Model
         public double GravityPower = 0.001;
         public double LiquidPower = 0.0001;
         public double FrictionFactor = 0.5;
+        public bool WaterEnabled = false;
+        public double WaterSpeed = 0.14;
+        public Vector3 WaterDir = new Vector3(0.04, 1.5, 0.04);
+        public Vector3 WaterPosition = new Vector3(0, 0, 0);
         public int Seed = 0;
         public int SkipAnimations = 100;
         public int EmissionAnimations = 1;

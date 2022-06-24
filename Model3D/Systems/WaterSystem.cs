@@ -22,9 +22,78 @@ namespace Model3D.Systems
 {
     public static class WaterSystem
     {
-        public static Shape Slide(SlideOptions options = null)
+        public static Shape IllBeBack()
         {
-            options ??= new SlideOptions()
+            var vectorizer = DI.Get<Vectorizer>();
+
+            var options = new WaterCubeOptions()
+            {
+                SceneSize = new Vector3(16, 16, 16),
+                SkipAnimations = 1600,
+                SceneSteps = (1, 1),
+                WaterEnabled = true,
+                WaterPosition = new Vector3(0, -1.5, 0),
+                WaterDir = new Vector3(-0.06, 1, 0.06),
+                WaterSpeed = 0.16
+            };
+
+            var sceneSize = options.SceneSize;
+
+            var shamrock = Surfaces.Shamrock(480, 40, true).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 6.5).ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
+
+            var shamrockCollider = Surfaces.Shamrock(96, 12).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 6.5);
+
+            var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(Color.Red);
+            var ballCollider = Shapes.IcosahedronSp3.Perfecto(9).Move(-3, -5, 3).ResizeByNormals(0.3);
+
+            var text = vectorizer.GetText("I'll be back", 300, "Royal Inferno").Perfecto(10)
+                .ToOxM().Move(-3, 0, 0)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ToLines(3).ApplyColor(Color.Red);
+
+            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
+                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-sceneSize.y / 2 + 0.5);
+
+            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
+                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-sceneSize.y / 2 + 3.5);
+
+            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2).Normalize()
+                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-sceneSize.y / 2 + 5.5);
+
+            var fountainCollider = (level1 + level2 + level3)
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8);
+
+            var fountain = fountainCollider.ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
+
+            //bool AnnihilateWaterFromThisWorld(IAnimatorParticleItem x) =>
+            //    (x.Position - new Vector3(-3, -5, 3)).Length >= 4.8;
+
+            return WaterSystemPlatform.Cube(
+                new WaterCubeModel()
+                {
+                    RunCalculations = true,
+                    DebugColliders = false,
+                    DebugCollidersAsLines = true,
+                    DebugCollidersSkipShift = false,
+
+                    PlaneModels = new List<WaterCubePlaneModel>()
+                    {
+                        new() {VisibleShape = shamrock, ColliderShape = shamrockCollider, ColliderShift = options.ParticleRadius },
+                        new() {VisibleShape = ball, ColliderShape = ballCollider, ColliderShift = options.ParticleRadius},
+                        new() {VisibleShape = text},
+                        new() {VisibleShape = fountain, ColliderShape = fountainCollider, ColliderShift = options.ParticleRadius }
+                    },
+                    //GetParticleFilterFn = AnnihilateWaterFromThisWorld
+                }, options).ToOx();
+        }
+
+        public static Shape Slide(WaterCubeOptions options = null)
+        {
+            options ??= new WaterCubeOptions()
             {
                 SceneSize = new Vector3(16, 16, 16),
                 SceneSteps = (1, 1),
@@ -109,7 +178,7 @@ namespace Model3D.Systems
                 {
                     RunCalculations = true,
                     DebugColliders = false,
-                    DebugCollidersLogicOnly = false,
+                    DebugCollidersNoVisible = false,
                     DebugCollidersSkipCube = false,
                     DebugCollidersSkipShift = false,
                     DebugCollidersAsLines = true,
@@ -118,15 +187,15 @@ namespace Model3D.Systems
 
                     PlaneModels = new List<WaterCubePlaneModel>()
                     {
-                        //new() {VisibleShape = mebius, SkipCollider = true},
-                        //new() {VisibleShape = dini, SkipCollider = true},
+                        //new() {VisibleShape = mebius, DebugColliderSkip = true},
+                        //new() {VisibleShape = dini, DebugColliderSkip = true},
                         new() {VisibleShape = spiral, ColliderShape = logicSpiral, ColliderShift = options.ParticleRadius},
                         //new() {VisibleShape = sphere, ColliderShape = logicSphere},
                         new() {VisibleShape = box, ColliderShape = logicBox},
                         new() {VisibleShape = tap},
                         new() {VisibleShape = ground, ColliderShape = logicGround},
 
-                        //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), SkipCollider = true},
+                        //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), DebugColliderSkip = true},
                     },
                     GetStepItemsFn = GetStepItems
                 }, options);
@@ -155,9 +224,9 @@ namespace Model3D.Systems
 
             var models = new List<WaterCubePlaneModel>
             {
-                new() {VisibleShape = level1},
-                new() {VisibleShape = level2},
-                new() {VisibleShape = level3}
+                new() {VisibleShape = level1, ColliderShape = level1, ColliderShift = options.ParticleRadius},
+                new() {VisibleShape = level2, ColliderShape = level2, ColliderShift = options.ParticleRadius},
+                new() {VisibleShape = level3, ColliderShape = level3, ColliderShift = options.ParticleRadius}
             };
 
             if (options.JustAddShamrock)
@@ -173,10 +242,9 @@ namespace Model3D.Systems
                        fire.Rotate(1, 0, -1).Move(cubeSize.x / 2, 0, -cubeSize.z / 2) +
                        fire.Rotate(-1, 0, -1).Move(-cubeSize.x / 2, 0, -cubeSize.z / 2);
 
-                models.Add(new WaterCubePlaneModel() { VisibleShape = shamrock, ColliderShape = logicShamrock});
+                models.Add(new WaterCubePlaneModel() { VisibleShape = shamrock, ColliderShape = logicShamrock, ColliderShift = options.ParticleRadius });
                 models.Add(new WaterCubePlaneModel() { VisibleShape = fire });
             }
-
 
             Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
             {
@@ -184,7 +252,8 @@ namespace Model3D.Systems
                 Speed = options.ParticleSpeed
             }).ToArray();
 
-            return WaterSystemPlatform.Cube(new WaterCubeModel()
+            return WaterSystemPlatform.Cube(
+                new WaterCubeModel()
             {
                 GetStepItemsFn = GetStepItems,
                 PlaneModels = models
@@ -312,7 +381,7 @@ namespace Model3D.Systems
             return shape;
         }
 
-        #region watter model
+        #region watterfall model
 
         class Item : IAnimatorParticleItem
         {

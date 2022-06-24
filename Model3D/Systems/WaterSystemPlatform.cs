@@ -41,17 +41,29 @@ namespace Model3D.Systems
             {
                 VisibleShape = cubeGround,
                 ColliderShape = logicCube,
-                SkipCollider = model.DebugCollidersSkipCube,
+                DebugColliderSkip = model.DebugCollidersSkipCube,
                 ColliderShift = particleRadius
             });
+
+            if (model.GetStepItemsFn == null && options.WaterEnabled)
+            {
+                Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
+                {
+                    Position = rnd.NextCenteredV3(0.3) + options.WaterPosition,
+                    Speed = options.WaterDir.ToLen(options.WaterSpeed)
+                }).ToArray();
+
+                model.GetStepItemsFn = GetStepItems;
+            }
+
             // ----------
 
 
             // Scene Colliders
 
-            Shape GetColliderShape(WaterCubePlaneModel model, bool withShift)
+            Shape GetColliderShape(WaterCubePlaneModel model, bool withShift, bool allowSkip)
             {
-                if (model.SkipCollider || model.ColliderShape == null)
+                if ((allowSkip && model.DebugColliderSkip) || model.ColliderShape == null)
                     return Shape.Empty;
 
                 return withShift ? model.ColliderShape.ResizeByNormals(-model.ColliderShift) : model.ColliderShape;
@@ -59,7 +71,7 @@ namespace Model3D.Systems
 
             IEnumerable<PlaneItem> GetCollider(WaterCubePlaneModel model)
             {
-                var logicShape = GetColliderShape(model, true);
+                var logicShape = GetColliderShape(model, true, false);
 
                 return logicShape.Planes.Select(c => new PlaneItem()
                 {
@@ -122,15 +134,15 @@ namespace Model3D.Systems
             {
                 items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
                 
-                model.DebugCollidersLogicOnly 
+                model.DebugCollidersNoVisible 
                     ? Shape.Empty 
                     : model.PlaneModels.Where(m => !m.SkipVisible).Where(m=>!m.Debug || !model.RunCalculations).Select(m => m.VisibleShape).ToSingleShape(),
 
                 model.DebugColliders
                     ? model.DebugCollidersAsLines
-                        ? model.PlaneModels.Select(m=>GetColliderShape(m, !model.DebugCollidersSkipShift)).ToSingleShape()
+                        ? model.PlaneModels.Select(m=>GetColliderShape(m, !model.DebugCollidersSkipShift, true)).ToSingleShape()
                             .ToLines(model.DebugCollidersAsLinesThikness).ApplyColor(Color.Green)
-                        : model.PlaneModels.Select(m => GetColliderShape(m, !model.DebugCollidersSkipShift)).ToSingleShape().ApplyColor(Color.Green)
+                        : model.PlaneModels.Select(m => GetColliderShape(m, !model.DebugCollidersSkipShift, true)).ToSingleShape().ApplyColor(Color.Green)
                     : Shape.Empty,
 
                 model.DebugNetPlanes && animator.NetPlanes != null
@@ -164,6 +176,9 @@ namespace Model3D.Systems
 
             if (options.SkipAnimations > 0)
                 (options.SkipAnimations / options.EmissionAnimations).ForEach(EmissionStep);
+
+            if (model.GetParticleFilterFn != null)
+                items = items.Where(model.GetParticleFilterFn).Cast<Item>().ToList();
 
             var firstShape = GetStepShape();
 

@@ -3,6 +3,7 @@ using Model;
 using Model.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,7 +92,7 @@ namespace Model3D.Extensions
         {
             var ln = v.Length;
 
-            return ln < epsilon ? v : v * (lenFn(ln) / ln);
+            return ln < epsilon ? new Vector3(0, 0, 0) : v * (lenFn(ln) / ln);
         }
 
         public static Vector3 ToXY(this Vector3 v)

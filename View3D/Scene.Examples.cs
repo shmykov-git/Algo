@@ -377,7 +377,7 @@ namespace View3D
             });
 
         public Shape Slide() =>
-            WaterSystem.Slide(new SlideOptions()
+            WaterSystem.Slide(new WaterCubeOptions()
             {
                 SceneSize = new Vector3(16, 16, 16),
                 SceneSteps = (1, 1),
@@ -389,5 +389,7 @@ namespace View3D
                 ParticleCount = 10000,
                 ParticlePlaneBackwardThikness = 2
             });
+
+        public Shape IllBeBack() => WaterSystem.IllBeBack();
     }
 }
