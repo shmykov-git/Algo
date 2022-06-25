@@ -391,5 +391,6 @@ namespace View3D
             });
 
         public Shape IllBeBack() => WaterSystem.IllBeBack();
+        public Shape BigDee() => WaterSystem.BigDee();
     }
 }
