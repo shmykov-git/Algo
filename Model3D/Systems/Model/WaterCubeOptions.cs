@@ -26,5 +26,6 @@ namespace Model3D.Systems.Model
         public int StepAnimations = 200;
         public int? StepDebugNotify = 50;
         public double ParticlePlaneBackwardThikness = 4;
+        public double ParticleMaxMove = 2;
     }
 }

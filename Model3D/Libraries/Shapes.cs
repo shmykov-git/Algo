@@ -260,6 +260,40 @@ namespace Model.Libraries
             }
         }.Normed();
 
+        public static Shape Stone(int n, int seed = 0, double power = 1, int quality = 2, Vector3? scale = null)
+        {
+            var rnd = new Random(seed);
+            scale ??= new Vector3(1, 3, 1);
+
+            var dirs = (n).SelectRange(_ => rnd.NextCenteredV3().Normalize()).ToArray();
+
+            Shape GetStoneShape(int stoneQuality) =>
+                stoneQuality switch
+                {
+                    1 => Shapes.Icosahedron,
+                    2 => Shapes.IcosahedronSp2,
+                    3 => Shapes.IcosahedronSp3,
+                    4 => Shapes.IcosahedronSp4,
+                    5 => Shapes.Ball,
+                    _ => throw new NotSupportedException(stoneQuality.ToString())
+                };
+
+            Vector3 TransformFn(Vector3 v)
+            {
+                return v + power * dirs.Select(dir =>
+                {
+                    var m = v.MultS(dir);
+
+                    if (m < 0)
+                        return Vector3.Origin;
+
+                    return m * dir;
+                }).Sum();
+            }
+
+            return GetStoneShape(quality).Scale(scale.Value).TransformPoints(TransformFn).Perfecto();
+        }
+
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
     }
 }

@@ -22,6 +22,107 @@ namespace Model3D.Systems
 {
     public static class WaterSystem
     {
+
+        public static Shape Aqueduct()
+        {
+            var sceneSize = new Vector3(16, 16, 16);
+
+            var options = new WaterCubeOptions()
+            {
+                SceneSize = sceneSize,
+                ParticleInitCount = 5000,
+                SkipAnimations = 150,
+                SceneSteps = (1, 1),
+                StepAnimations = 50,
+                WaterEnabled = false,
+                WaterSpeed = 0.066,
+                WaterDir = new Vector3(0.2, 1, 0.2),
+                WaterPosition = new Vector3(-2, -sceneSize.y / 2 + 8, -2),
+                ParticlePerEmissionCount = 10,
+                GravityPower = 0.001,
+                LiquidPower = 0.0002,
+                FrictionFactor = 0.8,
+                ParticleCount = 10000,
+                ParticlePlaneBackwardThikness = 2,
+            };
+
+            var rnd = new Random(options.Seed);
+
+            Shape TorusModify(Shape s) => s.Perfecto(15).ToOy()
+                .Where(v => v.y < 0.3)
+                .Where(v =>
+                {
+                    var nAlfa = (int) (30 * Math.Atan2(v.x.Abs(), v.z.Abs()) / (Math.PI / 2));
+
+                    if (nAlfa == 7 || nAlfa == 22)
+                        return v.y > -0.75;
+
+                    return true;
+                });
+
+            var ballColor = Color.OrangeRed;
+
+            var torus = TorusModify(Surfaces.Torus(240, 40, 8)).AddNormalVolume(0.2)
+                .ApplyColor(Color.Black)
+                .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null);
+                
+            var torusCollider = TorusModify(Surfaces.Torus(120, 15, 8)).AddNormalVolume(0.2)/*.ReversePlanes()*/;
+
+            var stoneCount = 8;
+            var stoneRadius = 6.5;
+            var stoneAlfa0 = 0.37;
+            var stones = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 0.5, 4).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
+                .MoveY(-sceneSize.y / 2)
+                .ApplyColor(Color.Black)
+                .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null, null);
+            var stoneColliders = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 0.5, 1).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
+                .MoveY(-sceneSize.y / 2);
+
+            var ball = Shapes.Ball.MoveY(-sceneSize.y / 2 + 3).ApplyColor(ballColor);
+
+            WaterSystemPlatform.Item[] GetInitItemsFn(int n) =>
+                (n).SelectRange(_ =>
+                {
+                    var alfa = rnd.NextDouble() * 2 * Math.PI;
+                    var r = 6.3 + rnd.NextDouble();
+                    var y = rnd.NextDouble() - 0.3;
+
+                    return new WaterSystemPlatform.Item()
+                    {
+                        Position = new Vector3(r * Math.Cos(alfa), y, r * Math.Sin(alfa)),
+                        Speed = new Vector3(0, 0, 0)
+                    };
+                }).ToArray();
+
+            void ModifyParticle(Shape particle)
+            {
+                particle.ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null, null, null);
+            }
+
+            return WaterSystemPlatform.Cube(
+                new WaterCubeModel()
+                {
+                    RunCalculations = true,
+                    DebugColliders = false,
+                    DebugCollidersNoVisible = false,
+                    DebugCollidersSkipCube = false,
+                    DebugCollidersSkipShift = true,
+                    DebugCollidersAsLines = true,
+                    DebugCollidersAsLinesThikness = 2,
+                    DebugNetPlanes = false,
+
+                    PlaneModels = new List<WaterCubePlaneModel>()
+                    {
+                        new(){VisibleShape = torus, ColliderShape = torusCollider},
+                        new(){VisibleShape = stones, ColliderShape = stoneColliders},
+                        new(){VisibleShape = ball},
+                        //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), DebugColliderSkip = true},
+                    },
+                    GetInitItemsFn = GetInitItemsFn,
+                    ModifyParticleFn = ModifyParticle
+                }, options);
+        }
+
         public static Shape BigDee()
         {
             var sceneSize = new Vector3(14, 16, 14);
@@ -399,7 +500,7 @@ namespace Model3D.Systems
                 InteractionFactor = 5,
                 ParticleRadius = particleRadius,
                 ParticlePlaneThikness = 4,
-                MaxParticleMove = 2,
+                ParticleMaxMove = 2,
 
                 NetSize = netSize,
                 NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),

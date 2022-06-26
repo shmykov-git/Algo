@@ -10,6 +10,7 @@ namespace Model3D.Systems.Model
         public Func<int, IAnimatorParticleItem[]> GetInitItemsFn;
         public Func<int, IAnimatorParticleItem[]> GetStepItemsFn;
         public Func<IAnimatorParticleItem, bool> GetParticleFilterFn;
+        public Action<Shape> ModifyParticleFn;
 
         public List<WaterCubePlaneModel> PlaneModels;
         public bool RunCalculations = true;

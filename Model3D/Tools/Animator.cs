@@ -30,7 +30,7 @@ namespace Model3D.Tools
         public double FrictionFactor = 0.5;
         public double LiquidPower;
         public double ParticlePlaneThikness = 4;
-        public double MaxParticleMove = 2.5;
+        public double ParticleMaxMove = 2.5;
 
         public Vector3? NetFrom;
         public Vector3? NetTo;
@@ -328,8 +328,8 @@ namespace Model3D.Tools
 
                     var move = infos.Select(v => v.move).Sum();
 
-                    if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
-                        move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
+                    if (move.Length2 > (options.ParticleMaxMove * options.ParticleRadius).Pow2())
+                        move = move.ToLen(options.ParticleMaxMove * options.ParticleRadius);
 
                     // direction immunity compensation
                     // todo: safe particle impulse
@@ -375,8 +375,8 @@ namespace Model3D.Tools
 
                     var move = infos.Select(info => info.move).Sum();
 
-                    if (move.Length2 > (options.MaxParticleMove * options.ParticleRadius).Pow2())
-                        move = move.ToLen(options.MaxParticleMove * options.ParticleRadius);
+                    if (move.Length2 > (options.ParticleMaxMove * options.ParticleRadius).Pow2())
+                        move = move.ToLen(options.ParticleMaxMove * options.ParticleRadius);
 
                     var nMove = move.Normalize();
                     particle.Item.Speed -= 2 * nMove * nMove.MultS(particle.Item.Speed);

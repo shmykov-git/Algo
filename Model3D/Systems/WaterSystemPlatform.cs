@@ -101,7 +101,7 @@ namespace Model3D.Systems
                 InteractionFactor = 5,
                 ParticleRadius = particleRadius,
                 ParticlePlaneThikness = options.ParticlePlaneBackwardThikness,
-                MaxParticleMove = 2,
+                ParticleMaxMove = options.ParticleMaxMove,
 
                 NetSize = netSize,
                 NetFrom = sceneSize.min - netSize * new Vector3(0.5, 0.5, 0.5),
@@ -124,15 +124,28 @@ namespace Model3D.Systems
             var items = new List<Item>();
 
             if (model.GetInitItemsFn != null)
-                items.AddRange(model.GetInitItemsFn(options.ParticleInitCount).Select(item => new Item()
+            {
+                var newItems = model.GetInitItemsFn(options.ParticleInitCount).Select(item => new Item()
                 {
                     Position = item.Position,
                     Speed = item.Speed
-                }));
+                }).ToArray();
+
+                animator.AddItems(newItems);
+                items.AddRange(newItems);
+                particleCount -= options.ParticleInitCount;
+            }
 
             Shape GetStepShape() => new Shape[]
             {
-                items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape(),
+                model.ModifyParticleFn == null
+                ? items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape()
+                : items.Select(item =>
+                {
+                    var p = particle.Rotate(rnd.NextRotation()).Move(item.Position);
+                    model.ModifyParticleFn(p);
+                    return p;
+                }).ToSingleShape(),
                 
                 model.DebugCollidersNoVisible 
                     ? Shape.Empty 

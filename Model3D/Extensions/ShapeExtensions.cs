@@ -23,6 +23,16 @@ namespace Model3D.Extensions
     {
         private static Vectorizer vectorizer = DI.Get<Vectorizer>();
 
+        public static Shape TransformPoints(this Shape shape, Func<Vector3, Vector3> changePointFn)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Select(changePointFn).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape Transform(this Shape shape, Multiplication transformation)
         {
             return new Shape
@@ -960,12 +970,18 @@ namespace Model3D.Extensions
         public static Shape ApplyColorSphereGradient(this Shape shape, Vector3 center, params Color?[] colors) =>
             ApplyColorGradient(shape, b => (b.ToV3()- center).Length, colors);
 
-        private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors)
+        public static Shape ApplyColorSphereRGradient(this Shape shape, double radius, Vector3 center, params Color?[] colors) =>
+            ApplyColorGradient(shape, b => (b.ToV3() - center).Length, 0, radius, colors);
+
+        private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, params Color?[] colors) =>
+            shape.ApplyColorGradient(valueFn, null, null, colors);
+
+        private static Shape ApplyColorGradient(this Shape shape, Func<Vector4, double> valueFn, double? from, double? to, params Color?[] colors)
         {
             var centers = shape.Convexes.Select(convex => convex.Select(i => shape.Points[i]).Center()).ToArray();
 
-            var min = centers.Min(p => valueFn(p));
-            var max = centers.Max(p => valueFn(p));
+            var min = from??centers.Min(valueFn);
+            var max = to??centers.Max(valueFn);
             max += (max - min) * 0.00001;
 
             Vector4 GetColor(double z, Color current)
@@ -973,6 +989,8 @@ namespace Model3D.Extensions
                 var n = colors.Length - 1;
                 var k = (z - min) / (max - min); // [0, 1)
                 var j = (int)(k * n);
+                if (j >= colors.Length-1)
+                    j = colors.Length - 2;
                 var fromColor = colors[j] ?? current;
                 var toColor = colors[j + 1] ?? current;
                 var kk = (k - j * 1.0 / n) * n;

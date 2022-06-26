@@ -46,49 +46,19 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var sceneSize = new Vector3(16, 16, 16);
-
-            var options = new WaterCubeOptions()
-            {
-                SceneSize = sceneSize,
-                SkipAnimations = 400,
-                SceneSteps = (1, 1),
-                StepAnimations = 200,
-                WaterEnabled = true,
-                WaterSpeed = 0.066,
-                WaterDir = new Vector3(0.2, 1, 0.2),
-                WaterPosition = new Vector3(-2, -sceneSize.y/2 + 8, -2),
-                ParticlePerEmissionCount = 10,
-                LiquidPower = 0.0002,
-                FrictionFactor = 0.8,
-                ParticleCount = 10000,
-                ParticlePlaneBackwardThikness = 2
-            };
-
-            var rnd = new Random(options.Seed);
+            return Aqueduct();
             
+            var rnd = new Random(0);
 
+            var nStones = 8;
+            var stones = (nStones).SelectRange(i => Shapes.Stone(4, i, 0.5, 4).AlignY(0).Move(10*(i, nStones).ToCircleYV3())).ToSingleShape();
+            var stoneColliders = (nStones).SelectRange(i => Shapes.Stone(4, i, 0.5, 1).AlignY(0).Move(10 * (i, nStones).ToCircleYV3())).ToSingleShape();
 
-
-            return WaterSystemPlatform.Cube(
-                new WaterCubeModel()
-                {
-                    RunCalculations = false,
-                    DebugColliders = false,
-                    DebugCollidersNoVisible = false,
-                    DebugCollidersSkipCube = true,
-                    DebugCollidersSkipShift = true,
-                    DebugCollidersAsLines = true,
-                    DebugCollidersAsLinesThikness = 2,
-                    DebugNetPlanes = false,
-
-                    PlaneModels = new List<WaterCubePlaneModel>()
-                    {
-                        
-
-                        //new() {VisibleShape = Shapes.CoodsWithText.Mult(5), DebugColliderSkip = true},
-                    }
-                }, options);
+            return new Shape[]
+            {
+                stones.ApplyColor(Color.Black),
+                stoneColliders.ToLines(2).ApplyColor(Color.Green),
+            }.ToSingleShape();
         }
     }
 }
