@@ -1198,5 +1198,17 @@ namespace Model3D.Extensions
                 .Sum()
                 .Abs() == shape.Convexes.Length;
         }
+
+        public static Shape RotateToTopY(this Shape shape) => shape.RotateToTopY(out _);
+
+        public static Shape RotateToTopY(this Shape shape, out Quaternion q)
+        {
+            var ps = shape.Points3;
+            var top = ps.Where(p => Vector3.YAxis.MultS(p) > 0).OrderByDescending(p => p.Length2).First();
+            var bottom = ps.Where(p => Vector3.YAxis.MultS(p) < 0).OrderByDescending(p => p.Length2).First();
+            q = Quaternion.FromRotation((bottom - top).Normalize(), Vector3.YAxis);
+
+            return shape.Rotate(q);
+        }
     }
 }

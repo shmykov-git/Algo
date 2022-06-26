@@ -73,11 +73,14 @@ namespace Model3D.Systems
             var stoneCount = 8;
             var stoneRadius = 6.5;
             var stoneAlfa0 = 0.37;
-            var stones = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 0.5, 4).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
+            var qs = new Quaternion[stoneCount];
+            var stones = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 1, 4, new Vector3(1.2, 3, 1.2))
+                    .RotateToTopY(out qs[i]).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
                 .MoveY(-sceneSize.y / 2)
                 .ApplyColor(Color.Black)
                 .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null, null);
-            var stoneColliders = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 0.5, 1).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
+            var stoneColliders = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 1, 1, new Vector3(1.2, 3, 1.2))
+                    .Rotate(qs[i]).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
                 .MoveY(-sceneSize.y / 2);
 
             var ball = Shapes.Ball.MoveY(-sceneSize.y / 2 + 3).ApplyColor(ballColor);
