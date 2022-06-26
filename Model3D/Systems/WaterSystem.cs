@@ -43,7 +43,7 @@ namespace Model3D.Systems
                 LiquidPower = 0.0002,
                 FrictionFactor = 0.8,
                 ParticleCount = 10000,
-                ParticlePlaneBackwardThikness = 2,
+                ParticlePlaneBackwardThikness = 1,
                 PlatformType = PlatformType.Circle,
                 PlatformSize = 16,
             };
@@ -68,7 +68,7 @@ namespace Model3D.Systems
                 .ApplyColor(Color.Black)
                 .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null);
                 
-            var torusCollider = TorusModify(Surfaces.Torus(120, 15, 8)).AddNormalVolume(0.2)/*.ReversePlanes()*/;
+            var torusCollider = TorusModify(Surfaces.Torus(120, 20, 8)).AddNormalVolume(0.2)/*.ReversePlanes()*/;
 
             var stoneCount = 8;
             var stoneRadius = 6.5;
