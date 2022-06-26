@@ -251,7 +251,7 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)
-        };
+        }.Normalize();
 
         public static Shape ChessCylinder(int un, int vn) => new Shape
         {
@@ -281,7 +281,7 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)
-        };
+        }.Normalize();
 
         public static Shape CircleAngle(int un, int vn, double from, double to) => new Shape
         {
@@ -311,7 +311,7 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)
-        };
+        }.Normalize();
 
         public static Shape Cone(int un, int vn) => new Shape
         {

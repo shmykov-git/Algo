@@ -44,6 +44,8 @@ namespace Model3D.Systems
                 FrictionFactor = 0.8,
                 ParticleCount = 10000,
                 ParticlePlaneBackwardThikness = 2,
+                PlatformType = PlatformType.Circle,
+                PlatformSize = 16,
             };
 
             var rnd = new Random(options.Seed);

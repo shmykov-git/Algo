@@ -27,5 +27,13 @@ namespace Model3D.Systems.Model
         public int? StepDebugNotify = 50;
         public double ParticlePlaneBackwardThikness = 4;
         public double ParticleMaxMove = 2;
+        public PlatformType PlatformType = PlatformType.Square;
+        public double? PlatformSize = null;
+    }
+
+    public enum PlatformType
+    {
+        Square,
+        Circle
     }
 }

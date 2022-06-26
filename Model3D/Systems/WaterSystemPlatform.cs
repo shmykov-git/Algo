@@ -34,8 +34,25 @@ namespace Model3D.Systems
             var particle = Shapes.Icosahedron.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
 
             var cube = Shapes.Cube.Scale(cubeSize);
-            var cubeGround = Surfaces.Plane(2, 2).Perfecto().ToOy().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
             var logicCube = cube.ReversePlanes();
+
+            Shape GetCubeGround(PlatformType type)
+            {
+                switch (type)
+                {
+                    case PlatformType.Square:
+                        return Surfaces.Plane(2, 2).Perfecto().ToOy().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
+
+                    case PlatformType.Circle:
+                        var sz = options.PlatformSize ?? new Vector3(cubeSize.x / 2, 0, cubeSize.z / 2).Length;
+                        return Surfaces.Circle(300, 2).Perfecto().Scale(sz, sz, 1).AddPerimeterVolume(0.5).ToOy().MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
+
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                }
+            }
+            
+            var cubeGround = GetCubeGround(options.PlatformType);
 
             model.PlaneModels.Add(new WaterCubePlaneModel()
             {
