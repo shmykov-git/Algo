@@ -197,7 +197,7 @@ namespace Model3D.Extensions
 
         public static Shape ToBlowedShape(this IEnumerable<Shape> shapeList, double mult = 2, double angle = 0) => shapeList.Select(s =>
         {
-            var c = s.MassCenter;
+            var c = s.PointCenter;
             var move = (mult - 1) * c;
 
             return s.RotateMassCenter(angle).Move(move);
@@ -209,7 +209,7 @@ namespace Model3D.Extensions
 
             return shapeList.Select(s =>
             {
-                var c = s.MassCenter;
+                var c = s.PointCenter;
                 var move = (mult - 1) * c;
 
                 return s.RotateMassCenter(2 * Math.PI * rnd.NextDouble()).Move(move);
@@ -697,7 +697,7 @@ namespace Model3D.Extensions
         public static Shape Rotate(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
         public static Shape RotateOy(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.YAxis));
         public static Shape Rotate(this Shape shape, Vector3 center, double alfa) => shape.Move(-center).Rotate(Quaternion.FromAngleAxis(alfa, Vector3.ZAxis)).Move(center);
-        public static Shape RotateMassCenter(this Shape shape, double alfa) => shape.Rotate(shape.MassCenter, alfa);
+        public static Shape RotateMassCenter(this Shape shape, double alfa) => shape.Rotate(shape.PointCenter, alfa);
         public static Shape RotateOx(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.XAxis));
         public static Shape RotateOx(this Shape shape, double x, double y, double z) => Rotate(shape, Quaternion.FromRotation(Vector3.XAxis, new Vector3(x, y, z).Normalize()));
 
@@ -1155,7 +1155,7 @@ namespace Model3D.Extensions
         {
             return shape.SplitByConvexes(false).Select(s =>
             {
-                var c = s.MassCenter;
+                var c = s.PointCenter;
 
                 return s.Move(-c).Mult(mult).Move(c).Move(s.Normals[0].ToLen(distance));
             }).ToSingleShape();
@@ -1203,10 +1203,21 @@ namespace Model3D.Extensions
 
         public static Shape RotateToTopY(this Shape shape, out Quaternion q)
         {
-            var ps = shape.Points3;
-            var top = ps.Where(p => Vector3.YAxis.MultS(p) > 0).OrderByDescending(p => p.Length2).First();
-            var bottom = ps.Where(p => Vector3.YAxis.MultS(p) < 0).OrderByDescending(p => p.Length2).First();
-            q = Quaternion.FromRotation((bottom - top).Normalize(), Vector3.YAxis);
+            var (top, bottom) = shape.TopsY;
+
+            q = Quaternion.FromRotation((top - bottom).Normalize(), Vector3.YAxis);
+
+            return shape.Rotate(q);
+        }
+
+        public static Shape RotateToMassY(this Shape shape) => shape.RotateToMassY(out _);
+
+        public static Shape RotateToMassY(this Shape shape, out Quaternion q)
+        {
+            var massCenter = shape.MassCenter;
+            var bottom = shape.BottomY;
+
+            q = Quaternion.FromRotation((massCenter - bottom).Normalize(), Vector3.YAxis);
 
             return shape.Rotate(q);
         }

@@ -181,7 +181,7 @@ namespace View3D
 
             Shape GetShape(Shape s)
             {
-                var center = s.MassCenter;
+                var center = s.PointCenter;
                 var dir = center.Normalize();
                 var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
                 var dist = blowRadius * (1 + blowFactor * (r.NextDouble()-1));
@@ -234,13 +234,13 @@ namespace View3D
             {
                 (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch), 
                     new Vector3(-2.5, 0, 0),
-                    s => 0.5 * s.MassCenter.MultV(Vector3.YAxis), 
+                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis), 
                     s=>s,
                     Color.Black),
                 
                 (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1), 
                     new Vector3(2.5, 0, 0),
-                    s => 0.5 * s.MassCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)), 
+                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)), 
                     s=>s.Rotate(1,1,1),
                     Color.Black),
             };
@@ -249,7 +249,7 @@ namespace View3D
                 .SelectMany(s => s.s.SplitByConvexes()
                     .Select(ss => new Particle()
                     {
-                        Position = ss.MassCenter + s.shift,
+                        Position = ss.PointCenter + s.shift,
                         Speed = s.speed(ss),
                         Color = s.color,
                         ModifyFn = s.modifyFn

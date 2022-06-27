@@ -295,5 +295,8 @@ namespace Model.Libraries
         }
 
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
+
+        public static Shape SquarePlatform(double size = 3, double thickness = 0.1) => Surfaces.Plane(2, 2)
+            .Perfecto(size).AddNormalVolume(0.1).ToOyM().ApplyColor(Color.Black);
     }
 }

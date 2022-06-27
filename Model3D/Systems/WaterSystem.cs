@@ -74,8 +74,8 @@ namespace Model3D.Systems
             var stoneRadius = 6.5;
             var stoneAlfa0 = 0.37;
             var qs = new Quaternion[stoneCount];
-            var stones = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 1, 4, new Vector3(1.2, 3, 1.2))
-                    .RotateToTopY(out qs[i]).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
+            var stones = (stoneCount).SelectRange(i => Shapes.Stone(4, i, 1, 5, new Vector3(1.2, 3, 1.2))
+                    .RotateToMassY(out qs[i]).Mult(4).AlignY(0).Move(stoneRadius * (i, stoneCount).ToCircleYV3(stoneAlfa0))).ToSingleShape()
                 .MoveY(-sceneSize.y / 2)
                 .ApplyColor(Color.Black)
                 .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null, null);
@@ -107,7 +107,7 @@ namespace Model3D.Systems
             return WaterSystemPlatform.Cube(
                 new WaterCubeModel()
                 {
-                    RunCalculations = true,
+                    RunCalculations = false,
                     DebugColliders = false,
                     DebugCollidersNoVisible = false,
                     DebugCollidersSkipCube = false,

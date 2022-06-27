@@ -81,7 +81,7 @@ namespace Model
             }
         }
 
-        public Vector3 MassCenter => Points3.Center();
+        public Vector3 PointCenter => Points3.Center();
 
         public Vector3 SizeCenter
         {
@@ -102,6 +102,78 @@ namespace Model
         public double SizeX => Points.Length == 0 ? 0 : Points.Max(p => p.x) - Points.Min(p => p.x);
         public double SizeY => Points.Length == 0 ? 0 : Points.Max(p => p.y) - Points.Min(p => p.y);
         public double SizeZ => Points.Length == 0 ? 0 : Points.Max(p => p.z) - Points.Min(p => p.z);
+
+
+        public double[] Masses
+        {
+            get
+            {
+                var ps = Points3;
+
+                double GetConvexArea(int[] c)
+                {
+                    var a = ps[c[1]] - ps[c[0]];
+                    var b = ps[c[2]] - ps[c[1]];
+
+                    return 0.5 * a.MultV(b).Length;
+                }
+
+                var masses = Convexes.SelectMany(c => c.Select(i => (i, c))).GroupBy(v => v.i)
+                    .Select(gv => (i: gv.Key, m: gv.Select(v => GetConvexArea(v.c)).Average())).OrderBy(v => v.i)
+                    .Select(v => v.m).ToArray();
+
+                var avg = masses.Average();
+
+                return masses.Select(m => m / avg).ToArray();
+            }
+        }
+
+        public Vector3 MassCenter
+        {
+            get
+            {
+                var ms = Masses;
+
+                return Points3.Select((p, i) => ms[i] * p).Center();
+            }
+        }
+
+        public Vector3 TopY
+        {
+            get
+            {
+                var ps = Points3;
+                var center = ps.Center();
+                var top = ps.Where(p => Vector3.YAxis.MultS(p - center) > 0).OrderByDescending(p => (p - center).Length2).First();
+
+                return top;
+            }
+        }
+
+        public Vector3 BottomY
+        {
+            get
+            {
+                var ps = Points3;
+                var center = ps.Center();
+                var bottom = ps.Where(p => Vector3.YAxis.MultS(p - center) < 0).OrderByDescending(p => (p - center).Length2).First();
+
+                return bottom;
+            }
+        }
+
+        public (Vector3 top, Vector3 bottom) TopsY
+        {
+            get
+            {
+                var ps = Points3;
+                var center = ps.Center();
+                var top = ps.Where(p => Vector3.YAxis.MultS(p - center) > 0).OrderByDescending(p => (p - center).Length2).First();
+                var bottom = ps.Where(p => Vector3.YAxis.MultS(p - center) < 0).OrderByDescending(p => (p - center).Length2).First();
+
+                return (top, bottom);
+            }
+        }
 
         public static Shape operator +(Shape a, Shape b)
         {

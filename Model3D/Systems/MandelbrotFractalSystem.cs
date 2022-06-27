@@ -27,7 +27,6 @@ namespace Model3D.Systems
             return 0;
         }
 
-
         private static (Vector2 a, Vector2 b) FindBounds(Complex power, Complex c0, double precision, int maxIterations)
         {
             var step = new Complex(precision, 0);
