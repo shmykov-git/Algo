@@ -283,6 +283,21 @@ namespace Model3D.Libraries
             Convexes = Squares(vn, un)
         }.Normalize();
 
+        public static Shape PlaneHeart(int un, int vn) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Heart,
+                UFrom = 0,
+                UTo = -2 * Math.PI,
+                UN = un,
+                VFrom = 0,
+                VTo = vn - 1,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squares(vn, un)
+        }.Normalize();
+
         public static Shape CircleAngle(int un, int vn, double from, double to) => new Shape
         {
             Points3 = new SurfaceFuncInfo

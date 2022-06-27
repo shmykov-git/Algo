@@ -34,6 +34,8 @@ namespace Model3D.Systems.Model
     public enum PlatformType
     {
         Square,
-        Circle
+        Circle,
+        Heart,
+        Mandelbrot
     }
 }

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using Meta;
 using Model3D.Libraries;
+using Model3D.Systems;
 using Model3D.Tools;
 using View3D.Libraries;
 
@@ -296,7 +297,18 @@ namespace Model.Libraries
 
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
 
-        public static Shape SquarePlatform(double size = 3, double thickness = 0.1) => Surfaces.Plane(2, 2)
-            .Perfecto(size).AddNormalVolume(0.1).ToOyM().ApplyColor(Color.Black);
+        public static Shape SquarePlatform(double x = 3, double y = 3, double z = 0.5) => Surfaces.Plane(2, 2)
+            .Perfecto().Scale(x,y,1).AddNormalVolume(z).ToOyM().ApplyColor(Color.Black);
+
+        public static Shape CirclePlatform(double x = 3, double y = 3, double z = 0.5) => Surfaces.Circle(100, 2)
+            .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(Color.Black);
+
+        public static Shape HeartPlatform(double x = 3, double y = 3, double z = 0.5) => Surfaces.PlaneHeart(100, 2)
+            .ToPolygon().ToShape(1).Centered().Scale(2.3 * x, 2.3 * y, z).ToOy().MoveY(-z / 2)
+            .ApplyColor(Color.Black);
+
+        public static Shape MandelbrotPlatform(double x = 3, double y = 3, double z = 0.5) => MandelbrotFractalSystem.GetPoints(2, 0.002, 1000)
+            .ToPolygon().ToShape(4).Mult(0.25).Scale(3 * x, 3 * y, z).ToOy().ToOx().MoveY(-z / 2)
+            .ApplyColor(Color.Black);
     }
 }

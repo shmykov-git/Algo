@@ -41,11 +41,16 @@ namespace Model3D.Systems
                 switch (type)
                 {
                     case PlatformType.Square:
-                        return Surfaces.Plane(2, 2).Perfecto().ToOy().Scale(cubeSize).AddVolumeY(0.5).MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
+                        return Shapes.SquarePlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
 
                     case PlatformType.Circle:
-                        var sz = options.PlatformSize ?? new Vector3(cubeSize.x / 2, 0, cubeSize.z / 2).Length;
-                        return Surfaces.Circle(300, 2).Perfecto().Scale(sz, sz, 1).AddPerimeterVolume(0.5).ToOy().MoveY(-cubeSize.y / 2 - 0.25).ApplyColor(Color.Black);
+                        return Shapes.CirclePlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+
+                    case PlatformType.Heart:
+                        return Shapes.HeartPlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+
+                    case PlatformType.Mandelbrot:
+                        return Shapes.MandelbrotPlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);

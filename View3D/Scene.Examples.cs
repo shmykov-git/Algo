@@ -192,7 +192,7 @@ namespace View3D
                     : GetNativePowerPoint(gravityPower, gravityPoint, point, iterationsCount);
 
                 if (useRotation)
-                    s = s.Move(-center).Rotate(Quaternion.FromEulerAngle(rot)).Move(center);
+                    s = s.Move(-center).Rotate(Aspose.ThreeD.Utilities.Quaternion.FromEulerAngle(rot)).Move(center);
 
                 return s.Move(powerPoint - dir);
             }
