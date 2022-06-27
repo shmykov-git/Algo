@@ -36,6 +36,16 @@ namespace Model3D
         private static System.Numerics.Vector3 ToNV3(Vector3 v) => new System.Numerics.Vector3((float)v.x, (float)v.y, (float)v.z);
         private static Vector3 ToV3(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
 
+        public static ExQuaternion operator *(double x, ExQuaternion q)
+        {
+            return new ExQuaternion(Quaternion.Multiply(q.q, (float)x));
+        }
+
+        public static ExQuaternion operator *(ExQuaternion q, double x)
+        {
+            return new ExQuaternion(Quaternion.Multiply(q.q, (float)x));
+        }
+
         public static ExQuaternion operator *(ExQuaternion a, ExQuaternion b)
         {
             return new ExQuaternion(a.q * b.q);
@@ -50,5 +60,7 @@ namespace Model3D
         {
             return new Aspose.ThreeD.Utilities.Quaternion(q.q.W, q.q.X, q.q.Y, q.q.Z);
         }
+
+        public override string ToString() => q.ToString();
     }
 }

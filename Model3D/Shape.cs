@@ -162,6 +162,18 @@ namespace Model
             }
         }
 
+        public Vector3 ProjectionBottomY
+        {
+            get
+            {
+                var ps = Points3;
+                var center = ps.Center();
+                var bottom = ps.Select(p=>(p,proj: Vector3.YAxis.MultS(p - center))).Where(v => v.proj < 0).OrderBy(v => v.proj).First().p;
+
+                return bottom;
+            }
+        }
+
         public (Vector3 top, Vector3 bottom) TopsY
         {
             get

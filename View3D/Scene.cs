@@ -63,9 +63,12 @@ namespace View3D
             var ps = stoneLogic.Points3;
             var masses = stoneLogic.Masses;
 
-            var position0 = -stoneLogic.BottomY + new Vector3(0, 1, 0);
-            var rotation0 = new ExQuaternion(0, 0, 0.2);
-            var rotationSpeed0 = new ExQuaternion(0.1, 0.1, 0.1);
+            var rotation0 = new ExQuaternion(0, 0, 1);
+            var rotationSpeed0 = ExQuaternion.Identity;
+            var projectionBottom0 = stoneLogic.Rotate(rotation0).ProjectionBottomY;
+            var position0 = new Vector3(0, -projectionBottom0.y, 0);
+            
+            var touchPoint0 = projectionBottom0 + position0;
 
             var stone = new Solid()
             {
@@ -76,7 +79,7 @@ namespace View3D
                     Position = p,
                     Mass = masses[i]
                 }).ToArray(),
-
+                
                 Position = position0,
                 Rotation = rotation0,
                 Mass = mass0,
@@ -84,51 +87,75 @@ namespace View3D
                 RotationSpeed = rotationSpeed0,
 
                 PositionAcceleration = Vector3.Origin,
-                RotationAcceleration = ExQuaternion.Identity,
             };
-
-
-            //var q1 = Quaternion.FromRotation(Vector3.XAxis, new Vector3(1,2,3).Normalize());
-            //var q2 = Quaternion.FromRotation(Vector3.YAxis, new Vector3(4, 5, 6).Normalize());
-
-            //Quaternion Outer(Quaternion q, Quaternion p) => (q.Conjugate()*p + p.Conjugate() * q * -1) * 0.5;
-
-            //var p = new Vector3(3, 5, 2);
-            //var p1 = q2 * (q1 * p);
-            //var q12 = Outer(q2, q1);
-            //var p2 = q12 * p;
-
 
             var gravity = 0.01 * new Vector3(0, -1, 0);
             //var planeForce = new Vector3(0, 1, 0);
-            var planePoint = ps.OrderByDescending(p => p.y).First();
-
-            void CalculateStoneAccelerationsNoTouchPoints(Solid solid)
-            {
-                solid.RotationAcceleration = ExQuaternion.Identity;
-                solid.PositionAcceleration = solid.Mass * gravity;
-            }
-
-            void CalculateStoneAccelerationsSingleTouchPoint(Solid solid, Vector3 touchPoint)
-            {
-                var touchDirection = touchPoint - solid.Position;
+            //var planePoint = ps.OrderByDescending(p => p.y).First();
 
 
-                //var planeForceDir = planePoint - v.Position;
-                //var planeForce = planeForceDir.ToLen(planeForceDir.MultS(gravity).Abs());
-                //var acc = v.Mass * (gravity + planeForce);
+            //void CalculateStoneAccelerationsSingleTouchPoint(Solid solid, Vector3 touchPoint)
+            //{
+            //    var touchDirection = touchPoint - solid.Position;
 
-                // todo: 2 точки A, B. В точке A ускорение a, какое в точке B?
-                //var accZ = 
+            //    solid.Items.Select(v =>
+            //    {
+            //        // todo: разложить v.position, gravity на ускорение вращения и ускорение перемещения центра
+            //        // плоскость точки касания, центра, позиции
+            //        // проекциия верктора гравитации на эту плоскость - это определяет ускорение перемещения без вращения (с учетом массы и расстояния)
+            //        // а проекция на нормаль это плоскости определяет ускорение вращения (с учетом массы и расстояния)
+                    
+            //        // нужны только точки касания
+            //        //  для обсчета достаточно центра, скоростей, ускорений, массы
 
-                //v.Acceleration = acc;
-            }
+            //        var a = touchDirection.Normalize();
+            //        var b = v.Position.Normalize();
+            //        var c = a.MultV(b);
+            //        var d = a.MultV(c);
+
+            //        var l = v.Position.MultV(touchDirection);
+
+            //        return Vector3.Origin;
+            //    }).Sum();
+
+            //    //var planeForceDir = planePoint - v.Position;
+            //    //var planeForce = planeForceDir.ToLen(planeForceDir.MultS(gravity).Abs());
+            //    //var acc = v.Mass * (gravity + planeForce);
+
+            //    // todo: 2 точки A, B. В точке A ускорение a, какое в точке B?
+            //    //var accZ = 
+
+            //    //v.Acceleration = acc;
+            //}
 
             // todo: посчитать Zx, Zy, Yx
 
-
+            var touchPoint = touchPoint0;
             void Step()
             {
+                var a = stone.Mass * gravity;
+                stone.PositionSpeed += a;
+                stone.Position += stone.PositionSpeed;
+                stone.Rotation *= stone.RotationSpeed;
+
+                // todo: найти точку взаимодействия с плоскостью
+                var stoneLogic = stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position);
+
+                var touchPoint = stoneLogic.ProjectionBottomY; // тут точка неправильная
+                if (touchPoint.y < 0)
+                {
+                    var plane = new Plane(Vector3.XAxis, Vector3.Origin, Vector3.ZAxis);
+
+                    var ln = touchPoint.y;
+
+                    var prxy = plane.ProjectionFn(touchPoint - stone.Position);
+                    //var prz = plane.NOne.MultS(touchPoint - stone.Position);
+
+                    var q = new ExQuaternion(prxy.Length * new Vector3(-ln / 2, 0, -ln / 2));
+                    stone.RotationSpeed *= q;
+
+                    stone.Position += new Vector3(0, -ln, 0);
+                }
 
 
                 //items.ForEach(v => v.Acceleration = Vector3.Origin);
@@ -143,19 +170,19 @@ namespace View3D
                 stone.Rotation = stone.RotationSpeed * stone.Rotation;
             }
 
-            (10).ForEach(_ => Step());
+            void Animate() => (5).ForEach(_ => Step());
 
-            return Compounds.SnakeSlots((1, 1), (platformSize, platformSize), Step, () =>
+            //(10).ForEach(_ => Step());
+
+            return Compounds.SnakeSlots((1, 1), (platformSize, platformSize), Animate, () =>
                 new[]
                 {
+                    Shapes.IcosahedronSp3.Perfecto(0.05).Move(touchPoint).ApplyColor(Color.Red),
                     stone.VisibleShape.Rotate(stone.Rotation).Move(stone.Position).ApplyColor(Color.Black),
                     stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position).ToLines(0.5).ApplyColor(Color.Green),
                     Shapes.Coods.Rotate(stone.Rotation).Move(stone.Position),
                     Shapes.MandelbrotPlatform(platformSize, platformSize, 0.1),
                     Shapes.CoodsWithText.ApplyColor(Color.Black),
-                    Shapes.SquarePlatform(platformSize, platformSize, 0.1).MoveY(-0.3),
-                    Shapes.CirclePlatform(platformSize, platformSize, 0.1).MoveY(-0.6),
-                    Shapes.HeartPlatform(platformSize, platformSize, 0.1).MoveY(-0.9),
                 }.ToSingleShape());
         }
 
@@ -171,7 +198,7 @@ namespace View3D
             public ExQuaternion RotationSpeed;
 
             public Vector3 PositionAcceleration;
-            public ExQuaternion RotationAcceleration;
+            //public ExQuaternion RotationAcceleration;
         }
 
         class Item
