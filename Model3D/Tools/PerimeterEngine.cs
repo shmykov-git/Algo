@@ -35,11 +35,17 @@ namespace Model3D.Tools
 
                 var way = startWay;
 
+                var stopper = 100000;
+
                 var perimeter = new List<int>();
                 do
                 {
                     perimeter.Add(way.b.i);
                     way = GetWay(points[way.a.i], points[way.b.i], way.b, way.e);
+                    
+                    if (--stopper == 0)
+                        Debugger.Break();
+
                 } while (startWay.e != way.e);
 
                 return perimeter.ToArray();
@@ -47,6 +53,16 @@ namespace Model3D.Tools
 
 
             var graph = shape.ToGraph();
+
+            while (true)
+            {
+                var cleanEdges = graph.edges.Where(e => e.a.edges.Count == 1 || e.b.edges.Count == 1).ToArray();
+                
+                if (cleanEdges.Length == 0)
+                    break;
+
+                cleanEdges.ForEach(e => graph.RemoveEdge(e));
+            }
 
             while (!graph.IsEmpty)
             {

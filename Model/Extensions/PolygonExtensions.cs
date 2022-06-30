@@ -1,5 +1,6 @@
 ﻿using Model.Tools;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Model.Libraries;
 
@@ -218,6 +219,19 @@ namespace Model.Extensions
             var points = polygon.Points.Select(p => p + (delta * rnd.NextDouble(), delta * rnd.NextDouble())).ToArray();
 
             return new Polygon() {Points = points};
+        }
+
+        public static Polygon SmoothOut(this Polygon polygon, int count = 1)
+        {
+            IEnumerable<Vector2> SmoothOut(IEnumerable<Vector2> list) => list.SelectCircleTriple((a, b, c) => (a + b + c) / 3);
+
+            IEnumerable<Vector2> points = polygon.Points;
+            (count).ForEach(_ => points = SmoothOut(points));
+
+            return new Polygon()
+            {
+                Points = points.ToArray()
+            };
         }
     }
 }

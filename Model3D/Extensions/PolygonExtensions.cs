@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
@@ -16,7 +17,7 @@ namespace Model3D.Extensions
             return polygon.Fill(triangulate).ToShape3();
         }
 
-        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0)
+        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0, bool trioStrategy = false)
         {
             if (!volume.HasValue && !triangulate)
                 return new Shape
@@ -33,7 +34,18 @@ namespace Model3D.Extensions
             //}));
             //var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
 
-            var trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
+            int[][] trConvexes;
+            if (trioStrategy)
+            {
+                var convexes = FillEngine.FindConvexes(polygon);
+                trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
+            }
+            else
+            {
+                trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
+            }
+
+            //var trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
             //throw new DebugException<(Shape p, Shape t)>((polygon.ToShape(), new Shape()
             //{
             //    Points2 = polygon.Points,
@@ -121,5 +133,35 @@ namespace Model3D.Extensions
 
             return new Polygon() {Points = points};
         }
+
+        public static Polygon ComposeOthersToFirst(this Polygon[] polygons)
+        {
+            var internals = (polygons.Length).Range().Skip(1).Select(i => (0, i)).ToArray();
+
+            return polygons.Compose(internals).First();
+        }
+
+       
+        public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map)
+        {
+            var excepts = map.Select(v => v.child).ToHashSet();
+            var includes = map.GroupBy(v => v.main).ToDictionary(gv => gv.Key, gv => gv.Select(v => v.child).ToArray());
+
+            return polygons.Select((p, num) => (p, num))
+                .Where(v => !excepts.Contains(v.num))
+                .Select(v =>
+                {
+                    var mainP = v.p;
+
+                    if (includes.TryGetValue(v.num, out int[] takeList))
+                        takeList.ForEach(i => mainP = mainP.PutInside(polygons[i]));
+
+                    return mainP;
+                })
+                .ToArray();
+        }
+
+        public static Polygon[] ComposeObsolet(this Polygon[] polygons, (int takeI, int incJ)[] internals)
+            => polygons.Compose(internals.Select(v => v.Reverse()).ToArray());
     }
 }

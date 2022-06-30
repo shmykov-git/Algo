@@ -1105,6 +1105,17 @@ namespace Model3D.Extensions
             Points = shape.Points2
         };
 
+        public static Polygon ToPolygonByConvexes(this Shape shape)
+        {
+            var inds = shape.Convexes.SelectMany(c => c.SkipLast(1)).ToArray();
+            var ps = shape.Points2;
+
+            return new Polygon()
+            {
+                Points = inds.Select(i=>ps[i]).ToArray()
+            };
+        }
+
         public static Shape Smooth(this Shape shape) => new Shape()
         {
             Points3 = shape.Points3.SelectCircleTriple((a,b,c)=>(a+b+c)/3).ToArray(),
@@ -1143,15 +1154,30 @@ namespace Model3D.Extensions
             }).ToArray();
         }
 
-        public static Shape ToPerimeterShape(this Shape shape)
+        public static Shape ToPerimeterShape(this Shape shape, int? filterPointsCount = null)
         {
-            var perimeter = PerimeterEngine.FindPerimeter(shape);
+            var perimeters = PerimeterEngine.FindPerimeter(shape);
 
             return new Shape()
             {
                 Points = shape.Points,
-                Convexes = perimeter.SelectMany(p => p.SelectCirclePair((i, j) => new[] {i, j})).ToArray()
+                Convexes = perimeters
+                    .Where(p => !filterPointsCount.HasValue || p.Length >= filterPointsCount.Value)
+                    .SelectMany(p => p.SelectCirclePair((i, j) => new[] {i, j})).ToArray()
             };
+        }
+
+        public static Polygon[] ToPerimeterPolygons(this Shape shape, int? filterPointsCount = null)
+        {
+            var ps = shape.Points2;
+            var perimeters = PerimeterEngine.FindPerimeter(shape);
+
+            return perimeters
+                .Where(p => !filterPointsCount.HasValue || p.Length >= filterPointsCount.Value)
+                .Select(p => new Polygon()
+                {
+                    Points = p.Select(i => ps[i]).ToArray()
+                }.ToLeft()).ToArray();
         }
 
         public static Shape MovePlanes(this Shape shape, double distance, double mult = 1)

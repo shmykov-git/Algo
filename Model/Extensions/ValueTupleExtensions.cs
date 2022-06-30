@@ -6,6 +6,9 @@ namespace Model.Extensions
 {
     public static class ValueTupleExtensions
     {
+        public static IEnumerable<(int i, int j)> Range(this (int m, int n) range) =>
+            range.SelectRange((i, j) => (i, j));
+
         public static IEnumerable<T> SelectRange<T>(this (int m, int n) range, Func<int, int, T> selectFn)
         {
             return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).Select(j => selectFn(i, j)));
@@ -32,6 +35,8 @@ namespace Model.Extensions
             return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).SelectMany(j => Enumerable.Range(0, range.l).Select(k => selectFn(i, j, k))));
         }
 
+        public static IEnumerable<int> Range(this int n) => n.SelectRange(i => i);
+
         public static IEnumerable<T> SelectRange<T>(this int range, Func<int, T> selectFn)
         {
             return Enumerable.Range(0, range).Select(i => selectFn(i));
@@ -50,6 +55,16 @@ namespace Model.Extensions
         public static (int i, int j) OrderedEdge(this (int i, int j) e)
         {
             return e.i < e.j ? e : (e.j, e.i);
+        }
+
+        public static (int i, int j) Add(this (int i, int j) a, (int i, int j) b)
+        {
+            return (a.i + b.i, a.j + b.j);
+        }
+
+        public static (int i, int j) Sub(this (int i, int j) a, (int i, int j) b)
+        {
+            return (a.i - b.i, a.j - b.j);
         }
 
         public static (int i, int j) ReversedEdge(this (int i, int j) e)

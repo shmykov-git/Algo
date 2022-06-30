@@ -46,6 +46,39 @@ namespace View3D
 
         public Shape GetShape()
         {
+            //return Shapes.RoundTreePlatform(3, 3, 0.1);
+
+            // todo: debug
+
+            var s = vectorizer.GetContentSolid("m13", 200); //m12
+
+            return new[]
+            {
+                s + Shapes.CoodsWithText,
+                //(s.ToMetaShape3(1,1,Color.Blue,Color.Red) + Shapes.CoodsWithText).MoveX(1.2)
+            }.ToSingleShape();
+
+            //return s.ToPerimeterPolygons().Select(p => p.SmoothOut(1)).ToArray()
+            //    .Select((p, i) => p.ToShape().ToLines(0.2) + vectorizer.GetText(i.ToString()).Perfecto(0.01)
+            //        .Move(p.Points.Center().ToV3()).ToLines(0.1).ApplyColor(Color.Blue)).Select((s, i) => s.MoveZ(i * 0.01)).ToSingleShape();
+
+            //return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeOthersToFirst()
+            //    .ToShape(0.03);
+
+            return s.ToPerimeterPolygons().Select(p => p.SmoothOut(1)).ToArray().ComposeObsolet(new[]
+                {
+                    (1, 0), (3, 0), (4, 0), (5, 0), (6, 0), (8, 0), (9, 0), (10, 0), (11, 0), (12, 0), (13, 0), (15, 0), (16, 0), (20, 0), (25, 0),
+                    (18, 14), (19, 14), (21, 14), (22, 14),
+                    (17, 7), (23, 7), (24, 7), (29, 7)
+                })
+                .Select(p => p.ToShape(0.02, trioStrategy:true)).ToSingleShape().ApplyColor(Color.Black);
+
+
+            //var ss = s.ToPerimeterPolygons().Select((p,i)=>p.ToShape(0.03, trioStrategy: true).MoveZ(i*0.3)).ToSingleShape();
+
+            //return ss;
+
+
             //return Aqueduct();
             //Test.Do();
 
@@ -181,7 +214,7 @@ namespace View3D
                     stone.VisibleShape.Rotate(stone.Rotation).Move(stone.Position).ApplyColor(Color.Black),
                     stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position).ToLines(0.5).ApplyColor(Color.Green),
                     Shapes.Coods.Rotate(stone.Rotation).Move(stone.Position),
-                    Shapes.MandelbrotPlatform(platformSize, platformSize, 0.1),
+                    Shapes.Butterfly2Platform(platformSize, platformSize, 0.1),
                     Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape());
         }

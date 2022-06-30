@@ -393,5 +393,18 @@ namespace View3D
         public Shape IllBeBack() => WaterSystem.IllBeBack();
         public Shape BigDee() => WaterSystem.BigDee();
         public Shape Aqueduct() => WaterSystem.Aqueduct();
+
+        public Shape VectorizingHelper()
+        {
+            var s = vectorizer.GetContentShape("d7", 200);
+
+            return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
+                .Select((p, i) => p.ToShape().ToLines(0.2) + vectorizer.GetText(i.ToString()).Perfecto(0.01)
+                    .Move(p.Points.Center().ToV3()).ToLines(0.1).ApplyColor(Color.Blue)).Select((s, i) => s.MoveZ(i * 0.02)).ToSingleShape();
+
+            //return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
+            //    .ComposeObsolet(new[] { (4, 3), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3), (11, 3), (12, 3), (13, 3), (14, 3), (15, 3), (16, 3) })
+            //    .Select(p => p.ToShape(0.02, trioStrategy: true)).ToSingleShape();
+        }
     }
 }
