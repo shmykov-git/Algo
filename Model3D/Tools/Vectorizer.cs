@@ -28,31 +28,6 @@ namespace Model3D.Tools
             this.contentFinder = contentFinder;
         }
 
-        private Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
-        {
-            var lines = text.Split("\r\n").ToArray();
-
-            var m = (int)(multY * 1.6 * fontSize * lines.Length) + 1;
-            var n = (int)(multX * fontSize * lines.Max(l => l.Length)) + 1;
-
-            Bitmap bitmap = new Bitmap(n, m, PixelFormat.Format32bppPArgb);
-            using Graphics graphics = Graphics.FromImage(bitmap);
-            //graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            graphics.Clear(Color.White);
-
-            using Brush brush = new SolidBrush(Color.Black);
-            //using Pen pen = new Pen(Color.Blue, 1);
-            using Font arial = new Font(fontName, fontSize, FontStyle.Regular);
-
-            Rectangle rectangle = new Rectangle(0, 0, n - 1, m - 1);
-            //graphics.DrawRectangle(pen, rectangle);
-            graphics.DrawString(text, arial, brush, rectangle);
-
-            //bitmap.Save("DrawText.png");
-
-            return bitmap;
-        }
-
         [Flags]
         enum Mp : byte
         {
@@ -99,7 +74,7 @@ namespace Model3D.Tools
             return map;
         }
 
-        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> GetPerimetersTreeFromMap(Mp[][] map, Func<int, bool> filterLevelFn)
+        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> GetPerimetersTreeFromMap(Mp[][] map, int perimeterMinimumPoints, Func<int, bool> filterLevelFn)
         {
             var n = map[0].Length;
             var m = map.Length;
@@ -298,7 +273,7 @@ namespace Model3D.Tools
             var perimeters = FindPerimeters(1, startPerimeterPoints);
 
             var perimeterStack = new Stack<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)>();
-            perimeters.ForEach(p => perimeterStack.Push((null, p, 1)));
+            perimeters.Where(p=>p.Count >= perimeterMinimumPoints).ForEach(p => perimeterStack.Push((null, p, 1)));
 
             while(perimeterStack.Count > 0)
             {
@@ -313,7 +288,7 @@ namespace Model3D.Tools
                     : perimeter.child.ToArray();
 
                 var newOrderedPerimeters = FindPerimeters(perimeter.childLevel + 1, startPoints);
-                newOrderedPerimeters.ForEach(p => perimeterStack.Push((perimeter.child, p, perimeter.childLevel + 1)));
+                newOrderedPerimeters.Where(p => p.Count >= perimeterMinimumPoints).ForEach(p => perimeterStack.Push((perimeter.child, p, perimeter.childLevel + 1)));
             }
 
             return perimetersTree;
@@ -369,68 +344,129 @@ namespace Model3D.Tools
             ).ToList();
         }
 
-        public (Polygon[] polygons, (int main, int child)[] map) GetContentPolygons(string name, int colorLevel = 200, int polygonOptimizationLevel = 3, LevelStrategy levelStrategy = LevelStrategy.All)
+        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> FilterTree(
+            List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> tree,
+            LevelStrategy levelStrategy) =>
+            levelStrategy switch
+            {
+                LevelStrategy.OddLevel => FilterTreeAsOdd(tree),
+                _ => tree
+            };
+
+        private Func<int, bool> GetLevelStrategyFn(LevelStrategy levelStrategy) => levelStrategy switch
         {
-            Func<int, bool> filterLevelFn = levelStrategy switch
-            {
-                LevelStrategy.All => level => true,
-                LevelStrategy.TopLevel => level => level == 1,
-                LevelStrategy.OddLevel => level => true,
-                _ => throw new ArgumentOutOfRangeException(levelStrategy.ToString())
-            };
+            LevelStrategy.All => level => true,
+            LevelStrategy.TopLevel => level => level == 1,
+            LevelStrategy.OddLevel => level => true,
+            _ => throw new ArgumentOutOfRangeException(levelStrategy.ToString())
+        };
 
+        public (Polygon[] polygons, (int main, int child)[] map) GetContentPolygons(string name, PolygonOptions options = null)
+        {
             using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
-            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, colorLevel);
+            
+            return GetContentPolygons(bitmap, options);
+        }
 
-            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, filterLevelFn);
+        private (Polygon[] polygons, (int main, int child)[] map) GetContentPolygons(Bitmap bitmap, PolygonOptions options)
+        {
+            options ??= new PolygonOptions();
 
-            perimetersTree = levelStrategy switch
-            {
-                LevelStrategy.OddLevel => FilterTreeAsOdd(perimetersTree),
-                _ => perimetersTree
-            };
+            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options.ColorLevel);
+            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.LevelStrategy));
+            perimetersTree = FilterTree(perimetersTree, options.LevelStrategy);
 
             var perimeters = perimetersTree.Select(v => v.child).ToList();
-            var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p, polygonOptimizationLevel)).ToArray();
+            var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p, options.PolygonOptimizationLevel)).ToArray();
             
             var composeMap = perimetersTree.Where(v => v.main != null)
                 .Select(v => (perimeters.IndexOf(v.main), perimeters.IndexOf(v.child))).ToArray();
 
-            var borders = polygons.Select(p => p.Border).ToArray();
-            var ax = borders.Min(v => v.a.x);
-            var ay = borders.Min(v => v.a.y);
-            var bx = borders.Max(v => v.b.x);
-            var by = borders.Max(v => v.b.y);
+            if (options.NormalizeAlign || options.NormalizeScale)
+            {
+                var borders = polygons.Select(p => p.Border).ToArray();
+                var ax = borders.Min(v => v.a.x);
+                var ay = borders.Min(v => v.a.y);
+                var bx = borders.Max(v => v.b.x);
+                var by = borders.Max(v => v.b.y);
 
-            var sizeX = bx - ax;
-            var sizeY = by - ay;
-            var shift = -new Vector2(ax + 0.5 * sizeX, ay + 0.5 * sizeY);
-            var maxSize = Math.Max(sizeX, sizeY);
+                var sizeX = bx - ax;
+                var sizeY = by - ay;
+                var shift = -new Vector2(ax + 0.5 * sizeX, ay + 0.5 * sizeY);
+                var maxSize = Math.Max(sizeX, sizeY);
 
-            var normedPolygons = polygons.Select(v => v.Transform(p => (p + shift) / maxSize)).ToArray();
+                var normedPolygons = polygons.Select(v => v.Transform(p => (p + shift) / maxSize)).ToArray();
 
-            //DebugMapPerimeter(perimetersMap, Mp.IsPerimeter, perimeters.SelectMany(ps => ps), 1);
-
-            return (normedPolygons, composeMap);
+                return (normedPolygons, composeMap);
+            }
+            else
+            {
+                return (polygons, composeMap);
+            }
         }
 
-        public Shape GetContentShape(string name, ContentOptions options = null)
+        public Shape GetContentShape(string name, ShapeOptions options = null)
         {
-            options ??= new ContentOptions();
+            using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
+
+            return GetContentShape(bitmap, options);
+        }
+
+        private Shape GetContentShape(Bitmap bitmap, ShapeOptions options)
+        {
+            options ??= new ShapeOptions();
 
             var trioStrategy = options.TriangulationStrategy == TriangulationStrategy.Trio;
             var needTriangulation = options.TriangulationStrategy != TriangulationStrategy.None;
 
-            var (polygons, map) = GetContentPolygons(name, options.ColorLevel, options.PolygonOptimizationLevel, options.LevelStrategy);
+            var (polygons, map) = GetContentPolygons(bitmap, options);
 
             if (options.SmoothOutLevel > 0)
-                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel)).ToArray();
+                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel, options.SmoothAngleScalar)).ToArray();
 
             if (options.ComposePolygons)
                 polygons = polygons.Compose(map, true);
 
             return polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
         }
+
+        public Shape GetText(string text, TextShapeOptions options = null)
+        {
+            options ??= new TextShapeOptions();
+
+            if (string.IsNullOrEmpty(text))
+                return Shape.Empty;
+
+            using var bitmap = GetTextBitmap(text, options.FontSize, options.FontName, options.MultY, options.MultX);
+
+            return GetContentShape(bitmap, options);
+        }
+
+        private Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
+        {
+            var lines = text.Split("\r\n").ToArray();
+
+            var m = (int)(multY * 1.6 * fontSize * lines.Length) + 1;
+            var n = (int)(multX * fontSize * lines.Max(l => l.Length)) + 1;
+
+            Bitmap bitmap = new Bitmap(n, m, PixelFormat.Format32bppPArgb);
+            using Graphics graphics = Graphics.FromImage(bitmap);
+            //graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+            graphics.Clear(Color.White);
+
+            using Brush brush = new SolidBrush(Color.Black);
+            //using Pen pen = new Pen(Color.Blue, 1);
+            using Font arial = new Font(fontName, fontSize, FontStyle.Regular);
+
+            Rectangle rectangle = new Rectangle(0, 0, n - 1, m - 1);
+            //graphics.DrawRectangle(pen, rectangle);
+            graphics.DrawString(text, arial, brush, rectangle);
+
+            //bitmap.Save("DrawText.png");
+
+            return bitmap;
+        }
+
 
         private bool[][] GetMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
         {
@@ -517,7 +553,7 @@ namespace Model3D.Tools
             // todo: по алгоритму заливки найти вложение периметров
         }
 
-        public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1, bool adjust = true)
+        public Shape GetTextObsolet(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1, bool adjust = true)
         {
             if (string.IsNullOrEmpty(text))
                 return Shape.Empty;

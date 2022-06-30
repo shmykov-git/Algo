@@ -23,7 +23,7 @@ namespace Model3D.Extensions
                      a.n = i;
                      b.n = j;
                  }).ToShape(n, 0.01).ApplyColor(Color.Blue)
-                 + vectorizer.GetText($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Red)
+                 + vectorizer.GetTextObsolet($"{i} {j}").Perfecto(0.3).MoveY(-0.7).MoveZ(0.005).ToLines(1, Color.Red)
                 ).MoveX(2 * j).MoveY(2 * i)).ToSingleShape();
 
             return searchShape;

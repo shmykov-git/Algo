@@ -322,7 +322,7 @@ namespace Model3D.Extensions
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = vectorizer.GetText(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ToLines(mult, numColor);
+                var iText = vectorizer.GetTextObsolet(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ToLines(mult, numColor);
                 texts.Add(iText);
             }
 

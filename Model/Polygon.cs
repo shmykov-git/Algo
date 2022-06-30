@@ -11,8 +11,8 @@ namespace Model
         public Vector2[] Points;
         public IEnumerable<Line2> Lines => Points.SelectCirclePair((a, b) => new Line2(a, b));
 
-        public double MaxLinesLen => Lines.Max(l => l.Len);
-        public double MinLinesLen => Lines.Min(l => l.Len);
+        public double MaxLinesLen => Points.Length > 1 ? Lines.Max(l => l.Len) : 0;
+        public double MinLinesLen => Points.Length > 1 ? Lines.Min(l => l.Len) : 0;
 
         public (Vector2 a, Vector2 b) Border => (
             new Vector2(Points.Min(p => p.x), Points.Min(p => p.y)),

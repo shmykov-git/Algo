@@ -76,9 +76,9 @@ namespace Model.Libraries
                         .ToLines(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
+                    vectorizer.GetTextObsolet($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
                 (lenJ).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
+                    vectorizer.GetTextObsolet($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
@@ -105,9 +105,9 @@ namespace Model.Libraries
                         .ToLines(2, Color.Blue)
                 ).ToSingleShape() +
                 (lenI).SelectRange(i =>
-                    vectorizer.GetText($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
+                    vectorizer.GetTextObsolet($"{i + fromI}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(fromJ - 2, lenI - (i + fromI), 0).ToLines(3, Color.Red)).ToSingleShape() +
                 (lenJ).SelectRange(j =>
-                    vectorizer.GetText($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
+                    vectorizer.GetTextObsolet($"{j + fromJ}", 50, "Arial", 1, 1, false).Centered().Mult(0.01).Move(j + fromJ, toI + lenI + 2, 0).ToLines(3, Color.Red)).ToSingleShape()
             ).Perfecto();
         }
 
@@ -132,9 +132,9 @@ namespace Model.Libraries
             var bold = 6;
             var font = "Libertinus Math";
 
-            var e = vectorizer.GetText("e", n, font, 1 , 1, false).Mult(1d/n).ToLines(bold);
-            var pref = vectorizer.GetText("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
-            var interval = vectorizer.GetText(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
+            var e = vectorizer.GetTextObsolet("e", n, font, 1 , 1, false).Mult(1d/n).ToLines(bold);
+            var pref = vectorizer.GetTextObsolet("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
+            var interval = vectorizer.GetTextObsolet(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
 
             string FormatV(double x, string tail = "", bool plus = false)
             {
@@ -157,9 +157,9 @@ namespace Model.Libraries
 
             var koffs = fShape.Perfecto()
                 .SelectWithIndex((k, ind) =>
-                vectorizer.GetText($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) + 
+                vectorizer.GetTextObsolet($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) + 
                 e + 
-                vectorizer.GetText($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines(bold))
+                vectorizer.GetTextObsolet($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines(bold))
                 .Select(s=>s.AlignX(0));
 
             var f = new[] {pref, koffs.CompoundOx(0.3)}.CompoundOx(0.5);

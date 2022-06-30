@@ -235,12 +235,21 @@ namespace Model.Extensions
             return new Polygon() {Points = points};
         }
 
-        public static Polygon SmoothOut(this Polygon polygon, int count = 1)
+        // todo: можно увеличить число точек сглаживания
+        public static Polygon SmoothOut(this Polygon polygon, int count = 1, double angleFactor = -1)
         {
-            IEnumerable<Vector2> SmoothOut(IEnumerable<Vector2> list) => list.SelectCircleTriple((a, b, c) => (a + b + c) / 3);
+            Vector2 Smooth(Vector2 a, Vector2 b, Vector2 c)
+            {
+                if (angleFactor == 0)
+                    return (a + b + c) / 3;
+
+                var scalar = (c - b).Normed * (b - a).Normed;
+
+                return scalar >= angleFactor ? (a + b + c) / 3 : b;
+            }
 
             IEnumerable<Vector2> points = polygon.Points;
-            (count).ForEach(_ => points = SmoothOut(points));
+            (count).ForEach(_ => points = points.SelectCircleTriple(Smooth));
 
             return new Polygon()
             {

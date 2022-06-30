@@ -217,7 +217,7 @@ namespace Model3D.Systems
             var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(Color.Red);
             var ballCollider = Shapes.IcosahedronSp3.Perfecto(9).Move(-3, -5, 3).ResizeByNormals(0.3);
 
-            var text = vectorizer.GetText("I'll be back", 300, "Royal Inferno").Perfecto(10)
+            var text = vectorizer.GetTextObsolet("I'll be back", 300, "Royal Inferno").Perfecto(10)
                 .ToOxM().Move(-3, 0, 0)
                 .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ToLines(3).ApplyColor(Color.Red);
 
