@@ -86,9 +86,9 @@ namespace View3D
         // Not bad font // var shape = Texter.GetText("This is not a 3d font\r\nbut\r\nthis is already not bad", 50).ToCubeSpots3(50).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
         // LNT // var shape = Vectorizer.GetText("ВОЙНА И МИР\r\nТОМ ПЕРВЫЙ\r\nЧАСТЬ ПЕРВАЯ\r\nI", 100, "Times New Roman").ToLines(300, Color.Red);
         // LNT2 // var shape = Vectorizer.GetText("— Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", 100, "Times New Roman").ToLines(300, Color.Red);
-        // Bird // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
-        // Iguana //var shape = Vectorizer.GetContentShape(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
-        // Dragon // var shape = Vectorizer.GetContentShape(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
+        // Bird // var shape = Vectorizer.GetContentShapeObsolet(settings.GetContentFileName("bird1.jpg")).ApplyZ(Funcs3Z.Paraboloid).ToLines(0.5).ApplyColorGradientY(Color.Red, Color.Red, Color.White);
+        // Iguana //var shape = Vectorizer.GetContentShapeObsolet(settings.GetContentFileName("iguana1.jpg")).ApplyZ(Funcs3Z.Waves).ToLines(0.5).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkBlue);
+        // Dragon // var shape = Vectorizer.GetContentShapeObsolet(settings.GetContentFileName("dragon4.jpg")).ApplyZ(Funcs3Z.Waves).ToLines(0.2).ApplyColorGradientZ(Color.DarkRed, Color.Black, Color.DarkRed);
         // Fourier Man // var shape = FourierShapes.Series(new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
         // Fourier Woman // var shape = FourierShapes.Series(new Fr[] { (-7, 1), (-3, 2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
         // Fourier Athlete // var shape = FourierShapes.Series(new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }).ToSingleShape();
@@ -289,14 +289,14 @@ namespace View3D
             var k = 0.27;
             var dk = 0.01;
 
-            var s = vectorizer.GetContentShape("l5");
+            var s = vectorizer.GetContentShapeObsolet("l5");
             var s1 = s.Where(v => v.Length < k).ApplyZ(Funcs3Z.SphereR(0.5)).AlignZ(0).ToLines()
                 .ApplyColorGradientZ(Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.Blue, Color.White);
 
             var s2 = s.Where(v => v.Length > k - dk).ToLines()
                 .ApplyColor(Color.Blue);
 
-            var l = vectorizer.GetContentShape("l6").ApplyZ(Funcs3Z.SphereRC(1.5)).Perfecto(0.35).Rotate(Rotates.Z_Y);
+            var l = vectorizer.GetContentShapeObsolet("l6").ApplyZ(Funcs3Z.SphereRC(1.5)).Perfecto(0.35).Rotate(Rotates.Z_Y);
             var l1 = l.Rotate(0, -1, 10).Move(-0.2, -0.8, 0.2).ToLines()
                 .ApplyColorGradientZ(Color.Blue, Color.White);
             var l2 = l.Rotate(0, -1, 1).Move(0.2, -0.6, -0.3).ToLines()
@@ -312,7 +312,7 @@ namespace View3D
 
         public Shape Footprint()
         {
-            var s = vectorizer.GetContentShape("w21").Perfecto(2).ApplyZ(Funcs3Z.Hyperboloid).MoveZ(2).ToLines(2)
+            var s = vectorizer.GetContentShapeObsolet("w21").Perfecto(2).ApplyZ(Funcs3Z.Hyperboloid).MoveZ(2).ToLines(2)
                 .ApplyColor(Color.Blue);
 
             var r = 10;
@@ -396,7 +396,7 @@ namespace View3D
 
         public Shape VectorizingHelper()
         {
-            var s = vectorizer.GetContentShape("d7", 200);
+            var s = vectorizer.GetContentShapeObsolet("d7", 200);
 
             return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
                 .Select((p, i) => p.ToShape().ToLines(0.2) + vectorizer.GetText(i.ToString()).Perfecto(0.01)

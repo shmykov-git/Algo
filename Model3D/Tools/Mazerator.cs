@@ -8,6 +8,7 @@ using Model3D.Libraries;
 using System;
 using System.Linq;
 using Model.Graphs;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
 {
@@ -53,7 +54,7 @@ namespace Model3D.Tools
                 };
             }).ToArray();
 
-            var net = new Net<Model.Vector2, int>(items.Select(v => (v.center2, v.i)), 6 * items.Max(v => v.radius2));
+            var net = new Net<Vector2, int>(items.Select(v => (v.center2, v.i)), 6 * items.Max(v => v.radius2));
 
             var nodes = items.Select(a => new
             {

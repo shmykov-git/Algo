@@ -26,14 +26,6 @@ namespace Model3D.Extensions
                     Convexes = new[] { polygon.Points.Index().ToArray() }
                 };
 
-            //var convexes = FillEngine.FindConvexes(polygon);
-            //throw new DebugException<(Shape p, Shape t)>((polygon.ToShape(), new Shape()
-            //{
-            //    Points2 = polygon.Points,
-            //    Convexes = convexes
-            //}));
-            //var trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
-
             int[][] trConvexes;
             if (trioStrategy)
             {
@@ -45,32 +37,17 @@ namespace Model3D.Extensions
                 trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
             }
 
-            //var trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
-            //throw new DebugException<(Shape p, Shape t)>((polygon.ToShape(), new Shape()
-            //{
-            //    Points2 = polygon.Points,
-            //    Convexes = trConvexes
-            //}));
-
-            if (!volume.HasValue)
-                return new Shape()
+            var shape = new Shape()
                 {
                     Points2 = polygon.Points,
                     Convexes = trConvexes
-                };
+                }.Normalize();
 
-            var halfVolume = new Vector3(0, 0, volume.Value / 2);
+            if (!volume.HasValue)
+                return shape;
 
-            return new Shape
-            {
-                Points3 = polygon.Points.Select(p => p.ToV3() - halfVolume)
-                    .Concat(polygon.Points.Select(p => p.ToV3() + halfVolume)).ToArray(),
-
-                Convexes = trConvexes.Select(c => c.Reverse().ToArray())
-                    .Concat(trConvexes.Transform(v => v + polygon.Points.Length))
-                    .Concat(polygon.Points.Index().Reverse().SelectCirclePair((i, j) => new int[] { i, i + polygon.Points.Length, j + polygon.Points.Length, j }).ToArray())
-                    .ToArray()
-            };
+            // todo: сделать нормально функцию добавляения объема по Z - по аналогии с этой (сдвиги только по edges)
+            return shape.AddNormalVolume(volume.Value).MoveZ(-volume.Value / 2);
         }
 
         public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null, double incorrectFix = 0)
@@ -142,9 +119,29 @@ namespace Model3D.Extensions
         }
 
        
-        public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map)
+        public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map, bool skipReverse = false)
         {
-            var excepts = map.Select(v => v.child).ToHashSet();
+            var dic = map.ToDictionary(v => v.child, v => v.main);
+
+            int GetLevel(int child)
+            {
+                var level = 1;
+
+                while (true)
+                {
+                    if (dic.TryGetValue(child, out int main))
+                    {
+                        child = main;
+                        level++;
+                    }
+                    else
+                        break;
+                }
+
+                return level;
+            }
+
+            var excepts = map.Where(v=>GetLevel(v.child).Even()).Select(v => v.child).ToHashSet();
             var includes = map.GroupBy(v => v.main).ToDictionary(gv => gv.Key, gv => gv.Select(v => v.child).ToArray());
 
             return polygons.Select((p, num) => (p, num))
@@ -154,7 +151,7 @@ namespace Model3D.Extensions
                     var mainP = v.p;
 
                     if (includes.TryGetValue(v.num, out int[] takeList))
-                        takeList.ForEach(i => mainP = mainP.PutInside(polygons[i]));
+                        takeList.ForEach(i => mainP = mainP.PutInside(polygons[i], skipReverse));
 
                     return mainP;
                 })

@@ -404,7 +404,7 @@ namespace Model3D.Systems
                 var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2)
                     .MovePlanes(-particleRadius);
 
-                var fire = vectorizer.GetContentShape("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
+                var fire = vectorizer.GetContentShapeObsolet("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
                     .MoveY(-cubeSize.y / 2 + 3).ToLines(10);
                 fire = fire.Rotate(1, 0, 1).Move(cubeSize.x / 2, 0, cubeSize.z / 2) +
                        fire.Rotate(-1, 0, 1).Move(-cubeSize.x / 2, 0, cubeSize.z / 2) +

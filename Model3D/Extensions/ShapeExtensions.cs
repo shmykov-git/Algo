@@ -484,11 +484,11 @@ namespace Model3D.Extensions
             var psMoves = shape.Convexes.SelectMany(c => c.Select(i => (i, c))).GroupBy(v => v.i).Select(gv =>
                     (i: gv.Key,
                         n: GetNP(gv.Select(v => GetN(v.c)))))
-                .OrderBy(v => v.i).Select(v => v.n).ToArray();
+                .OrderBy(v => v.i).ToDictionary(v=>v.i, v => v.n);
 
             return new Shape()
             {
-                Points3 = ps.Select((p, i) => p + psMoves[i]).ToArray(),
+                Points3 = ps.Select((p, i) => p + (psMoves.TryGetValue(i, out Vector3 n) ? n : Vector3.Origin)).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials
             };

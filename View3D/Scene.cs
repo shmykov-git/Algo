@@ -22,6 +22,7 @@ using Model.Graphs;
 using Model.Tools;
 using Model3D.Systems;
 using Model3D.Systems.Model;
+using Model3D.Tools.Model;
 using View3D.Libraries;
 using Shape = Model.Shape;
 using Triangulator = Model.Tools.Triangulator;
@@ -46,11 +47,28 @@ namespace View3D
 
         public Shape GetShape()
         {
-            //return Shapes.RoundTreePlatform(3, 3, 0.1);
+            //return Shapes.WorldPlatform();
 
-            // todo: debug
+            var s = vectorizer.GetContentShape("map", new ContentOptions()
+            {
+                ColorLevel = 150,
+                TriangulationStrategy = TriangulationStrategy.Trio,
+                LevelStrategy = LevelStrategy.OddLevel,
+                PolygonOptimizationLevel = 3,
+                SmoothOutLevel = 1
+            }).Scale(5,5,0.5)/*.ToMetaShape3(0.2, 1, Color.Blue, Color.Red)*/;
+                
+                //.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
+                //.ComposeObsolet(new[] { (13, 3), (15, 3), (16, 3), (17, 3) })
+                //.Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
+                //.Scale(1.3 * 3, 1.3 * 3, 0.1).ToOy().MoveY(-0.1 / 2).ApplyColor(Color.Black);
 
-            var s = vectorizer.GetContentSolid("m13", 200); //m12
+            //var s = vectorizer.GetContentShape1("m12", 200).ToMetaShape3(0.2, 1, Color.Blue, Color.Red); //m12
+            //var s = vectorizer.GetContentShape("m12", 200, trioStrategy: false, skipPointOptimization: false).Scale(1, 1, 0.1).ApplyColor(Color.Blue); //m12
+            //var s = vectorizer.GetContentShape("debug2", new ContentOptions()
+            //{
+            //    //ZVolume = null
+            //}).ToMetaShape3(0.2, 1, Color.Blue, Color.Red); //m12
 
             return new[]
             {

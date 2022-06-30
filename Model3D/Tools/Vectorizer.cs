@@ -15,6 +15,7 @@ using MathNet.Numerics;
 using Meta.Model;
 using Model.Graphs;
 using Model.Interfaces;
+using Model3D.Tools.Model;
 
 namespace Model3D.Tools
 {
@@ -66,6 +67,17 @@ namespace Model3D.Tools
             IsPerimeter = 128, // point marked as perimeter
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] private Mp GetMpDir((int i, int j) dir) =>
+            dir switch
+            {
+                (0, 0) => Mp.None,
+                (-1, 0) => Mp.Left,
+                (0, 1) => Mp.Top,
+                (1, 0) => Mp.Right,
+                (0, -1) => Mp.Bottom,
+                _ => throw new ArgumentException(dir.ToString())
+            };
+
         private Mp[][] GetPerimetersMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
         {
             var n = bitmap.Width;
@@ -87,46 +99,49 @@ namespace Model3D.Tools
             return map;
         }
 
-
-        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> GetPerimetersTreeFromMap(Mp[][] map)
+        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> GetPerimetersTreeFromMap(Mp[][] map, Func<int, bool> filterLevelFn)
         {
             var n = map[0].Length;
             var m = map.Length;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            Mp GetMpDir((int i, int j) dir) =>
-                dir switch
-                {
-                    (0, 0) => Mp.None,
-                    (-1, 0) => Mp.Left,
-                    (0, 1) => Mp.Top,
-                    (1, 0) => Mp.Right,
-                    (0, -1) => Mp.Bottom,
-                    _ => throw new ArgumentException(dir.ToString())
-                };
+            #region Help methods
 
             (int i, int j)[] nearDirs = new[] { (-1, 0), (0, 1), (1, 0), (0, -1) };
             var nearFlagDirs = nearDirs.Select(d => (d, f: GetMpDir(d))).ToArray();
-            (int i, int j)[] farDirs = new[] { (1, -1), (-1, -1), (-1, 1), (1, 1) };
-            (int i, int j)[] dirs = new[] { (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1) };
+            (int i, int j)[] leftDirs = new[] { (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1) };
+            var leftDirInds = leftDirs.Select((d, i) => (d, i)).ToDictionary(v => v.d, v => (v.i + 1) % 8);
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            (int i, int j)[] GetMpDirs(Mp v) => nearFlagDirs.Where(fd => v.HasFlag(fd.f)).Select(fd => fd.d).ToArray();
-            
-            (int i, int j)[] GetDirs((int i, int j) v) => GetMpDirs(map[v.i][v.j]);
-            
-            (int i, int j)[] GetBounds((int i, int j) v) => GetDirs(v).Select(d=>v.Add(d)).ToArray();
+            IEnumerable<(int i, int j)> GetLeftDirs((int i, int j) backDir)
+            {
+                var j = leftDirInds[backDir];
 
-            bool IsNearClose((int i, int j) a, (int i, int j) b) => nearDirs.Any(d => a.Add(d) == b);
-            bool IsClose((int i, int j) a, (int i, int j) b) => a == b || dirs.Any(d => a.Add(d) == b);
+                return (8).SelectRange(i => leftDirs[(i + j) % 8]);
+            }
+
+            //var rightDirs = leftDirs.Reverse().ToArray();
+            //var rightDirInds = rightDirs.Select((d, i) => (d, i)).ToDictionary(v => v.d, v => (v.i + 1) % 8);
+
+            //IEnumerable<(int i, int j)> GetRightDirs((int i, int j) backDir)
+            //{
+            //    var j = rightDirInds[backDir];
+
+            //    return (8).SelectRange(i => rightDirs[(i + j) % 8]);
+            //}
+
+            (int i, int j)[] GetBoundDirs((int i, int j) v) => nearFlagDirs.Where(fd => map[v.i][v.j].HasFlag(fd.f)).Select(fd => fd.d).ToArray();
+            (int i, int j)[] GetBounds((int i, int j) v) => GetBoundDirs(v).Select(d=>v.Add(d)).ToArray();
+
+            #endregion
+
+            #region FindWildPerimeter
 
             var stack = new Stack<((int i, int j) from, (int i, int j) to)>(3 * (n + m));
 
-            HashSet<(int i, int j)> FindPerimeter(int level, (int i, int j)[] startPoints) => level.IsEven()
-                ? FindInnerPerimeter(startPoints)
-                : FindOutterPerimeter(startPoints);
+            HashSet<(int i, int j)> FindWildPerimeter(int level, (int i, int j)[] startPoints) => level.IsEven()
+                ? FindInnerWildPerimeter(startPoints)
+                : FindOutterWildPerimeter(startPoints);
 
-            HashSet<(int i, int j)> FindOutterPerimeter((int i, int j)[] startPoints)
+            HashSet<(int i, int j)> FindOutterWildPerimeter((int i, int j)[] startPoints)
             {
                 startPoints.ForEach(p => stack.Push((p, p)));
 
@@ -161,7 +176,7 @@ namespace Model3D.Tools
                 return perimeter;
             }
 
-            HashSet<(int i, int j)> FindInnerPerimeter((int i, int j)[] startPoints)
+            HashSet<(int i, int j)> FindInnerWildPerimeter((int i, int j)[] startPoints)
             {
                 startPoints.ForEach(p => stack.Push((p,p)));
 
@@ -188,7 +203,11 @@ namespace Model3D.Tools
                     }
                     else
                     {
-                        if (!perimeter.Contains(prevP))
+                        if (perimeter.Contains(prevP))
+                        {
+                            map[prevP.i][prevP.j] |= GetMpDir(p.Sub(prevP));
+                        }
+                        else
                         {
                             map[prevP.i][prevP.j] |= Mp.IsEven | Mp.IsPerimeter | GetMpDir(p.Sub(prevP));
                             perimeter.Add(prevP);
@@ -199,25 +218,14 @@ namespace Model3D.Tools
                 return perimeter;
             }
 
-            //List<(int i, int j)> OrderPerimeter(int level, ref HashSet<(int i, int j)> perimeter)
-            //{
-            //    var isEven = level.IsEven() ? Mp.IsEven : Mp.None;
+            #endregion
 
-            //    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            //    bool IsPerimeter((int i, int j) v) =>
-            //        map[v.i][v.j].HasFlag(Mp.IsPerimeter) && (map[v.i][v.j] & Mp.IsEven) == isEven;
+            #region TamePerimeter
 
-            //    var orderedPerimeter = new List<(int i, int j)>();
-
-            //    (int i, int j) FindNextPoint((int i, int j) prevX, (int i, int j) x)
-            //    {
-
-            //    }
-            //}
-
-            List<(int i, int j)> OrderPerimeter1(int level, ref HashSet<(int i, int j)> perimeter)
+            List<(int i, int j)> TamePerimeter(int level, ref HashSet<(int i, int j)> perimeter)
             {
                 var isEven = level.IsEven() ? Mp.IsEven : Mp.None;
+                //var isRightPerimeter = (isEven & Mp.IsEven) == Mp.IsEven;
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 bool IsPerimeter((int i, int j) v) =>
@@ -225,73 +233,32 @@ namespace Model3D.Tools
 
                 var orderedPerimeter = new List<(int i, int j)>();
 
-                (int i, int j) FindNextPoint((int i, int j) prevPrevX, (int i, int j) prevX, (int i, int j) x)
+                (int i, int j) FindNextPoint((int i, int j) prevX, (int i, int j) x)
                 {
-                    var xBounds = GetBounds(x);
+                    var nextP = GetLeftDirs(prevX.Sub(x)).Select(d => x.Add(d)).FirstOrDefault(IsPerimeter);
 
-                    // тут ошибка, перескок направления. Можно ввести проверку границы, но лучше рассмотреть вариант обхода по направлению
-                    // todo: сделать левый обход!!
-
-                    var sbNear = nearDirs.Select(d => x.Add(d)).Where(v => IsPerimeter(v) && v != prevX && v != prevPrevX)
-                        .ToArray();
-
-                    if (sbNear.Length > 0)
-                    {
-                        if (sbNear.Length == 1)
-                            return sbNear[0];
-
-                        var bounded = sbNear.FirstOrDefault(s => GetBounds(s).Any(a => xBounds.Any(b => IsClose(a, b))));
-                        
-                        if (bounded != default)
-                            return bounded;
-
-                        return sbNear[0];
-                    }
-
-
-                    var sbFar = farDirs.Select(d => x.Add(d)).Where(v => IsPerimeter(v) && v != prevX && v != prevPrevX && !IsNearClose(v, prevX))
-                        .ToArray();
-
-                    if (sbFar.Length > 0)
-                    {
-                        if (sbFar.Length == 1)
-                            return sbFar[0];
-
-                        var bounded = sbFar.FirstOrDefault(s => GetBounds(s).Any(a => xBounds.Any(b => IsClose(a, b))));
-
-                        if (bounded != default)
-                            return bounded;
-
-                        return sbFar[0];
-                    }
- 
-
-                    return default;
+                    return nextP == default ? x : nextP;
                 }
 
-                DebugMapPerimeter(map, Mp.IsPerimeter, perimeter);
+                var (prevP, p) = perimeter.Select(p=>(p, bs:GetBounds(p))).Where(v=>v.bs.Length > 0).Select(v=>(v.bs[0], v.p)).FirstOrDefault();
 
-                (int,int) prevPrevP = default;
-                (int, int) prevP = default;
-                var p0 = perimeter.FirstOrDefault(p => GetDirs(p).Length == 1); // todo: circle single point perimeter
-                if (p0 == default)
-                    p0 = perimeter.First();
-                var p = p0;
+                if (prevP == default)
+                    Debugger.Break();
+
+                var p0 = p;
+
+                var protectionCount = 1000000;
 
                 do
                 {
-                    if (orderedPerimeter.Contains(p))
+                    if (protectionCount-- == 0)
                         Debugger.Break();
 
                     orderedPerimeter.Add(p);
                     perimeter.Remove(p);
-                    
-                    var nextP = FindNextPoint(prevPrevP, prevP, p);
 
-                    if (nextP == default)
-                        break;
+                    var nextP = FindNextPoint(prevP, p);
 
-                    prevPrevP = prevP;
                     prevP = p;
                     p = nextP;
                 } while (p != p0);
@@ -299,30 +266,25 @@ namespace Model3D.Tools
                 return p != p0 ? null : orderedPerimeter;
             }
 
-            List<List<(int i, int j)>> FindOrderedPerimeters(int level, (int i, int j)[] startPoints)
+            List<List<(int i, int j)>> FindPerimeters(int level, (int i, int j)[] startPoints)
             {
-                var perimeter = FindPerimeter(level, startPoints);
-
-                //DebugMap(map, -2);
-                //DebugMap(map, level);
+                var wildPerimeter = FindWildPerimeter(level, startPoints);
 
                 var result = new List<List<(int i, int j)>>();
-                while (perimeter.Count > 0)
+                while (wildPerimeter.Count > 0)
                 {
-                    //DebugMapPerimeter(map, Mp.IsPerimeter, perimeter);
+                    var perimeter = TamePerimeter(level, ref wildPerimeter);
 
-                    var orderedPerimeter = OrderPerimeter1(level, ref perimeter);
-
-                    //DebugMapPerimeter(map, Mp.IsPerimeter, orderedPerimeter);
-
-                    if (orderedPerimeter != null)
-                        result.Add(orderedPerimeter);
+                    if (perimeter != null)
+                        result.Add(perimeter);
                 }
 
                 return result;
             }
 
-            var perimeters = new List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)>();
+            #endregion
+
+            var perimetersTree = new List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)>();
 
             var startPerimeterPoints =
                 new[]
@@ -333,29 +295,31 @@ namespace Model3D.Tools
                     (n - 2).SelectRange(j => (m - 2, j + 1)),
                 }.ManyToArray();
 
-            var orderedPerimeters = FindOrderedPerimeters(1, startPerimeterPoints);
+            var perimeters = FindPerimeters(1, startPerimeterPoints);
 
             var perimeterStack = new Stack<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)>();
-            orderedPerimeters.ForEach(p => perimeterStack.Push((null, p, 1)));
+            perimeters.ForEach(p => perimeterStack.Push((null, p, 1)));
 
             while(perimeterStack.Count > 0)
             {
-                //DebugMap(map, Mp.Locked);
-
                 var perimeter = perimeterStack.Pop();
-                perimeters.Add(perimeter);
+                perimetersTree.Add(perimeter);
 
-                //var startPoints = perimeter.child.SelectMany(p => nearDirs.Select(d => p.Add(d)))
-                //    .Where(p => map[p.i][p.j] < 0).Distinct().ToArray(); // todo: remove distinct for release
+                if (!filterLevelFn(perimeter.childLevel + 1)) 
+                    continue;
 
-                var newOrderedPerimeters = FindOrderedPerimeters(perimeter.childLevel + 1, perimeter.child.ToArray());
+                var startPoints = perimeter.childLevel.IsEven()
+                    ? perimeter.child.SelectMany(GetBounds).Distinct().ToArray()
+                    : perimeter.child.ToArray();
+
+                var newOrderedPerimeters = FindPerimeters(perimeter.childLevel + 1, startPoints);
                 newOrderedPerimeters.ForEach(p => perimeterStack.Push((perimeter.child, p, perimeter.childLevel + 1)));
             }
 
-            return perimeters;
+            return perimetersTree;
         }
 
-        private Polygon GetPolygonFromPerimeter(int m, List<(int i, int j)> perimeter)
+        private Polygon GetPolygonFromPerimeter(int m, List<(int i, int j)> perimeter, int optimizationLevel)
         {
             (int i, int j) GetDir((int i, int j) a, (int i, int j) b) => (b.i - a.i, b.j - a.j);
 
@@ -365,16 +329,20 @@ namespace Model3D.Tools
                 p = new Vector2(v.j, m - 1 - v.i)
             }).ToList();
 
-            // todo: все еще есть точки для оптимизации
-            // todo: 3d шрифт
+            if (optimizationLevel == 0)
+                return new Polygon()
+                {
+                    Points = nodes.Select(n => n.p).ToArray()
+                };
 
+            // todo: все еще есть точки для оптимизации (3d шрифт)
             var deletedNodesRule = nodes
                 .SelectCircleGroup(7, g => new
                 {
                     node = g[3],
-                    del1 = GetDir(g[2].v, g[3].v) == GetDir(g[3].v, g[4].v),
-                    del2 = GetDir(g[1].v, g[3].v) == GetDir(g[3].v, g[5].v),
-                    del3 = GetDir(g[0].v, g[3].v) == GetDir(g[3].v, g[6].v),
+                    del1 = optimizationLevel > 0 && GetDir(g[2].v, g[3].v) == GetDir(g[3].v, g[4].v),
+                    del2 = optimizationLevel > 1 && GetDir(g[1].v, g[3].v) == GetDir(g[3].v, g[5].v),
+                    del3 = optimizationLevel > 2 && GetDir(g[0].v, g[3].v) == GetDir(g[3].v, g[6].v),
                 })
                 .Where(v => v.del1 || v.del2 || v.del3)
                 .Select(v => v.node)
@@ -389,18 +357,41 @@ namespace Model3D.Tools
             };
         }
 
-        public (Polygon[] polygons, (int main, int child)[] map) GetContentPolygons(string name, int colorLevel = 200)
+        private List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> FilterTreeAsOdd(
+            List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> tree)
         {
+            return tree.Where(v => v.childLevel.IsOdd()).Select(v =>
+                (
+                    v.main == null ? null : tree.FirstOrDefault(vv => vv.child == v.main).main,
+                    (v.childLevel % 4 == 3) ? v.child.ToArray().Reverse().ToList() : v.child,
+                    (v.childLevel + 1) / 2
+                )
+            ).ToList();
+        }
+
+        public (Polygon[] polygons, (int main, int child)[] map) GetContentPolygons(string name, int colorLevel = 200, int polygonOptimizationLevel = 3, LevelStrategy levelStrategy = LevelStrategy.All)
+        {
+            Func<int, bool> filterLevelFn = levelStrategy switch
+            {
+                LevelStrategy.All => level => true,
+                LevelStrategy.TopLevel => level => level == 1,
+                LevelStrategy.OddLevel => level => true,
+                _ => throw new ArgumentOutOfRangeException(levelStrategy.ToString())
+            };
+
             using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
             var perimetersMap = GetPerimetersMapFromBitmap(bitmap, colorLevel);
 
-            //DebugMap(perimetersMap, Mp.IsBlack);
+            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, filterLevelFn);
 
-            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap);
-
+            perimetersTree = levelStrategy switch
+            {
+                LevelStrategy.OddLevel => FilterTreeAsOdd(perimetersTree),
+                _ => perimetersTree
+            };
 
             var perimeters = perimetersTree.Select(v => v.child).ToList();
-            var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p)).ToArray();
+            var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p, polygonOptimizationLevel)).ToArray();
             
             var composeMap = perimetersTree.Where(v => v.main != null)
                 .Select(v => (perimeters.IndexOf(v.main), perimeters.IndexOf(v.child))).ToArray();
@@ -416,24 +407,29 @@ namespace Model3D.Tools
             var shift = -new Vector2(ax + 0.5 * sizeX, ay + 0.5 * sizeY);
             var maxSize = Math.Max(sizeX, sizeY);
 
-            var normedPolygons = polygons.Select(v => v.Transform(p => (p + shift) / maxSize).ToLeft()).ToArray();
+            var normedPolygons = polygons.Select(v => v.Transform(p => (p + shift) / maxSize)).ToArray();
+
+            //DebugMapPerimeter(perimetersMap, Mp.IsPerimeter, perimeters.SelectMany(ps => ps), 1);
 
             return (normedPolygons, composeMap);
         }
 
-        public Shape GetContentShape1(string name, int colorLevel = 200)
+        public Shape GetContentShape(string name, ContentOptions options = null)
         {
-            var (polygons, _) = GetContentPolygons(name, colorLevel);
+            options ??= new ContentOptions();
 
-            return polygons.Select(p => p.ToShape()).ToSingleShape();
-        }
+            var trioStrategy = options.TriangulationStrategy == TriangulationStrategy.Trio;
+            var needTriangulation = options.TriangulationStrategy != TriangulationStrategy.None;
 
-        public Shape GetContentSolid(string name, int colorLevel = 200, double zVolume = 1, int smoothLevel = 0, bool trioStrategy = true)
-        {
-            var (polygons, map) = GetContentPolygons(name, colorLevel);
+            var (polygons, map) = GetContentPolygons(name, options.ColorLevel, options.PolygonOptimizationLevel, options.LevelStrategy);
 
-            return polygons.Select(p => p.SmoothOut(smoothLevel)).ToArray().Compose(map)
-                .Select(p => p.ToShape(zVolume, trioStrategy: trioStrategy)).ToSingleShape();
+            if (options.SmoothOutLevel > 0)
+                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel)).ToArray();
+
+            if (options.ComposePolygons)
+                polygons = polygons.Compose(map, true);
+
+            return polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
         }
 
         private bool[][] GetMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
@@ -533,7 +529,7 @@ namespace Model3D.Tools
             return adjust ? shape.Adjust() : shape;
         }
 
-        public Shape GetContentShape(string name, int colorLevel = 200)
+        public Shape GetContentShapeObsolet(string name, int colorLevel = 200)
         {
             using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
             var map = GetMapFromBitmap(bitmap, colorLevel);
@@ -551,37 +547,18 @@ namespace Model3D.Tools
             }
         }
 
-        private void DebugMapPerimeter(Mp[][] map, Mp flag, IEnumerable<(int i, int j)> perimeter, bool useNumber = false)
+        private void DebugMapPerimeter(Mp[][] map, Mp flag, IEnumerable<(int i, int j)> perimeter, int pointType = 1)
         {
             if (perimeter == null)
                 return;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            Mp GetMpDir((int i, int j) dir) =>
-                dir switch
-                {
-                    (0, 0) => Mp.None,
-                    (-1, 0) => Mp.Left,
-                    (0, 1) => Mp.Top,
-                    (1, 0) => Mp.Right,
-                    (0, -1) => Mp.Bottom,
-                    _ => throw new ArgumentException(dir.ToString())
-                };
-
             (int i, int j)[] nearDirs = new[] { (-1, 0), (0, 1), (1, 0), (0, -1) };
             var nearFlagDirs = nearDirs.Select(d => (d, f: GetMpDir(d))).ToArray();
-            (int i, int j)[] farDirs = new[] { (1, -1), (-1, -1), (-1, 1), (1, 1) };
-            (int i, int j)[] dirs = new[] { (1, 0), (0, -1), (-1, 0), (0, 1), (1, -1), (-1, -1), (-1, 1), (1, 1) };
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            (int i, int j)[] GetMpDirs(Mp v) => nearFlagDirs.Where(fd => v.HasFlag(fd.f)).Select(fd => fd.d).ToArray();
-
-            (int i, int j)[] GetDirs((int i, int j) v) => GetMpDirs(map[v.i][v.j]);
-
-            (int i, int j)[] GetBounds((int i, int j) v) => GetDirs(v).Select(d => v.Add(d)).ToArray();
+            (int i, int j)[] GetBoundDirs((int i, int j) v) => nearFlagDirs.Where(fd => map[v.i][v.j].HasFlag(fd.f)).Select(fd => fd.d).ToArray();
+            (int i, int j)[] GetBounds((int i, int j) v) => GetBoundDirs(v).Select(d => v.Add(d)).ToArray();
+            var bounds = perimeter.SelectMany(GetBounds).Distinct().ToHashSet();
 
             var pl = perimeter.ToList();
-            var bounds = perimeter.SelectMany(p => GetBounds(p)).Distinct().ToHashSet();
 
             string GetStr(int i, int j)
             {
@@ -589,9 +566,15 @@ namespace Model3D.Tools
 
                 if (map[i][j].HasFlag(flag))
                 {
-                    s = useNumber ? pl.IndexOf((i, j)).ToString() : j.ToString();
+                    s = pointType switch
+                    {
+                        0 => "x",
+                        1 => j.ToString(),
+                        2 => pl.IndexOf((i, j)).ToString(),
+                        _ => "x"
+                    };
                 }
-                else if (bounds.Contains((i,j)))
+                else if (bounds.Contains((i, j)))
                 {
                     s = ".";
                 }
@@ -600,13 +583,26 @@ namespace Model3D.Tools
                     s = "□";
                 }
 
-                return useNumber ? s.PadLeft(3) : s.PadRight(2);
+                return pointType switch
+                {
+                    0 => s,
+                    1 => s.PadRight(2),
+                    2 => s.PadLeft(3),
+                    _ => s
+                };
             }
 
             for (var i = 0; i < map.Length; i++)
             {
                 var line = (map[0].Length).SelectRange(j => GetStr(i,j)).SJoin(" ");
-                Debug.WriteLine($"{i}: {line}");
+
+                Debug.WriteLine(pointType switch
+                {
+                    0 => line,
+                    1 => $"{i.ToString().PadLeft(3)}: {line}",
+                    2 => line,
+                    _ => line
+                });
             }
         }
     }

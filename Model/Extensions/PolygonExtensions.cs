@@ -8,10 +8,10 @@ namespace Model.Extensions
 {
     public static class PolygonExtensions
     {
-        public static Polygon PutInside(this Polygon polygon, Polygon insidePolygon)
+        public static Polygon PutInside(this Polygon polygon, Polygon insidePolygon, bool skipReverse = false)
         {
             var points = polygon.Points;
-            var insidePoints = insidePolygon.Points.Reverse().ToArray();
+            var insidePoints = skipReverse ? insidePolygon.Points : insidePolygon.Points.Reverse().ToArray();
 
             var indexes = points.Index();
             var insideIndexes = insidePoints.Index();
@@ -22,14 +22,28 @@ namespace Model.Extensions
                 Len2 = (points[i] - insidePoints[j]).Len2
             })).OrderBy(v => v.Len2).First().Pair;
 
-            return new Polygon
+            if (points[minI] == insidePoints[minJ])
             {
-                Points = points.Take(minI + 1)
-                .Concat(insidePoints.Skip(minJ))
-                .Concat(insidePoints.Take(minJ + 1))
-                .Concat(points.Skip(minI))
-                .ToArray()
-            };
+                return new Polygon
+                {
+                    Points = points.Take(minI)
+                        .Concat(insidePoints.Skip(minJ))
+                        .Concat(insidePoints.Take(minJ))
+                        .Concat(points.Skip(minI))
+                        .ToArray()
+                };
+            }
+            else
+            {
+                return new Polygon
+                {
+                    Points = points.Take(minI + 1)
+                        .Concat(insidePoints.Skip(minJ))
+                        .Concat(insidePoints.Take(minJ + 1))
+                        .Concat(points.Skip(minI))
+                        .ToArray()
+                };
+            }
         }
 
         public static Polygon Transform(this Polygon polygon, Func<Vector2, Vector2> transformFn)
