@@ -15,6 +15,7 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems.Model;
 using Model3D.Tools;
+using Model3D.Tools.Model;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
 
@@ -217,9 +218,12 @@ namespace Model3D.Systems
             var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(Color.Red);
             var ballCollider = Shapes.IcosahedronSp3.Perfecto(9).Move(-3, -5, 3).ResizeByNormals(0.3);
 
-            var text = vectorizer.GetTextObsolet("I'll be back", 300, "Royal Inferno").Perfecto(10)
+            var text = vectorizer.GetText("I'll be back", new TextShapeOptions()
+                {
+                    FontSize = 300, FontName = "Royal Inferno", SmoothAngleScalar = 0.71, SmoothOutLevel = 2
+                }).Perfecto(10).ScaleZ(0.3)
                 .ToOxM().Move(-3, 0, 0)
-                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ToLines(3).ApplyColor(Color.Red);
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ApplyColor(Color.DarkRed).WithBackPlanes(Color.DarkRed);
 
             var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
                 .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()

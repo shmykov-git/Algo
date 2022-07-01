@@ -10,5 +10,6 @@
         public bool NormalizeAlign = true;
 
         public bool DebugBitmap = false;
+        public bool DebugPerimeterLength = false;
     }
 }

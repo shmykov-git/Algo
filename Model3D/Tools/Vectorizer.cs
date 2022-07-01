@@ -377,6 +377,10 @@ namespace Model3D.Tools
             perimetersTree = FilterTree(perimetersTree, options.LevelStrategy);
 
             var perimeters = perimetersTree.Select(v => v.child).ToList();
+
+            if (options.DebugPerimeterLength)
+                perimeters.Select((p,i)=>(p,i)).OrderBy(v=>v.p.Count).ForEach(v => Debug.WriteLine($"len {v.i}: {v.p.Count}"));
+
             var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p, options.PolygonOptimizationLevel)).ToArray();
             
             var composeMap = perimetersTree.Where(v => v.main != null)
@@ -435,7 +439,9 @@ namespace Model3D.Tools
             if (options.ComposePolygons)
                 polygons = polygons.Compose(map, true);
 
-            return polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
+            var shape =polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
+
+            return options.ToLinesSize.HasValue ? shape.ToLines(options.ToLinesSize.Value) : shape;
         }
 
         public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double zVolume = 0.1, double multY = 1,

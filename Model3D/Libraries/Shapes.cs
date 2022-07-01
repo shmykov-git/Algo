@@ -318,13 +318,28 @@ namespace Model.Libraries
             .ToShape(1, trioStrategy: true).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2)
             .ApplyColor(Color.Black);
 
-        public static Shape ButterflyPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShapeObsolet("b7")
-            .ToPerimeterPolygons().OrderByDescending(p => p.Points.Length).First().SmoothOut().SmoothOut().ToShape(1, trioStrategy: true)
-            .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
+        public static Shape ButterflyPlatform(double x = 3, double y = 3, double z = 0.1) =>
+            vectorizer.GetContentShape("b7", new ShapeOptions()
+                {
+                    LevelStrategy = LevelStrategy.TopLevel,
+                })
+                .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
-        public static Shape Butterfly2Platform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShapeObsolet("b7")
-            .ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeOthersToFirst().ToShape(1)
-            .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
+        public static Shape Butterfly2Platform(double x = 3, double y = 3, double z = 0.1) =>
+            vectorizer.GetContentShape("b7", new ShapeOptions()
+                {
+                    //ZVolume = null,
+                    //ToLinesSize = 0.3,
+                    //TriangulationStrategy = TriangulationStrategy.None,
+                    //ComposePolygons = false,
+                    //DebugPerimeterLength = true,
+
+                    LevelStrategy = LevelStrategy.All,
+                    SmoothOutLevel = 1,
+                    PolygonOptimizationLevel = 3,
+                    MinimumPolygonPointsCount = 14,
+                })
+                .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape WorldPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShape(
             "map", new ShapeOptions()
