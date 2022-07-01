@@ -47,23 +47,23 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return vectorizer.GetContentShape("scorpio").ScaleZ(0.02); //, new ShapeOptions()
-            //{
-            //    //ZVolume = null,
-            //    //ToLinesSize = 0.3,
-            //    //TriangulationStrategy = TriangulationStrategy.None,
-            //    //ComposePolygons = false,
-            //    DebugPerimeterLength = true,
+            return vectorizer.GetContentShape("e5", new ShapeOptions()
+            {
+                //ZVolume = null,
+                //ToLinesSize = 0.3,
+                //TriangulationStrategy = TriangulationStrategy.None,
+                //ComposePolygons = false,
+                //DebugPerimeterLength = true,
 
-            //    ColorLevel = 210,
-            //    ZVolume = 0.05,
-            //    TriangulationStrategy = TriangulationStrategy.Trio,
-            //    LevelStrategy = LevelStrategy.All,
-            //    SmoothOutLevel = 1,
-            //    SmoothAngleScalar = 0.6,
-            //    PolygonOptimizationLevel = 3,
-            //    MinimumPolygonPointsCount = 10,
-            //});
+                ColorLevel = 200,
+                ZVolume = 0.02,
+                TriangulationStrategy = TriangulationStrategy.Trio,
+                LevelStrategy = LevelStrategy.All,
+                SmoothOutLevel = 2,
+                SmoothAngleScalar = 0.1,
+                PolygonOptimizationLevel = 3,
+                MinimumPolygonPointsCount = 10,
+            });
 
             var platformSize = 3d;
 
