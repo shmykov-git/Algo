@@ -47,25 +47,6 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return vectorizer.GetContentShape("w16").ScaleZ(0.01);
-            //    , new ShapeOptions()
-            //{
-            //    //ZVolume = null,
-            //    //ToLinesSize = 0.3,
-            //    //TriangulationStrategy = TriangulationStrategy.None,
-            //    //ComposePolygons = false,
-            //    //DebugPerimeterLength = true,
-
-            //    ColorLevel = 225,
-            //    ZVolume = 0.02,
-            //    TriangulationStrategy = TriangulationStrategy.Trio,
-            //    LevelStrategy = LevelStrategy.All,
-            //    SmoothOutLevel = 2,
-            //    SmoothAngleScalar = 0.1,
-            //    PolygonOptimizationLevel = 3,
-            //    MinimumPolygonPointsCount = 10,
-            //});
-
             var platformSize = 3d;
 
             var rnd = new Random(0);
@@ -198,7 +179,7 @@ namespace View3D
                     stone.VisibleShape.Rotate(stone.Rotation).Move(stone.Position).ApplyColor(Color.Black),
                     stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position).ToLines(0.5).ApplyColor(Color.Green),
                     Shapes.Coods.Rotate(stone.Rotation).Move(stone.Position),
-                    Shapes.Butterfly2Platform(platformSize, platformSize, 0.1),
+                    Shapes.CirclePlatform(platformSize, platformSize, 0.1),
                     Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape());
         }
