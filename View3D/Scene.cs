@@ -50,35 +50,31 @@ namespace View3D
             //return Shapes.WorldPlatform();
             // — Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", 100, "Times New Roman"
             // n
-            var s = vectorizer.GetText("— Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", new TextShapeOptions()
-            //var s = vectorizer.GetText("n", new TextShapeOptions()
-            {
-                TriangulationStrategy = TriangulationStrategy.Trio,
-                FontSize = 100,
-                FontName = "Times New Roman",
-                MultX = 1,
-                ZVolume = 0.005,
-                SmoothOutLevel = 2,
-                SmoothAngleScalar = 0.71,
-                PolygonOptimizationLevel = 3
-            });
-
-            //var s = vectorizer.GetContentShape("m12", new ShapeOptions()
+            //var s = vectorizer.GetText("— Eh bien, mon prince. Gênes et Lucques ne sont plus que des apanages, des\r\nпоместья, de la famille Buonaparte. Non, je vous préviens que si vous ne me dites pas\r\nque nous avons la guerre, si vous vous permettez encore de pallier toutes les infamies,\r\ntoutes les atrocités de cet Antichrist (ma parole, j'y crois) — je ne vous connais plus,\r\nvous n'êtes plus mon ami, vous n'êtes plus мой верный раб, comme vous dites.", new TextShapeOptions()
+            //var s = vectorizer.GetText("", new TextShapeOptions()
             //{
-            //    ColorLevel = 150,
-            //    ZVolume = null,
-            //    ComposePolygons = false,
-            //    TriangulationStrategy = TriangulationStrategy.None,
-            //    LevelStrategy = LevelStrategy.All,
-            //    PolygonOptimizationLevel = 2,
-            //    SmoothOutLevel = 1,
-            //    MinimumPolygonPointsCount = 0,
-            //}).ToLines(0.2)/*.Scale(5,5,0.5)*//*.ToMetaShape3(0.2, 1, Color.Blue, Color.Red)*/;
-                
-                //.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
-                //.ComposeObsolet(new[] { (13, 3), (15, 3), (16, 3), (17, 3) })
-                //.Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
-                //.Scale(1.3 * 3, 1.3 * 3, 0.1).ToOy().MoveY(-0.1 / 2).ApplyColor(Color.Black);
+            //    FontSize = 300,
+            //    FontName = "Royal Inferno",
+            //    MultX = 1,
+            //    ZVolume = 0.005
+            //}).ApplyColor(Color.DarkRed);
+
+            var s = vectorizer.GetContentShape("debug4", new ShapeOptions()
+            {
+                ColorLevel = 150,
+                ZVolume = null,
+                ComposePolygons = false,
+                TriangulationStrategy = TriangulationStrategy.None,
+                LevelStrategy = LevelStrategy.All,
+                PolygonOptimizationLevel = 2,
+                SmoothOutLevel = 1,
+                MinimumPolygonPointsCount = 0,
+            }).ToNumSpots3(0.2)/*.Scale(5,5,0.5)*//*.ToMetaShape3(0.2, 1, Color.Blue, Color.Red)*/;
+
+            //.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
+            //.ComposeObsolet(new[] { (13, 3), (15, 3), (16, 3), (17, 3) })
+            //.Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
+            //.Scale(1.3 * 3, 1.3 * 3, 0.1).ToOy().MoveY(-0.1 / 2).ApplyColor(Color.Black);
 
             //var s = vectorizer.GetContentShape1("m12", 200).ToMetaShape3(0.2, 1, Color.Blue, Color.Red); //m12
             //var s = vectorizer.GetContentShape("m12", 200, trioStrategy: false, skipPointOptimization: false).Scale(1, 1, 0.1).ApplyColor(Color.Blue); //m12
@@ -89,7 +85,8 @@ namespace View3D
 
             return new[]
             {
-                s /*+ Shapes.CoodsWithText*/,
+                vectorizer.GetText("x"),
+                 Shapes.CoodsWithText,
                 //(s.ToMetaShape3(1,1,Color.Blue,Color.Red) + Shapes.CoodsWithText).MoveX(1.2)
             }.ToSingleShape();
 
@@ -99,14 +96,6 @@ namespace View3D
 
             //return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeOthersToFirst()
             //    .ToShape(0.03);
-
-            return s.ToPerimeterPolygons().Select(p => p.SmoothOut(1)).ToArray().ComposeObsolet(new[]
-                {
-                    (1, 0), (3, 0), (4, 0), (5, 0), (6, 0), (8, 0), (9, 0), (10, 0), (11, 0), (12, 0), (13, 0), (15, 0), (16, 0), (20, 0), (25, 0),
-                    (18, 14), (19, 14), (21, 14), (22, 14),
-                    (17, 7), (23, 7), (24, 7), (29, 7)
-                })
-                .Select(p => p.ToShape(0.02, trioStrategy:true)).ToSingleShape().ApplyColor(Color.Black);
 
 
             //var ss = s.ToPerimeterPolygons().Select((p,i)=>p.ToShape(0.03, trioStrategy: true).MoveZ(i*0.3)).ToSingleShape();

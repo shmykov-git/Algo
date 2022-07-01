@@ -8,5 +8,7 @@
         public LevelStrategy LevelStrategy { get; set; } = LevelStrategy.All;
         public bool NormalizeScale = true;
         public bool NormalizeAlign = true;
+
+        public bool DebugBitmap = false;
     }
 }

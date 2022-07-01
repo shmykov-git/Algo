@@ -104,9 +104,9 @@ namespace Model.Libraries
         public static Shape CoodsWithText =>
             Coods +
             IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red) +
-            vectorizer.GetTextObsolet("x", 100, "Georgia").Mult(0.03).Move(0.95, -0.06, 0).ToLines(0.6, Color.Red) +
-            vectorizer.GetTextObsolet("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ToLines(0.6, Color.Red) +
-            vectorizer.GetTextObsolet("z", 100, "Georgia").Mult(0.03).Rotate(Rotates.Z_X).Move(0, -0.06, 1).ToLines(0.6, Color.Red);
+            vectorizer.GetText("x", 100, "Georgia").Mult(0.03).Move(0.95, -0.06, 0).ApplyColor(Color.Red) +
+            vectorizer.GetText("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ApplyColor(Color.Red) +
+            vectorizer.GetText("z", 100, "Georgia").Mult(0.03).Rotate(Rotates.Z_X).Move(0, -0.06, 1).ApplyColor(Color.Red);
 
         public static Shape CoodsNet => CoodsWithText + Surfaces.Plane(11, 11).Perfecto().ToLines(0.3, Color.Khaki);
 

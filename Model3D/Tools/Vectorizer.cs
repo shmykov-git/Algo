@@ -382,6 +382,9 @@ namespace Model3D.Tools
             var composeMap = perimetersTree.Where(v => v.main != null)
                 .Select(v => (perimeters.IndexOf(v.main), perimeters.IndexOf(v.child))).ToArray();
 
+            if (options.DebugBitmap)
+                DebugMapPerimeter(perimetersMap, Mp.IsPerimeter, perimeters.SelectMany(v=>v), 0);
+
             if (options.NormalizeAlign || options.NormalizeScale)
             {
                 var borders = polygons.Select(p => p.Border).ToArray();
@@ -392,10 +395,15 @@ namespace Model3D.Tools
 
                 var sizeX = bx - ax;
                 var sizeY = by - ay;
-                var shift = -new Vector2(ax + 0.5 * sizeX, ay + 0.5 * sizeY);
                 var maxSize = Math.Max(sizeX, sizeY);
 
-                var normedPolygons = polygons.Select(v => v.Transform(p => (p + shift) / maxSize)).ToArray();
+                var shift = options.NormalizeAlign ? - new Vector2(ax + 0.5 * sizeX, ay + 0.5 * sizeY) : Vector2.Zero;
+                
+                Func<Vector2, Vector2> transformFn = options.NormalizeScale
+                    ? p => (p + shift) / maxSize
+                    : p => p + shift;
+
+                var normedPolygons = polygons.Select(v => v.Transform(transformFn)).ToArray();
 
                 return (normedPolygons, composeMap);
             }
@@ -430,10 +438,21 @@ namespace Model3D.Tools
             return polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
         }
 
-        public Shape GetText(string text, TextShapeOptions options = null)
-        {
-            options ??= new TextShapeOptions();
+        public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double zVolume = 0.1, double multY = 1,
+            double multX = 1, bool aline = false, bool scale = true) =>
+            GetText(text, new TextShapeOptions()
+            {
+                FontSize = fontSize,
+                FontName = fontName,
+                MultX = multX,
+                MultY = multY,
+                ZVolume = zVolume,
+                NormalizeAlign = aline,
+                NormalizeScale = scale,
+            });
 
+        public Shape GetText(string text, TextShapeOptions options)
+        {
             if (string.IsNullOrEmpty(text))
                 return Shape.Empty;
 
