@@ -47,162 +47,56 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var platformSize = 3d;
+            var contentName = "debug1";
 
-            var rnd = new Random(0);
-
-            var mass0 = 1;
-
-            var stoneLogic = Shapes.Stone(4, 2, 1, 3, new Vector3(1.2, 3, 1.2)).Perfecto(Math.Pow(mass0, 1d/3)).RotateToMassY(out Quaternion q);
-            var massCenter = stoneLogic.MassCenter;
-            stoneLogic = stoneLogic.Move(massCenter);
-            var stoneVisible = Shapes.Stone(4, 2, 1, 5, new Vector3(1.2, 3, 1.2)).Perfecto(Math.Pow(mass0, 1d / 3)).Rotate(q).Move(massCenter);
-
-            var ps = stoneLogic.Points3;
-            var masses = stoneLogic.Masses;
-
-            var rotation0 = new ExQuaternion(0, 0, 1);
-            var rotationSpeed0 = ExQuaternion.Identity;
-            var projectionBottom0 = stoneLogic.Rotate(rotation0).ProjectionBottomY;
-            var position0 = new Vector3(0, -projectionBottom0.y, 0);
-            
-            var touchPoint0 = projectionBottom0 + position0;
-
-            var stone = new Solid()
+            var options = new ShapeOptions()
             {
-                VisibleShape = stoneVisible,
-                LogicShape = stoneLogic,
-                Items = ps.Select((p, i) => new Item()
-                {
-                    Position = p,
-                    Mass = masses[i]
-                }).ToArray(),
-                
-                Position = position0,
-                Rotation = rotation0,
-                Mass = mass0,
-                PositionSpeed = Vector3.Origin,
-                RotationSpeed = rotationSpeed0,
+                //ZVolume = null,
+                //ToLinesSize = 0.3,
+                //TriangulationStrategy = TriangulationStrategy.None,
+                //ComposePolygons = false,
 
-                PositionAcceleration = Vector3.Origin,
+                ZVolume = 0.02,
+                TriangulationStrategy = TriangulationStrategy.Sort,
+
+                ColorLevel = 200,
+                LevelStrategy = LevelStrategy.All,
+                SmoothOutLevel = 0,
+                SmoothAngleScalar = 0.71,
+                PolygonOptimizationLevel = 0,
+                MinimumPolygonPointsCount = 3,
+
+                DebugPerimeterLength = true,
+                DebugBitmap = true,
+                DebugProcess = true,
             };
 
-            var gravity = 0.01 * new Vector3(0, -1, 0);
-            //var planeForce = new Vector3(0, 1, 0);
-            //var planePoint = ps.OrderByDescending(p => p.y).First();
-
-
-            //void CalculateStoneAccelerationsSingleTouchPoint(Solid solid, Vector3 touchPoint)
-            //{
-            //    var touchDirection = touchPoint - solid.Position;
-
-            //    solid.Items.Select(v =>
-            //    {
-            //        // todo: разложить v.position, gravity на ускорение вращения и ускорение перемещения центра
-            //        // плоскость точки касания, центра, позиции
-            //        // проекциия верктора гравитации на эту плоскость - это определяет ускорение перемещения без вращения (с учетом массы и расстояния)
-            //        // а проекция на нормаль это плоскости определяет ускорение вращения (с учетом массы и расстояния)
-                    
-            //        // нужны только точки касания
-            //        //  для обсчета достаточно центра, скоростей, ускорений, массы
-
-            //        var a = touchDirection.Normalize();
-            //        var b = v.Position.Normalize();
-            //        var c = a.MultV(b);
-            //        var d = a.MultV(c);
-
-            //        var l = v.Position.MultV(touchDirection);
-
-            //        return Vector3.Origin;
-            //    }).Sum();
-
-            //    //var planeForceDir = planePoint - v.Position;
-            //    //var planeForce = planeForceDir.ToLen(planeForceDir.MultS(gravity).Abs());
-            //    //var acc = v.Mass * (gravity + planeForce);
-
-            //    // todo: 2 точки A, B. В точке A ускорение a, какое в точке B?
-            //    //var accZ = 
-
-            //    //v.Acceleration = acc;
-            //}
-
-            // todo: посчитать Zx, Zy, Yx
-
-            var touchPoint = touchPoint0;
-            void Step()
+            var lineOptions = new ShapeOptions()
             {
-                var a = stone.Mass * gravity;
-                stone.PositionSpeed += a;
-                stone.Position += stone.PositionSpeed;
-                stone.Rotation *= stone.RotationSpeed;
+                ZVolume = null,
+                ToLinesSize = 0.3,
+                SpliteLineLevelsDistance = 0.02,
+                SpliteLineColors = (Color.Red, Color.Green),
+                TriangulationStrategy = TriangulationStrategy.None,
+                ComposePolygons = false,
 
-                // todo: найти точку взаимодействия с плоскостью
-                var stoneLogic = stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position);
+                ColorLevel = options.ColorLevel,
+                LevelStrategy = options.LevelStrategy,
+                SmoothOutLevel = options.SmoothOutLevel,
+                SmoothAngleScalar = options.SmoothAngleScalar,
+                PolygonOptimizationLevel = options.PolygonOptimizationLevel,
+                MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
+            };
 
-                var touchPoint = stoneLogic.ProjectionBottomY; // тут точка неправильная
-                if (touchPoint.y < 0)
+            var readyShape = vectorizer.GetContentShape(contentName, options);
+            var lineShape = vectorizer.GetContentShape(contentName, lineOptions);
+
+            return new[]
                 {
-                    var plane = new Plane(Vector3.XAxis, Vector3.Origin, Vector3.ZAxis);
-
-                    var ln = touchPoint.y;
-
-                    var prxy = plane.ProjectionFn(touchPoint - stone.Position);
-                    //var prz = plane.NOne.MultS(touchPoint - stone.Position);
-
-                    var q = new ExQuaternion(prxy.Length * new Vector3(-ln / 2, 0, -ln / 2));
-                    stone.RotationSpeed *= q;
-
-                    stone.Position += new Vector3(0, -ln, 0);
-                }
-
-
-                //items.ForEach(v => v.Acceleration = Vector3.Origin);
-                //stone.Items.ForEach(SetStoneAccelerations);
-
-                //foreach (var item in items)
-                //{
-                //    item.Speed += item.Acceleration;
-                //    item.Position += item.Speed;
-                //}
-
-                stone.Rotation = stone.RotationSpeed * stone.Rotation;
-            }
-
-            void Animate() => (5).ForEach(_ => Step());
-
-            //(10).ForEach(_ => Step());
-
-            return Compounds.SnakeSlots((1, 1), (platformSize, platformSize), Animate, () =>
-                new[]
-                {
-                    Shapes.IcosahedronSp3.Perfecto(0.05).Move(touchPoint).ApplyColor(Color.Red),
-                    stone.VisibleShape.Rotate(stone.Rotation).Move(stone.Position).ApplyColor(Color.Black),
-                    stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position).ToLines(0.5).ApplyColor(Color.Green),
-                    Shapes.Coods.Rotate(stone.Rotation).Move(stone.Position),
-                    Shapes.CirclePlatform(platformSize, platformSize, 0.1),
-                    Shapes.CoodsWithText.ApplyColor(Color.Black),
-                }.ToSingleShape());
-        }
-
-        class Solid
-        {
-            public Shape VisibleShape;
-            public Shape LogicShape;
-            public Item[] Items;
-            public double Mass;
-            public ExQuaternion Rotation;
-            public Vector3 Position;
-            public Vector3 PositionSpeed;
-            public ExQuaternion RotationSpeed;
-
-            public Vector3 PositionAcceleration;
-            //public ExQuaternion RotationAcceleration;
-        }
-
-        class Item
-        {
-            public Vector3 Position;
-            public double Mass;
+                    readyShape.ApplyColor(Color.Black),
+                    lineShape.MoveZ(0.03),
+                    //Shapes.CoodsWithText.ApplyColor(Color.Black),
+                }.ToSingleShape();
         }
     }
 }

@@ -121,27 +121,9 @@ namespace Model3D.Extensions
        
         public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map, bool skipReverse = false)
         {
-            var dic = map.ToDictionary(v => v.child, v => v.main);
+            var getLevel = map.GetMapLevelFn();
 
-            int GetLevel(int child)
-            {
-                var level = 1;
-
-                while (true)
-                {
-                    if (dic.TryGetValue(child, out int main))
-                    {
-                        child = main;
-                        level++;
-                    }
-                    else
-                        break;
-                }
-
-                return level;
-            }
-
-            var excepts = map.Where(v=>GetLevel(v.child).Even()).Select(v => v.child).ToHashSet();
+            var excepts = map.Where(v=>getLevel(v.child).Even()).Select(v => v.child).ToHashSet();
             var includes = map.GroupBy(v => v.main).ToDictionary(gv => gv.Key, gv => gv.Select(v => v.child).ToArray());
 
             return polygons.Select((p, num) => (p, num))

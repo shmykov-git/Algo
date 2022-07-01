@@ -378,13 +378,13 @@ namespace Model3D.Tools
 
             var perimeters = perimetersTree.Select(v => v.child).ToList();
 
-            if (options.DebugPerimeterLength)
-                perimeters.Select((p,i)=>(p,i)).OrderBy(v=>v.p.Count).ForEach(v => Debug.WriteLine($"len {v.i}: {v.p.Count}"));
-
             var polygons = perimeters.Select(p => GetPolygonFromPerimeter(perimetersMap.Length, p, options.PolygonOptimizationLevel)).ToArray();
             
             var composeMap = perimetersTree.Where(v => v.main != null)
                 .Select(v => (perimeters.IndexOf(v.main), perimeters.IndexOf(v.child))).ToArray();
+
+            if (options.DebugPerimeterLength)
+                perimeters.Select((p, i) => (p, i)).OrderBy(v => v.p.Count).ForEach(v => Debug.WriteLine($"len {v.i}: {v.p.Count}"));
 
             if (options.DebugBitmap)
                 DebugMapPerimeter(perimetersMap, Mp.IsPerimeter, perimeters.SelectMany(v=>v), 0);
@@ -419,9 +419,22 @@ namespace Model3D.Tools
 
         public Shape GetContentShape(string name, ShapeOptions options = null)
         {
-            using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
+            if (options.DebugProcess)
+                Debug.WriteLine($"===== <[{name}]> =====");
 
-            return GetContentShape(bitmap, options);
+            var sw = Stopwatch.StartNew();
+            using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
+            sw.Stop();
+
+            if (options.DebugProcess)
+                Debug.WriteLine($"Bitmap: {sw.Elapsed}");
+
+            var shape = GetContentShape(bitmap, options);
+
+            if (options.DebugProcess)
+                Debug.WriteLine($"===== <[{name}]/> =====");
+
+            return shape;
         }
 
         private Shape GetContentShape(Bitmap bitmap, ShapeOptions options)
@@ -431,7 +444,14 @@ namespace Model3D.Tools
             var trioStrategy = options.TriangulationStrategy == TriangulationStrategy.Trio;
             var needTriangulation = options.TriangulationStrategy != TriangulationStrategy.None;
 
+            var sw = Stopwatch.StartNew();
             var (polygons, map) = GetContentPolygons(bitmap, options);
+            sw.Stop();
+
+            if (options.DebugProcess)
+                Debug.WriteLine($"Polygons: {sw.Elapsed}");
+
+            sw.Restart();
 
             if (options.SmoothOutLevel > 0)
                 polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel, options.SmoothAngleScalar)).ToArray();
@@ -439,9 +459,33 @@ namespace Model3D.Tools
             if (options.ComposePolygons)
                 polygons = polygons.Compose(map, true);
 
-            var shape =polygons.SelectInParallel(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
+            var shapes = polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToArray();
+            Shape shape;
+            
+            if (options.ToLinesSize.HasValue && options.SpliteLineLevelsDistance.HasValue && !options.ComposePolygons)
+            {
+                var getLevel = map.GetMapLevelFn();
+                shape = shapes.Where((_, i) => getLevel(i).Odd()).ToSingleShape()
+                            .ToLines(options.ToLinesSize.Value)
+                            .ApplyColor(options.SpliteLineColors.odd) +
+                        shapes.Where((_, i) => getLevel(i).Even()).ToSingleShape()
+                            .MoveZ(options.SpliteLineLevelsDistance.Value).ToLines(options.ToLinesSize.Value)
+                            .ApplyColor(options.SpliteLineColors.even);
+            }
+            else
+            {
+                shape = shapes.ToSingleShape();
 
-            return options.ToLinesSize.HasValue ? shape.ToLines(options.ToLinesSize.Value) : shape;
+                if (options.ToLinesSize.HasValue)
+                    shape = shape.ToLines(options.ToLinesSize.Value).ApplyColor(options.SpliteLineColors.odd);
+            }
+
+            sw.Stop();
+
+            if (options.DebugProcess)
+                Debug.WriteLine($"Shape: {sw.Elapsed} (shmooth, volume, triangle, adjust, lines)");
+
+            return shape;
         }
 
         public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double zVolume = 0.1, double multY = 1,
@@ -619,7 +663,8 @@ namespace Model3D.Tools
             (int i, int j)[] GetBounds((int i, int j) v) => GetBoundDirs(v).Select(d => v.Add(d)).ToArray();
             var bounds = perimeter.SelectMany(GetBounds).Distinct().ToHashSet();
 
-            var pl = perimeter.ToList();
+            var list = perimeter.ToList();
+            var hashset = perimeter.ToHashSet();
 
             string GetStr(int i, int j)
             {
@@ -627,12 +672,14 @@ namespace Model3D.Tools
 
                 if (map[i][j].HasFlag(flag))
                 {
+                    var taken = hashset.Contains((i, j));
+
                     s = pointType switch
                     {
-                        0 => "x",
+                        0 => taken ? "■" : "‎▣",
                         1 => j.ToString(),
-                        2 => pl.IndexOf((i, j)).ToString(),
-                        _ => "x"
+                        2 => list.IndexOf((i, j)).ToString(),
+                        _ => "■"
                     };
                 }
                 else if (bounds.Contains((i, j)))

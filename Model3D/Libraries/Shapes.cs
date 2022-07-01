@@ -351,13 +351,6 @@ namespace Model.Libraries
                 SmoothOutLevel = 1
             }).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
-
-            //vectorizer
-            //.GetContentShapeObsolet("map").ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
-            //.ComposeObsolet(new[] {(13, 3), (15, 3), (16, 3), (17, 3)})
-            //.Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
-            //.Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
-
         public static Shape RoundTreePlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShapeObsolet("t3_small", 190)
             .ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeObsolet(new[] { (1, 0), (3, 2) })
             .Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
