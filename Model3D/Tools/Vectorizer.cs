@@ -439,7 +439,7 @@ namespace Model3D.Tools
             if (options.ComposePolygons)
                 polygons = polygons.Compose(map, true);
 
-            var shape =polygons.Select(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
+            var shape =polygons.SelectInParallel(p => p.ToShape(options.ZVolume, needTriangulation, options.TriangulationFixFactor, trioStrategy)).ToSingleShape();
 
             return options.ToLinesSize.HasValue ? shape.ToLines(options.ToLinesSize.Value) : shape;
         }
