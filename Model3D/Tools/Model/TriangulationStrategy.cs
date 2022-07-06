@@ -4,7 +4,8 @@
     {
         None,
         Trio,
-        Sort
+        Sort,
+        Sort2,
     }
 
     public enum LevelStrategy

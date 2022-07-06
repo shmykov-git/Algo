@@ -47,27 +47,28 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "debug1";
+            var contentName = "m12";
+
+            // что делать с полигонами для m13?
 
             var options = new ShapeOptions()
             {
-                //ZVolume = null,
-                //ToLinesSize = 0.3,
-                //TriangulationStrategy = TriangulationStrategy.None,
-                //ComposePolygons = false,
-
                 ZVolume = 0.02,
-                TriangulationStrategy = TriangulationStrategy.Sort,
+                //ToLinesSize = 0.3,
+                TriangulationStrategy = TriangulationStrategy.Trio,
+                PolygonPointStrategy = PolygonPointStrategy.Circle,
+                PolygonCircleRadius = 0.04,
+                //TriangulationFixFactor = 0.0001,
 
                 ColorLevel = 200,
                 LevelStrategy = LevelStrategy.All,
-                SmoothOutLevel = 0,
-                SmoothAngleScalar = 0.71,
-                PolygonOptimizationLevel = 0,
-                MinimumPolygonPointsCount = 3,
+                SmoothOutLevel = 2,
+                SmoothAngleScalar = 0,
+                PolygonOptimizationLevel = 3,
+                MinimumPolygonPointsCount = 0,
 
-                DebugPerimeterLength = true,
-                DebugBitmap = true,
+                //DebugPerimeterLength = true,
+                //DebugBitmap = true,
                 DebugProcess = true,
             };
 
@@ -75,26 +76,48 @@ namespace View3D
             {
                 ZVolume = null,
                 ToLinesSize = 0.3,
-                SpliteLineLevelsDistance = 0.02,
-                SpliteLineColors = (Color.Red, Color.Green),
+                //ToSpotNumSize = 0.15,
+                SpliteLineLevelsDistance = 0.00,
+                //SpliteAllPolygonsDistance = 0.01,
+                ComposePolygons = true,
                 TriangulationStrategy = TriangulationStrategy.None,
-                ComposePolygons = false,
 
                 ColorLevel = options.ColorLevel,
                 LevelStrategy = options.LevelStrategy,
                 SmoothOutLevel = options.SmoothOutLevel,
                 SmoothAngleScalar = options.SmoothAngleScalar,
                 PolygonOptimizationLevel = options.PolygonOptimizationLevel,
+                PolygonPointStrategy = options.PolygonPointStrategy,
                 MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
+
+                DebugBitmap = true,
+                DebugPerimeterLength = true,
             };
 
-            var readyShape = vectorizer.GetContentShape(contentName, options);
-            var lineShape = vectorizer.GetContentShape(contentName, lineOptions);
+            //var centerOptions = new ShapeOptions()
+            //{
+            //    ZVolume = null,
+            //    ToLinesSize = 0.3,
+            //    //ToSpotNumSize = 0.15,
+            //    SpliteLineLevelsDistance = 0.00,
+            //    SpliteAllPolygonsDistance = 0.01,
+            //    ComposePolygons = false,
+            //    TriangulationStrategy = TriangulationStrategy.None,
+
+            //    ColorLevel = options.ColorLevel,
+            //    LevelStrategy = options.LevelStrategy,
+            //    SmoothOutLevel = options.SmoothOutLevel,
+            //    SmoothAngleScalar = options.SmoothAngleScalar,
+            //    PolygonOptimizationLevel = options.PolygonOptimizationLevel,
+            //    PolygonPointStrategy = PolygonPointStrategy.Center,
+            //    MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
+            //};
 
             return new[]
                 {
-                    readyShape.ApplyColor(Color.Black),
-                    lineShape.MoveZ(0.03),
+                    vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
+                    //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
+                    //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape();
         }

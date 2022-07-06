@@ -43,6 +43,9 @@ namespace Model.Tools
         // брать по очереди тот треугольник, который возможен
         public static int[][] Triangulate(Polygon polygon, double incorrectFix = 0)
         {
+            if (polygon.Points.Length < 3)
+                return Array.Empty<int[]>();
+
             var maxLen = polygon.MaxLinesLen;
             var brokenPolygonCoff = incorrectFix * maxLen;
 

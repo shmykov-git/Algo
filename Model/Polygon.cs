@@ -14,9 +14,13 @@ namespace Model
         public double MaxLinesLen => Points.Length > 1 ? Lines.Max(l => l.Len) : 0;
         public double MinLinesLen => Points.Length > 1 ? Lines.Min(l => l.Len) : 0;
 
-        public (Vector2 a, Vector2 b) Border => (
-            new Vector2(Points.Min(p => p.x), Points.Min(p => p.y)),
-            new Vector2(Points.Max(p => p.x), Points.Max(p => p.y)));
+        public (Vector2 a, Vector2 b) Border => Points.Length > 0
+            ? 
+            (
+                new Vector2(Points.Min(p => p.x), Points.Min(p => p.y)),
+                new Vector2(Points.Max(p => p.x), Points.Max(p => p.y))
+            )
+            : (Vector2.Zero, Vector2.Zero);
 
         public Vector2 Size
         {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Aspose.ThreeD.Utilities;
@@ -6,6 +7,7 @@ using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
+using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Extensions
@@ -15,6 +17,38 @@ namespace Model3D.Extensions
         public static Shape MakeShape(this Polygon polygon, bool triangulate = false)
         {
             return polygon.Fill(triangulate).ToShape3();
+        }
+
+        public static Shape ToShape(this Polygon polygon, SolidOptions options)
+        {
+            var triangulate = options.TriangulationStrategy != TriangulationStrategy.None;
+            var needVolume = options.ZVolume.HasValue;
+
+            if (!needVolume && !triangulate)
+                return new Shape
+                {
+                    Points2 = polygon.Points,
+                    Convexes = new[] { polygon.Points.Index().ToArray() }
+                };
+
+            var trConvexes = options.TriangulationStrategy switch
+            {
+                TriangulationStrategy.Trio => FillEngine.Triangulate(polygon.Points, FillEngine.FindConvexes(polygon)),
+                TriangulationStrategy.Sort => Triangulator.Triangulate(polygon, options.TriangulationFixFactor),
+                TriangulationStrategy.Sort2 => Triangulator2.Triangulate(polygon),
+                _ => Array.Empty<int[]>()
+            };
+
+            var shape = new Shape()
+            {
+                Points2 = polygon.Points,
+                Convexes = trConvexes
+            }.Normalize();
+
+            if (!needVolume)
+                return shape;
+
+            return shape.AddNormalVolume(options.ZVolume.Value).MoveZ(-options.ZVolume.Value / 2);
         }
 
         public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0, bool trioStrategy = false)

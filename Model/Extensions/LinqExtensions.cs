@@ -175,8 +175,15 @@ namespace Model.Extensions
                 i++;
             }
 
-            yield return func(prevPrevT, prevT, firstT);
-            yield return func(prevT, firstT, secondT);
+            if (i == 1)
+            {
+                yield return func(firstT, firstT, firstT);
+            } 
+            else
+            {
+                yield return func(prevPrevT, prevT, firstT);
+                yield return func(prevT, firstT, secondT);
+            }
         }
 
         public static IEnumerable<TRes> SelectCircleFours<T, TRes>(this IEnumerable<T> list, Func<T, T, T, T, TRes> func)

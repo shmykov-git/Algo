@@ -66,6 +66,14 @@ namespace Model
             return item;
         }
 
+        public T Peek(int i = 0)
+        {
+            if (data.Count <= i || i < 0)
+                return default;
+
+            return data[i];
+        }
+
         public bool Pop(T item)
         {
             var i = data.IndexOf(item);

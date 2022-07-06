@@ -320,9 +320,15 @@ namespace Model3D.Extensions
 
             var texts = new List<Shape>();
 
+            var points = shape.Points3;
+            var dic = points.Select((p, i) => (p, i)).GroupBy(v => v.p).ToDictionary(gp => gp.Key, gp => 0);
+            
+            var textSize = 100;
+
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
-                var iText = vectorizer.GetText(i.ToString()).Perfecto(0.1*mult).Move(p).Move(mult*new Vector3(0.1, 0.1, 0)).ApplyColor(numColor.Value);
+                var k = dic[p]++;
+                var iText = vectorizer.GetText(i.ToString(), textSize, scale:false).Mult(0.1*mult/textSize).Move(p).Move(mult*new Vector3(0, 0.11 * k, 0)).ApplyColor(numColor.Value);
                 texts.Add(iText);
             }
 

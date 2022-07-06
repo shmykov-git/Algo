@@ -67,6 +67,30 @@ namespace Model.Extensions
             return (a.i - b.i, a.j - b.j);
         }
 
+        public static int Mult(this (int i, int j) a, (int i, int j) b)
+        {
+            return a.i * b.i + a.j * b.j;
+        }
+
+        public static (int i, int j) Normal(this (int i, int j) a)
+        {
+            return (a.j, -a.i);
+        }
+
+        public static (int i, int j) Direct(this (int i, int j) a, (int i, int j) b)
+        {
+            if (a.i.Abs() > 1 || a.j.Abs() > 1 || b.i.Abs() > 1 || b.j.Abs() > 1)
+                throw new ArgumentException($"Args should have -1, 0, 1 values. Actual {a} {b}");
+
+            if (a == (0, 0))
+                return b;
+
+            var i = a.Mult(b);
+            var j = a.Normal().Mult(b);
+
+            return (i.Abs() == 2 ? i / 2 : i, j.Abs() == 2 ? j / 2 : j);
+        }
+
         public static (int i, int j) ReversedEdge(this (int i, int j) e)
         {
             return (e.j, e.i);
