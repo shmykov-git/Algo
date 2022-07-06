@@ -47,7 +47,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "m12";
+            var contentName = "m10";
 
             // что делать с полигонами для m13?
 
@@ -55,17 +55,17 @@ namespace View3D
             {
                 ZVolume = 0.02,
                 //ToLinesSize = 0.3,
-                TriangulationStrategy = TriangulationStrategy.Trio,
+                TriangulationStrategy = TriangulationStrategy.Sort,
                 PolygonPointStrategy = PolygonPointStrategy.Circle,
-                PolygonCircleRadius = 0.04,
+                PolygonCircleRadius = 0.499,
                 //TriangulationFixFactor = 0.0001,
 
                 ColorLevel = 200,
                 LevelStrategy = LevelStrategy.All,
                 SmoothOutLevel = 2,
-                SmoothAngleScalar = 0,
+                SmoothAngleScalar = 0.2,
                 PolygonOptimizationLevel = 3,
-                MinimumPolygonPointsCount = 0,
+                //MinimumPolygonPointsCount = 20,
 
                 //DebugPerimeterLength = true,
                 //DebugBitmap = true,
@@ -75,11 +75,11 @@ namespace View3D
             var lineOptions = new ShapeOptions()
             {
                 ZVolume = null,
-                ToLinesSize = 0.3,
+                ToLinesSize = 0.2,
                 //ToSpotNumSize = 0.15,
                 SpliteLineLevelsDistance = 0.00,
-                //SpliteAllPolygonsDistance = 0.01,
-                ComposePolygons = true,
+                SpliteAllPolygonsDistance = 0.00,
+                ComposePolygons = false,
                 TriangulationStrategy = TriangulationStrategy.None,
 
                 ColorLevel = options.ColorLevel,
@@ -90,8 +90,8 @@ namespace View3D
                 PolygonPointStrategy = options.PolygonPointStrategy,
                 MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
 
-                DebugBitmap = true,
-                DebugPerimeterLength = true,
+                //DebugBitmap = true,
+                //DebugPerimeterLength = true,
             };
 
             //var centerOptions = new ShapeOptions()
@@ -115,8 +115,8 @@ namespace View3D
 
             return new[]
                 {
-                    vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
-                    //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
+                    //vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
+                    vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
                     //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape();

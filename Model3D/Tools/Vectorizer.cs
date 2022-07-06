@@ -240,10 +240,10 @@ namespace Model3D.Tools
                     return nextP == default ? x : nextP;
                 }
 
-                var (prevP, p) = wildPerimeter.Select(p=>(p, bs: getBounds(p))).Where(v=>v.bs.Length > 0).Select(v=>(v.bs[0], v.p)).FirstOrDefault();
+                int CountSiblings((int i, int j) x) => leftDirs.Select(d => x.Add(d)).Count(IsPerimeter);
 
-                if (prevP == default)
-                    Debugger.Break();
+                var (prevP, p) = wildPerimeter.Select(p => (p, c:CountSiblings(p), bs: getBounds(p)))
+                    .OrderBy(v=>v.c).ThenByDescending(v => v.bs.Length).Select(v => (v.bs[0], v.p)).FirstOrDefault();
 
                 var p0 = p;
 
@@ -268,7 +268,7 @@ namespace Model3D.Tools
 
             List<List<(int i, int j)>> FindPerimeters(int level, (int i, int j)[] startPoints)
             {
-                //Debug.WriteLine($"Searching wild start points: {startPoints.Length} level={level}");
+                //Debug.WriteLine($"Searching wild perimeter. Start points: {startPoints.Length} level={level}");
                 //DebugMapPerimeter(map, startPoints);
 
                 var wildPerimeter = FindWildPerimeter(level, startPoints);
@@ -280,7 +280,7 @@ namespace Model3D.Tools
                 while (wildPerimeter.Count > 0)
                 {
                     var perimeter = TamePerimeter(level, ref wildPerimeter);
-                    
+
                     //Debug.WriteLine($"Taming: {perimeter.Count} ({wildPerimeter.Count}) level={level}");
                     //DebugMapPerimeter(map, perimeter);
 
@@ -882,10 +882,10 @@ namespace Model3D.Tools
 
                 Debug.WriteLine(pointType switch
                 {
-                    0 => $"■  {line}",
+                    0 => $"{i.ToString().PadRight(3)}■  {line}",
                     1 => $"{i.ToString().PadLeft(3)}: {line}",
-                    2 => $"■  {line}",
-                    _ => $"■  {line}",
+                    2 => $"{i.ToString().PadRight(3)}■  {line}",
+                    _ => $"{i.ToString().PadRight(3)}■  {line}",
                 });
             }
         }
