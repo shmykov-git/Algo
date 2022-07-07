@@ -47,7 +47,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "s14";
+            var contentName = "p5";
 
             // заливка
 
@@ -60,12 +60,12 @@ namespace View3D
                 PolygonCircleRadius = 0.01,             // radius of single point when circle strategy
                 //TriangulationFixFactor = 0.0001,
 
-                ColorLevel = 200,                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 180,                       // 0 - white, 200 - middle, 255 - black
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
                 SmoothOutLevel = 2,                     // number of 3 point smooth out process run
-                SmoothAngleScalar = 0.0,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
+                SmoothAngleScalar = 0.2,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
                 PolygonOptimizationLevel = 3,           // 0 - off, 1 - 3 line point center skip, 2 - 3, 5 line point skip, 3 = 3, 5, 7 line point skip
-                MinimumPolygonPointsCount = 0,          // skip polygons with equal or less points
+                MinimumPolygonPointsCount = 15,          // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                 // show perimeter information
                 //DebugBitmap = true,                     // show bitmap as chars
