@@ -64,7 +64,7 @@ namespace View3D
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
                 SmoothOutLevel = 0,                     // number of 3 point smooth out process run
                 SmoothAngleScalar = 0.5,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
-                PolygonOptimizationLevel = 0,           // 0 - off, 1 - 3 line point center skip, 2 - 3, 5 line point skip, 3 = 3, 5, 7 line point skip
+                PolygonOptimizationLevel = 0,           // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
                 MinimumPolygonPointsCount = 0,          // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                 // show perimeter information
