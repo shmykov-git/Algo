@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Text.Json;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace Model3D.Tools.Model
@@ -22,5 +24,13 @@ namespace Model3D.Tools.Model
         public double SmoothAngleScalar { get; set; } = -1;
         public bool ComposePolygons { get; set; } = true;
         public bool DebugProcess { get; set; } = false;
+
+        public ShapeOptions With(Action<ShapeOptions> modify)
+        {
+            var clone = JsonSerializer.Deserialize<ShapeOptions>(JsonSerializer.Serialize(this));
+            modify(clone);
+
+            return clone;
+        }
     }
 }

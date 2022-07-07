@@ -383,6 +383,47 @@ namespace Model3D.Tools
                 .SelectMany(v => GetDirs(v.from, v.b, v.to).Select(d => PosToPoint(v.b) + DirToPoint(v.from.Direct(d)))).ToList();
         }
 
+        private List<Vector2> GetSquarePoints(double r, int m, List<(int i, int j)> perimeter)
+        {
+            Vector2 PosToPoint((int i, int j) v) => new Vector2(v.j, m - 1 - v.i);
+            Vector2 DirToPoint((int i, int j) d) => r * new Vector2(d.j, -d.i);
+
+            IEnumerable<(int i, int j)> GetDirs((int i, int j) from, (int i, int j) p, (int i, int j) to)
+            {
+                var isDiagonal = from.i.Abs() + from.j.Abs() == 2;
+                var dir = from.Direct(to);
+                var dirCase = (isDiagonal, dir.i, dir.j);
+
+                return dirCase switch
+                {
+                    (false, -1, 1) => new (int, int)[0],
+                    (false, 0, 1) => new[] { (-1, 1) },
+                    (false, 1, 1) => new[] { (-1, 1) },
+                    (false, 1, 0) => new[] { (-1, 1) },
+                    (false, 1, -1) => new[] { (-1, 1), (1, 1) },
+                    (false, 0, -1) => new[] { (-1, 1), (1, 1) },
+                    (false, -1, -1) => new[] { (-1, 1), (1, 1), (1, -1) },
+                    (false, -1, 0) => new[] { (-1, 1), (1, 1), (1, -1) },
+
+                    (false, 0, 0) => new[] { (-1, 1), (1, 1), (1, -1), (-1, -1) },
+
+                    (true, -1, 1) => new (int, int)[0],
+                    (true, 0, 1) => new[] { (-1, 0) },
+                    (true, 1, 1) => new[] { (-1, 0) },
+                    (true, 1, 0) => new[] { (-1, 0), (0, 1) },
+                    (true, 1, -1) => new[] { (-1, 0), (0, 1) },
+                    (true, 0, -1) => new[] { (-1, 0), (0, 1), (1, 0) },
+                    (true, -1, -1) => new[] { (-1, 0), (0, 1), (1, 0) },
+                    (true, -1, 0) => new[] { (-1, 0), (0, 1), (1, 0), (0, -1) },
+
+                    _ => throw new ArgumentOutOfRangeException(dirCase.ToString())
+                };
+            }
+
+            return perimeter.SelectCircleTriple((a, b, c) => (from: b.Sub(a), b, to: c.Sub(b)))
+                .SelectMany(v => GetDirs(v.from, v.b, v.to).Select(d => PosToPoint(v.b) + DirToPoint(v.from.Direct(d)))).ToList();
+        }
+
         private Polygon GetPolygonFromPerimeter(PolygonOptions options, Mp[][] map, int level, List<(int i, int j)> perimeter, int optimizationLevel)
         {
             var m = map.Length;
@@ -390,7 +431,8 @@ namespace Model3D.Tools
             var points = options.PolygonPointStrategy switch
             {
                 PolygonPointStrategy.Center => GetCenterPoints(m, perimeter),
-                PolygonPointStrategy.Circle => GetCirclePoints(options.PolygonCircleRadius, m, perimeter),
+                PolygonPointStrategy.Circle => GetCirclePoints(options.PolygonPointRadius, m, perimeter),
+                PolygonPointStrategy.Square => GetSquarePoints(options.PolygonPointRadius, m, perimeter),
                 _ => throw new ArgumentOutOfRangeException(nameof(options.PolygonPointStrategy), options.PolygonPointStrategy.ToString())
             };
 

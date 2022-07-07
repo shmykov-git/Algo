@@ -4,7 +4,7 @@
     {
         Center,
         Circle,
-        //Square
+        Square
     }
 
     public class PolygonOptions
@@ -15,7 +15,7 @@
         public LevelStrategy LevelStrategy { get; set; } = LevelStrategy.All;
 
         public PolygonPointStrategy PolygonPointStrategy { get; set; } = PolygonPointStrategy.Center;
-        public double PolygonCircleRadius { get; set; } = 0.4999;
+        public double PolygonPointRadius { get; set; } = 0.01;
 
         public bool NormalizeScale = true;
         public bool NormalizeAlign = true;

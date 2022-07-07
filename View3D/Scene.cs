@@ -47,7 +47,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "p5";
+            var contentName = "m13";
 
             // заливка
 
@@ -55,17 +55,17 @@ namespace View3D
             {
                 ZVolume = 0.02,                         // null - no volume, number - add volume to the shape
                 //ToLinesSize = 0.3,                      // .ToLines(number)
-                TriangulationStrategy = TriangulationStrategy.Trio,         // triangulation strategy
+                TriangulationStrategy = TriangulationStrategy.Sort,         // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,         // how to get points from single bitmap point
-                PolygonCircleRadius = 0.01,             // radius of single point when circle strategy
+                PolygonPointRadius = 0.01,              // radius of single point for some polygon strategies
                 //TriangulationFixFactor = 0.0001,
 
-                ColorLevel = 180,                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 200,                       // 0 - white, 200 - middle, 255 - black
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
-                SmoothOutLevel = 2,                     // number of 3 point smooth out process run
-                SmoothAngleScalar = 0.2,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
-                PolygonOptimizationLevel = 3,           // 0 - off, 1 - 3 line point center skip, 2 - 3, 5 line point skip, 3 = 3, 5, 7 line point skip
-                MinimumPolygonPointsCount = 15,          // skip polygons with equal or less points
+                SmoothOutLevel = 0,                     // number of 3 point smooth out process run
+                SmoothAngleScalar = 0.5,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
+                PolygonOptimizationLevel = 0,           // 0 - off, 1 - 3 line point center skip, 2 - 3, 5 line point skip, 3 = 3, 5, 7 line point skip
+                MinimumPolygonPointsCount = 0,          // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                 // show perimeter information
                 //DebugBitmap = true,                     // show bitmap as chars
@@ -77,9 +77,9 @@ namespace View3D
                 ZVolume = null,
                 ToLinesSize = 0.2,
                 //ToSpotNumSize = 0.15,
-                //SpliteLineLevelsDistance = 0.02,                      // move even and odd polygons to the distance
+                SpliteLineLevelsDistance = 0.00,                      // move even and odd polygons to the distance
                 SpliteAllPolygonsDistance = 0.000,                      // move all polygons to the distance
-                ComposePolygons = true,                                 // run polygon composition process
+                ComposePolygons = false,                                 // run polygon composition process
                 TriangulationStrategy = TriangulationStrategy.None,
 
                 ColorLevel = options.ColorLevel,
@@ -89,6 +89,7 @@ namespace View3D
                 PolygonOptimizationLevel = options.PolygonOptimizationLevel,
                 PolygonPointStrategy = options.PolygonPointStrategy,
                 MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
+                PolygonPointRadius = options.PolygonPointRadius,
 
                 //DebugBitmap = true,
                 DebugPerimeters = true,                                 
@@ -116,7 +117,8 @@ namespace View3D
             return new[]
                 {
                     vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
-                    //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
+                    //vectorizer.GetContentShape(contentName, options.With(o=>o.PolygonPointStrategy = PolygonPointStrategy.Circle)).MoveZ(-0.3).ApplyColor(Color.Black),
+                    ////vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
                     //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape();
