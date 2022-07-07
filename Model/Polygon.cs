@@ -1,10 +1,11 @@
-﻿using Model.Extensions;
+﻿using System.Collections;
+using Model.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Model
 {
-    public class Polygon
+    public class Polygon : IEnumerable<Vector2>
     {
         public Vector2 this[int i] => Points[i];
 
@@ -30,6 +31,18 @@ namespace Model
 
                 return b.b - b.a;
             }
+        }
+
+        public Vector2 Center => Points.Center();
+        public IEnumerator<Vector2> GetEnumerator()
+        {
+            foreach (var point in Points)
+                yield return point;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

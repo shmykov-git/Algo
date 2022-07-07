@@ -9,6 +9,12 @@ namespace Model.Extensions
         public static IEnumerable<(int i, int j)> Range(this (int m, int n) range) =>
             range.SelectRange((i, j) => (i, j));
 
+        public static IEnumerable<TRes> SelectPair<TItem, TRes>(this (TItem[] a, TItem[] b) items, Func<TItem, TItem, TRes> fn) =>
+            items.a.SelectMany(x => items.b.Select(y => fn(x, y)));
+
+        public static IEnumerable<(int i, int j)> UniquePairs(this (int m, int n) range) =>
+            range.SelectRange((i, j) => (i, j)).Where(v => v.i < v.j);
+
         public static IEnumerable<T> SelectRange<T>(this (int m, int n) range, Func<int, int, T> selectFn)
         {
             return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).Select(j => selectFn(i, j)));

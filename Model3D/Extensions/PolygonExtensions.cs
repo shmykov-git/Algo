@@ -151,25 +151,48 @@ namespace Model3D.Extensions
 
             return polygons.Compose(internals).First();
         }
-
        
         public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map, bool skipReverse = false)
         {
+            // тут ошибка
             var getLevel = map.GetMapLevelFn();
 
             var excepts = map.Where(v=>getLevel(v.child).Even()).Select(v => v.child).ToHashSet();
             var includes = map.GroupBy(v => v.main).ToDictionary(gv => gv.Key, gv => gv.Select(v => v.child).ToArray());
 
+            Polygon JoinPolygons(Polygon[] polygs)
+            {
+                if (polygs.Length == 1)
+                    return polygs[0];
+
+                var pairs = (polygs.Length, polygs.Length).UniquePairs()
+                    .Select(p => (p.i, p.j, ln2: (polygs[p.i].Points, polygs[p.j].Points).SelectPair((x, y) => (y - x).Len2).Min()))
+                    .OrderBy(v => v.ln2).ToArray();
+
+                var i = pairs.First().i;
+                var res = polygs[i];
+
+                while (pairs.Length > 0)
+                {
+                    var pair = pairs.First(v => v.i == i || v.j == i);
+                    pairs = pairs.Where(v => v.i != i && v.j != i).ToArray();
+                    i = pair.i == i ? pair.j : pair.i;
+                    res = res.Join(polygs[i]);
+                }
+
+                return res;
+            }
+
             return polygons.Select((p, num) => (p, num))
                 .Where(v => !excepts.Contains(v.num))
                 .Select(v =>
                 {
-                    var mainP = v.p;
+                    if (!includes.TryGetValue(v.num, out int[] takeList)) 
+                        return v.p;
 
-                    if (includes.TryGetValue(v.num, out int[] takeList))
-                        takeList.ForEach(i => mainP = mainP.PutInside(polygons[i], skipReverse));
+                    var innerPolygons = takeList.Select(i => skipReverse ? polygons[i] : polygons[i].Reverse());
 
-                    return mainP;
+                    return JoinPolygons(new []{ v.p }.Concat(innerPolygons).ToArray());
                 })
                 .ToArray();
         }

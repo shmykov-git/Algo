@@ -49,23 +49,24 @@ namespace View3D
         {
             var contentName = "m10";
 
-            // что делать с полигонами для m13?
+            // композиция полигонов
+            // заливка
 
             var options = new ShapeOptions()
             {
                 ZVolume = 0.02,
                 //ToLinesSize = 0.3,
-                TriangulationStrategy = TriangulationStrategy.Sort,
+                TriangulationStrategy = TriangulationStrategy.Trio,
                 PolygonPointStrategy = PolygonPointStrategy.Circle,
-                PolygonCircleRadius = 0.499,
+                PolygonCircleRadius = 0.01,
                 //TriangulationFixFactor = 0.0001,
 
                 ColorLevel = 200,
                 LevelStrategy = LevelStrategy.All,
                 SmoothOutLevel = 2,
-                SmoothAngleScalar = 0.2,
+                SmoothAngleScalar = 0.4, // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off)
                 PolygonOptimizationLevel = 3,
-                //MinimumPolygonPointsCount = 20,
+                MinimumPolygonPointsCount = 15,
 
                 //DebugPerimeterLength = true,
                 //DebugBitmap = true,
@@ -77,9 +78,9 @@ namespace View3D
                 ZVolume = null,
                 ToLinesSize = 0.2,
                 //ToSpotNumSize = 0.15,
-                SpliteLineLevelsDistance = 0.00,
-                SpliteAllPolygonsDistance = 0.00,
-                ComposePolygons = false,
+                //SpliteLineLevelsDistance = 0.02,
+                SpliteAllPolygonsDistance = 0.000,
+                ComposePolygons = true,
                 TriangulationStrategy = TriangulationStrategy.None,
 
                 ColorLevel = options.ColorLevel,
@@ -91,7 +92,7 @@ namespace View3D
                 MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
 
                 //DebugBitmap = true,
-                //DebugPerimeterLength = true,
+                DebugPerimeters = true,
             };
 
             //var centerOptions = new ShapeOptions()
@@ -115,8 +116,8 @@ namespace View3D
 
             return new[]
                 {
-                    //vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
-                    vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
+                    vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Black),
+                    //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.03),
                     //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
                 }.ToSingleShape();

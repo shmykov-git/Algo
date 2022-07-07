@@ -469,19 +469,19 @@ namespace Model3D.Tools
             var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.LevelStrategy));
             perimetersTree = FilterTree(perimetersTree, options.LevelStrategy);
 
+            if (options.DebugPerimeters)
+                perimetersTree.Select((p, i) => (p, i)).OrderBy(v => v.p.child.Count).ForEach(v => Debug.WriteLine($"Perimeter {v.i}: len={v.p.child.Count} lvl={v.p.childLevel} children={perimetersTree.Count(p=>p.main == v.p.child)}"));
+
             var perimeters = perimetersTree.Select(v => v.child).ToList();
 
-            var polygons = perimetersTree.Select(v => GetPolygonFromPerimeter(options, perimetersMap, v.childLevel, v.child, options.PolygonOptimizationLevel)).ToArray();
-            
+            if (options.DebugBitmap)
+                DebugMapPerimeter(perimetersMap, perimeters.SelectMany(v => v));
+
             var composeMap = perimetersTree.Where(v => v.main != null)
                 .Select(v => (perimeters.IndexOf(v.main), perimeters.IndexOf(v.child))).ToArray();
 
-            if (options.DebugPerimeterLength)
-                perimeters.Select((p, i) => (p, i)).OrderBy(v => v.p.Count).ForEach(v => Debug.WriteLine($"len {v.i}: {v.p.Count}"));
-
-            if (options.DebugBitmap)
-                DebugMapPerimeter(perimetersMap, perimeters.SelectMany(v=>v));
-
+            var polygons = perimetersTree.Select(v => GetPolygonFromPerimeter(options, perimetersMap, v.childLevel, v.child, options.PolygonOptimizationLevel)).ToArray();
+            
             if (options.NormalizeAlign || options.NormalizeScale)
             {
                 var borders = polygons.Select(p => p.Border).ToArray();
@@ -551,10 +551,12 @@ namespace Model3D.Tools
                     Debug.WriteLine($"SmoothOut: {sw.Elapsed}");
             }
 
+            var composedPolygons = polygons;
+
             if (options.ComposePolygons)
             {
                 sw.Restart();
-                polygons = polygons.Compose(map, true);
+                composedPolygons = polygons.Compose(map, true);
                 sw.Stop();
 
                 if (options.DebugProcess)
@@ -562,11 +564,11 @@ namespace Model3D.Tools
             }
 
             sw.Restart();
-            var shapes = polygons.Select(p => p.ToShape(options)).ToArray();
+            var shapes = composedPolygons.Select(p => p.ToShape(options)).ToArray();
             sw.Stop();
 
             if (options.DebugProcess)
-                Debug.WriteLine($"Solid: {sw.Elapsed}");
+                Debug.WriteLine($"Shapes: {sw.Elapsed}");
 
             Shape shape;
 
