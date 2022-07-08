@@ -242,8 +242,9 @@ namespace Model3D.Tools
 
                 int CountSiblings((int i, int j) x) => leftDirs.Select(d => x.Add(d)).Count(IsPerimeter);
 
-                var (prevP, p) = wildPerimeter.Select(p => (p, c:CountSiblings(p), bs: getBounds(p)))
-                    .OrderBy(v=>v.c).ThenByDescending(v => v.bs.Length).Select(v => (v.bs[0], v.p)).FirstOrDefault();
+                var (prevP, p) = wildPerimeter.Select(p => (p, c: CountSiblings(p), bs: getBounds(p)))
+                    .Where(v => v.bs.Length > 0).OrderBy(v => v.c).ThenByDescending(v => v.bs.Length)
+                    .Select(v => (v.bs[0], v.p)).FirstOrDefault();
 
                 var p0 = p;
 

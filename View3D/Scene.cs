@@ -47,36 +47,8 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var rnd = new Random(0);
 
-            Shape GetT(string text) => vectorizer.GetText(text, new TextShapeOptions()
-            {
-                FontSize = 500,
-                FontName = "Segoe",
-                MultX = 1.2,
-                ZVolume = 0.2,
-                SmoothOutLevel = 2,
-                SmoothAngleScalar = 0.71,
-                PolygonOptimizationLevel = 3,
-                NormalizeAlign = true
-            }).SplitPlanes(0.1).Mult(0.12).ToStone(4, rnd.Next(10000), 1.5).Align(0.5, 0, 0.5).ApplyColor(Color.Black);
-
-
-            return new[]
-            {
-                GetT("S").MoveX(-0.4),
-                GetT("t").MoveX(-0.2),
-                GetT("o"),
-                GetT("n").MoveX(0.2),
-                GetT("e").MoveX(0.4),
-                Shapes.CirclePlatform(1.5, 1.5, 0.03).ApplyColor(Color.FromArgb(64, 0, 0)),
-                
-            }.ToSingleShape();
-
-
-
-
-            var contentName = "m13";
+            var contentName = "g33";
 
             // заливка
 
@@ -84,16 +56,16 @@ namespace View3D
             {
                 ZVolume = 0.02,                         // null - no volume, number - add volume to the shape
                 //ToLinesSize = 0.3,                      // .ToLines(number)
-                TriangulationStrategy = TriangulationStrategy.Sort2,         // triangulation strategy
+                TriangulationStrategy = TriangulationStrategy.Trio,         // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,         // how to get points from single bitmap point
                 PolygonPointRadius = 0.01,              // radius of single point for some polygon strategies
                 //TriangulationFixFactor = 0.0001,
 
-                ColorLevel = 200,                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 150,                       // 0 - white, 200 - middle, 255 - black
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
-                SmoothOutLevel = 0,                     // number of 3 point smooth out process run
-                SmoothAngleScalar = 0.5,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
-                PolygonOptimizationLevel = 0,           // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
+                SmoothOutLevel = 2,                     // number of 3 point smooth out process run
+                SmoothAngleScalar = 0.1,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
+                PolygonOptimizationLevel = 3,           // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
                 MinimumPolygonPointsCount = 0,          // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                 // show perimeter information
