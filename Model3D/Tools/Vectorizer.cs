@@ -607,7 +607,12 @@ namespace Model3D.Tools
             }
 
             sw.Restart();
-            var shapes = composedPolygons.Select(p => p.ToShape(options)).ToArray();
+            var shapes = composedPolygons.Select(p => p.ToShape(options)).Select((s,i) =>
+            {
+                options.modifyPolygonShapeFn?.Invoke(s, i);
+
+                return s;
+            }).ToArray();
             sw.Stop();
 
             if (options.DebugProcess)

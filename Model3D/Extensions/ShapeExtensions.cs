@@ -774,6 +774,8 @@ namespace Model3D.Extensions
             return shape.Move(-shift);
         }
 
+        public static Shape PutOn(this Shape shape) => shape.Align(0.5, 0, 0.5);
+
         public static Shape AlignX(this Shape shape, double x)
         {
             var borderX = shape.BorderX;

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Text.Json;
 using Microsoft.VisualBasic.CompilerServices;
+using Model;
 
 namespace Model3D.Tools.Model
 {
@@ -23,6 +24,7 @@ namespace Model3D.Tools.Model
         public int SmoothOutLevel { get; set; } = 2;
         public double SmoothAngleScalar { get; set; } = -1;
         public bool ComposePolygons { get; set; } = true;
+        public Action<Shape, int> modifyPolygonShapeFn = null;
         public bool DebugProcess { get; set; } = false;
 
         public ShapeOptions With(Action<ShapeOptions> modify)
