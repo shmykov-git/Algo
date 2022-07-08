@@ -47,6 +47,35 @@ namespace View3D
 
         public Shape GetShape()
         {
+            var rnd = new Random(0);
+
+            Shape GetT(string text) => vectorizer.GetText(text, new TextShapeOptions()
+            {
+                FontSize = 500,
+                FontName = "Segoe",
+                MultX = 1.2,
+                ZVolume = 0.2,
+                SmoothOutLevel = 2,
+                SmoothAngleScalar = 0.71,
+                PolygonOptimizationLevel = 3,
+                NormalizeAlign = true
+            }).SplitPlanes(0.1).Mult(0.12).ToStone(4, rnd.Next(10000), 1.5).Align(0.5, 0, 0.5).ApplyColor(Color.Black);
+
+
+            return new[]
+            {
+                GetT("S").MoveX(-0.4),
+                GetT("t").MoveX(-0.2),
+                GetT("o"),
+                GetT("n").MoveX(0.2),
+                GetT("e").MoveX(0.4),
+                Shapes.CirclePlatform(1.5, 1.5, 0.03).ApplyColor(Color.FromArgb(64, 0, 0)),
+                
+            }.ToSingleShape();
+
+
+
+
             var contentName = "m13";
 
             // заливка
@@ -55,7 +84,7 @@ namespace View3D
             {
                 ZVolume = 0.02,                         // null - no volume, number - add volume to the shape
                 //ToLinesSize = 0.3,                      // .ToLines(number)
-                TriangulationStrategy = TriangulationStrategy.Sort,         // triangulation strategy
+                TriangulationStrategy = TriangulationStrategy.Sort2,         // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,         // how to get points from single bitmap point
                 PolygonPointRadius = 0.01,              // radius of single point for some polygon strategies
                 //TriangulationFixFactor = 0.0001,

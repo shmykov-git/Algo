@@ -1256,5 +1256,27 @@ namespace Model3D.Extensions
 
             return shape.Rotate(q);
         }
+
+        public static Shape ToStone(this Shape shape, int n = 4, int seed = 0, double power = 1)
+        {
+            var rnd = new Random(seed);
+
+            var dirs = (n).SelectRange(_ => rnd.NextCenteredV3().Normalize()).ToArray();
+
+            Vector3 TransformFn(Vector3 v)
+            {
+                return v + power * dirs.Select(dir =>
+                {
+                    var m = v.MultS(dir);
+
+                    if (m < 0)
+                        return Vector3.Origin;
+
+                    return m * dir;
+                }).Sum();
+            }
+
+            return shape.TransformPoints(TransformFn);
+        }
     }
 }
