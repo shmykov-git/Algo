@@ -48,7 +48,7 @@ namespace View3D
         public Shape GetShape()
         {
 
-            var contentName = "g33";
+            var contentName = "coffee";
 
             // заливка
 
