@@ -120,15 +120,18 @@ namespace View3D
                     //vectorizer.GetContentShape(contentName, options).PutOn(),
                     //vectorizer.GetContentShape(contentName, options.With(o=>o.PolygonPointStrategy = PolygonPointStrategy.Circle)).MoveZ(-0.3).ApplyColor(Color.Black),
                     //vectorizer.GetContentShape(contentName, lineOptions).PutOn().ApplyColor(Color.Black)/*.MoveZ(0.03)*/,
-                    vectorizer.GetTextLine("Keep", "Segoe", 300, 6).PutOn(-0.03).MoveZ(-0.1).ApplyColor(Color.Black),
-                    vectorizer.GetTextLine("the", "Segoe", 300, 6).Mult(0.3).Rotate(-1,1,1).MoveY(0.1).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkGreen),
-                    vectorizer.GetTextLine("Matrix", "Segoe", 100, 6).PutOn().MoveZ(0.1).ToLines(0.5).ApplyColor(Color.DarkGreen),
                     //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
-                    Shapes.CirclePlatform(1,1,0.03),
+                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(0.2, 0, 0.2),
+                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, 0.2),
+                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(0.2, 0, -0.2),
+                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, -0.2),
+                    vectorizer.GetTextLine("(999.9)").Mult(0.03).ToOy().ApplyColor(Color.DarkGoldenrod).PutOn().Move(0.05, 0, 0.17),
+                    vectorizer.GetContentShape("d10").Perfecto(0.3).ScaleZ(0.02).ToOy().PutOn().ApplyColor(Color.DarkGoldenrod),
+                    Shapes.CirclePlatform(1,1,0.03).ApplyColor(Color.FromArgb(16,0,0)),
                     //Shapes.SquarePlatform(2,2,0.04)
 
-                }.ToSingleShape();
+                }.ToSingleShape().ToOyM();
         }
     }
 }

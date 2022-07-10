@@ -555,6 +555,8 @@ namespace Model3D.Tools
 
         public Shape GetContentShape(string name, ShapeOptions options = null)
         {
+            options ??= new ShapeOptions();
+
             if (options.DebugProcess)
                 Debug.WriteLine($"===== <[{name}]> =====");
 
@@ -708,7 +710,7 @@ namespace Model3D.Tools
                 ZVolume = fontSize * 0.2,
                 NormalizeAlign = false,
                 NormalizeScale = false,
-            }).Mult(1.0 / fontSize / (multX * lineLen ?? text.Length));
+            }).Mult(1.0 / fontSize / (multX * lineLen ?? text.Split("\r\n").Max(s=>s.Length)));
 
         public Shape GetText(string text, TextShapeOptions options)
         {
