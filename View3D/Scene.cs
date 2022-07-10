@@ -120,12 +120,14 @@ namespace View3D
                     //vectorizer.GetContentShape(contentName, options).PutOn(),
                     //vectorizer.GetContentShape(contentName, options.With(o=>o.PolygonPointStrategy = PolygonPointStrategy.Circle)).MoveZ(-0.3).ApplyColor(Color.Black),
                     //vectorizer.GetContentShape(contentName, lineOptions).PutOn().ApplyColor(Color.Black)/*.MoveZ(0.03)*/,
-                    vectorizer.GetTextLine("Ехал грека через реку, видит грека — в реке рак. Сунул грека руку в реку, рак за руку греку — цап!", "Segoe", 200).Perfecto(6.2).PullOnSurface(SurfaceFuncs.CylinderYm).Mult(0.5).PutOn(-0.013).ApplyColor(Color.DarkRed),
+                    vectorizer.GetTextLine("Keep", "Segoe", 300, 6).PutOn(-0.03).MoveZ(-0.1).ApplyColor(Color.Black),
+                    vectorizer.GetTextLine("the", "Segoe", 300, 6).Mult(0.3).Rotate(-1,1,1).MoveY(0.1).ApplyColorGradientZ(Color.Black, Color.Black, Color.DarkGreen),
+                    vectorizer.GetTextLine("Matrix", "Segoe", 100, 6).PutOn().MoveZ(0.1).ToLines(0.5).ApplyColor(Color.DarkGreen),
                     //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
-                    Shapes.CirclePlatform(1,1,0.1),
+                    Shapes.CirclePlatform(1,1,0.03),
                     //Shapes.SquarePlatform(2,2,0.04)
-                    
+
                 }.ToSingleShape();
         }
     }
