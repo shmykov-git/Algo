@@ -697,6 +697,19 @@ namespace Model3D.Tools
                 NormalizeScale = scale,
             });
 
+        public Shape GetTextLine(string text, string fontName = "Times New Roman", int fontSize = 300, int? lineLen = null,
+            double multX = 1.1, double multY = 1) =>
+            GetText(text, new TextShapeOptions()
+            {
+                FontSize = fontSize,
+                FontName = fontName,
+                MultX = multX,
+                MultY = multY,
+                ZVolume = fontSize * 0.2,
+                NormalizeAlign = false,
+                NormalizeScale = false,
+            }).Mult(1.0 / fontSize / (multX * lineLen ?? text.Length));
+
         public Shape GetText(string text, TextShapeOptions options)
         {
             if (string.IsNullOrEmpty(text))
