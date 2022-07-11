@@ -406,5 +406,24 @@ namespace View3D
             //    .ComposeObsolet(new[] { (4, 3), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3), (11, 3), (12, 3), (13, 3), (14, 3), (15, 3), (16, 3) })
             //    .Select(p => p.ToShape(0.02, trioStrategy: true)).ToSingleShape();
         }
+
+        public Shape GoldMe(Shape shape = null)
+        {
+            shape ??= Mazes.CrateKershner8Maze(0.008, 1.7, -1.09, 5).Mult(3)
+                .Transform(TransformFuncs3.Flower(0.5, 0.5, 5)).Mult(0.1/0.2).ToLines(0.1/0.2);
+            
+            var sphere = Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod);
+
+            return new[]
+            {
+                sphere.Move(0.2, 0, 0.2),
+                sphere.Move(-0.2, 0, 0.2),
+                sphere.Move(0.2, 0, -0.2),
+                sphere.Move(-0.2, 0, -0.2),
+                shape.Mult(0.2).PutOn().ApplyColor(Color.Goldenrod),
+                vectorizer.GetTextLine("(999.9)").Mult(0.03).ToOy().ApplyColor(Color.DarkGoldenrod).PutOn().Move(0.05, 0, 0.17),
+                Shapes.CirclePlatform(1,1,0.03).ApplyColor(Color.FromArgb(16,0,0)),
+            }.ToSingleShape();
+        }
     }
 }

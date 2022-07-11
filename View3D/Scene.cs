@@ -13,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
 using Mapster.Utils;
@@ -32,6 +33,7 @@ namespace View3D
 {
     partial class Scene
     {
+        
         #region ctor
 
         private readonly Settings settings;
@@ -47,8 +49,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-
-            var contentName = "ol";
+            var contentName = "debug1";
 
             // заливка
 
@@ -95,25 +96,6 @@ namespace View3D
                 //DebugBitmap = true,
                 //DebugPerimeters = true,                                 
             };
-
-            //var centerOptions = new ShapeOptions()
-            //{
-            //    ZVolume = null,
-            //    ToLinesSize = 0.3,
-            //    //ToSpotNumSize = 0.15,
-            //    SpliteLineLevelsDistance = 0.00,
-            //    SpliteAllPolygonsDistance = 0.01,
-            //    ComposePolygons = false,
-            //    TriangulationStrategy = TriangulationStrategy.None,
-
-            //    ColorLevel = options.ColorLevel,
-            //    LevelStrategy = options.LevelStrategy,
-            //    SmoothOutLevel = options.SmoothOutLevel,
-            //    SmoothAngleScalar = options.SmoothAngleScalar,
-            //    PolygonOptimizationLevel = options.PolygonOptimizationLevel,
-            //    PolygonPointStrategy = PolygonPointStrategy.Center,
-            //    MinimumPolygonPointsCount = options.MinimumPolygonPointsCount,
-            //};
 
             return new[]
                 {

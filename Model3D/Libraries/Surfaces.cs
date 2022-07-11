@@ -208,6 +208,21 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
+        public static Shape Shell(int un, int vn, int nSpins = 2, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Shell,
+                UFrom = 0,
+                UTo = nSpins * 2 * Math.PI,
+                UN = un,
+                VFrom = -Math.PI,
+                VTo = Math.PI,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+        }.Normalize();
+
         public static Shape DiniSurface(int un, int vn, bool triangulate = false, bool bothFaces = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
