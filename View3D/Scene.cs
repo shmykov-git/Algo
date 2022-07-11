@@ -126,12 +126,13 @@ namespace View3D
                     Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, 0.2),
                     Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(0.2, 0, -0.2),
                     Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, -0.2),
+                    Mazes.CrateKershner8Maze(0.008, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).Mult(0.1).ToLines(0.1).PutOn().ApplyColor(Color.Goldenrod),
                     vectorizer.GetTextLine("(999.9)").Mult(0.03).ToOy().ApplyColor(Color.DarkGoldenrod).PutOn().Move(0.05, 0, 0.17),
-                    vectorizer.GetContentShape("d10").Perfecto(0.3).ScaleZ(0.02).ToOy().PutOn().ApplyColor(Color.DarkGoldenrod),
+                    //vectorizer.GetContentShape("d10").Perfecto(0.3).ScaleZ(0.02).ToOy().PutOn().ApplyColor(Color.DarkGoldenrod),
                     Shapes.CirclePlatform(1,1,0.03).ApplyColor(Color.FromArgb(16,0,0)),
                     //Shapes.SquarePlatform(2,2,0.04)
 
-                }.ToSingleShape().ToOyM();
+                }.ToSingleShape();
         }
     }
 }
