@@ -51,7 +51,7 @@ namespace View3D
         {
             //return Shapes.Cube.ToDirectLines().ApplyColor(Color.Blue);
 
-            var contentName = "c3";
+            var contentName = "b15";
 
             // заливка
 
