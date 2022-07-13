@@ -51,7 +51,7 @@ namespace View3D
         {
             //return Shapes.Cube.ToDirectLines().ApplyColor(Color.Blue);
 
-            var contentName = "b15";
+            var contentName = "p5";
 
             // заливка
 
@@ -63,7 +63,7 @@ namespace View3D
                 PolygonPointStrategy = PolygonPointStrategy.Circle,             // how to get points from single bitmap point
                 PolygonPointRadius = 0.01,              // radius of single point for some polygon strategies
 
-                ColorLevel = 200,                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 170,                       // 0 - white, 200 - middle, 255 - black
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
                 SmoothOutLevel = 2,                     // number of 3 point smooth out process run
                 SmoothAngleScalar = -0.1,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
