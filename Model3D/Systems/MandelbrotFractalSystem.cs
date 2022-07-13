@@ -49,7 +49,7 @@ namespace Model3D.Systems
 
             (Vector2 a, Vector2 b) NextPoint((Vector2 a, Vector2 b) v)
             {
-                var dir = (v.b - v.a).Normal.ToLen(precision);
+                var dir = (v.b - v.a).NormalM.ToLen(precision);
                 var c = v.a + dir;
                 var d = v.b + dir;
                 var isCInside = IsInside(c);

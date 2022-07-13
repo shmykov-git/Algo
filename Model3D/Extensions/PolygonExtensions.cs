@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Aspose.ThreeD.Utilities;
+using Meta.Extensions;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
@@ -34,8 +35,9 @@ namespace Model3D.Extensions
             var trConvexes = options.TriangulationStrategy switch
             {
                 TriangulationStrategy.Trio => FillEngine.Triangulate(polygon.Points, FillEngine.FindConvexes(polygon)),
-                TriangulationStrategy.Sort => Triangulator.Triangulate(polygon, options.TriangulationFixFactor),
-                TriangulationStrategy.Sort2 => Triangulator2.Triangulate(polygon),
+                TriangulationStrategy.AngleSort => Triangulator.Triangulate(polygon, options.TriangulationFixFactor),
+                TriangulationStrategy.SizeSort => Triangulator2.Triangulate(polygon, options.Copy<Triangulator2.Options>()),
+                TriangulationStrategy.Ears => EarTriangulator.Triangulate(polygon, options.Copy<EarTriangulator.Options>()),
                 _ => Array.Empty<int[]>()
             };
 

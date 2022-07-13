@@ -9,7 +9,7 @@ namespace Model.Tools
     public static class Triangulator2
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static double GetFactor(Vector2 a, Vector2 b, Vector2 c)
+        static double GetFactor(Vector2 a, Vector2 b, Vector2 c, double factor)
         {
             if (a == b || b == c)
                 return 0;
@@ -17,10 +17,16 @@ namespace Model.Tools
             var ab = (b - a)/*.Normed*/;
             var bc = (c - b)/*.Normed*/;
 
-            var scalar = ab.Normal * bc;
-            var isOuter = scalar < 0;
+            var scalar = ab.NormalM * bc;
+            var isOuter = scalar < double.Epsilon;
 
             return isOuter ? double.MaxValue : (c - a).Len2;
+        }
+
+        public class Options
+        {
+            public double TriangulationFixFactor { get; set; }
+            public int? DebugTriangulationSteps { get; set; }
         }
 
         static int[] GetTriangle(Node n) => new[] { n.prev.i, n.i, n.next.i };
@@ -31,17 +37,20 @@ namespace Model.Tools
             public Vector2 p;
             public Node prev;
             public Node next;
+            public double fixFactor;
 
             // каким должен быть параметр сортировки, чтобы в правильной последовательности взять все углы
             // брать узкие углы, малые по объему площади
-            public double Factor => GetFactor(prev.p, p, next.p);
+            public double Factor => GetFactor(prev.p, p, next.p, fixFactor);
 
-            public override string ToString() => $"{i}: {Factor}, {p}";
+            public override string ToString() => $"({prev.i}-{i}-{next.i}): {Factor}, {p}";
         }
 
-        public static int[][] Triangulate(Polygon polygon)
+        public static int[][] Triangulate(Polygon polygon, Options options = null)
         {
-            var nodes = polygon.Points.Select((p, i) => new Node() { i = i, p = p }).ToArray();
+            options ??= new Options();
+
+            var nodes = polygon.Points.Select((p, i) => new Node() { i = i, p = p, fixFactor = options.TriangulationFixFactor }).ToArray();
             
             nodes.ForEach(n =>
             {
@@ -68,18 +77,15 @@ namespace Model.Tools
 
             void DebugStack(int i)
             {
-                //return;
-
                 var n = sortedStack.Peek();
-                
-                if (n.Factor > 0)
-                    Debug.WriteLine($"{i}|{n}");
+                Debug.WriteLine($"{i}|{n}");
             }
 
-            var count = 1000;
+            var count = options.DebugTriangulationSteps ?? int.MaxValue;
             var i = 0;
 
-            DebugStack(i);
+            if (options.DebugTriangulationSteps.HasValue)
+                DebugStack(i);
 
             while (sortedStack.Count > 2)
             {
@@ -87,7 +93,9 @@ namespace Model.Tools
                     break;
 
                 var n = Pop();
-                DebugStack(i);
+
+                if (options.DebugTriangulationSteps.HasValue)
+                    DebugStack(i);
 
                 triangles.Add(GetTriangle(n));
             }

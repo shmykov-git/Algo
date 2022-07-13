@@ -7,6 +7,9 @@ namespace Model
 {
     public struct Vector2 : IEquatable<Vector2>, INetKey
     {
+        public const double Epsilon = 0.000000001;
+        public const decimal EpsilonM = 0.000000001m;
+
         public double x;
         public double y;
 
@@ -27,7 +30,8 @@ namespace Model
         public Vector2 Normed => this / Len;
         public Vector2 Round(int e) => (x.Round(e), y.Round(e));
 
-        public Vector2 Normal => (-y, x);
+        public Vector2 Normal => (y, -x);
+        public Vector2 NormalM => (-y, x);
         public Vector2 ToLen(double len) => this * (len / Len);
 
         public Complex ToZ() => new Complex(x, y);
@@ -124,9 +128,6 @@ namespace Model
                 y = -a.y
             };
         }
-
-        private const double Epsilon = 0.000000001;
-        private const decimal EpsilonM = 0.000000001m;
 
         public static bool operator ==(Vector2 a, Vector2 b)
         {

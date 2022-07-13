@@ -4,8 +4,9 @@
     {
         None,
         Trio,
-        Sort,
-        Sort2,
+        AngleSort,
+        SizeSort,
+        Ears
     }
 
     public enum LevelStrategy

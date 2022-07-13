@@ -308,7 +308,7 @@ namespace Model3D.Tools
             var perimeters = FindPerimeters(1, startPerimeterPoints);
 
             List<(List<(int i, int j)> main, List<(int i, int j)> child, int childLevel)> levelPerimeters = new();
-            perimeters.Where(p=>p.Count >= perimeterMinimumPoints).ForEach(p => levelPerimeters.Add((null, p, 1)));
+            perimeters.Where(p=>p.Count > perimeterMinimumPoints).ForEach(p => levelPerimeters.Add((null, p, 1)));
             
             do
             {
@@ -332,7 +332,7 @@ namespace Model3D.Tools
                     var newPerimeters = FindPerimeters(perimeter.childLevel + 1, startPoints);
 
                     newPerimeters
-                        .Where(p => p.Count >= perimeterMinimumPoints)
+                        .Where(p => p.Count > perimeterMinimumPoints)
                         .ForEach(p => levelPerimeters.Add((perimeter.child, p, perimeter.childLevel + 1)));
                 }
             } while (levelPerimeters.Count > 0);
@@ -343,7 +343,7 @@ namespace Model3D.Tools
         private List<Vector2> GetCenterPoints(int m, List<(int i, int j)> perimeter) =>
             perimeter.Select(v => new Vector2(v.j, m - 1 - v.i)).ToList();
 
-        private List<Vector2> GetCirclePoints(double r, int m, List<(int i, int j)> perimeter)
+        private List<Vector2> GetCirclePoints(double r, int m, List<(int i, int j)> perimeter, int level)
         {
             Vector2 PosToPoint((int i, int j) v) => new Vector2(v.j, m - 1 - v.i);
             Vector2 DirToPoint((int i, int j) d) => r*new Vector2(d.j, -d.i);
@@ -365,7 +365,9 @@ namespace Model3D.Tools
                     (false, -1, -1) => new[] { (0, 1), (1, 0), (0, -1) },
                     (false, -1, 0) => new[] { (0, 1), (1, 0), (0, -1) },
 
-                    (false, 0, 0) => new[] { (0, 1), (1, 0), (0, -1), (-1, 0) },
+                    (false, 0, 0) => level.IsEven() 
+                        ? new[] { (0, 1), (1, 0), (0, -1), (-1, 0) }
+                        : new[] { (-1, 0), (0, -1), (1, 0), (0, 1) },
                     
                     (true, -1, 1) => new (int, int)[0],
                     (true, 0, 1) => new[] { (-1, 1) },
@@ -384,7 +386,7 @@ namespace Model3D.Tools
                 .SelectMany(v => GetDirs(v.from, v.b, v.to).Select(d => PosToPoint(v.b) + DirToPoint(v.from.Direct(d)))).ToList();
         }
 
-        private List<Vector2> GetSquarePoints(double r, int m, List<(int i, int j)> perimeter)
+        private List<Vector2> GetSquarePoints(double r, int m, List<(int i, int j)> perimeter, int level)
         {
             Vector2 PosToPoint((int i, int j) v) => new Vector2(v.j, m - 1 - v.i);
             Vector2 DirToPoint((int i, int j) d) => r * new Vector2(d.j, -d.i);
@@ -406,7 +408,9 @@ namespace Model3D.Tools
                     (false, -1, -1) => new[] { (-1, 1), (1, 1), (1, -1) },
                     (false, -1, 0) => new[] { (-1, 1), (1, 1), (1, -1) },
 
-                    (false, 0, 0) => new[] { (-1, 1), (1, 1), (1, -1), (-1, -1) },
+                    (false, 0, 0) => level.IsEven() 
+                        ? new[] { (-1, 1), (1, 1), (1, -1), (-1, -1) } 
+                        : new[] { (-1, -1), (1, -1), (1, 1), (-1, 1) },
 
                     (true, -1, 1) => new (int, int)[0],
                     (true, 0, 1) => new[] { (-1, 0) },
@@ -432,8 +436,8 @@ namespace Model3D.Tools
             var points = options.PolygonPointStrategy switch
             {
                 PolygonPointStrategy.Center => GetCenterPoints(m, perimeter),
-                PolygonPointStrategy.Circle => GetCirclePoints(options.PolygonPointRadius, m, perimeter),
-                PolygonPointStrategy.Square => GetSquarePoints(options.PolygonPointRadius, m, perimeter),
+                PolygonPointStrategy.Circle => GetCirclePoints(options.PolygonPointRadius, m, perimeter, level),
+                PolygonPointStrategy.Square => GetSquarePoints(options.PolygonPointRadius, m, perimeter, level),
                 _ => throw new ArgumentOutOfRangeException(nameof(options.PolygonPointStrategy), options.PolygonPointStrategy.ToString())
             };
 
@@ -634,8 +638,8 @@ namespace Model3D.Tools
                 var shapeOdd = shapes.Where((_, i) => getLevel(i).Odd()).ToSingleShape();
                 var shapeEven = shapes.Where((_, i) => getLevel(i).Even()).ToSingleShape().MoveZ(options.SpliteLineLevelsDistance.Value);
 
-                var lineShapeOdd = shapeOdd.ToLines(options.ToLinesSize.Value).ApplyColor(options.LineColors.odd);
-                var lineShapeEven = shapeEven.ToLines(options.ToLinesSize.Value).ApplyColor(options.LineColors.even);
+                var lineShapeOdd = shapeOdd.ToLines(options.ToLinesSize.Value, direct: options.UseLineDirection).ApplyColor(options.LineColors.odd);
+                var lineShapeEven = shapeEven.ToLines(options.ToLinesSize.Value, direct: options.UseLineDirection).ApplyColor(options.LineColors.even);
 
                 if (options.ToSpotNumSize.HasValue)
                 {
@@ -659,7 +663,7 @@ namespace Model3D.Tools
             {
                 if (options.ToLinesSize.HasValue)
                 {
-                    var lineShape = shapes.ToSingleShape().ToLines(options.ToLinesSize.Value).ApplyColor(options.LineColors.odd);
+                    var lineShape = shapes.ToSingleShape().ToLines(options.ToLinesSize.Value, direct:options.UseLineDirection).ApplyColor(options.LineColors.odd);
 
                     if (options.ToSpotNumSize.HasValue)
                     {

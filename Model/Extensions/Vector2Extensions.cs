@@ -61,5 +61,15 @@ namespace Model.Extensions
         {
             return new Vector2(v[0], v[1]);
         }
+
+        public static bool IsLeft(this Vector2 x, Vector2 a, Vector2 b, bool isOuter = true, double epsilon = double.Epsilon)
+        {
+            return (b - a).Normal * (x - a) < (isOuter ? -epsilon : epsilon);
+        }
+
+        public static bool IsInside(this Vector2 x, Vector2 a, Vector2 b, Vector2 c)
+        {
+            return x.IsLeft(a, b, false) && x.IsLeft(b, c, false) && x.IsLeft(c, a, true);
+        }
     }
 }

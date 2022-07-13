@@ -49,7 +49,9 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "debug1";
+            //return Shapes.Cube.ToDirectLines().ApplyColor(Color.Blue);
+
+            var contentName = "c3";
 
             // заливка
 
@@ -57,15 +59,14 @@ namespace View3D
             {
                 ZVolume = 0.02,                         // null - no volume, number - add volume to the shape
                 //ToLinesSize = 0.3,                      // .ToLines(number)
-                TriangulationStrategy = TriangulationStrategy.Trio,         // triangulation strategy
-                PolygonPointStrategy = PolygonPointStrategy.Circle,         // how to get points from single bitmap point
-                PolygonPointRadius = 0.03,              // radius of single point for some polygon strategies
-                //TriangulationFixFactor = 0.0001,
+                TriangulationStrategy = TriangulationStrategy.Ears,         // triangulation strategy
+                PolygonPointStrategy = PolygonPointStrategy.Circle,             // how to get points from single bitmap point
+                PolygonPointRadius = 0.01,              // radius of single point for some polygon strategies
 
-                ColorLevel = 150,                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 200,                       // 0 - white, 200 - middle, 255 - black
                 LevelStrategy = LevelStrategy.All,      // what kind of levels should be taken
                 SmoothOutLevel = 2,                     // number of 3 point smooth out process run
-                SmoothAngleScalar = 0.1,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
+                SmoothAngleScalar = -0.1,                // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
                 PolygonOptimizationLevel = 3,           // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
                 MinimumPolygonPointsCount = 0,          // skip polygons with equal or less points
 
@@ -78,10 +79,11 @@ namespace View3D
             {
                 ZVolume = null,
                 ToLinesSize = 0.2,
+                UseLineDirection = true,
                 //ToSpotNumSize = 0.15,
                 //SpliteLineLevelsDistance = 0.00,                      // move even and odd polygons to the distance
-                //SpliteAllPolygonsDistance = 0.000,                      // move all polygons to the distance
-                ComposePolygons = false,                                 // run polygon composition process
+                //SpliteAllPolygonsDistance = 0.01,                      // move all polygons to the distance
+                ComposePolygons = true,                                 // run polygon composition process
                 TriangulationStrategy = TriangulationStrategy.None,
 
                 ColorLevel = options.ColorLevel,
@@ -99,21 +101,10 @@ namespace View3D
 
             return new[]
                 {
-                    //vectorizer.GetContentShape(contentName, options).PutOn(),
-                    //vectorizer.GetContentShape(contentName, options.With(o=>o.PolygonPointStrategy = PolygonPointStrategy.Circle)).MoveZ(-0.3).ApplyColor(Color.Black),
-                    //vectorizer.GetContentShape(contentName, lineOptions).PutOn().ApplyColor(Color.Black)/*.MoveZ(0.03)*/,
-                    //vectorizer.GetContentShape(contentName, centerOptions).MoveZ(0.05),
+                    vectorizer.GetContentShape(contentName, options),
+                    //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.015),
+                    
                     //Shapes.CoodsWithText.ApplyColor(Color.Black),
-                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(0.2, 0, 0.2),
-                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, 0.2),
-                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(0.2, 0, -0.2),
-                    Shapes.IcosahedronSp3.Perfecto(0.05).ToLines(0.05).PutOn().ApplyColor(Color.DarkGoldenrod).Move(-0.2, 0, -0.2),
-                    Mazes.CrateKershner8Maze(0.008, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.5,0.5,5)).Mult(0.1).ToLines(0.1).PutOn().ApplyColor(Color.Goldenrod),
-                    vectorizer.GetTextLine("(999.9)").Mult(0.03).ToOy().ApplyColor(Color.DarkGoldenrod).PutOn().Move(0.05, 0, 0.17),
-                    //vectorizer.GetContentShape("d10").Perfecto(0.3).ScaleZ(0.02).ToOy().PutOn().ApplyColor(Color.DarkGoldenrod),
-                    Shapes.CirclePlatform(1,1,0.03).ApplyColor(Color.FromArgb(16,0,0)),
-                    //Shapes.SquarePlatform(2,2,0.04)
-
                 }.ToSingleShape();
         }
     }

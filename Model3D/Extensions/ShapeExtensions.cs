@@ -387,10 +387,21 @@ namespace Model3D.Extensions
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToLines(this Shape shape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
+        public static Shape ToLines(this Shape shape, double mult = 1, Color? color = null, bool direct = false) =>
+            direct
+                ? shape.ToDirectLines(mult, color)
+                : shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null);
+
+        public static Shape ToDirectLines(this Shape shape, double mult = 1, Color? color = null)
+        {
+            var lineShape = Surfaces.Cylinder(5, 2) + Surfaces.ConeM(5, 2).Scale(3,3,0.2).MoveZ(0.6).WithBackPlanes();
+
+            return shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null, true, lineShape, true);
+        }
+
         public static Shape ToShapedLines(this Shape shape, Shape lineShape, double mult = 1, Color? color = null) => shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null, true, lineShape);
 
-        public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null, bool stretch = true, Shape lineShape = null)
+        public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null, bool stretch = true, Shape lineShape = null, bool direct = false)
         {
             lineShape = lineShape == null ? Surfaces.Cylinder(5, 2) : lineShape.Align(0.5, 0.5, 0);
 
@@ -413,7 +424,7 @@ namespace Model3D.Extensions
                 return line;
             }
 
-            var lines = shape.OrderedEdges.Select(GetLine).ToArray();
+            var lines = direct ? shape.Edges.Select(GetLine).ToArray() : shape.OrderedEdges.Select(GetLine).ToArray();
 
             return new Shape
             {

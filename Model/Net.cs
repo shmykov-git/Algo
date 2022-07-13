@@ -20,11 +20,19 @@ namespace Model
 
         public int Ix(double x) => (int)((x - fromX) / step);
         public int Jy(double y) => (int)((y - fromY) / step);
-        //public int Good(int i, int max) => i < 0 ? 0 : (i > max ? max : i);
-        //public int GIx(double x) => Good(Ix(x), nx-1);
-        //public int GJy(double y) => Good(Jy(y), ny-1);
+
         public bool IsGoodI(int i) => i >= 0 && i < nx;
         public bool IsGoodJ(int j) => j >= 0 && j < ny;
+
+        private IEnumerable<(int i, int j)> GetClosePosByKeys(TNetKey[] keys)
+        {
+            var iFrom = Ix(keys.Min(v => v.x));
+            var iTo = Ix(keys.Max(v => v.x));
+            var jFrom = Jy(keys.Min(v => v.y));
+            var jTo = Jy(keys.Max(v => v.y));
+
+            return (iTo - iFrom + 1, jTo - jFrom + 1).Range().Select(v => (v.i + iFrom, v.j + jFrom));
+        }
 
         public Net(IEnumerable<(TNetKey key, TNetValue value)> keyValues, double step) : this(keyValues.Select(kv=>kv.key), step)
         {
@@ -81,6 +89,10 @@ namespace Model
             return dirs.Select(v => (i: ii + v.i, j: jj + v.j))
                 .Where(v => IsGoodI(v.i) && IsGoodJ(v.j))
                 .SelectMany(v => data[v.i][v.j]);
+        }
+        public IEnumerable<TNetValue> SelectCloseNeighbors(params TNetKey[] keys)
+        {
+            return GetClosePosByKeys(keys).SelectMany(v => data[v.i][v.j]);
         }
     }
 }
