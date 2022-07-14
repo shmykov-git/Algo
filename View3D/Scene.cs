@@ -49,7 +49,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "s10";
+            var contentName = "e6";
 
             var options = new ShapeOptions()
             {
@@ -57,7 +57,7 @@ namespace View3D
                 ZVolume = 0.02,                                         // null - no volume, number - add volume to the shape
                 TriangulationStrategy = TriangulationStrategy.Ears,     // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,     // how to get points from single bitmap point
-                PolygonPointRadius = 0.001,                              // radius of single point for some polygon strategies
+                PolygonPointRadius = 0.01,                              // radius of single point for some polygon strategies
 
                 PolygonLevelStrategy = LevelStrategy.All,   // what kind of polygon levels should be taken
                 SmoothOutLevel = 2,                         // number of 3 point smooth out process run

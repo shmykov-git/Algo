@@ -50,7 +50,7 @@ namespace Model3D.Extensions
             if (!needVolume)
                 return shape;
 
-            return shape.AddNormalVolume(options.ZVolume.Value).MoveZ(-options.ZVolume.Value / 2);
+            return shape.AddVolumeZ(options.ZVolume.Value);
         }
 
         public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0, bool trioStrategy = false)
@@ -82,8 +82,7 @@ namespace Model3D.Extensions
             if (!volume.HasValue)
                 return shape;
 
-            // todo: сделать нормально функцию добавляения объема по Z - по аналогии с этой (сдвиги только по edges)
-            return shape.AddNormalVolume(volume.Value).MoveZ(-volume.Value / 2);
+            return shape.AddVolumeZ(volume.Value);
         }
 
         public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null, double incorrectFix = 0)

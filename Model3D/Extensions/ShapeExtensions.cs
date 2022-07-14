@@ -123,29 +123,9 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
-        public static Shape AddVolumeX(this Shape shape, double xVolume) => AddVolume(shape, xVolume, 0, 0);
-        public static Shape AddVolumeY(this Shape shape, double yVolume) => AddVolume(shape, 0, yVolume, 0);
-        public static Shape AddVolumeZ(this Shape shape, double zVolume) => AddVolume(shape, 0, 0, zVolume);
-
-        public static Shape AddVolume(this Shape shape, double x, double y, double z)
-        {
-            var ps = shape.Points3;
-            var ln = ps.Length;
-            var halfVolume = new Vector3(x, y, z) * 0.5;
-
-            return new Shape
-            {
-                Points3 = ps.Select(p => p + halfVolume)
-                    .Concat(ps.Select(p => p - halfVolume)).ToArray(),
-
-                Convexes = shape.Convexes.SelectMany(convex => new int[][]
-                {
-                    convex,
-                    convex.Reverse().Select(i => i + ln).ToArray()
-
-                }.Concat(convex.SelectCirclePair((i, j) => new int[] {j, i, i + ln, j + ln}).ToArray())).ToArray(),
-            };
-        }
+        public static Shape AddVolumeX(this Shape shape, double xVolume) => AddVolume(shape, xVolume, MoveX);
+        public static Shape AddVolumeY(this Shape shape, double yVolume) => AddVolume(shape, yVolume, MoveY);
+        public static Shape AddVolumeZ(this Shape shape, double zVolume) => AddVolume(shape, zVolume, MoveZ);
 
         public static Shape AddPerimeterVolume(this Shape shape, double z)
         {
@@ -526,6 +506,31 @@ namespace Model3D.Extensions
             return funcs.Select(fn => fn(shape)).ToSingleShape();
         }
 
+        public static Shape AddVolume(this Shape shape, double distance, Func<Shape, double, Shape> moveFn, bool centered = true)
+        {
+            var up = distance > 0;
+            var ln = shape.Points.Length;
+
+            var moveA = centered ? -distance / 2 : 0;
+            var moveB = centered ? distance / 2 : distance;
+            var aShape = moveFn(shape, moveA);
+            var bShape = moveFn(shape, moveB);
+
+            var edges = shape.Convexes
+                .SelectMany(c => c.SelectCirclePair((i, j) => (e: (i, j), oe: (i, j).OrderedEdge())))
+                .GroupBy(v => v.oe).Where(gv => gv.Count() == 1).Select(gv => gv.First()).ToArray();
+
+            return new Shape()
+            {
+                Points = aShape.Points.Concat(bShape.Points).ToArray(),
+                Convexes = new[]
+                {
+                    shape.Convexes.ReverseConvexes(up),
+                    bShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
+                    edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
+                }.ManyToArray()
+            };
+        }
         public static Shape AddNormalVolume(this Shape shape, double distance)
         {
             var up = distance > 0;
