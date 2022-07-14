@@ -10,6 +10,7 @@
     public class PolygonOptions
     {
         public int ColorLevel = 200;
+        public bool InvertColor = false;
         public int PolygonOptimizationLevel { get; set; } = 3;
         public int MinimumPolygonPointsCount { get; set; } = 0;
         public LevelStrategy PolygonLevelStrategy { get; set; } = LevelStrategy.All;

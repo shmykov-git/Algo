@@ -97,7 +97,7 @@ namespace Model3D.Tools
             return (8).SelectRange(i => leftDirs[(i + j) % 8]);
         }
 
-        private Mp[][] GetPerimetersMapFromBitmap(Bitmap bitmap, int colorLevel = 200)
+        private Mp[][] GetPerimetersMapFromBitmap(Bitmap bitmap, int colorLevel, bool invertColor)
         {
             var n = bitmap.Width;
             var m = bitmap.Height;
@@ -109,7 +109,8 @@ namespace Model3D.Tools
 
                 var c = bitmap.GetPixel(v.j, v.i);
                 var isBlack = c.R < colorLevel && c.G < colorLevel && c.B < colorLevel;
-                
+                isBlack = invertColor ? !isBlack : isBlack;
+
                 return isBlack ? Mp.IsBlack : Mp.None;
             }
 
@@ -512,7 +513,7 @@ namespace Model3D.Tools
         {
             options ??= new PolygonOptions();
 
-            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options.ColorLevel);
+            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options.ColorLevel, options.InvertColor);
             var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.PolygonLevelStrategy));
             perimetersTree = FilterTree(perimetersTree, options.PolygonLevelStrategy);
 
@@ -557,10 +558,11 @@ namespace Model3D.Tools
             }
         }
 
-        public Shape GetContentShape(string name, int colorLevel = 200, double volume = 0.02, double smoothOutScalar = -0.1, int polygonOptimizationLevel = 3) => GetContentShape(name,
+        public Shape GetContentShape(string name, int colorLevel = 200, double volume = 0.02, double smoothOutScalar = -0.1, int polygonOptimizationLevel = 3, bool invert = false) => GetContentShape(name,
             new ShapeOptions()
             {
                 ColorLevel = colorLevel,
+                InvertColor = invert,
                 ZVolume = volume,
                 SmoothAngleScalar = smoothOutScalar,
                 PolygonOptimizationLevel = polygonOptimizationLevel

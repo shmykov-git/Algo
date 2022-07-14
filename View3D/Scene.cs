@@ -54,7 +54,7 @@ namespace View3D
 
             return new[]
             {
-                vectorizer.GetContentShape("webb", 80, smoothOutScalar:0.71)/*.Where(v=>(v.x/0.5).Pow2() + (v.y/0.3).Pow2() < 1)*/.Mult(0.3).PutOn().ApplyColor(Color.Black),
+                vectorizer.GetContentShape("webb", 150, smoothOutScalar:0.71, invert:true)/*.Where(v=>(v.x/0.5).Pow2() + (v.y/0.3).Pow2() < 1)*/.Mult(0.3).PutOn().ApplyColor(Color.Black),
 
                 //Surfaces.Circle(100,20).Perfecto(2).FlipY().ApplyZ(Funcs3Z.Waves).Mult(1.0/2).AddVolumeZ(0.03).ToOy().PutUnder().ApplyColor(Color.FromArgb(0,0,32)),
                 //Shapes.CoodsNet
