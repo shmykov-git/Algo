@@ -513,8 +513,8 @@ namespace Model3D.Tools
             options ??= new PolygonOptions();
 
             var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options.ColorLevel);
-            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.LevelStrategy));
-            perimetersTree = FilterTree(perimetersTree, options.LevelStrategy);
+            var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.PolygonLevelStrategy));
+            perimetersTree = FilterTree(perimetersTree, options.PolygonLevelStrategy);
 
             if (options.DebugPerimeters)
                 perimetersTree.Select((p, i) => (p, i)).OrderBy(v => v.p.child.Count).ForEach(v => Debug.WriteLine($"Perimeter {v.i}: len={v.p.child.Count} lvl={v.p.childLevel} children={perimetersTree.Count(p=>p.main == v.p.child)}"));

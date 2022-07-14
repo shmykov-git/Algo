@@ -12,7 +12,7 @@
         public int ColorLevel = 200;
         public int PolygonOptimizationLevel { get; set; } = 3;
         public int MinimumPolygonPointsCount { get; set; } = 0;
-        public LevelStrategy LevelStrategy { get; set; } = LevelStrategy.All;
+        public LevelStrategy PolygonLevelStrategy { get; set; } = LevelStrategy.All;
 
         public PolygonPointStrategy PolygonPointStrategy { get; set; } = PolygonPointStrategy.Center;
         public double PolygonPointRadius { get; set; } = 0.01;

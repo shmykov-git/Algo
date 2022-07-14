@@ -321,7 +321,7 @@ namespace Model.Libraries
         public static Shape ButterflyPlatform(double x = 3, double y = 3, double z = 0.1) =>
             vectorizer.GetContentShape("b7", new ShapeOptions()
                 {
-                    LevelStrategy = LevelStrategy.TopLevel,
+                    PolygonLevelStrategy = LevelStrategy.TopLevel,
                 })
                 .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
@@ -334,7 +334,7 @@ namespace Model.Libraries
                     //ComposePolygons = false,
                     //DebugPerimeterLength = true,
 
-                    LevelStrategy = LevelStrategy.All,
+                    PolygonLevelStrategy = LevelStrategy.All,
                     SmoothOutLevel = 1,
                     PolygonOptimizationLevel = 3,
                     MinimumPolygonPointsCount = 14,
@@ -346,7 +346,7 @@ namespace Model.Libraries
             {
                 ColorLevel = 150,
                 TriangulationStrategy = TriangulationStrategy.Trio,
-                LevelStrategy = LevelStrategy.OddLevel,
+                PolygonLevelStrategy = LevelStrategy.OddLevel,
                 PolygonOptimizationLevel = 3,
                 SmoothOutLevel = 1
             }).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
