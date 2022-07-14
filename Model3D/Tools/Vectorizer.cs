@@ -557,7 +557,15 @@ namespace Model3D.Tools
             }
         }
 
-        public Shape GetContentShape(string name, ShapeOptions options = null)
+        public Shape GetContentShape(string name, int colorLevel = 200, double volume = 0.02, double smoothOutScalar = -0.1) => GetContentShape(name,
+            new ShapeOptions()
+            {
+                ColorLevel = colorLevel,
+                ZVolume = volume,
+                SmoothAngleScalar = smoothOutScalar
+            });
+
+        public Shape GetContentShape(string name, ShapeOptions options)
         {
             options ??= new ShapeOptions();
 

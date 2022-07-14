@@ -87,6 +87,10 @@ namespace Model.Tools
         public static int[][] Triangulate(Polygon polygon, Options options = null)
         {
             options ??= new Options();
+
+            if (polygon.Points.Length < 3)
+                return Array.Empty<int[]>();
+            
             var bi = polygon.Points.DistinctBi();
             var nodes = polygon.Points.Select((p, i) => new Node() { ui = bi.bi[i], i = i, p = p }).ToArray();
 

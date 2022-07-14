@@ -49,11 +49,30 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "e6";
+
+            var s = vectorizer.GetContentShape("w32");
+            bool Check(Vector3 v) => v.x > 0.15 && new Line2((0.15,-0.05), (0.4,0)).IsLeft(v.ToV2());
+            var b1 = s.Where(Check).Where(v => v.x < 0.26);
+            var b2 = s.Where(Check).Where(v => v.x > 0.26);
+            var w = s.Where(v => !Check(v));
+
+            return new[]
+            {
+                b1.ApplyColor(Color.Blue),
+                b2.ApplyColor(Color.Red),
+                w,
+                //vectorizer.GetContentShape("w32").Mult(0.3).PutOn().ApplyColor(Color.Black),
+
+                //Surfaces.Circle(100,20).Perfecto(2).FlipY().ApplyZ(Funcs3Z.Waves).Mult(1.0/2).AddVolumeZ(0.03).ToOy().PutUnder().ApplyColor(Color.FromArgb(0,0,32)),
+                //Shapes.CoodsNet
+            }.ToSingleShape();
+            
+
+            var contentName = "b16";
 
             var options = new ShapeOptions()
             {
-                ColorLevel = 200,                                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 150,                                       // 0 - white, 200 - middle, 255 - black
                 ZVolume = 0.02,                                         // null - no volume, number - add volume to the shape
                 TriangulationStrategy = TriangulationStrategy.Ears,     // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,     // how to get points from single bitmap point

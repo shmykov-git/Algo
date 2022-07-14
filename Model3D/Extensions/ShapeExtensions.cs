@@ -791,6 +791,7 @@ namespace Model3D.Extensions
         }
 
         public static Shape PutOn(this Shape shape, double y = 0) => shape.Align(0.5, 0, 0.5).MoveY(y);
+        public static Shape PutUnder(this Shape shape, double y = 0) => shape.Align(0.5, 1, 0.5).MoveY(y);
 
         public static Shape AlignX(this Shape shape, double x)
         {

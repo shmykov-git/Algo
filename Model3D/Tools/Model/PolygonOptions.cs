@@ -14,7 +14,7 @@
         public int MinimumPolygonPointsCount { get; set; } = 0;
         public LevelStrategy PolygonLevelStrategy { get; set; } = LevelStrategy.All;
 
-        public PolygonPointStrategy PolygonPointStrategy { get; set; } = PolygonPointStrategy.Center;
+        public PolygonPointStrategy PolygonPointStrategy { get; set; } = PolygonPointStrategy.Circle;
         public double PolygonPointRadius { get; set; } = 0.01;
 
         public bool NormalizeScale = true;

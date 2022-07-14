@@ -31,7 +31,7 @@ namespace Model3D.Tools.Model
         public (Color odd, Color even) LineColors = (Color.Red, Color.DarkGreen);
         public (Color odd, Color even) NumColors = (Color.Blue, Color.BlueViolet);
         public int SmoothOutLevel { get; set; } = 2;
-        public double SmoothAngleScalar { get; set; } = -1;
+        public double SmoothAngleScalar { get; set; } = -0.1;
         public bool ComposePolygons { get; set; } = true;
         public Action<Shape, int> modifyPolygonShapeFn = null;
         public bool DebugProcess { get; set; } = false;
