@@ -9,6 +9,8 @@ namespace Model3D.Tools.Model
 {
     public class TriangulationOptions : PolygonOptions
     {
+        public bool DebugTriangulation { get; set; }
+        public int ProtectionTriangulationCount { get; set; } = 100000;
         public double TriangulationFixFactor { get; set; } = 0;
         public int? DebugTriangulationSteps { get; set; }
     }
@@ -26,8 +28,8 @@ namespace Model3D.Tools.Model
         public double? SpliteLineLevelsDistance = null;
         public double? SpliteAllPolygonsDistance = null;
         public double? ToSpotNumSize = null;
-        public (Color odd, Color even) LineColors = (Color.Red, Color.Blue);
-        public (Color odd, Color even) NumColors = (Color.DarkGreen, Color.DarkGreen);
+        public (Color odd, Color even) LineColors = (Color.Red, Color.DarkGreen);
+        public (Color odd, Color even) NumColors = (Color.Blue, Color.BlueViolet);
         public int SmoothOutLevel { get; set; } = 2;
         public double SmoothAngleScalar { get; set; } = -1;
         public bool ComposePolygons { get; set; } = true;

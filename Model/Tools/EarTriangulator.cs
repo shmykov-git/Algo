@@ -10,14 +10,16 @@ namespace Model.Tools
     {
         public class Options
         {
-            public double TriangulationFixFactor { get; set; }
-            public int? DebugTriangulationSteps { get; set; }
+            public bool DebugTriangulation { get; set; }
+            public int ProtectionTriangulationCount { get; set; } = 100000;
             public int TriangulatorNetSize { get; set; } = 100;
         }
 
         class Node
         {
+            public int ui;
             public int i;
+            public bool isClone;
             public Vector2 p;
             public Node prev;
             public Node next;
@@ -29,9 +31,15 @@ namespace Model.Tools
             public bool IsOuterLeft => next.p.IsLeft(prev.p, p, true);
             public bool IsInnerLeft => next.p.IsLeft(prev.p, p, false);
             public bool IsInside(Node n) => n.p.IsInside(prev.p, p, next.p);
-            public bool IsNotMe(Node n) => n.p != p && n.p != prev.p && n.p != next.p;
+            public bool IsNotMe(Node n) => n.ui != ui && n.ui != prev.ui && n.ui != next.ui;
             public bool IsNotExcepted(Node n) => !n.IsExcepted;
-            public Node[] InsideNodes => net.SelectCloseNeighbors(prev.p, p, next.p).Where(IsNotMe).Where(IsNotExcepted).Where(IsInside).ToArray();
+            public bool IsMyCircle(Node n) => this.Iterate().Any(m => m == n);
+            public Node[] InsideNodes => net.SelectCloseNeighbors(prev.p, p, next.p)
+                .Where(IsNotMe)
+                .Where(IsNotExcepted)
+                .Where(IsInside)
+                .Where(IsMyCircle)
+                .ToArray();
 
             public Node MoveNext() => next;
             public Node Except()
@@ -50,8 +58,8 @@ namespace Model.Tools
             {
                 var a = this;
 
-                var aa = new Node() {i = a.i, p = a.p, prev = b, next = a.next, net = net };
-                var bb = new Node() { i = b.i, p = b.p, prev = a, next = b.next, net = net };
+                var aa = new Node() {isClone = true, ui = a.ui, i = a.i, p = a.p, prev = b, next = a.next, net = net};
+                var bb = new Node() {isClone = true, ui = b.ui, i = b.i, p = b.p, prev = a, next = b.next, net = net};
 
                 a.next.prev = aa;
                 b.next.prev = bb;
@@ -73,13 +81,14 @@ namespace Model.Tools
             }
 
             public override string ToString() => IsNotExcepted(this)
-                ? $"({prev.i}-{i}-{next.i}): {(p - prev.p).Normal * (next.p - prev.p)}, {p}"
-                : $"(null-{i}-null): {p}";
+                ? $"{(isClone ? "[c]" : "")}({prev.i}-{i}-{next.i}): {(p - prev.p).Normal * (next.p - prev.p)}, {p}"
+                : $"{(isClone ? "[c]" : "")}(null-{i}-null): {p}";
         }
         public static int[][] Triangulate(Polygon polygon, Options options = null)
         {
             options ??= new Options();
-            var nodes = polygon.Points.Select((p, i) => new Node() { i = i, p = p }).ToArray();
+            var bi = polygon.Points.DistinctBi();
+            var nodes = polygon.Points.Select((p, i) => new Node() { ui = bi.bi[i], i = i, p = p }).ToArray();
 
             var size = polygon.Size;
             var maxSize = Math.Max(size.x, size.y);
@@ -99,14 +108,14 @@ namespace Model.Tools
                 var stack = new Stack<Node>();
                 stack.Push(node);
 
-                var protectionCount = 200000;
+                var protectionCount = options.ProtectionTriangulationCount;
 
                 while (stack.Count > 0)
                 {
                     var n = stack.Pop();
                     
                     if (n.IsExcepted)
-                        continue;
+                        Debugger.Break();
 
                     var n0 = n;
 
@@ -120,18 +129,32 @@ namespace Model.Tools
                             {
                                 var nearestNode = insideNodes.OrderBy(v => (n.p - v.p).Len2).First();
 
-                                var anotherSide = n.Split(nearestNode);
-                                net.Add(anotherSide.p, anotherSide);
-                                stack.Push(anotherSide);
+                                var nn = n.Split(nearestNode);
+                                net.Add(nn.p, nn);
+                                stack.Push(nn);
+
+                                if (options.DebugTriangulation)
+                                {
+                                    Debug.WriteLine($"%: {nearestNode} | {n.next}");
+                                    Debug.WriteLine($"%: {n} | {nn}");
+                                }
+
+                                if (nn.IsExcepted)
+                                    Debugger.Break();
+
                                 n0 = n.prev;
                             }
                             else
                             {
                                 res.Add(n.Triangle);
-                                //Debug.WriteLine($"+: {n}");
-
+                                
+                                if (options.DebugTriangulation)
+                                    Debug.WriteLine($"+: {n}");
+                                
+                                if (stack.Contains(n))
+                                    Debugger.Break();
+                                
                                 n = n.Except();
-                                if (n.IsExcepted) Debugger.Break();
                                 n0 = n.prev;
                             }
                         }
@@ -139,10 +162,12 @@ namespace Model.Tools
                         {
                             if (n.IsInnerLeft)
                             {
-                                //Debug.WriteLine($"-: {n}");
-                                
+                                if (options.DebugTriangulation)
+                                    Debug.WriteLine($"-: {n}");
+
+                                if (stack.Contains(n))
+                                    Debugger.Break();
                                 n = n.Except();
-                                if (n.IsExcepted) Debugger.Break();
                                 n0 = n.prev;
                             }
                             else
