@@ -58,6 +58,12 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
+        public static Shape WhereEllipse(this Shape shape, double a, double b) =>
+            shape.Where(v => (v.x / a).Pow2() + (v.y / b).Pow2() < 1);
+
+        public static Shape WhereEllipse4(this Shape shape, double a, double b) =>
+            shape.Where(v => (v.x / a).Pow2().Pow2() + (v.y / b).Pow2().Pow2() < 1);
+
         public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc)
         {
             var pBi = shape.Points3.WhereBi(whereFunc);
@@ -948,19 +954,33 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ApplyMaterial(this Shape shape, Material material)
+        public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null)
         {
             if (material == null)
                 return shape;
 
-            shape.Materials = shape.Convexes.Index().Select(i => material).ToArray();
+            if (filterFn == null)
+            {
+                shape.Materials = (shape.Convexes.Length).SelectRange(_ => material).ToArray();
+
+                return shape;
+            }
+
+            var ps = shape.Points3;
+            var cs = shape.Convexes;
+
+            if (shape.Materials == null)
+                shape.Materials = shape.Convexes.Select(c => c.All(i => filterFn(ps[i])) ? material : null).ToArray();
+            else
+                shape.Materials
+                    .ToArray().ForEach((m, i) => shape.Materials[i] = cs[i].All(j => filterFn(ps[j])) ? material : m);
 
             return shape;
         }
 
-        public static Shape ApplyColor(this Shape shape, Color color)
+        public static Shape ApplyColor(this Shape shape, Color color, Func<Vector3, bool> filterFn = null)
         {
-            shape.ApplyMaterial(Materials.GetByColor(color));
+            shape.ApplyMaterial(Materials.GetByColor(color), filterFn);
 
             return shape;
         }

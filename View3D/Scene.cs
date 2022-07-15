@@ -51,10 +51,17 @@ namespace View3D
         {
 
             //var s = vectorizer.GetContentShape("h1", 100);
+            var plane = new Plane(new Vector3(-0.4, -0.15, 0), new Vector3(0, 0.29, 0) + new Vector3(1, -1, 1), new Vector3(0, 0.29, 0));
+            var fn = plane.Fn;
+
+            var s = vectorizer.GetContentShape("g6");
+            var p = Surfaces.Plane(plane, 11, 11, 0.15).ToLines().ApplyColor(Color.FromArgb(50, 50, 255));
 
             return new[]
             {
-                vectorizer.GetContentShape("webb", 150, smoothOutScalar:0.71, invert:true)/*.Where(v=>(v.x/0.5).Pow2() + (v.y/0.3).Pow2() < 1)*/.Mult(0.3).PutOn().ApplyColor(Color.Black),
+                /*.WhereEllipse4(0.3, 0.5)*//*.Mult(0.3).PutOn()*/
+                p,
+                s.ApplyColor(Color.Black, v=>fn(v)>0).ApplyColor(Color.FromArgb(50, 50, 255), v=>fn(v)<0),
 
                 //Surfaces.Circle(100,20).Perfecto(2).FlipY().ApplyZ(Funcs3Z.Waves).Mult(1.0/2).AddVolumeZ(0.03).ToOy().PutUnder().ApplyColor(Color.FromArgb(0,0,32)),
                 //Shapes.CoodsNet

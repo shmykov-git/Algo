@@ -5,6 +5,7 @@ using Model;
 using Model.Extensions;
 using Model3;
 using Model3D.Extensions;
+using Model3D.Libraries;
 
 namespace Model3D
 {
@@ -18,6 +19,18 @@ namespace Model3D
         public Vector3 cb => b - c;
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
+
+        public SurfaceFunc PointsFn
+        {
+            get
+            {
+                var uOne = ca.Normalize();
+                var vOne = NOne.MultV(uOne);
+
+                return (u, v) => c + u * uOne + v * vOne;
+            }
+        }
+
         public Func<Vector3, double> Fn
         {
             get

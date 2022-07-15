@@ -55,6 +55,21 @@ namespace Model3D.Libraries
             Convexes = Squares(vn, un)
         };
 
+        public static Shape Plane(Plane plane, int un, int vn, double mult = 1) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = plane.PointsFn,
+                UFrom = (-un / 2 - 0.5 * ((un + 1) % 2)) * mult,
+                UTo = (un / 2 + 0.5 * ((un + 1) % 2)) * mult,
+                UN = un,
+                VFrom = (-vn / 2 - 0.5 * ((vn + 1) % 2)) * mult,
+                VTo = (vn / 2 + 0.5 * ((vn + 1) % 2)) * mult,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squares(vn, un)
+        };
+
         public static Shape PlaneWithDiagonals(int un, int vn) => new Shape
         {
             Points3 = new SurfaceFuncInfo
