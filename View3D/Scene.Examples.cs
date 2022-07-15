@@ -435,5 +435,30 @@ namespace View3D
                 Shapes.CirclePlatform(1,1,0.03).ApplyColor(Color.FromArgb(16,0,0)),
             }.ToSingleShape();
         }
+
+        public Shape TheCat()
+        {
+            var center = new Vector3(0, 0.29, 0);
+
+            var plane = new Plane(new Vector3(-0.4, -0.15, 0), center + new Vector3(1, -1, 1), center);
+            var planeFn = plane.Fn;
+
+            var color1 = Color.FromArgb(50, 50, 255);
+            var color2 = Color.Black;
+
+            var s = vectorizer.GetContentShape("g6")
+                .ApplyColor(color2)
+                .ApplyColor(color1, v => planeFn(v) < 0);
+
+            var p = Surfaces.Plane(plane, 11, 11, 0.15).ToLines().ApplyColor(color1);
+
+            return new[]
+            {
+                p, 
+                s,
+
+                //Shapes.CoodsNet
+            }.ToSingleShape();
+        }
     }
 }
