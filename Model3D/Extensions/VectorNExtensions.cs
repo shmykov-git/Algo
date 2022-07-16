@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Extensions
@@ -170,7 +171,7 @@ namespace Model3D.Extensions
             return new Vector3(v[0], v[1], v[2]);
         }
 
-        public static Shape ToShape(this IEnumerable<Vector2> points, double? volume = null, bool triangulate = false) => points.ToArray().ToPolygon().ToShape(volume, triangulate);
+        public static Shape ToShape(this Vector2[] points, double? volume = null, bool triangulate = false) => points.ToPolygon().ToShape(volume, triangulate);
 
         public static bool IsInside(this Vector3[] vs, Vector3 x)
         {

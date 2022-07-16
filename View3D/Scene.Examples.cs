@@ -12,6 +12,7 @@ using Model3D.Libraries;
 using Model3D.Systems;
 using Model3D.Systems.Model;
 using Model3D.Tools;
+using Model3D.Tools.Model;
 using View3D.Libraries;
 
 namespace View3D

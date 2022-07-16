@@ -44,7 +44,7 @@ namespace Model.Libraries
             if (indices != null)
                 polygons = indices.Select(i => polygons[i]).ToArray();
 
-            var shapes = polygons.Select(p => (triangulateOnly ? p.ToShape(null, true) : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
+            var shapes = polygons.Select(p => (triangulateOnly ? p.Points.ToShape(null) : p.ToShape(volume)).Rotate(Math.PI / 2)).ToArray();
 
             var size = polygons.Select(p => p.ToShape().Rotate(Math.PI / 2)).ToSingleShape().Size;
 

@@ -305,7 +305,7 @@ namespace Model.Libraries
             .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(Color.Black);
 
         public static Shape HeartPlatform(double x = 3, double y = 3, double z = 0.1) => Polygons.Heart(1, 1, 100)
-            .ToShape(1, trioStrategy: true).Centered().Scale(2.3 * x, 2.3 * y, z).ToOy().MoveY(-z / 2)
+            .ToShape(1).Centered().Scale(2.3 * x, 2.3 * y, z).ToOy().MoveY(-z / 2)
             .ApplyColor(Color.Black);
 
         public static Shape MandelbrotPlatform(double x = 3, double y = 3, double z = 0.1) => MandelbrotFractalSystem.GetPoints(2, 0.002, 1000)
@@ -315,7 +315,7 @@ namespace Model.Libraries
         public static Shape BatmanPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer
             .GetContentShapeObsolet("b14")
             .ToPerimeterPolygons()[2].SmoothOut().SmoothOut()
-            .ToShape(1, trioStrategy: true).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2)
+            .ToShape(1).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2)
             .ApplyColor(Color.Black);
 
         public static Shape ButterflyPlatform(double x = 3, double y = 3, double z = 0.1) =>
@@ -326,34 +326,19 @@ namespace Model.Libraries
                 .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape Butterfly2Platform(double x = 3, double y = 3, double z = 0.1) =>
-            vectorizer.GetContentShape("b7", new ShapeOptions()
-                {
-                    //ZVolume = null,
-                    //ToLinesSize = 0.3,
-                    //TriangulationStrategy = TriangulationStrategy.None,
-                    //ComposePolygons = false,
-                    //DebugPerimeterLength = true,
-
-                    PolygonLevelStrategy = LevelStrategy.All,
-                    SmoothOutLevel = 1,
-                    PolygonOptimizationLevel = 3,
-                    MinimumPolygonPointsCount = 14,
-                })
+            vectorizer.GetContentShape("b7")
                 .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape WorldPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShape(
             "map", new ShapeOptions()
             {
                 ColorLevel = 150,
-                TriangulationStrategy = TriangulationStrategy.Trio,
-                PolygonLevelStrategy = LevelStrategy.OddLevel,
-                PolygonOptimizationLevel = 3,
-                SmoothOutLevel = 1
+                PolygonLevelStrategy = LevelStrategy.OddLevel
             }).Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape RoundTreePlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShapeObsolet("t3_small", 190)
             .ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeObsolet(new[] { (1, 0), (3, 2) })
-            .Select(p => p.ToShape(1, trioStrategy: true)).ToSingleShape()
+            .Select(p => p.ToShape(1)).ToSingleShape()
             .Scale(x, y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
             
     }

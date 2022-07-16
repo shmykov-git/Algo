@@ -49,17 +49,9 @@ namespace View3D
 
         public Shape GetShape()
         {
+            return PolygonsExample();
 
-            return new[]
-            {
-                vectorizer.GetContentShape("g6"),
-
-                //Surfaces.Circle(100,20).Perfecto(2).FlipY().ApplyZ(Funcs3Z.Waves).Mult(1.0/2).AddVolumeZ(0.03).ToOy().PutUnder().ApplyColor(Color.FromArgb(0,0,32)),
-                //Shapes.CoodsNet
-            }.ToSingleShape();
-            
-
-            var contentName = "b16";
+            var contentName = "dasha1";
 
             var options = new ShapeOptions()
             {
@@ -73,7 +65,7 @@ namespace View3D
                 SmoothOutLevel = 2,                         // number of 3 point smooth out process run
                 SmoothAngleScalar = -0.1,                   // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
                 PolygonOptimizationLevel = 3,               // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
-                MinimumPolygonPointsCount = 0,              // skip polygons with equal or less points
+                MinimumPolygonPointsCount = 8,              // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                   // show perimeter information
                 //DebugBitmap = true,                       // show bitmap as chars

@@ -53,37 +53,50 @@ namespace Model3D.Extensions
             return shape.AddVolumeZ(options.ZVolume.Value);
         }
 
-        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0, bool trioStrategy = false)
+        public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false)
         {
-            if (!volume.HasValue && !triangulate)
-                return new Shape
-                {
-                    Points2 = polygon.Points,
-                    Convexes = new[] { polygon.Points.Index().ToArray() }
-                };
-
-            int[][] trConvexes;
-            if (trioStrategy)
+            var options = new SolidOptions()
             {
-                var convexes = FillEngine.FindConvexes(polygon);
-                trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
-            }
-            else
-            {
-                trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
-            }
+                ZVolume = volume
+            };
+            
+            if (volume == null && !triangulate)
+                options.TriangulationStrategy = TriangulationStrategy.None;
 
-            var shape = new Shape()
-                {
-                    Points2 = polygon.Points,
-                    Convexes = trConvexes
-                }.Normalize();
-
-            if (!volume.HasValue)
-                return shape;
-
-            return shape.AddVolumeZ(volume.Value);
+            return polygon.ToShape(options);
         }
+
+        //public static Shape ToShape1(this Polygon polygon, double? volume = null, bool triangulate = false, double incorrectFix = 0, bool trioStrategy = false)
+        //{
+        //    if (!volume.HasValue && !triangulate)
+        //        return new Shape
+        //        {
+        //            Points2 = polygon.Points,
+        //            Convexes = new[] { polygon.Points.Index().ToArray() }
+        //        };
+
+        //    int[][] trConvexes;
+        //    if (trioStrategy)
+        //    {
+        //        var convexes = FillEngine.FindConvexes(polygon);
+        //        trConvexes = FillEngine.Triangulate(polygon.Points, convexes);
+        //    }
+        //    else
+        //    {
+        //        trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
+        //    }
+
+        //    var shape = new Shape()
+        //        {
+        //            Points2 = polygon.Points,
+        //            Convexes = trConvexes
+        //        }.Normalize();
+
+        //    if (!volume.HasValue)
+        //        return shape;
+
+        //    return shape.AddVolumeZ(volume.Value);
+        //}
 
         public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null, double incorrectFix = 0)
         {
@@ -92,9 +105,9 @@ namespace Model3D.Extensions
             var center = 0.5 * (border.a + border.b);
 
             var n = countTriangle;
-            var m = (int) (n * size.y / (size.x * 3d.Sqrt()));
+            var m = (int)(n * size.y / (size.x * 3d.Sqrt()));
             // что с масштабом?
-            var net = Shapes.PlaneByTriangles(m, n).Mult(1.3*size.x).Move(center.ToV3());
+            var net = Shapes.PlaneByTriangles(m, n).Mult(1.3 * size.x).Move(center.ToV3());
             var cutNet = net.Cut(polygon);
             var cutPoints = cutNet.Points2;
 
@@ -102,7 +115,7 @@ namespace Model3D.Extensions
             var perimeterPolygons = perimeters.Select(p => p.Select(i => cutPoints[i]).ToArray().ToPolygon()).ToArray();
 
             var borderPolygon = perimeterPolygons.Aggregate(polygon, JoinInside);
-            var triangulatedBorder = borderPolygon.ToShape(triangulate: true, incorrectFix: incorrectFix);
+            var triangulatedBorder = borderPolygon.ToShape(triangulate: true);
 
             var triangulatedShape = (triangulatedBorder + cutNet).Normalize();
 
@@ -114,13 +127,13 @@ namespace Model3D.Extensions
 
             return new Shape
             {
-                Points3 = new []
+                Points3 = new[]
                 {
                     triangulatedShape.Points.Select(p => p.ToV3() - halfVolume),
                     triangulatedShape.Points.Select(p => p.ToV3() + halfVolume)
                 }.ManyToArray(),
-                    
-                Convexes = new []
+
+                Convexes = new[]
                 {
                     triangulatedShape.Convexes.Select(c => c.Reverse().ToArray()),
                     triangulatedShape.Convexes.Transform(v => v + nn),
