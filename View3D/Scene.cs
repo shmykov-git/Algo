@@ -49,8 +49,6 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return PolygonsExample();
-
             var contentName = "dasha1";
 
             var options = new ShapeOptions()

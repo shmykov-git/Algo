@@ -326,8 +326,8 @@ namespace Model.Libraries
                 .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape Butterfly2Platform(double x = 3, double y = 3, double z = 0.1) =>
-            vectorizer.GetContentShape("b7")
-                .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
+            vectorizer.GetContentShape("b7", volume:z)
+                .Scale(1.3 * x, 1.3 * y, 1).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape WorldPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShape(
             "map", new ShapeOptions()
