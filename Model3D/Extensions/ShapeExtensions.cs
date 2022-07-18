@@ -714,6 +714,16 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Move(this Shape shape, Func<Vector3, Vector3> moveFn)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Select(moveFn).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape ToOx(this Shape shape) => shape.Rotate(Rotates.Z_X);
         public static Shape ToOxM(this Shape shape) => shape.Rotate(Rotates.Z_mX);
         public static Shape ToOy(this Shape shape) => shape.Rotate(Rotates.Z_Y);

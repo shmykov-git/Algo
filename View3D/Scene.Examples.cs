@@ -465,14 +465,29 @@ namespace View3D
 
         public Shape Chess()
         {
-            var chess = vectorizer.GetContentShape("chess3", volume: 0.04).PutOn();
+            var chess = vectorizer.GetContentShape("chess2", 150, volume: 0.04).PutOn();
 
-            var k = chess.Where(v => v.x < -0.33).AlignX(0.5).Mult(3);
-            var q = chess.Where(v => -0.33 < v.x && v.x < -0.15).AlignX(0.5).Mult(3);
-            var b = chess.Where(v => -0.15 < v.x && v.x < 0.02).AlignX(0.5).Mult(3);
-            var n = chess.Where(v => 0.02 < v.x && v.x < 0.22).AlignX(0.5).Mult(3);
-            var r = chess.Where(v => 0.22 < v.x && v.x < 0.37).AlignX(0.5).Mult(3);
-            var p = chess.Where(v => 0.37 < v.x).AlignX(0.5).Mult(3);
+            //return chess + Shapes.CoodsNet;
+
+            //var points = new double?[] { null, -0.33, -0.15, 0.02, 0.22, 0.37, null }.SelectPair().ToArray(); // chess3
+            var points = new double?[] { null, -0.35, -0.18, 0, 0.19, 0.37, null }.SelectPair().ToArray();
+
+            Shape Ss(Shape s, double? a, double? b) =>
+                s.Where(v => (!a.HasValue || a < v.x) && (!b.HasValue || v.x < b));
+
+            var chessFn = Funcs3Z.Hyperboloid;
+
+            //Shape ChessMove(Shape s, Vector2)
+            //{
+            //    var p = s.BottomY;
+            //    var dy = chessFn(p.x, p.z);
+            //    return s.MoveY(dy);
+            //}
+
+            var ss = points.Select(v => Ss(chess, v.a, v.b).AlignX(0.5).Mult(3)).ToArray();
+
+            //var (k, q, b, n, r, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]); // chess3
+            var (r, b, k, q, n, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]);
 
             var c1 = Color.Blue;
             var c2 = Color.Black;
@@ -516,11 +531,17 @@ namespace View3D
                 (r, (7, 7), c2),
             };
 
-            var tb = Surfaces.Plane(9, 9).Perfecto(8).ApplyColor(c => c[0].IsEven() ? c2 : c1).AddVolumeZ(0.2).ToOy().PutUnder();
+            var l = 0.03;
+
+            var tb = Surfaces.Plane(9, 9).Perfecto(8*l).ApplyZ(chessFn).Mult(1/l).ApplyColor(c => c[0].IsEven() ? c2 : c1).AddVolumeZ(0.2).ToOy();
+            var ns = tb.Normals; //Surfaces.Plane(9, 9).Perfecto(8*l).ApplyZ(chessFn).Normals;
 
             return new[]
             {
-                data.Select(v=>v.s.Move(v.p.x - 3.5, 0, -v.p.z + 3.5).ApplyColor(v.c)).ToSingleShape(),
+                data.Select(v => v.s
+                        .Rotate(Quaternion.FromRotation(-Vector3.YAxis, ns[v.p.z*8+v.p.x]))
+                        .Move(v.p.x - 3.5, chessFn(l*(v.p.x - 3.5), l*(-v.p.z + 3.5))/l, -v.p.z + 3.5)
+                        .ApplyColor(v.c)).ToSingleShape(),
                 tb
             }.ToSingleShape();
         }
