@@ -523,8 +523,19 @@ namespace Model3D.Extensions
             var bShape = moveFn(shape, moveB);
 
             var edges = shape.Convexes
-                .SelectMany(c => c.SelectCirclePair((i, j) => (e: (i, j), oe: (i, j).OrderedEdge())))
+                .SelectMany((c, cI) => c.SelectCirclePair((i, j) => (cI, e: (i, j), oe: (i, j).OrderedEdge())))
                 .GroupBy(v => v.oe).Where(gv => gv.Count() == 1).Select(gv => gv.First()).ToArray();
+
+            Material[] materials = null;
+            if (shape.Materials != null)
+            {
+                materials = new[]
+                {
+                    up ? shape.Materials.Reverse() : shape.Materials,
+                    up ? shape.Materials : shape.Materials.Reverse(),
+                    up ? edges.Select(e=>shape.Materials[e.cI]) : edges.Select(e=>shape.Materials[e.cI]).Reverse()
+                }.ManyToArray();
+            }
 
             return new Shape()
             {
@@ -534,7 +545,8 @@ namespace Model3D.Extensions
                     shape.Convexes.ReverseConvexes(up),
                     bShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
                     edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
-                }.ManyToArray()
+                }.ManyToArray(),
+                Materials = materials
             };
         }
         public static Shape AddNormalVolume(this Shape shape, double distance)
@@ -954,14 +966,17 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null)
+        public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null) =>
+            shape.ApplyMaterial(material == null ? null : _ => material, filterFn);
+
+        public static Shape ApplyMaterial(this Shape shape, Func<int[], Material> materialFn, Func<Vector3, bool> filterFn = null)
         {
-            if (material == null)
+            if (materialFn == null)
                 return shape;
 
             if (filterFn == null)
             {
-                shape.Materials = (shape.Convexes.Length).SelectRange(_ => material).ToArray();
+                shape.Materials = shape.Convexes.Select(materialFn).ToArray();
 
                 return shape;
             }
@@ -970,10 +985,10 @@ namespace Model3D.Extensions
             var cs = shape.Convexes;
 
             if (shape.Materials == null)
-                shape.Materials = shape.Convexes.Select(c => c.All(i => filterFn(ps[i])) ? material : null).ToArray();
+                shape.Materials = shape.Convexes.Select(c => c.All(i => filterFn(ps[i])) ? materialFn(c) : null).ToArray();
             else
                 shape.Materials
-                    .ToArray().ForEach((m, i) => shape.Materials[i] = cs[i].All(j => filterFn(ps[j])) ? material : m);
+                    .ToArray().ForEach((m, i) => shape.Materials[i] = cs[i].All(j => filterFn(ps[j])) ? materialFn(cs[i]) : m);
 
             return shape;
         }
@@ -981,6 +996,13 @@ namespace Model3D.Extensions
         public static Shape ApplyColor(this Shape shape, Color color, Func<Vector3, bool> filterFn = null)
         {
             shape.ApplyMaterial(Materials.GetByColor(color), filterFn);
+
+            return shape;
+        }
+
+        public static Shape ApplyColor(this Shape shape, Func<int[], Color> colorFn)
+        {
+            shape.ApplyMaterial(c=>Materials.GetByColor(colorFn(c)));
 
             return shape;
         }

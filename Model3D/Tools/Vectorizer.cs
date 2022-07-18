@@ -97,10 +97,13 @@ namespace Model3D.Tools
             return (8).SelectRange(i => leftDirs[(i + j) % 8]);
         }
 
-        private Mp[][] GetPerimetersMapFromBitmap(Bitmap bitmap, int colorLevel, bool invertColor)
+        private Mp[][] GetPerimetersMapFromBitmap(Bitmap bitmap, BitmapOptions options)
         {
             var n = bitmap.Width;
             var m = bitmap.Height;
+            var colorLevel = options.ColorLevel;
+            var invertColor = options.InvertColor;
+            var maskFn = options.ColorMask?.Invoke(m, n);
 
             Mp GetPoint((int i, int j) v)
             {
@@ -110,6 +113,9 @@ namespace Model3D.Tools
                 var c = bitmap.GetPixel(v.j, v.i);
                 var isBlack = c.R < colorLevel && c.G < colorLevel && c.B < colorLevel;
                 isBlack = invertColor ? !isBlack : isBlack;
+
+                if (maskFn != null)
+                    isBlack &= maskFn(v.i, v.j);
 
                 return isBlack ? Mp.IsBlack : Mp.None;
             }
@@ -527,7 +533,7 @@ namespace Model3D.Tools
         {
             options ??= new PolygonOptions();
 
-            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options.ColorLevel, options.InvertColor);
+            var perimetersMap = GetPerimetersMapFromBitmap(bitmap, options);
             var perimetersTree = GetPerimetersTreeFromMap(perimetersMap, options.MinimumPolygonPointsCount, GetLevelStrategyFn(options.PolygonLevelStrategy));
             perimetersTree = FilterTree(perimetersTree, options.PolygonLevelStrategy);
 
@@ -629,17 +635,17 @@ namespace Model3D.Tools
                             var b = new Vector2(borders.Max(b => b.b.x), borders.Max(b => b.b.y));
                             var c = (a + b) / 2;
                             var aa = c + options.SkipSmoothOutFactor * (a - c);
-                            var bb = c + options.SkipSmoothOutFactor * (a - c);
+                            var bb = c + options.SkipSmoothOutFactor * (b - c);
 
-                            conditionFn = p => aa.x < p.x && p.x > bb.x &&
-                                               aa.y < p.y && p.y > bb.y;
+                            conditionFn = p => aa.x < p.x && p.x < bb.x &&
+                                               aa.y < p.y && p.y < bb.y;
 
                             break;
                     }
                 }
 
                 sw.Restart();
-                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel, options.SmoothAngleScalar, conditionFn)).ToArray();
+                polygons = polygons.Select(p => p.SmoothOutFar(options.SmoothOutLevel, options.SmoothPointCount, options.SmoothAngleScalar, conditionFn)).ToArray();
                 sw.Stop();
 
                 if (options.DebugProcess)

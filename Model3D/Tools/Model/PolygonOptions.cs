@@ -1,4 +1,9 @@
-﻿namespace Model3D.Tools.Model
+﻿using System;
+using System.Text.Json.Serialization;
+using Model.Libraries;
+using Model3D.Libraries;
+
+namespace Model3D.Tools.Model
 {
     public enum PolygonPointStrategy
     {
@@ -7,10 +12,15 @@
         Square
     }
 
-    public class PolygonOptions
+    public class BitmapOptions
     {
-        public int ColorLevel = 200;
-        public bool InvertColor = false;
+        public int ColorLevel { get; set; } = 200;
+        public bool InvertColor { get; set; } = false;
+        [JsonIgnore]public Func<double, double, Func<double, double, bool>> ColorMask { get; set; }
+    }
+
+    public class PolygonOptions: BitmapOptions
+    {
         public int PolygonOptimizationLevel { get; set; } = 3;
         public int MinimumPolygonPointsCount { get; set; } = 0;
         public LevelStrategy PolygonLevelStrategy { get; set; } = LevelStrategy.All;

@@ -237,17 +237,12 @@ namespace Model.Extensions
             return new Polygon() {Points = points};
         }
 
-        // todo: можно увеличить число точек сглаживания
-        public static Polygon SmoothOut(this Polygon polygon, int count = 1, double angleFactor = -1, Func<Vector2, bool> conditionFn = null)
+        public static Polygon SmoothOut(this Polygon polygon, int repeatCount = 1, double angleFactor = -1, Func<Vector2, bool> conditionFn = null)
         {
             Vector2 Smooth(Vector2 a, Vector2 b, Vector2 c)
             {
-                if (conditionFn != null)
-                    if (!conditionFn(a) || !conditionFn(b) || !conditionFn(c))
-                        return b;
-
-                if (angleFactor == 0)
-                    return (a + b + c) / 3;
+                if (conditionFn != null && !conditionFn(b))
+                    return b;
 
                 var scalar = (c - b).Normed * (b - a).Normed;
 
@@ -255,7 +250,34 @@ namespace Model.Extensions
             }
 
             IEnumerable<Vector2> points = polygon.Points;
-            (count).ForEach(_ => points = points.SelectCircleTriple(Smooth));
+            (repeatCount).ForEach(_ => points = points.SelectCircleTriple(Smooth));
+
+            return new Polygon()
+            {
+                Points = points.ToArray()
+            };
+        }
+
+        public static Polygon SmoothOutFar(this Polygon polygon, int repeatCount = 1, int groupCount = 3, double angleFactor = -1, Func<Vector2, bool> conditionFn = null)
+        {
+            var gc2 = groupCount / 2;
+
+            Vector2 Smooth(Vector2[] ps)
+            {
+                var a = ps[0];
+                var b = ps[gc2];
+                var c = ps[^1];
+
+                if (conditionFn != null && !conditionFn(b))
+                    return b;
+
+                var scalar = (c - b).Normed * (b - a).Normed;
+
+                return scalar >= angleFactor ? ps.Center() : b;
+            }
+
+            IEnumerable<Vector2> points = polygon.Points;
+            (repeatCount).ForEach(_ => points = points.SelectCircleGroup(groupCount, Smooth));
 
             return new Polygon()
             {

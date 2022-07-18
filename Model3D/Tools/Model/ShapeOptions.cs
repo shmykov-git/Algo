@@ -38,6 +38,7 @@ namespace Model3D.Tools.Model
         public (Color odd, Color even) NumColors = (Color.Blue, Color.BlueViolet);
         public int SmoothOutLevel { get; set; } = 2;
         public double SmoothAngleScalar { get; set; } = -0.1;
+        public int SmoothPointCount { get; set; } = 3;
         public SkipSmoothOut SkipSmoothOut { get; set; } = SkipSmoothOut.None;
         public double SkipSmoothOutFactor { get; set; } = 0.99;
         public bool ComposePolygons { get; set; } = true;

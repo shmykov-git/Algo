@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using Aspose.ThreeD.Utilities;
+using MathNet.Numerics;
 using Model;
 using Model.Extensions;
 using Model.Fourier;
@@ -459,6 +460,68 @@ namespace View3D
                 s,
 
                 //Shapes.CoodsNet
+            }.ToSingleShape();
+        }
+
+        public Shape Chess()
+        {
+            var chess = vectorizer.GetContentShape("chess3", volume: 0.04).PutOn();
+
+            var k = chess.Where(v => v.x < -0.33).AlignX(0.5).Mult(3);
+            var q = chess.Where(v => -0.33 < v.x && v.x < -0.15).AlignX(0.5).Mult(3);
+            var b = chess.Where(v => -0.15 < v.x && v.x < 0.02).AlignX(0.5).Mult(3);
+            var n = chess.Where(v => 0.02 < v.x && v.x < 0.22).AlignX(0.5).Mult(3);
+            var r = chess.Where(v => 0.22 < v.x && v.x < 0.37).AlignX(0.5).Mult(3);
+            var p = chess.Where(v => 0.37 < v.x).AlignX(0.5).Mult(3);
+
+            var c1 = Color.Blue;
+            var c2 = Color.Black;
+
+            var data = new (Shape s, (int x, int z) p, Color c)[]
+            {
+                (p, (0, 1), c1),
+                (p, (1, 1), c1),
+                (p, (2, 1), c1),
+                (p, (3, 1), c1),
+                (p, (4, 1), c1),
+                (p, (5, 1), c1),
+                (p, (6, 1), c1),
+                (p, (7, 1), c1),
+
+                (r, (0, 0), c1),
+                (n.ToOx(), (1, 0), c1),
+                (b, (2, 0), c1),
+                (q, (3, 0), c1),
+                (k, (4, 0), c1),
+                (b, (5, 0), c1),
+                (n.ToOx(), (6, 0), c1),
+                (r, (7, 0), c1),
+
+                (p, (0, 6), c2),
+                (p, (1, 6), c2),
+                (p, (2, 6), c2),
+                (p, (3, 6), c2),
+                (p, (4, 6), c2),
+                (p, (5, 6), c2),
+                (p, (6, 6), c2),
+                (p, (7, 6), c2),
+
+                (r, (0, 7), c2),
+                (n.ToOxM(), (1, 7), c2),
+                (b, (2, 7), c2),
+                (q, (3, 7), c2),
+                (k, (4, 7), c2),
+                (b, (5, 7), c2),
+                (n.ToOxM(), (6, 7), c2),
+                (r, (7, 7), c2),
+            };
+
+            var tb = Surfaces.Plane(9, 9).Perfecto(8).ApplyColor(c => c[0].IsEven() ? c2 : c1).AddVolumeZ(0.2).ToOy().PutUnder();
+
+            return new[]
+            {
+                data.Select(v=>v.s.Move(v.p.x - 3.5, 0, -v.p.z + 3.5).ApplyColor(v.c)).ToSingleShape(),
+                tb
             }.ToSingleShape();
         }
     }
