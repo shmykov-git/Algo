@@ -22,6 +22,12 @@ namespace Model3D.Tools.Model
         public TriangulationStrategy TriangulationStrategy { get; set; } = TriangulationStrategy.Ears;
     }
 
+    public enum SkipSmoothOut
+    {
+        None,
+        OuterSquare
+    }
+
     public class ShapeOptions : SolidOptions
     {
         public bool UseLineDirection = false;
@@ -32,6 +38,8 @@ namespace Model3D.Tools.Model
         public (Color odd, Color even) NumColors = (Color.Blue, Color.BlueViolet);
         public int SmoothOutLevel { get; set; } = 2;
         public double SmoothAngleScalar { get; set; } = -0.1;
+        public SkipSmoothOut SkipSmoothOut { get; set; } = SkipSmoothOut.None;
+        public double SkipSmoothOutFactor { get; set; } = 0.99;
         public bool ComposePolygons { get; set; } = true;
         public Action<Shape, int> modifyPolygonShapeFn = null;
         public bool DebugProcess { get; set; } = false;

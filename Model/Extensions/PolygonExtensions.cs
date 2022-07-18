@@ -238,10 +238,14 @@ namespace Model.Extensions
         }
 
         // todo: можно увеличить число точек сглаживания
-        public static Polygon SmoothOut(this Polygon polygon, int count = 1, double angleFactor = -1)
+        public static Polygon SmoothOut(this Polygon polygon, int count = 1, double angleFactor = -1, Func<Vector2, bool> conditionFn = null)
         {
             Vector2 Smooth(Vector2 a, Vector2 b, Vector2 c)
             {
+                if (conditionFn != null)
+                    if (!conditionFn(a) || !conditionFn(b) || !conditionFn(c))
+                        return b;
+
                 if (angleFactor == 0)
                     return (a + b + c) / 3;
 

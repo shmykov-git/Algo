@@ -49,11 +49,14 @@ namespace View3D
 
         public Shape GetShape()
         {
-            var contentName = "dasha1";
+            
+
+            var contentName = "b7";
 
             var options = new ShapeOptions()
             {
-                ColorLevel = 150,                                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 200,                                       // 0 - white, 200 - middle, 255 - black
+                InvertColor = true,                                     // invert black and white color
                 ZVolume = 0.02,                                         // null - no volume, number - add volume to the shape
                 TriangulationStrategy = TriangulationStrategy.Ears,     // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,     // how to get points from single bitmap point
@@ -62,8 +65,9 @@ namespace View3D
                 PolygonLevelStrategy = LevelStrategy.All,   // what kind of polygon levels should be taken
                 SmoothOutLevel = 2,                         // number of 3 point smooth out process run
                 SmoothAngleScalar = -0.1,                   // (on) -1:180%, -0.5:150%, 0:90%, 0.5:30%, 1:0% (off) on or off smoothing on 3 point condition
+                SkipSmoothOut = SkipSmoothOut.OuterSquare,
                 PolygonOptimizationLevel = 3,               // line center point skip. 0 - off, 1 - 3 points, 2 - 3 & 5 points, 3 - 3 & 5 & 7 points
-                MinimumPolygonPointsCount = 8,              // skip polygons with equal or less points
+                MinimumPolygonPointsCount = 0,              // skip polygons with equal or less points
 
                 //DebugPerimeters = true,                   // show perimeter information
                 //DebugBitmap = true,                       // show bitmap as chars

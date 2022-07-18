@@ -244,8 +244,22 @@ namespace Model3D.Tools
                 int CountSiblings((int i, int j) x) => leftDirs.Select(d => x.Add(d)).Count(IsPerimeter);
 
                 var (prevP, p) = wildPerimeter.Select(p => (p, c: CountSiblings(p), bs: getBounds(p)))
-                    .Where(v => v.bs.Length > 0).OrderBy(v => v.c).ThenByDescending(v => v.bs.Length)
-                    .Select(v => (v.bs[0], v.p)).FirstOrDefault();
+                    .OrderBy(v => v.c).ThenByDescending(v => v.bs.Length)
+                    .Select(v => (v.bs.FirstOrDefault(), v.p)).FirstOrDefault();
+
+                if (prevP == default)
+                {
+                    if (p.i == 1)
+                        prevP = (0, p.j);
+                    else if (p.i == m - 2)
+                        prevP = (m - 1, p.j);
+                    else if (p.j == 1)
+                        prevP = (p.i, 0);
+                    else if (p.j == n - 2)
+                        prevP = (p.i, n - 1);
+                    else 
+                        Debugger.Break();
+                }
 
                 var p0 = p;
 
@@ -603,8 +617,29 @@ namespace Model3D.Tools
 
             if (options.SmoothOutLevel > 0)
             {
+                Func<Vector2, bool> conditionFn = null;
+                
+                if (options.SkipSmoothOut != SkipSmoothOut.None)
+                {
+                    switch (options.SkipSmoothOut)
+                    {
+                        case SkipSmoothOut.OuterSquare:
+                            var borders = polygons.Select(p => p.Border).ToArray();
+                            var a = new Vector2(borders.Min(b => b.a.x), borders.Min(b => b.a.y));
+                            var b = new Vector2(borders.Max(b => b.b.x), borders.Max(b => b.b.y));
+                            var c = (a + b) / 2;
+                            var aa = c + options.SkipSmoothOutFactor * (a - c);
+                            var bb = c + options.SkipSmoothOutFactor * (a - c);
+
+                            conditionFn = p => aa.x < p.x && p.x > bb.x &&
+                                               aa.y < p.y && p.y > bb.y;
+
+                            break;
+                    }
+                }
+
                 sw.Restart();
-                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel, options.SmoothAngleScalar)).ToArray();
+                polygons = polygons.Select(p => p.SmoothOut(options.SmoothOutLevel, options.SmoothAngleScalar, conditionFn)).ToArray();
                 sw.Stop();
 
                 if (options.DebugProcess)
