@@ -475,22 +475,17 @@ namespace View3D
             Shape Ss(Shape s, double? a, double? b) =>
                 s.Where(v => (!a.HasValue || a < v.x) && (!b.HasValue || v.x < b));
 
-            var chessFn = Funcs3Z.Hyperboloid;
+            var c1 = Color.Blue;
+            var c2 = Color.Black;
 
-            //Shape ChessMove(Shape s, Vector2)
-            //{
-            //    var p = s.BottomY;
-            //    var dy = chessFn(p.x, p.z);
-            //    return s.MoveY(dy);
-            //}
+            var l = 0.03;
+            var th = 0.3;
+            var chessFn = Funcs3Z.Hyperboloid;
 
             var ss = points.Select(v => Ss(chess, v.a, v.b).AlignX(0.5).Mult(3)).ToArray();
 
             //var (k, q, b, n, r, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]); // chess3
             var (r, b, k, q, n, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]);
-
-            var c1 = Color.Blue;
-            var c2 = Color.Black;
 
             var data = new (Shape s, (int x, int z) p, Color c)[]
             {
@@ -531,16 +526,17 @@ namespace View3D
                 (r, (7, 7), c2),
             };
 
-            var l = 0.03;
+            int ind((int x, int z) p) => 64 + p.z * 8 + p.x;
 
-            var tb = Surfaces.Plane(9, 9).Perfecto(8*l).ApplyZ(chessFn).Mult(1/l).ApplyColor(c => c[0].IsEven() ? c2 : c1).AddVolumeZ(0.2).ToOy();
-            var ns = tb.Normals; //Surfaces.Plane(9, 9).Perfecto(8*l).ApplyZ(chessFn).Normals;
+            var tb = Surfaces.Plane(9, 9).Perfecto(8*l).AddVolumeZ(th*l).ApplyZ(chessFn).Mult(1/l).ApplyColor(c => c[0].IsEven() ? c2 : c1).ToOy();
+            var ns = tb.Normals;
+            var ps = tb.Planes.Select(p => p.Center()).ToArray();
 
             return new[]
             {
                 data.Select(v => v.s
-                        .Rotate(Quaternion.FromRotation(-Vector3.YAxis, ns[v.p.z*8+v.p.x]))
-                        .Move(v.p.x - 3.5, chessFn(l*(v.p.x - 3.5), l*(-v.p.z + 3.5))/l, -v.p.z + 3.5)
+                        .RotateY(ns[ind(v.p)])
+                        .Move(ps[ind(v.p)])
                         .ApplyColor(v.c)).ToSingleShape(),
                 tb
             }.ToSingleShape();

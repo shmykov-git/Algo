@@ -730,6 +730,9 @@ namespace Model3D.Extensions
         public static Shape ToOyM(this Shape shape) => shape.Rotate(Rotates.Z_mY);
         public static Shape OxToOy(this Shape shape) => shape.Rotate(Rotates.X_Y);
 
+        public static Shape RotateY(this Shape shape, Vector3 v) =>
+            shape.Rotate(Quaternion.FromRotation(Vector3.YAxis, v));
+
         public static Shape Rotate(this Shape shape, Quaternion q)
         {
             return new Shape
