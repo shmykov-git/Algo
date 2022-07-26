@@ -48,5 +48,13 @@ namespace Model.Tools
 
             return (bi, result);
         }
+
+        public static (int[] bi, List<TItem> items) WhereBi<TItem>(this IEnumerable<TItem> items, Func<TItem, int, bool> whereFunc)
+        {
+            var result = items.Where(whereFunc).ToList();
+            var bi = items.Select(v => result.IndexOf(v)).ToArray();
+
+            return (bi, result);
+        }
     }
 }

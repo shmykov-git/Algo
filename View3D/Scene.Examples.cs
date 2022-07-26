@@ -465,79 +465,94 @@ namespace View3D
 
         public Shape Chess()
         {
-            var chess = vectorizer.GetContentShape("chess2", 150, volume: 0.04).PutOn();
+            var white = Color.FromArgb(10, 10, 255);
+            var c11 = Color.White;
+            var black = Color.Black;
+
+            var l = 0.03;
+            var sz = 1;
+            var tbTh = 0.3;
+            var chessFn = Funcs3Z.Hyperboloid;
+
+            var chess = vectorizer.GetContentShape("chess2", 150, volume: 0.04 * sz).PutOn();
 
             //return chess + Shapes.CoodsNet;
 
             //var points = new double?[] { null, -0.33, -0.15, 0.02, 0.22, 0.37, null }.SelectPair().ToArray(); // chess3
             var points = new double?[] { null, -0.35, -0.18, 0, 0.19, 0.37, null }.SelectPair().ToArray();
 
-            Shape Ss(Shape s, double? a, double? b) =>
-                s.Where(v => (!a.HasValue || a < v.x) && (!b.HasValue || v.x < b));
+            Shape GetFigure(Shape sh, double? a, double? b)
+            {
+                var s = sh
+                    .Where(v => (!a.HasValue || a < v.x) && (!b.HasValue || v.x < b))
+                    .AlignX(0.5)
+                    .Mult(3 * sz);
 
-            var c1 = Color.Blue;
-            var c2 = Color.Black;
 
-            var l = 0.03;
-            var th = 0.3;
-            var chessFn = Funcs3Z.Hyperboloid;
 
-            var ss = points.Select(v => Ss(chess, v.a, v.b).AlignX(0.5).Mult(3)).ToArray();
+                return s;
+            }
+
+            var ss = points.Select(v => GetFigure(chess, v.a, v.b)).ToArray();
 
             //var (k, q, b, n, r, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]); // chess3
             var (r, b, k, q, n, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]);
 
             var data = new (Shape s, (int x, int z) p, Color c)[]
             {
-                (p, (0, 1), c1),
-                (p, (1, 1), c1),
-                (p, (2, 1), c1),
-                (p, (3, 1), c1),
-                (p, (4, 1), c1),
-                (p, (5, 1), c1),
-                (p, (6, 1), c1),
-                (p, (7, 1), c1),
+                (p, (0, 1), white),
+                (p, (1, 1), white),
+                (p, (2, 1), white),
+                (p, (3, 1), white),
+                (p, (4, 1), white),
+                (p, (5, 1), white),
+                (p, (6, 1), white),
+                (p, (7, 1), white),
 
-                (r, (0, 0), c1),
-                (n.ToOx(), (1, 0), c1),
-                (b, (2, 0), c1),
-                (q, (3, 0), c1),
-                (k, (4, 0), c1),
-                (b, (5, 0), c1),
-                (n.ToOx(), (6, 0), c1),
-                (r, (7, 0), c1),
+                (r, (0, 0), white),
+                (n.ToOx(), (1, 0), white),
+                (b, (2, 0), white),
+                (q, (3, 0), white),
+                (k, (4, 0), white),
+                (b, (5, 0), white),
+                (n.ToOx(), (6, 0), white),
+                (r, (7, 0), white),
 
-                (p, (0, 6), c2),
-                (p, (1, 6), c2),
-                (p, (2, 6), c2),
-                (p, (3, 6), c2),
-                (p, (4, 6), c2),
-                (p, (5, 6), c2),
-                (p, (6, 6), c2),
-                (p, (7, 6), c2),
+                (p, (0, 6), black),
+                (p, (1, 6), black),
+                (p, (2, 6), black),
+                (p, (3, 6), black),
+                (p, (4, 6), black),
+                (p, (5, 6), black),
+                (p, (6, 6), black),
+                (p, (7, 6), black),
 
-                (r, (0, 7), c2),
-                (n.ToOxM(), (1, 7), c2),
-                (b, (2, 7), c2),
-                (q, (3, 7), c2),
-                (k, (4, 7), c2),
-                (b, (5, 7), c2),
-                (n.ToOxM(), (6, 7), c2),
-                (r, (7, 7), c2),
+                (r, (0, 7), black),
+                (n.ToOxM(), (1, 7), black),
+                (b, (2, 7), black),
+                (q, (3, 7), black),
+                (k, (4, 7), black),
+                (b, (5, 7), black),
+                (n.ToOxM(), (6, 7), black),
+                (r, (7, 7), black),
             };
 
             int ind((int x, int z) p) => 64 + p.z * 8 + p.x;
 
-            var tb = Surfaces.Plane(9, 9).Perfecto(8*l).AddVolumeZ(th*l).ApplyZ(chessFn).Mult(1/l).ApplyColor(c => c[0].IsEven() ? c2 : c1).ToOy();
+            var rnd = new Random(3);
+
+            var tb = Surfaces.Plane(9, 9).ApplyColorChess(black, white).Perfecto(8*l).AddVolumeZ(tbTh*l).ApplyZ(chessFn).Mult(1/l).ToOy();
             var ns = tb.Normals;
             var ps = tb.Planes.Select(p => p.Center()).ToArray();
+            //tb = Surfaces.Plane(9, 9).ApplyColorChess(black, white)
+            //    .FilterConvexes((c,i) => i < 16 || i >= 48 || rnd.NextDouble()<0.8).Perfecto(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
 
             return new[]
             {
                 data.Select(v => v.s
-                        .RotateY(ns[ind(v.p)])
-                        .Move(ps[ind(v.p)])
-                        .ApplyColor(v.c)).ToSingleShape(),
+                    .RotateY(ns[ind(v.p)])
+                    .Move(ps[ind(v.p)])
+                    .ApplyColor(v.c)).ToSingleShape(),
                 tb
             }.ToSingleShape();
         }

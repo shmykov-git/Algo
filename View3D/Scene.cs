@@ -33,7 +33,6 @@ namespace View3D
 {
     partial class Scene
     {
-        
         #region ctor
 
         private readonly Settings settings;
@@ -49,15 +48,13 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return Chess();
-
-            var contentName = "chess3";
+            var contentName = "lenin1";
 
             var options = new ShapeOptions()
             {
-                ColorLevel = 200,                                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 100,                                       // 0 - white, 200 - middle, 255 - black
                 //InvertColor = true,                                     // invert black and white color
-                //ColorMask = ColorMasks.Ellipse(1, 1),                        // function to set white color to outside points
+                //ColorMask = ColorMasks.Ellipse4(1, 1),                        // function to set white color to outside points
                 ZVolume = 0.02,                                         // null - no volume, number - add volume to the shape
                 TriangulationStrategy = TriangulationStrategy.Ears,     // triangulation strategy
                 PolygonPointStrategy = PolygonPointStrategy.Circle,     // how to get points from single bitmap point

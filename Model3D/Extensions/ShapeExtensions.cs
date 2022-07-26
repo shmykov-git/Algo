@@ -55,7 +55,8 @@ namespace Model3D.Extensions
         public static Shape ApplyZ(this Shape shape, Func3Z func) => new Shape
         {
             Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y), p.w)).ToArray(),
-            Convexes = shape.Convexes
+            Convexes = shape.Convexes,
+            Materials = shape.Materials
         };
 
         public static Shape WhereEllipse(this Shape shape, double a, double b) =>
@@ -84,6 +85,7 @@ namespace Model3D.Extensions
             {
                 Points = indBi.items.Select(i => shape.Points[i]).ToArray(),
                 Convexes = shape.Convexes.Transform(i => indBi.bi[i]),
+                Materials = shape.Materials
             };
         }
 
@@ -484,7 +486,7 @@ namespace Model3D.Extensions
             Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
             Vector3 GetNP(IEnumerable<Vector3> vs) => vs.Center().ToLenWithCheck(ln => distance / ln);
 
-            var psMoves = shape.Convexes.SelectMany(c => c.Select(i => (i, c))).GroupBy(v => v.i).Select(gv =>
+            var psMoves = shape.Convexes.Select((c,i)=>(c,i)).SelectMany(v => v.c.Select(i => (i, v.c, ind:v.i))).GroupBy(v => v.i).Select(gv =>
                     (i: gv.Key,
                         n: GetNP(gv.Select(v => GetN(v.c)))))
                 .OrderBy(v => v.i).ToDictionary(v=>v.i, v => v.n);
@@ -512,7 +514,7 @@ namespace Model3D.Extensions
             return funcs.Select(fn => fn(shape)).ToSingleShape();
         }
 
-        public static Shape AddVolume(this Shape shape, double distance, Func<Shape, double, Shape> moveFn, bool centered = true)
+        private static Shape AddVolume(this Shape shape, double distance, Func<Shape, double, Shape> moveFn, bool centered = true)
         {
             var up = distance > 0;
             var ln = shape.Points.Length;
@@ -531,7 +533,7 @@ namespace Model3D.Extensions
             {
                 materials = new[]
                 {
-                    up ? shape.Materials.Reverse() : shape.Materials,
+                    up ? shape.Materials : shape.Materials.Reverse(),
                     up ? shape.Materials : shape.Materials.Reverse(),
                     up ? edges.Select(e=>shape.Materials[e.cI]) : edges.Select(e=>shape.Materials[e.cI]).Reverse()
                 }.ManyToArray();
@@ -549,6 +551,9 @@ namespace Model3D.Extensions
                 Materials = materials
             };
         }
+
+
+
         public static Shape AddNormalVolume(this Shape shape, double distance)
         {
             var up = distance > 0;
@@ -980,9 +985,9 @@ namespace Model3D.Extensions
         }
 
         public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null) =>
-            shape.ApplyMaterial(material == null ? null : _ => material, filterFn);
+            shape.ApplyMaterial(material == null ? null : (_,_) => material, filterFn);
 
-        public static Shape ApplyMaterial(this Shape shape, Func<int[], Material> materialFn, Func<Vector3, bool> filterFn = null)
+        public static Shape ApplyMaterial(this Shape shape, Func<int[], int, Material> materialFn, Func<Vector3, bool> filterFn = null)
         {
             if (materialFn == null)
                 return shape;
@@ -998,10 +1003,10 @@ namespace Model3D.Extensions
             var cs = shape.Convexes;
 
             if (shape.Materials == null)
-                shape.Materials = shape.Convexes.Select(c => c.All(i => filterFn(ps[i])) ? materialFn(c) : null).ToArray();
+                shape.Materials = shape.Convexes.Select((c, i) => c.All(j => filterFn(ps[j])) ? materialFn(c, i) : null).ToArray();
             else
                 shape.Materials
-                    .ToArray().ForEach((m, i) => shape.Materials[i] = cs[i].All(j => filterFn(ps[j])) ? materialFn(cs[i]) : m);
+                    .ToArray().ForEach((m, i) => shape.Materials[i] = cs[i].All(j => filterFn(ps[j])) ? materialFn(cs[i], i) : m);
 
             return shape;
         }
@@ -1013,12 +1018,14 @@ namespace Model3D.Extensions
             return shape;
         }
 
-        public static Shape ApplyColor(this Shape shape, Func<int[], Color> colorFn)
-        {
-            shape.ApplyMaterial(c=>Materials.GetByColor(colorFn(c)));
+        public static Shape ApplyColor(this Shape shape, Func<int[], Color> colorFn) =>
+            shape.ApplyMaterial((c,_) => Materials.GetByColor(colorFn(c)));
 
-            return shape;
-        }
+        public static Shape ApplyColor(this Shape shape, Func<int[], int, Color> colorFn) =>
+            shape.ApplyMaterial((c, i) => Materials.GetByColor(colorFn(c, i)));
+
+        public static Shape ApplyColorChess(this Shape shape, Color black, Color white) =>
+            shape.ApplyColor((_, i) => (i % 8 + i / 8).IsEven() ? black : white);
 
         public static Shape ApplyDefaultColor(this Shape shape, Color color)
         {
@@ -1156,10 +1163,25 @@ namespace Model3D.Extensions
 
         public static Shape FilterConvexes(this Shape shape, Func<int[], bool> filterFn)
         {
+            var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => filterFn(v.c)).Select(v => v.i).ToHashSet();
+
             return new Shape()
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Where(filterFn).ToArray(),
+                Convexes = shape.Convexes.Where((_, i) => inds.Contains(i)).ToArray(),
+                Materials = shape.Materials?.Where((_, i) => inds.Contains(i)).ToArray(),
+            }.CleanPoints();
+        }
+
+        public static Shape FilterConvexes(this Shape shape, Func<int[], int, bool> filterFn)
+        {
+            var inds = shape.Convexes.Select((c,i)=>(c,i)).Where(v=>filterFn(v.c, v.i)).Select(v=>v.i).ToHashSet();
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Where((_, i) => inds.Contains(i)).ToArray(),
+                Materials = shape.Materials?.Where((_, i) => inds.Contains(i)).ToArray(),
             }.CleanPoints();
         }
 
