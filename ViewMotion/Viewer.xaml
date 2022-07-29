@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ViewMotion"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="Viewer" Height="800" Width="800">
     <Viewbox>
         <Canvas Width="800" Height="800" Name="Canvas">

@@ -421,7 +421,7 @@ namespace Model3D.Systems
 
             Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
             {
-                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0),
+                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0) + options.WaterPosition,
                 Speed = options.ParticleSpeed
             }).ToArray();
 
@@ -431,6 +431,65 @@ namespace Model3D.Systems
                 GetStepItemsFn = GetStepItems,
                 PlaneModels = models
             }, options);
+        }
+
+        public static IEnumerable<Shape> FountainMotion(FountainOptions options = null)
+        {
+            var vectorizer = DI.Get<Vectorizer>();
+            options ??= new FountainOptions();
+
+            var rnd = new Random(options.Seed);
+            var cubeSize = options.SceneSize;
+            var particleRadius = options.ParticleRadius;
+
+            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-cubeSize.y / 2 + 0.5);
+
+            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
+                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-cubeSize.y / 2 + 3.5);
+
+            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
+                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-cubeSize.y / 2 + 5.5);
+
+            var models = new List<WaterCubePlaneModel>
+            {
+                new() {VisibleShape = level1, ColliderShape = level1, ColliderShift = options.ParticleRadius},
+                new() {VisibleShape = level2, ColliderShape = level2, ColliderShift = options.ParticleRadius},
+                new() {VisibleShape = level3, ColliderShape = level3, ColliderShift = options.ParticleRadius}
+            };
+
+            if (options.JustAddShamrock)
+            {
+                var shamrock = Surfaces.Shamrock(480, 40).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2);
+                var logicShamrock = Surfaces.Shamrock(96, 8).Perfecto(20).ToOy().MoveY(-cubeSize.y / 2 + 2)
+                    .MovePlanes(-particleRadius);
+
+                var fire = vectorizer.GetContentShapeObsolet("f1").Perfecto().ApplyZ(Funcs3Z.Waves).Mult(5)
+                    .MoveY(-cubeSize.y / 2 + 3).ToLines(10);
+                fire = fire.Rotate(1, 0, 1).Move(cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, 1).Move(-cubeSize.x / 2, 0, cubeSize.z / 2) +
+                       fire.Rotate(1, 0, -1).Move(cubeSize.x / 2, 0, -cubeSize.z / 2) +
+                       fire.Rotate(-1, 0, -1).Move(-cubeSize.x / 2, 0, -cubeSize.z / 2);
+
+                models.Add(new WaterCubePlaneModel() { VisibleShape = shamrock, ColliderShape = logicShamrock, ColliderShift = options.ParticleRadius });
+                models.Add(new WaterCubePlaneModel() { VisibleShape = fire });
+            }
+
+            Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
+            {
+                Position = rnd.NextCenteredV3(0.5) + new Vector3(0, -cubeSize.y / 2 + 6.5, 0) + options.WaterPosition,
+                Speed = options.ParticleSpeed
+            }).ToArray();
+
+            return WaterSystemPlatform.CubeMotion(
+                new WaterCubeModel()
+                {
+                    GetStepItemsFn = GetStepItems,
+                    PlaneModels = models
+                }, options);
         }
 
         public static Shape Waterfall(WaterfallOptions options = null)

@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
@@ -80,10 +81,14 @@ namespace ViewMotion
                 if (viewerModel == null)
                     return;
 
-                foreach (var element in viewerModel.VisualElements)
+                foreach (var element in viewerModel.Lights)
                 {
                     AnimatedObject.Children.Add(element);
                 }
+
+                AnimatedObject.Children.Add(viewerModel.Model);
+
+                viewerModel.UpdateModel = model => AnimatedObject.Children[^1] = model;
             };
         }
     }

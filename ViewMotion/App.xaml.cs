@@ -17,7 +17,7 @@ public partial class App : Application
         DI.Configure(services => services
             .AddSingleton<Viewer>(p => new Viewer() {DataContext = p.GetService<ViewerModel>()})
             .AddTransient<ViewerModel>()
-            .AddTransient<MotionScene>()
+            .AddTransient<SceneMotion>()
             .AddTransient<Settings>()
             .AddSingleton<IDirSettings>(p => p.GetService<Settings>())
             .AddSingleton<ContentFinder>()

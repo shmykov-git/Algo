@@ -19,6 +19,27 @@ namespace Model3D.Systems
         public static Shape Cube(WaterCubeModel model, WaterCubeOptions options = null)
         {
             options ??= new WaterCubeOptions();
+            var cubeSize = options.SceneSize;
+            var motion = CubeMotion(model, options).GetEnumerator();
+
+            var jj = (options.SceneSteps.n - 1) / 2;
+            var ii = (options.SceneSteps.m - 1) / 2;
+
+            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i-ii, j-jj)).Select(v =>
+            {
+                var (i, j) = v;
+
+                motion.MoveNext();
+
+                return motion.Current.Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
+            });
+
+            return shapes.ToSingleShape();
+        }
+
+        public static IEnumerable<Shape> CubeMotion(WaterCubeModel model, WaterCubeOptions options = null)
+        {
+            options ??= new WaterCubeOptions();
 
             if (!model.RunCalculations)
                 options.SceneSteps = (1, 1);
@@ -217,21 +238,20 @@ namespace Model3D.Systems
 
             var firstShape = GetStepShape();
 
+            yield return firstShape;
+
             var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i, j)).Skip(1).Select(v =>
             {
-                var (i, j) = v;
-
                 (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
 
-                return GetStepShape().Move(j * (cubeSize.x + 1), -i * (cubeSize.y + 1), 0);
+                return GetStepShape();
             });
 
-            var shape = new[] { firstShape }.Concat(shapes).ToSingleShape();
+            foreach (var shape in shapes)
+                yield return shape;
 
             Debug.WriteLine($"Scene: {sw.Elapsed}");
             sw.Stop();
-
-            return shape;
         }
 
         #region watter model

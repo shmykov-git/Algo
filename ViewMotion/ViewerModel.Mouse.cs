@@ -32,12 +32,13 @@ partial class ViewerModel
 
     public void Move(double x, double y)
     {
-        const double power = 2;
+        const double power = 1;
+        var pr = settings.CameraOptions.LookDirection.MultS(settings.CameraOptions.Position).Abs();
 
         var dx = -settings.CameraOptions.LookDirection.MultV(settings.CameraOptions.UpDirection).ToLen(x);
         var dy = settings.CameraOptions.UpDirection.ToLen(y);
 
-        var move = power * (dx + dy);
+        var move = pr*power * (dx + dy);
         settings.CameraOptions.Position += move;
 
         RefreshCamera();

@@ -13,8 +13,8 @@ class Settings : IDirSettings
 {
     public CameraOptions CameraOptions { get; } = new()
     {
-        Position = new Vector3(2, 2, 2),
-        LookDirection = -new Vector3(2, 2, 2).Normalize(),
+        Position = new Vector3(-3, 3, 30),
+        LookDirection = -new Vector3(-3, 3, 30).Normalize(),
         UpDirection = Vector3.YAxis,
         FieldOfView = 60
     };
@@ -24,12 +24,12 @@ class Settings : IDirSettings
         new()
         {
             Color = Colors.White,
-            Direction = new Vector3(-0.612372, -0.5, -0.612372)
+            Direction = new Vector3(-0.612372, -1.5, -0.612372)
         },
         new()
         {
             Color = Colors.White,
-            Direction = new Vector3(0.612372, -0.5, -0.612372)
+            Direction = new Vector3(0.612372, -1.5, -0.612372)
         }
     };    
 

@@ -40,15 +40,17 @@ namespace Model
             set => Points = value.Select(p => p.ToV4()).ToArray();
         }
 
-        private IEnumerable<(int a, int b, int c)> TrianglesInternal => Convexes
-            .SelectMany(c => c.SelectCircleTriple().Where((_, i) => i % 2 == 0));
+        public static IEnumerable<int> TriangleSchemaList(int count) => (count - 1)
+            .SelectRange(i => i + 1).SelectPair()
+            .SelectMany(v => new[] { 0, v.a, v.b });
 
-        public IEnumerable<int> Triangles => TrianglesInternal.SelectMany(v => new[] { v.a, v.b, v.c });
+        public static IEnumerable<(int a, int b, int c)> TriangleSchema(int count) => (count - 1)
+            .SelectRange(i => i + 1).SelectPair()
+            .Select(v => (0, v.a, v.b));
 
-        private IEnumerable<(Vector2 a, Vector2 b, Vector2 c)> TexturePointsInternal => TexturePoints?
-            .SelectMany(c => c.SelectCircleTriple().Where((_, i) => i % 2 == 0));
+        public IEnumerable<int> Triangles => Convexes.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
 
-        public IEnumerable<Vector2> TriangleTexturePoints => TexturePointsInternal.SelectMany(v => new[] { v.a, v.b, v.c });
+        public IEnumerable<Vector2> TriangleTexturePoints => TexturePoints?.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
 
         public Vector3[] PointNormals
         {
@@ -56,7 +58,7 @@ namespace Model
             {
                 var ps = Points3;
 
-                var normals = TrianglesInternal.Select(t => (t, n: new Plane(ps[t.a], ps[t.b], ps[t.c]).NOne))
+                var normals = Convexes.SelectMany(c => TriangleSchema(c.Length)).Select(t => (t, n: new Plane(ps[t.a], ps[t.b], ps[t.c]).NOne))
                     .SelectMany(t => new[] { (t.t, t.n, k: t.t.a), (t.t, t.n, k: t.t.b), (t.t, t.n, k: t.t.c) })
                     .GroupBy(v => v.k)
                     .OrderBy(gv => gv.Key)

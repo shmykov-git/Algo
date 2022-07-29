@@ -1,54 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
 using ViewMotion.Extensions;
+using ViewMotion.Model;
 using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
+using Shape = Model.Shape;
 
 namespace ViewMotion
 {
     partial class ViewerModel
     {
         public PerspectiveCamera Camera { get; }
-        public List<ModelVisual3D> VisualElements { get; } = new();
+        public ModelVisual3D Model { get; set; } = new();
+        public List<ModelVisual3D> Lights { get; } = new();
+
+        public Action<ModelVisual3D> UpdateModel { get; set; }
 
         private Settings settings;
-        private readonly MotionScene scene;
+        private readonly SceneMotion scene;
+
 
         public void RefreshCamera()
         {
             Camera.Position = settings.CameraOptions.Position.ToP3D();
             Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
         }
-
-        public ViewerModel(Settings settings, MotionScene scene)
+        private void RefreshShape(Shape sceneShape)
         {
-            this.settings = settings;
-            this.scene = scene;
+            var model = new ModelVisual3D();
 
-            Camera = new PerspectiveCamera(
-                settings.CameraOptions.Position.ToP3D(), 
-                Vector3Extensions.ToV3D(settings.CameraOptions.LookDirection), 
-                Vector3Extensions.ToV3D(settings.CameraOptions.UpDirection), 
-                settings.CameraOptions.FieldOfView);
-
-            foreach (var lightOptions in settings.Lights)
+            foreach (var shape in sceneShape.SplitByMaterial())
             {
-                VisualElements.Add(new ModelVisual3D()
-                {
-                    Content = new DirectionalLight(lightOptions.Color, Vector3Extensions.ToV3D(lightOptions.Direction))
-                });
-            }
+                var color = shape.Materials?[0]?.Color.ToWColor() ?? Colors.Black;
 
-            foreach (var shape in scene.StaticScene().SelectMany(s=>s.SplitByMaterial()))
-            {
-                var color = shape.Materials?[0].Color.ToWColor() ?? Colors.Black;
-
-                VisualElements.Add(new ModelVisual3D()
+                var visual = new ModelVisual3D()
                 {
                     Content = new GeometryModel3D(
                         new MeshGeometry3D()
@@ -64,23 +57,58 @@ namespace ViewMotion
                         {
                             Brush = new SolidColorBrush(color)
                         })
-                });
+                };
+
+                model.Children.Add(visual);
+            }
+
+            Model = model;
+            UpdateModel?.Invoke(model);
+        }
+
+        async Task Play(Motion motion)
+        {
+            var count = 0;
+            while (true)
+            {
+                await Task.Delay(10);
+                await motion.Step(++count, RefreshShape);
             }
         }
 
-        private Point[] defaultPoints3 = {new(0, 0), new(1, 0), new(1, 1)};
-        private Point[] defaultPoints4 = {new(0, 0), new(1, 0), new(1, 1), new(0, 1)};
-        private int[] ts3 = {0, 1, 2};
-        private int[] ts4 = { 0, 1, 2, 2, 3, 0 };
+        public ViewerModel(Settings settings, SceneMotion scene)
+        {
+            this.settings = settings;
+            this.scene = scene;
+
+            Camera = new PerspectiveCamera(
+                settings.CameraOptions.Position.ToP3D(), 
+                Vector3Extensions.ToV3D(settings.CameraOptions.LookDirection), 
+                Vector3Extensions.ToV3D(settings.CameraOptions.UpDirection), 
+                settings.CameraOptions.FieldOfView);
+
+            foreach (var lightOptions in settings.Lights)
+            {
+                Lights.Add(new ModelVisual3D()
+                {
+                    Content = new DirectionalLight(lightOptions.Color, Vector3Extensions.ToV3D(lightOptions.Direction))
+                });
+            }
+
+            var motion = scene.Scene().GetAwaiter().GetResult();
+
+            RefreshShape(motion.Shape);
+
+            Play(motion);
+        }
 
         private IEnumerable<Point> ToDefaultTexturePoints(int[] convex)
         {
-            return convex.Length switch
-            {
-                4 => ts4.Select(i => defaultPoints4[i]).ToArray(),
-                3 => ts3.Select(i => defaultPoints3[i]).ToArray(),
-                _ => ts3.Select(i => defaultPoints3[i]).ToArray(),
-            };
+            Point GetPoint(double alfa) => new Point(Math.Cos(alfa), Math.Sign(alfa));
+            var ps = (convex.Length).SelectRange(i => GetPoint(2 * Math.PI * (i + 0.5) / convex.Length)).ToArray();
+            var schema = Shape.TriangleSchemaList(convex.Length);
+
+            return schema.Select(i => ps[i]);
         }
 
     }
