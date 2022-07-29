@@ -14,7 +14,8 @@ namespace Model
 
         public int[][] Convexes;
         public Material[] Materials;
-        
+        public Vector2[][] TexturePoints;
+
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();
         public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? new (int, int)[0][] : Convexes.Select(convex => convex.Length == 2 ? new[] { (convex[0], convex[1]) } : convex.SelectCirclePair((i, j) => (i, j)));
@@ -37,6 +38,33 @@ namespace Model
         {
             get => Points.Select(p => p.ToV3()).ToArray();
             set => Points = value.Select(p => p.ToV4()).ToArray();
+        }
+
+        private IEnumerable<(int a, int b, int c)> TrianglesInternal => Convexes
+            .SelectMany(c => c.SelectCircleTriple().Where((_, i) => i % 2 == 0));
+
+        public IEnumerable<int> Triangles => TrianglesInternal.SelectMany(v => new[] { v.a, v.b, v.c });
+
+        private IEnumerable<(Vector2 a, Vector2 b, Vector2 c)> TexturePointsInternal => TexturePoints?
+            .SelectMany(c => c.SelectCircleTriple().Where((_, i) => i % 2 == 0));
+
+        public IEnumerable<Vector2> TriangleTexturePoints => TexturePointsInternal.SelectMany(v => new[] { v.a, v.b, v.c });
+
+        public Vector3[] PointNormals
+        {
+            get
+            {
+                var ps = Points3;
+
+                var normals = TrianglesInternal.Select(t => (t, n: new Plane(ps[t.a], ps[t.b], ps[t.c]).NOne))
+                    .SelectMany(t => new[] { (t.t, t.n, k: t.t.a), (t.t, t.n, k: t.t.b), (t.t, t.n, k: t.t.c) })
+                    .GroupBy(v => v.k)
+                    .OrderBy(gv => gv.Key)
+                    .Select(gv => -gv.Select(v => v.n).Center())
+                    .ToArray();
+
+                return normals;
+            }
         }
 
         public Vector3[] Normals

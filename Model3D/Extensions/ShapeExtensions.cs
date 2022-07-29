@@ -970,7 +970,7 @@ namespace Model3D.Extensions
 
         public static Shape Normalize(this Shape shape)
         {
-            var bi = shape.Points3.Select(p => p.ToV3D()).ToArray().DistinctBi();
+            var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
             
             var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
             var convexes = shape.Convexes.Transform(i => bi.bi[i])

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Model\Model.csproj", "{5E2437B1-CB80-480F-9715-4EB81CB553AB}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model3D", "Model3D\Model3D.csproj", "{1C745446-4C99-40EA-9AE5-79CD4C868D21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Meta", "Meta\Meta.csproj", "{0EBAF94A-772A-43C9-A750-CEC8F11201AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViewMotion", "ViewMotion\ViewMotion.csproj", "{C72E743C-D833-4337-851F-6CEC4A40D893}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{0EBAF94A-772A-43C9-A750-CEC8F11201AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EBAF94A-772A-43C9-A750-CEC8F11201AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EBAF94A-772A-43C9-A750-CEC8F11201AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C72E743C-D833-4337-851F-6CEC4A40D893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C72E743C-D833-4337-851F-6CEC4A40D893}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C72E743C-D833-4337-851F-6CEC4A40D893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C72E743C-D833-4337-851F-6CEC4A40D893}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

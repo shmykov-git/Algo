@@ -62,7 +62,7 @@ namespace Model3D.Extensions
             return new Vector3(v.x, v.y, z);
         }
 
-        public static Vector3D ToV3D(this Vector3 v)
+        public static Vector3D ToVc3D(this Vector3 v)
         {
             return new Vector3D(v.x, v.y, v.z);
         }
