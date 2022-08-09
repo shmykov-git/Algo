@@ -442,17 +442,19 @@ namespace Model3D.Systems
             var cubeSize = options.SceneSize;
             var particleRadius = options.ParticleRadius;
 
-            var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
-                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
-                .MoveY(-cubeSize.y / 2 + 0.5);
+            var fountainColor = Color.Gray;
 
-            var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2)
-                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
-                .MoveY(-cubeSize.y / 2 + 3.5);
+            var level1 = Surfaces.CircleAngleM(40, 10, 0, Math.PI / 2)
+                .Perfecto(8).AddVolumeZ(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .MoveY(-cubeSize.y / 2 + 0.5).ApplyColor(fountainColor);
 
-            var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2)
-                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
-                .MoveY(-cubeSize.y / 2 + 5.5);
+            var level2 = Surfaces.CircleAngleM(40, 10, 0, Math.PI / 2)
+                .Perfecto(5).AddVolumeZ(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .MoveY(-cubeSize.y / 2 + 3.5).ApplyColor(fountainColor);
+
+            var level3 = Surfaces.CircleAngleM(20, 10, 0, Math.PI / 2)
+                .Perfecto(3).AddVolumeZ(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .MoveY(-cubeSize.y / 2 + 5.5).ApplyColor(fountainColor);
 
             var models = new List<WaterCubePlaneModel>
             {

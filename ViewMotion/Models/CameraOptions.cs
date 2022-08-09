@@ -1,6 +1,6 @@
 ﻿using Aspose.ThreeD.Utilities;
 
-namespace ViewMotion.Model;
+namespace ViewMotion.Models;
 
 class CameraOptions
 {

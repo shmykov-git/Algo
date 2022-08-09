@@ -6,6 +6,7 @@ namespace Model3D.Systems.Model
     {
         public Vector3 SceneSize = new Vector3(12, 18, 12);
         public (int m, int n) SceneSteps = (1, 1);
+        public int SceneMotionSteps = 1000;
         public int ParticleInitCount = 100;
         public int ParticlePerEmissionCount = 2;
         public int ParticleCount = 5000;

@@ -12,7 +12,7 @@ using Model3D.Extensions;
 using Model3D.Systems;
 using Model3D.Systems.Model;
 using Model3D.Tools;
-using ViewMotion.Model;
+using ViewMotion.Models;
 
 namespace ViewMotion;
 
@@ -49,7 +49,7 @@ class SceneMotion
                 LiquidPower = 0.0001,
                 SkipAnimations = 0,
                 StepAnimations = 10,
-                SceneSteps = (30, 30),
+                SceneMotionSteps = 1000,
                 JustAddShamrock = false
             }).GetEnumerator();
 

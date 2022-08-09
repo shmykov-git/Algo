@@ -10,7 +10,8 @@ using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
 using ViewMotion.Extensions;
-using ViewMotion.Model;
+using ViewMotion.Models;
+using LightType = ViewMotion.Models.LightType;
 using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
 using Shape = Model.Shape;
 
@@ -27,20 +28,49 @@ namespace ViewMotion
         private Settings settings;
         private readonly SceneMotion scene;
 
+        private Dictionary<Model.Material, Material> materials = new();
+
+        public Material GetMaterial(Model.Material? m)
+        {
+            var color = m?.Color.ToWColor() ?? Colors.Black;
+            m ??= default!;
+
+            if (materials.TryGetValue(m, out Material? material))
+                return material;
+
+            material = new MaterialGroup()
+            {
+                Children =
+                {
+                    new DiffuseMaterial
+                    {
+                        Brush = new SolidColorBrush(color)
+                    },
+                    new SpecularMaterial()
+                    {
+                        Brush = new SolidColorBrush(color) {Opacity = 0.5},
+                        SpecularPower = 24
+                    },
+                }
+            };
+
+            materials.Add(m, material);
+
+            return material;
+        }
 
         public void RefreshCamera()
         {
             Camera.Position = settings.CameraOptions.Position.ToP3D();
             Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
         }
+
         private void RefreshShape(Shape sceneShape)
         {
             var model = new ModelVisual3D();
 
             foreach (var shape in sceneShape.SplitByMaterial())
             {
-                var color = shape.Materials?[0]?.Color.ToWColor() ?? Colors.Black;
-
                 var visual = new ModelVisual3D()
                 {
                     Content = new GeometryModel3D(
@@ -53,10 +83,8 @@ namespace ViewMotion
                                 ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
                                 : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D()))
                         },
-                        new DiffuseMaterial
-                        {
-                            Brush = new SolidColorBrush(color)
-                        })
+                        GetMaterial(shape.Materials?[0])
+                    )
                 };
 
                 model.Children.Add(visual);
@@ -83,15 +111,20 @@ namespace ViewMotion
 
             Camera = new PerspectiveCamera(
                 settings.CameraOptions.Position.ToP3D(), 
-                Vector3Extensions.ToV3D(settings.CameraOptions.LookDirection), 
-                Vector3Extensions.ToV3D(settings.CameraOptions.UpDirection), 
+                settings.CameraOptions.LookDirection.ToV3D(), 
+                settings.CameraOptions.UpDirection.ToV3D(), 
                 settings.CameraOptions.FieldOfView);
 
             foreach (var lightOptions in settings.Lights)
             {
                 Lights.Add(new ModelVisual3D()
                 {
-                    Content = new DirectionalLight(lightOptions.Color, Vector3Extensions.ToV3D(lightOptions.Direction))
+                    Content = lightOptions.LightType switch
+                    {
+                        LightType.Directional => new DirectionalLight(lightOptions.Color, lightOptions.Direction.ToV3D()),
+                        LightType.Ambient => new AmbientLight(lightOptions.Color),
+                        _ => throw new ArgumentOutOfRangeException()
+                    }
                 });
             }
 

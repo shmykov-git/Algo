@@ -62,23 +62,23 @@ namespace Model3D.Systems
                 switch (type)
                 {
                     case PlatformType.Square:
-                        return Shapes.SquarePlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+                        return Shapes.SquarePlatform(cubeSize.x, cubeSize.z, 0.5).MoveY(-cubeSize.y / 2);
 
                     case PlatformType.Circle:
-                        return Shapes.CirclePlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+                        return Shapes.CirclePlatform(cubeSize.x, cubeSize.z, 0.5).MoveY(-cubeSize.y / 2);
 
                     case PlatformType.Heart:
-                        return Shapes.HeartPlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+                        return Shapes.HeartPlatform(cubeSize.x, cubeSize.z, 0.5).MoveY(-cubeSize.y / 2);
 
                     case PlatformType.Mandelbrot:
-                        return Shapes.MandelbrotPlatform(cubeSize.x, cubeSize.y, 0.5).MoveY(-cubeSize.y / 2);
+                        return Shapes.MandelbrotPlatform(cubeSize.x, cubeSize.z, 0.5).MoveY(-cubeSize.y / 2);
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             }
             
-            var cubeGround = GetCubeGround(options.PlatformType);
+            var cubeGround = GetCubeGround(options.PlatformType).ApplyColor(Color.Red);
 
             model.PlaneModels.Add(new WaterCubePlaneModel()
             {
@@ -240,7 +240,7 @@ namespace Model3D.Systems
 
             yield return firstShape;
 
-            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i, j)).Skip(1).Select(v =>
+            var shapes = (options.SceneMotionSteps).Range().Select(_ =>
             {
                 (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
 

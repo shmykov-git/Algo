@@ -5,7 +5,7 @@ using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model.Interfaces;
 using Model3D.Extensions;
-using ViewMotion.Model;
+using ViewMotion.Models;
 
 namespace ViewMotion;
 
@@ -19,19 +19,38 @@ class Settings : IDirSettings
         FieldOfView = 60
     };
 
-    public LightOptions[] Lights { get; } = 
+    public LightOptions[] Lights { get; } =
     {
         new()
         {
+            LightType = LightType.Directional,
             Color = Colors.White,
-            Direction = new Vector3(-0.612372, -1.5, -0.612372)
+            Direction = new Vector3(-0.612372, -2.5, -0.612372)
         },
         new()
         {
+            LightType = LightType.Directional,
             Color = Colors.White,
-            Direction = new Vector3(0.612372, -1.5, -0.612372)
-        }
-    };    
+            Direction = new Vector3(0.612372, -2.5, -0.612372)
+        },        
+        new()
+        {
+            LightType = LightType.Directional,
+            Color = Colors.White,
+            Direction = new Vector3(0.612372, 2.5, 0.612372)
+        },
+        new()
+        {
+            LightType = LightType.Directional,
+            Color = Colors.White,
+            Direction = new Vector3(-0.612372, 2.5, 0.612372)
+        },
+        //new()
+        //{
+        //    LightType = LightType.Ambient,
+        //    Color = Color.FromRgb(51, 51, 51)
+        //}
+    };
 
     public string OutputDirectory => throw new ArgumentException(nameof(OutputDirectory));
     public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Content");

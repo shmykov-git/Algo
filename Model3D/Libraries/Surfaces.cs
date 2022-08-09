@@ -341,7 +341,22 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = Squares(vn, un)
-        };
+        }.Normalize();
+
+        public static Shape CircleAngleM(int un, int vn, double from, double to) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Circle,
+                UFrom = 0,
+                UTo = -2 * Math.PI,
+                UN = un,
+                VFrom = from,
+                VTo = to,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = Squares(vn, un)
+        }.Normalize();
 
         public static Shape CircleM(int un, int vn) => new Shape
         {
