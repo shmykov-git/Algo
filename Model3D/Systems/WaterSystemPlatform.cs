@@ -78,7 +78,7 @@ namespace Model3D.Systems
                 }
             }
             
-            var cubeGround = GetCubeGround(options.PlatformType).ApplyColor(Color.Red);
+            var cubeGround = GetCubeGround(options.PlatformType).ApplyColor(options.PlatformColor);
 
             model.PlaneModels.Add(new WaterCubePlaneModel()
             {

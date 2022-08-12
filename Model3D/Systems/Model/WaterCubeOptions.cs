@@ -1,4 +1,5 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using System.Drawing;
+using Aspose.ThreeD.Utilities;
 
 namespace Model3D.Systems.Model
 {
@@ -30,6 +31,7 @@ namespace Model3D.Systems.Model
         public double ParticleMaxMove = 2;
         public PlatformType PlatformType = PlatformType.Square;
         public double? PlatformSize = null;
+        public Color PlatformColor = Color.Black;
     }
 
     public enum PlatformType
