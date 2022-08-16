@@ -33,22 +33,31 @@ namespace ViewMotion
         private void SaveRefresh(Action refresh) => buttonRefreshes.Add(refresh);
         private void RefreshButtons() => buttonRefreshes.ForEach(refresh => refresh());
 
+        private void Refresh()
+        {
+            RefreshButtons();
+            OnPropertyChanged(nameof(CalcName));
+            OnPropertyChanged(nameof(ReplayName));
+        }
+
+        public double Speed { get; set; }
+
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
+        
         public ICommand ReplayCommand => new Command(() =>
         {
             if (isPlaying)
                 isPlaying = false;
             else
                 Play();
+            Refresh();
         }, () => !isCalculating, SaveRefresh);
 
         public ICommand CalcCommand => new Command(() =>
         {
             isCalculating = !isCalculating;
-            RefreshButtons();
-            OnPropertyChanged(nameof(CalcName));
+            Refresh();
         }, () => !isPlaying, SaveRefresh);
-        
 
         public string CalcName => isCalculating ? "■ Stop Calculation" : "► Calculate";
 
@@ -185,13 +194,14 @@ namespace ViewMotion
 
             foreach (var shape in viewStates.ToArray())
             {
-                await Task.WhenAll(ShowViewShape(shape), Task.Delay(10));
+                await Task.WhenAll(ShowViewShape(shape), Task.Delay((int) (5 + 20 * Speed)));
                 
                 if (!isPlaying)
                     break;
             }
 
             isPlaying = false;
+            Refresh();
         }
 
         async Task CalculateFrames(Motion motion)

@@ -18,17 +18,21 @@
             <Setter Property="Height" Value="30"/>
             <Setter Property="FontFamily" Value="Comic Sans MS"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Margin" Value="5 0 5 0"></Setter>
+            <Setter Property="Margin" Value="5 5 5 0"></Setter>
         </Style>
         <Style TargetType="CheckBox">
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="5"></Setter>
+            <Setter Property="Margin" Value="5 5 5 0"></Setter>
         </Style>
         <Style TargetType="Label">
             <Setter Property="FontFamily" Value="Comic Sans MS"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="5 5 5 0"></Setter>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="Margin" Value="5 5 5 0"></Setter>
         </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:BooleanToVisibilityInverseConverter x:Key="BoolToVisRev"/>
@@ -39,6 +43,10 @@
             <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
             <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" />
             <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
+            <DockPanel DockPanel.Dock="Top">
+                <Label DockPanel.Dock="Left">Speed</Label>
+                <Slider DockPanel.Dock="Left" Value="{Binding Speed, Mode=TwoWay}"></Slider>
+            </DockPanel>
         </DockPanel>
         <Grid>
             <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>

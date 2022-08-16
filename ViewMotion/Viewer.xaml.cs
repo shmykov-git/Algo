@@ -34,7 +34,7 @@ namespace ViewMotion
 
             Point? p0 = null;
 
-            this.MouseMove += (o, a) =>
+            Canvas.MouseMove += (o, a) =>
             {
                 if (a.LeftButton != MouseButtonState.Pressed)
                 {
