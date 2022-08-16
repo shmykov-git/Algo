@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
+using ViewMotion;
 using ViewMotion.Annotations;
+using ViewMotion.Commands;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
 using LightType = ViewMotion.Models.LightType;
@@ -23,20 +26,31 @@ namespace ViewMotion
 {
     partial class ViewerModel : INotifyPropertyChanged
     {
+        private bool isCalculating = true;
+        private bool isPlaying = false;
+        private List<Action> buttonRefreshes = new();
+
+        private void SaveRefresh(Action refresh) => buttonRefreshes.Add(refresh);
+        private void RefreshButtons() => buttonRefreshes.ForEach(refresh => refresh());
+
+        public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
+        public ICommand ReplayCommand => new Command(() =>
+        {
+            if (isPlaying)
+                isPlaying = false;
+            else
+                Play();
+        }, () => !isCalculating, SaveRefresh);
+
+        public ICommand CalcCommand => new Command(() =>
+        {
+            isCalculating = !isCalculating;
+            RefreshButtons();
+            OnPropertyChanged(nameof(CalcName));
+        }, () => !isPlaying, SaveRefresh);
         
-        //public ICommand AddCommand
-        //{
-        //    get
-        //    {
-        //        return addCommand ??
-        //               (addCommand = new (obj =>
-        //               {
-        //                   Phone phone = new Phone();
-        //                   Phones.Insert(0, phone);
-        //                   SelectedPhone = phone;
-        //               }));
-        //    }
-        //}
+
+        public string CalcName => isCalculating ? "■ Stop Calculation" : "► Calculate";
 
         public bool IsControlPanelVisible
         {
@@ -44,6 +58,16 @@ namespace ViewMotion
             set
             {
                 isControlPanelVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string FrameInfo
+        {
+            get => frameInfo;
+            set
+            {
+                frameInfo = value;
                 OnPropertyChanged();
             }
         }
@@ -95,30 +119,56 @@ namespace ViewMotion
             Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
         }
 
-        private List<Shape> frameShapes = new();
+        private List<ViewState> viewStates = new();
+        private string frameInfo;
 
-        private void RefreshShape(Shape sceneShape)
+        private void OnNewCalculatedFrame(Shape frameShape)
         {
-            if (settings.AllowFrameHistory)
-                frameShapes.Add(sceneShape);
+            var viewState = GetViewState(frameShape);
 
+            if (settings.AllowFrameHistory)
+                viewStates.Add(viewState);
+
+            FrameInfo = $"Frames: {viewStates.Count}";
+            ShowViewShape(viewState);
+        }
+
+        private ViewState GetViewState(Shape frameShape)
+        {
+            var viewShapes = frameShape.SplitByMaterial().Select(shape => new ViewShape()
+            {
+                Positions = new Point3DCollection(shape.Points3.Select(p => p.ToP3D())),
+                TriangleIndices = new Int32Collection(shape.Triangles),
+                Normals = new Vector3DCollection(shape.PointNormals.Select(p => p.ToV3D())),
+                TextureCoordinates = shape.TexturePoints == null
+                    ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
+                    : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D())),
+                Material = GetMaterial(shape.Materials?[0])
+            }).ToArray();
+
+            return new ViewState()
+            {
+                ViewShapes = viewShapes
+            };
+        }
+
+        private async Task ShowViewShape(ViewState state)
+        {
             var model = new ModelVisual3D();
 
-            foreach (var shape in sceneShape.SplitByMaterial())
+            foreach (var viewShape in state.ViewShapes)
             {
                 var visual = new ModelVisual3D()
                 {
                     Content = new GeometryModel3D(
                         new MeshGeometry3D()
                         {
-                            Positions = new Point3DCollection(shape.Points3.Select(p => p.ToP3D())),
-                            TriangleIndices = new Int32Collection(shape.Triangles),
-                            Normals = new Vector3DCollection(shape.PointNormals.Select(p => p.ToV3D())),
-                            TextureCoordinates = shape.TexturePoints == null
-                                ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
-                                : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D()))
+                            Positions = viewShape.Positions,
+                            TriangleIndices = viewShape.TriangleIndices,
+                            Normals = viewShape.Normals,
+                            TextureCoordinates = viewShape.TextureCoordinates
                         },
-                        GetMaterial(shape.Materials?[0])
+                        viewShape.Material
                     )
                 };
 
@@ -129,12 +179,30 @@ namespace ViewMotion
             UpdateModel?.Invoke(model);
         }
 
-        async Task Play(Motion motion)
+        async Task Play()
+        {
+            isPlaying = true;
+
+            foreach (var shape in viewStates.ToArray())
+            {
+                await Task.WhenAll(ShowViewShape(shape), Task.Delay(10));
+                
+                if (!isPlaying)
+                    break;
+            }
+
+            isPlaying = false;
+        }
+
+        async Task CalculateFrames(Motion motion)
         {
             var count = 0;
             while (true)
             {
-                await Task.WhenAll(motion.Step(++count, RefreshShape), Task.Delay(10));
+                if (isCalculating)
+                    await motion.Step(++count, OnNewCalculatedFrame);
+                else
+                    await Task.Delay(10);
             }
         }
 
@@ -164,9 +232,9 @@ namespace ViewMotion
 
             var motion = scene.Scene().GetAwaiter().GetResult();
 
-            RefreshShape(motion.Shape);
+            OnNewCalculatedFrame(motion.Shape);
 
-            Play(motion);
+            CalculateFrames(motion);
         }
 
         private IEnumerable<Point> ToDefaultTexturePoints(int[] convex)
@@ -185,6 +253,20 @@ namespace ViewMotion
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        class ViewState
+        {
+            public ViewShape[] ViewShapes;
+        }
+
+        class ViewShape
+        {
+            public Point3DCollection Positions;
+            public Int32Collection TriangleIndices;
+            public Vector3DCollection Normals;
+            public PointCollection TextureCoordinates;
+            public Material Material;
         }
     }
 }

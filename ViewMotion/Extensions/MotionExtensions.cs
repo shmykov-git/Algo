@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Meta.Extensions;
 using Model;
 using ViewMotion.Models;
 
@@ -28,17 +30,14 @@ static class MotionExtensions
                     return;
 
                 var s = motion.Current;
-
-                if (shape == null)
+                
+                shape = new Shape()
                 {
-                    shape = s;
-                }
-                else
-                {
-                    shape.Points = s.Points;
-                    shape.Convexes = s.Convexes;
-                    shape.Materials = s.Materials;
-                }
+                    Points = s.Points.ToArray(),
+                    Convexes = s.Convexes.ToArray(),
+                    Materials = s.Materials?.ToArray(),
+                    TexturePoints = s.TexturePoints?.ToArray(),
+                };
             }
 
             while (true)

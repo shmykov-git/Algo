@@ -10,7 +10,7 @@
         Title="Viewer" Height="800" Width="1000">
     <Window.Resources>
         <Style TargetType="DockPanel" x:Key="Control">
-            <Setter Property="Width" Value="100" />
+            <Setter Property="Width" Value="200" />
         </Style>
         <Style TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -25,13 +25,20 @@
             <Setter Property="Height" Value="30"/>
             <Setter Property="Margin" Value="5"></Setter>
         </Style>
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="HorizontalAlignment" Value="Center" />
+        </Style>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:BooleanToVisibilityInverseConverter x:Key="BoolToVisRev"/>
     </Window.Resources>
     <DockPanel>
         <DockPanel Style="{StaticResource Control}" DockPanel.Dock="Left" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}">
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Center" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}"></CheckBox>
-            <Button DockPanel.Dock="Top" Command="">Replay</Button>
+            <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
+            <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" />
+            <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
         </DockPanel>
         <Grid>
             <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>

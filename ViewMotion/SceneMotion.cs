@@ -36,11 +36,15 @@ class SceneMotion
         var frames = WaterSystem.IllBeBackMotion(new WaterCubeOptions()
         {
             SceneSize = new Vector3(16, 16, 16),
-            SceneMotionSteps = 5000,
             WaterEnabled = true,
             WaterPosition = new Vector3(0, -1.5, 0),
             WaterDir = new Vector3(-0.06, 1, 0.06),
-            WaterSpeed = 0.16
+            WaterSpeed = 0.16,
+
+            SceneMotionSteps = 300,
+            ParticlePerEmissionCount = 2,
+            EmissionAnimations = 1,
+            StepAnimations = 10,
         });
 
         return frames.ToMotion(s0);
