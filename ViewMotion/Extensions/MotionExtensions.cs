@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Model;
-using Model3D.Extensions;
 using ViewMotion.Models;
 
 namespace ViewMotion.Extensions;
@@ -23,12 +22,13 @@ static class MotionExtensions
         {
             var motion = shapes.GetEnumerator();
 
-            void Step(int num)
+            void GetNextShape()
             {
                 if (!motion.MoveNext())
                     return;
 
                 var s = motion.Current;
+
                 if (shape == null)
                 {
                     shape = s;
@@ -47,11 +47,11 @@ static class MotionExtensions
 
                 if (queue.TryDequeue(out (int num, TaskCompletionSource t) v))
                 {
-                    Step(v.num);
+                    GetNextShape();
                     v.t.SetResult();
                 }
             }
-        });
+        }) {IsBackground = true};
 
         th.Start();
 
@@ -65,15 +65,10 @@ static class MotionExtensions
         }
 
         shape = startShape;
-        //await Step(0, null);
 
         return new Motion
         {
-            Shape = new[]
-            {
-                shape
-                //Shapes.CoodsWithText
-            }.ToSingleShape(),
+            Shape = shape,
             Step = Step
         };
     }

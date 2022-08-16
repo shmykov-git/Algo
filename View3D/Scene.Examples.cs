@@ -375,6 +375,7 @@ namespace View3D
                 SkipAnimations = 100,
                 StepAnimations = 200,
                 SceneSteps = (2, 2),
+                PlatformColor = Color.Black,
                 JustAddShamrock = false
             });
 

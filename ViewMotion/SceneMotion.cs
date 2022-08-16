@@ -31,6 +31,24 @@ class SceneMotion
 
     public Task<Motion> Scene()
     {
+        var s0 = vectorizer.GetText("I'll be back", 300).Perfecto(10).ApplyColor(Color.Blue);
+
+        var frames = WaterSystem.IllBeBackMotion(new WaterCubeOptions()
+        {
+            SceneSize = new Vector3(16, 16, 16),
+            SceneMotionSteps = 5000,
+            WaterEnabled = true,
+            WaterPosition = new Vector3(0, -1.5, 0),
+            WaterDir = new Vector3(-0.06, 1, 0.06),
+            WaterSpeed = 0.16
+        });
+
+        return frames.ToMotion(s0);
+    }
+
+
+    public Task<Motion> Fountain()
+    {
         var s0 = vectorizer.GetText("Fountain").Perfecto(10).ApplyColor(Color.Blue);
 
         var frames = WaterSystem.FountainMotion(new FountainOptions()
@@ -48,7 +66,8 @@ class SceneMotion
             StepAnimations = 10,
             SceneMotionSteps = 1000,
             JustAddShamrock = false,
-            PlatformColor = Color.DarkGreen
+            PlatformColor = Color.DarkGreen,
+            FountainColor = Color.Gray,
         });
 
         return frames.ToMotion(s0);

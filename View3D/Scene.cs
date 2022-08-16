@@ -48,6 +48,8 @@ namespace View3D
 
         public Shape GetShape()
         {
+            return Fountain();
+
             var contentName = "lenin1";
 
             var options = new ShapeOptions()

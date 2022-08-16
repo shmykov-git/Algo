@@ -4,17 +4,47 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ViewMotion"
+        xmlns:converters="clr-namespace:ViewMotion.Converters"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Viewer" Height="800" Width="800">
-    <Viewbox>
-        <Canvas Width="800" Height="800" Name="Canvas">
-            <Viewport3D Name="AnimatedObject"
-              ClipToBounds="True" 
-              Width="800" Height="800"
-              Camera ="{Binding Camera}"
-              Canvas.Left="0" Canvas.Top="0">
-            </Viewport3D>
-        </Canvas>
-    </Viewbox>
+        Title="Viewer" Height="800" Width="1000">
+    <Window.Resources>
+        <Style TargetType="DockPanel" x:Key="Control">
+            <Setter Property="Width" Value="100" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="5 0 5 0"></Setter>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Margin" Value="5"></Setter>
+        </Style>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        <converters:BooleanToVisibilityInverseConverter x:Key="BoolToVisRev"/>
+    </Window.Resources>
+    <DockPanel>
+        <DockPanel Style="{StaticResource Control}" DockPanel.Dock="Left" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}">
+            <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Center" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}"></CheckBox>
+            <Button DockPanel.Dock="Top" Command="">Replay</Button>
+        </DockPanel>
+        <Grid>
+            <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>
+            <Viewbox>
+                <Canvas Name="Canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Viewport3D Name="AnimatedObject"
+                                ClipToBounds="True" 
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                Camera ="{Binding Camera}"
+                                Canvas.Left="0" Canvas.Top="0">
+                    </Viewport3D>
+                </Canvas>
+            </Viewbox>
+        </Grid>
+    </DockPanel>
 </Window>

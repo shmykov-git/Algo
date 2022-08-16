@@ -16,16 +16,19 @@ namespace Model3D.Systems
 {
     public static class WaterSystemPlatform
     {
-        public static Shape Cube(WaterCubeModel model, WaterCubeOptions options = null)
+        public static Shape Cube(WaterCubeModel model, WaterCubeOptions options = null) =>
+            CubeMotion(model, options).WaterCubeMotionToStatic(options);
+
+        public static Shape WaterCubeMotionToStatic(this IEnumerable<Shape> frameShapes, WaterCubeOptions options)
         {
             options ??= new WaterCubeOptions();
             var cubeSize = options.SceneSize;
-            var motion = CubeMotion(model, options).GetEnumerator();
+            var motion = frameShapes.GetEnumerator();
 
             var jj = (options.SceneSteps.n - 1) / 2;
             var ii = (options.SceneSteps.m - 1) / 2;
 
-            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i-ii, j-jj)).Select(v =>
+            var shapes = options.SceneSteps.SelectSnakeRange((i, j) => (i - ii, j - jj)).Select(v =>
             {
                 var (i, j) = v;
 

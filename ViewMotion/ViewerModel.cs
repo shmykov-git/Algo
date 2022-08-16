@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
+using ViewMotion.Annotations;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
 using LightType = ViewMotion.Models.LightType;
@@ -17,8 +21,33 @@ using Shape = Model.Shape;
 
 namespace ViewMotion
 {
-    partial class ViewerModel
+    partial class ViewerModel : INotifyPropertyChanged
     {
+        
+        //public ICommand AddCommand
+        //{
+        //    get
+        //    {
+        //        return addCommand ??
+        //               (addCommand = new (obj =>
+        //               {
+        //                   Phone phone = new Phone();
+        //                   Phones.Insert(0, phone);
+        //                   SelectedPhone = phone;
+        //               }));
+        //    }
+        //}
+
+        public bool IsControlPanelVisible
+        {
+            get => isControlPanelVisible;
+            set
+            {
+                isControlPanelVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
         public PerspectiveCamera Camera { get; }
         public ModelVisual3D Model { get; set; } = new();
         public List<ModelVisual3D> Lights { get; } = new();
@@ -29,6 +58,7 @@ namespace ViewMotion
         private readonly SceneMotion scene;
 
         private Dictionary<Model.Material, Material> materials = new();
+        private bool isControlPanelVisible = true;
 
         public Material GetMaterial(Model.Material? m)
         {
@@ -65,8 +95,13 @@ namespace ViewMotion
             Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
         }
 
+        private List<Shape> frameShapes = new();
+
         private void RefreshShape(Shape sceneShape)
         {
+            if (settings.AllowFrameHistory)
+                frameShapes.Add(sceneShape);
+
             var model = new ModelVisual3D();
 
             foreach (var shape in sceneShape.SplitByMaterial())
@@ -99,8 +134,7 @@ namespace ViewMotion
             var count = 0;
             while (true)
             {
-                await Task.Delay(10);
-                await motion.Step(++count, RefreshShape);
+                await Task.WhenAll(motion.Step(++count, RefreshShape), Task.Delay(10));
             }
         }
 
@@ -144,5 +178,13 @@ namespace ViewMotion
             return schema.Select(i => ps[i]);
         }
 
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
