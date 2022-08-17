@@ -41,6 +41,7 @@ namespace ViewMotion
         }
 
         public double Speed { get; set; }
+        public bool IsAutoReplay { get; set; }
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         
@@ -93,10 +94,11 @@ namespace ViewMotion
         private Dictionary<Model.Material, Material> materials = new();
         private bool isControlPanelVisible = true;
 
+        private Model.Material defaultMaterial = new() {Color = System.Drawing.Color.Black};
         public Material GetMaterial(Model.Material? m)
         {
-            var color = m?.Color.ToWColor() ?? Colors.Black;
-            m ??= default!;
+            m ??= defaultMaterial;
+            var color = m.Color.ToWColor();
 
             if (materials.TryGetValue(m, out Material? material))
                 return material;
@@ -192,13 +194,16 @@ namespace ViewMotion
         {
             isPlaying = true;
 
-            foreach (var shape in viewStates.ToArray())
+            do
             {
-                await Task.WhenAll(ShowViewShape(shape), Task.Delay((int) (5 + 20 * Speed)));
-                
-                if (!isPlaying)
-                    break;
-            }
+                foreach (var shape in viewStates.ToArray())
+                {
+                    await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));
+
+                    if (!isPlaying)
+                        break;
+                }
+            } while (IsAutoReplay && isPlaying);
 
             isPlaying = false;
             Refresh();

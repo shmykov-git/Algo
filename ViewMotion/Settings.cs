@@ -13,8 +13,8 @@ class Settings : IDirSettings
 {
     public CameraOptions CameraOptions { get; } = new()
     {
-        Position = new Vector3(-3, 3, 30),
-        LookDirection = -new Vector3(-3, 3, 30).Normalize(),
+        Position = 0.5 * new Vector3(-3, 3, 10),
+        LookDirection = -(0.5 * new Vector3(-3, 3, 10)).Normalize(),
         UpDirection = Vector3.YAxis,
         FieldOfView = 60
     };
