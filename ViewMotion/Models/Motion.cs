@@ -6,6 +6,6 @@ namespace ViewMotion.Models;
 
 class Motion
 {
-    public Shape Shape;
-    public Func<int, Action<Shape>, Task> Step;
+    public Shape? Shape;
+    public Func<int, Action<Shape>, Task<bool>> Step;
 }

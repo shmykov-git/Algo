@@ -39,10 +39,10 @@
         <converters:BooleanToVisibilityInverseConverter x:Key="BoolToVisRev"/>
     </Window.Resources>
     <DockPanel>
-        <DockPanel Style="{StaticResource Control}" DockPanel.Dock="Left" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}">
+        <DockPanel Name="ControlPanel" Style="{StaticResource Control}" DockPanel.Dock="Left" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}">
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Center" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}"></CheckBox>
             <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
-            <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" />
+            <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" IsEnabled="{Binding CanCalc}" />
             <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsAutoReplay, Mode=TwoWay}">Auto replay</CheckBox>
             <DockPanel DockPanel.Dock="Top">
@@ -52,7 +52,7 @@
         </DockPanel>
         <Grid>
             <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>
-            <Viewbox>
+            <Viewbox Name="DrawArea">
                 <Canvas Name="Canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Viewport3D Name="AnimatedObject"
                                 ClipToBounds="True" 

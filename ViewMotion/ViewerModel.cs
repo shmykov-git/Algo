@@ -38,10 +38,11 @@ namespace ViewMotion
             RefreshButtons();
             OnPropertyChanged(nameof(CalcName));
             OnPropertyChanged(nameof(ReplayName));
+            OnPropertyChanged(nameof(CanCalc));
         }
 
         public double Speed { get; set; }
-        public bool IsAutoReplay { get; set; }
+        public bool IsAutoReplay { get; set; } = true;
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         
@@ -61,7 +62,7 @@ namespace ViewMotion
         }, () => !isPlaying, SaveRefresh);
 
         public string CalcName => isCalculating ? "■ Stop Calculation" : "► Calculate";
-
+        public bool CanCalc { get; set; } = true;
         public bool IsControlPanelVisible
         {
             get => isControlPanelVisible;
@@ -215,10 +216,18 @@ namespace ViewMotion
             while (true)
             {
                 if (isCalculating)
-                    await motion.Step(++count, OnNewCalculatedFrame);
+                    if (!await motion.Step(++count, OnNewCalculatedFrame))
+                    {
+                        isCalculating = false;
+                        CanCalc = false;
+
+                        break;
+                    }
                 else
                     await Task.Delay(10);
             }
+
+            Refresh();
         }
 
         public ViewerModel(Settings settings, SceneMotion scene)
@@ -247,7 +256,8 @@ namespace ViewMotion
 
             var motion = scene.Scene().GetAwaiter().GetResult();
 
-            OnNewCalculatedFrame(motion.Shape);
+            if (motion.Shape != null)
+                OnNewCalculatedFrame(motion.Shape);
 
             CalculateFrames(motion);
         }

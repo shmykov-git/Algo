@@ -34,8 +34,13 @@ namespace ViewMotion
 
             Point? p0 = null;
 
-            Canvas.MouseMove += (o, a) =>
+            this.MouseMove += (o, a) =>
             {
+                var p = a.GetPosition(this);
+                
+                if (p.X < ControlPanel.Width)
+                    return;
+
                 if (a.LeftButton != MouseButtonState.Pressed)
                 {
                     p0 = null;
@@ -45,14 +50,13 @@ namespace ViewMotion
 
                 if (p0 == null)
                 {
-                    p0 = a.GetPosition(AnimatedObject);
+                    p0 = p;
                     
                     return;
                 }
 
                 var size = Math.Min(this.Width, this.Height);
 
-                var p = a.GetPosition(AnimatedObject);
                 var move = p - p0.Value;
 
                 if (a.RightButton == MouseButtonState.Pressed)

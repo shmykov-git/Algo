@@ -14,20 +14,23 @@ static class MotionExtensions
 {
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, Shape? startShape = null, TimeSpan? stepDelay = null)
     {
-        startShape ??= Shape.Empty;
         stepDelay ??= TimeSpan.FromMilliseconds(1);
 
         var queue = new ConcurrentQueue<(int, TaskCompletionSource)>();
-        Shape shape = null;
+        Shape? shape = null;
 
         var th = new Thread(async () =>
         {
             var motion = shapes.GetEnumerator();
 
-            void GetNextShape()
+            bool CalculateNextShape()
             {
                 if (!motion.MoveNext())
-                    return;
+                {
+                    shape = null;
+
+                    return false;
+                }
 
                 var s = motion.Current;
                 
@@ -38,6 +41,8 @@ static class MotionExtensions
                     Materials = s.Materials?.ToArray(),
                     TexturePoints = s.TexturePoints?.ToArray(),
                 };
+
+                return true;
             }
 
             while (true)
@@ -46,21 +51,33 @@ static class MotionExtensions
 
                 if (queue.TryDequeue(out (int num, TaskCompletionSource t) v))
                 {
-                    GetNextShape();
+                    var hasNewShape = CalculateNextShape();
                     v.t.SetResult();
+
+                    if (!hasNewShape)
+                        break;
                 }
             }
         }) {IsBackground = true};
 
         th.Start();
 
-        async Task Step(int num, Action<Shape> update)
+        async Task<bool> Step(int num, Action<Shape> update)
         {
             var t = new TaskCompletionSource();
             queue.Enqueue((num, t));
             await t.Task;
 
-            update?.Invoke(shape);
+            if (shape != null)
+            {
+                update?.Invoke(shape);
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         shape = startShape;
