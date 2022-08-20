@@ -33,23 +33,23 @@ class Settings : IDirSettings
             Color = Colors.White,
             Direction = new Vector3(0.612372, -2.5, -0.612372)
         },        
-        new()
-        {
-            LightType = LightType.Directional,
-            Color = Colors.White,
-            Direction = new Vector3(0.612372, 2.5, 0.612372)
-        },
-        new()
-        {
-            LightType = LightType.Directional,
-            Color = Colors.White,
-            Direction = new Vector3(-0.612372, 2.5, 0.612372)
-        },
         //new()
         //{
-        //    LightType = LightType.Ambient,
-        //    Color = Color.FromRgb(51, 51, 51)
-        //}
+        //    LightType = LightType.Directional,
+        //    Color = Colors.White,
+        //    Direction = new Vector3(0.612372, 2.5, 0.612372)
+        //},
+        //new()
+        //{
+        //    LightType = LightType.Directional,
+        //    Color = Colors.White,
+        //    Direction = new Vector3(-0.612372, 2.5, 0.612372)
+        //},
+        new()
+        {
+            LightType = LightType.Ambient,
+            Color = Color.FromRgb(64, 64, 64)
+        }
     };
 
     public bool AllowFrameHistory { get; set; } = true;

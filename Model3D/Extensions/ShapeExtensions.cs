@@ -1237,6 +1237,8 @@ namespace Model3D.Extensions
 
         public static int[][] GetPerimeters(this Shape shape) => PerimeterEngine.FindPerimeter(shape);
 
+        public static Shape HardFaces(this Shape shape) => shape.SplitByConvexes(false).ToSingleShape();
+
         public static Shape[] SplitByConvexes(this Shape shape, bool withVolume = true)
         {
             return shape.Convexes.Select((c,i) => new Shape()

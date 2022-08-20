@@ -116,7 +116,7 @@ namespace ViewMotion
                     {
                         Brush = new SolidColorBrush(color) {Opacity = 0.5},
                         SpecularPower = 24
-                    },
+                    }
                 }
             };
 
@@ -152,7 +152,7 @@ namespace ViewMotion
             {
                 Positions = new Point3DCollection(shape.Points3.Select(p => p.ToP3D())),
                 TriangleIndices = new Int32Collection(shape.Triangles),
-                Normals = new Vector3DCollection(shape.PointNormals.Select(p => p.ToV3D())),
+                //Normals = new Vector3DCollection(shape.PointNormals.Select(p => p.ToV3D())),
                 TextureCoordinates = shape.TexturePoints == null
                     ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
                     : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D())),
@@ -178,8 +178,8 @@ namespace ViewMotion
                         {
                             Positions = viewShape.Positions,
                             TriangleIndices = viewShape.TriangleIndices,
-                            Normals = viewShape.Normals,
-                            TextureCoordinates = viewShape.TextureCoordinates
+                            //Normals = viewShape.Normals,
+                            TextureCoordinates = viewShape.TextureCoordinates,
                         },
                         viewShape.Material
                     )
@@ -290,7 +290,7 @@ namespace ViewMotion
         {
             public Point3DCollection Positions;
             public Int32Collection TriangleIndices;
-            public Vector3DCollection Normals;
+            //public Vector3DCollection Normals;
             public PointCollection TextureCoordinates;
             public Material Material;
         }

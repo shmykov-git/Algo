@@ -37,6 +37,15 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        var s = Shapes.Icosahedron.HardFaces().ApplyColor(Color.Blue);
+
+        return new[]
+        {
+            s,
+
+        }.ToMotion();
+
+
         var s0 = vectorizer.GetContentShape("b7").ApplyColor(Color.Blue);
         //s0.ApplyZ(Funcs3Z.Hyperboloid)
 

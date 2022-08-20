@@ -52,6 +52,7 @@ namespace Model
 
         public IEnumerable<Vector2> TriangleTexturePoints => TexturePoints?.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
 
+        // todo: check
         public Vector3[] PointNormals
         {
             get
