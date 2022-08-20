@@ -129,6 +129,7 @@ namespace ViewMotion
         {
             Camera.Position = settings.CameraOptions.Position.ToP3D();
             Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
+            Camera.UpDirection = settings.CameraOptions.UpDirection.ToV3D();
         }
 
         private List<ViewState> viewStates = new();

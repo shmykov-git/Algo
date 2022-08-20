@@ -37,7 +37,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var s0 = vectorizer.GetContentShape("b7");
+        var s0 = vectorizer.GetContentShape("b7").ApplyColor(Color.Blue);
         //s0.ApplyZ(Funcs3Z.Hyperboloid)
 
         return (20).Range().Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)

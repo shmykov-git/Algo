@@ -19,14 +19,19 @@ partial class ViewerModel
 
     public void Rotate(double x, double y)
     {
-        const double power = 2;
-        var pr = settings.CameraOptions.LookDirection.MultS(settings.CameraOptions.Position);
-        var center = settings.CameraOptions.Position - settings.CameraOptions.LookDirection.ToLenWithCheck(pr);
+        var camera = settings.CameraOptions;
 
-        var q = Quaternion.FromRotation(Vector3.ZAxis, new Vector3(power * x, -power * y, 1).Normalize());
-        
-        settings.CameraOptions.Position = center + (settings.CameraOptions.Position - center) * q;
-        settings.CameraOptions.LookDirection *= q;
+        const double power = 4;
+        var pr = camera.LookDirection.MultS(camera.Position);
+        var center = camera.Position - camera.LookDirection.ToLenWithCheck(pr);
+
+        var from = camera.LookDirection;
+        var to = camera.LookDirection + power * y * camera.UpDirection - power * x * camera.LookDirection.MultV(camera.UpDirection);
+        var q = Quaternion.FromRotation(from, to.Normalize());
+
+        camera.Position = center + (camera.Position - center) * q;
+        camera.LookDirection *= q;
+        camera.UpDirection *= q;
 
         RefreshCamera();
     }
