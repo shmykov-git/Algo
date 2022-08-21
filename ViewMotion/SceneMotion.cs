@@ -17,6 +17,7 @@ using Model3D.Libraries;
 using Model3D.Systems;
 using Model3D.Systems.Model;
 using Model3D.Tools;
+using Model3D.Tools.Model;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
 
@@ -37,20 +38,22 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var s = Shapes.Icosahedron.HardFaces().ApplyColor(Color.Blue);
+        //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 
-        return new[]
-        {
-            s,
+        //return new[]
+        //{
+        //    s,
 
-        }.ToMotion();
+        //}.ToMotion();
 
 
         var s0 = vectorizer.GetContentShape("b7").ApplyColor(Color.Blue);
         //s0.ApplyZ(Funcs3Z.Hyperboloid)
 
-        return (20).Range().Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)
-            .Select(d => s0.Mult(d).ApplyZ(Funcs3Z.Hyperboloid).Mult(1 / d)).ToMotion();
+        return (20).Range()
+            .Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)
+            .Select(d => s0.Mult(d).ApplyZ(Funcs3Z.Hyperboloid).Mult(1 / d))
+            .ToMotion();
 
         //return new[] {s}.ToMotion();
     }

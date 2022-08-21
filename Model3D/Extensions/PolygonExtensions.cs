@@ -50,7 +50,7 @@ namespace Model3D.Extensions
             if (!needVolume)
                 return shape;
 
-            return shape.AddVolumeZ(options.ZVolume.Value);
+            return shape.AddVolumeZ(options.ZVolume.Value, options.ZHardFaces);
         }
 
         public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false)

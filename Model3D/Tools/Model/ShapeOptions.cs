@@ -18,6 +18,7 @@ namespace Model3D.Tools.Model
     public class SolidOptions : TriangulationOptions
     {
         public double? ZVolume { get; set; } = 1;
+        public bool ZHardFaces { get; set; } = true;
         public double? ToLinesSize = null;
         public TriangulationStrategy TriangulationStrategy { get; set; } = TriangulationStrategy.Ears;
     }

@@ -131,9 +131,9 @@ namespace Model3D.Extensions
             Convexes = shape.Convexes
         };
 
-        public static Shape AddVolumeX(this Shape shape, double xVolume) => AddVolume(shape, xVolume, MoveX);
-        public static Shape AddVolumeY(this Shape shape, double yVolume) => AddVolume(shape, yVolume, MoveY);
-        public static Shape AddVolumeZ(this Shape shape, double zVolume) => AddVolume(shape, zVolume, MoveZ);
+        public static Shape AddVolumeX(this Shape shape, double xVolume, bool hardFaces = true) => AddVolume(shape, xVolume, MoveX, true, hardFaces);
+        public static Shape AddVolumeY(this Shape shape, double yVolume, bool hardFaces = true) => AddVolume(shape, yVolume, MoveY, true, hardFaces);
+        public static Shape AddVolumeZ(this Shape shape, double zVolume, bool hardFaces = true) => AddVolume(shape, zVolume, MoveZ, true, hardFaces);
 
         public static Shape AddPerimeterVolume(this Shape shape, double z)
         {
@@ -514,7 +514,7 @@ namespace Model3D.Extensions
             return funcs.Select(fn => fn(shape)).ToSingleShape();
         }
 
-        private static Shape AddVolume(this Shape shape, double distance, Func<Shape, double, Shape> moveFn, bool centered = true)
+        private static Shape AddVolume(this Shape shape, double distance, Func<Shape, double, Shape> moveFn, bool centered = true, bool hardFaces = true)
         {
             var up = distance > 0;
             var ln = shape.Points.Length;
@@ -539,17 +539,47 @@ namespace Model3D.Extensions
                 }.ManyToArray();
             }
 
-            return new Shape()
+            if (hardFaces)
             {
-                Points = aShape.Points.Concat(bShape.Points).ToArray(),
-                Convexes = new[]
+                var ln2 = 2 * ln;
+                var ln3 = 3 * ln;
+
+                return new Shape()
                 {
-                    shape.Convexes.ReverseConvexes(up),
-                    bShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
-                    edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
-                }.ManyToArray(),
-                Materials = materials
-            };
+                    Points = new[]
+                    {
+                        aShape.Points,
+                        bShape.Points,
+                        aShape.Points,
+                        bShape.Points,
+                    }.ManyToArray(),
+                    Convexes = new[]
+                    {
+                        shape.Convexes.ReverseConvexes(up),
+                        bShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
+                        edges.Select(e => new[] {e.e.i + ln2, e.e.j + ln2, e.e.j + ln3, e.e.i + ln3}).ReverseConvexes(!up)
+                    }.ManyToArray(),
+                    Materials = materials
+                };
+            }
+            else
+            {
+                return new Shape()
+                {
+                    Points = new[]
+                    {
+                        aShape.Points,
+                        bShape.Points,
+                    }.ManyToArray(),
+                    Convexes = new[]
+                    {
+                        shape.Convexes.ReverseConvexes(up),
+                        bShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
+                        edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
+                    }.ManyToArray(),
+                    Materials = materials
+                };
+            }
         }
 
 
