@@ -38,6 +38,10 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        // todo: save video
+
+        return Waterfall();
+
         //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 
         //return new[]
@@ -47,14 +51,19 @@ partial class SceneMotion
         //}.ToMotion();
 
 
-        var s0 = vectorizer.GetContentShape("b7").ApplyColor(Color.Blue);
-        //s0.ApplyZ(Funcs3Z.Hyperboloid)
+        //var s0 = vectorizer.GetContentShape("lenin1").ApplyColor(Color.Blue);
 
-        return (20).Range()
-            .Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)
-            .Select(d => s0.Mult(d).ApplyZ(Funcs3Z.Hyperboloid).Mult(1 / d))
+        return (100).Range()
+            .Select(i => vectorizer.GetContentShape("lenin1", new ShapeOptions(){ZVolume = 0.02, SmoothOutLevel = i}).ApplyColor(Color.Blue))
             .ToMotion();
 
-        //return new[] {s}.ToMotion();
+        //s0.ApplyZ(Funcs3Z.Hyperboloid)
+
+        //return (20).Range()
+        //    .Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)
+        //    .Select(d => s0.Mult(d).ApplyZ(Funcs3Z.Hyperboloid).Mult(1 / d))
+        //    .ToMotion();
+
+ 
     }
 }

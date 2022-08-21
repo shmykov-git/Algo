@@ -214,18 +214,20 @@ namespace ViewMotion
         async Task CalculateFrames(Motion motion)
         {
             var count = 0;
-            while (true)
+            while (CanCalc)
             {
                 if (isCalculating)
+                {
                     if (!await motion.Step(++count, OnNewCalculatedFrame))
                     {
                         isCalculating = false;
                         CanCalc = false;
-
-                        break;
-                    }
+                    }   
+                }
                 else
+                {
                     await Task.Delay(10);
+                }
             }
 
             Refresh();
@@ -259,6 +261,9 @@ namespace ViewMotion
 
             if (motion.Shape != null)
                 OnNewCalculatedFrame(motion.Shape);
+
+            settings.CameraOptions.Position *= motion.CameraDistanceCoff;
+            RefreshCamera();
 
             CalculateFrames(motion);
         }

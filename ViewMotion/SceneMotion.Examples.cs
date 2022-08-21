@@ -11,6 +11,19 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
+    public Task<Motion> Waterfall() =>
+        WaterSystem.WaterfallMotion(new WaterfallOptions()
+        {
+            GutterCurvature = 0,
+            GutterRotation = new Vector3(0.05, 6, 1),
+            ParticleInitCount = 500,
+            SceneMotionSteps = 100,
+            StepAnimations = 10,
+            PlatformColor = Color.FromArgb(64, 0, 0),
+            SphereColor = Color.FromArgb(64, 0, 0),
+            GutterColor = Color.FromArgb(64, 0, 0),
+        }).ToMotion(cameraDistanceCoff:5);
+
     public Task<Motion> IllBeBack()
     {
         var s0 = vectorizer.GetText("I'll be back", 300).Perfecto(10).ApplyColor(Color.Blue);

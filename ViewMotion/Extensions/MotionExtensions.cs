@@ -12,7 +12,7 @@ namespace ViewMotion.Extensions;
 
 static class MotionExtensions
 {
-    public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, Shape? startShape = null, TimeSpan? stepDelay = null)
+    public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, Shape? startShape = null, TimeSpan? stepDelay = null, double cameraDistanceCoff = 1)
     {
         stepDelay ??= TimeSpan.FromMilliseconds(1);
 
@@ -84,6 +84,7 @@ static class MotionExtensions
 
         return new Motion
         {
+            CameraDistanceCoff = cameraDistanceCoff,
             Shape = shape,
             Step = Step
         };
