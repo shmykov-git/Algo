@@ -262,8 +262,11 @@ namespace ViewMotion
             if (motion.Shape != null)
                 OnNewCalculatedFrame(motion.Shape);
 
-            settings.CameraOptions.Position *= motion.CameraDistanceCoff;
-            RefreshCamera();
+            if (motion.CameraDistance.HasValue)
+            {
+                settings.CameraOptions.Position = settings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
+                RefreshCamera();
+            }
 
             CalculateFrames(motion);
         }

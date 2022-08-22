@@ -6,7 +6,7 @@ namespace ViewMotion.Models;
 
 class Motion
 {
-    public double CameraDistanceCoff = 1;
+    public double? CameraDistance = null;
     public Shape? Shape;
     public Func<int, Action<Shape>, Task<bool>> Step;
 }

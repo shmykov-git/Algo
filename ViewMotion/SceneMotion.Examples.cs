@@ -11,9 +11,26 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
+    public Task<Motion> Aqueduct() =>
+        WaterSystem.AqueductMotion(new WaterCubeOptions()
+        {
+            SceneSize = new Vector3(16, 16, 16),
+            ParticleInitCount = 5000,
+            SceneMotionSteps = 200,
+            StepAnimations = 10,
+            GravityPower = 0.001,
+            LiquidPower = 0.0002,
+            FrictionFactor = 0.8,
+            ParticleCount = 10000,
+            ParticlePlaneBackwardThikness = 1,
+            PlatformType = PlatformType.Circle,
+            PlatformColor = Color.FromArgb(64, 0, 0),
+        }).ToMotion(cameraDistance: 30);
+
     public Task<Motion> Waterfall() =>
         WaterSystem.WaterfallMotion(new WaterfallOptions()
         {
+            SceneSize = new Vector3(12, 15, 12),
             GutterCurvature = 0,
             GutterRotation = new Vector3(0.05, 6, 1),
             ParticleInitCount = 500,
@@ -22,7 +39,7 @@ partial class SceneMotion
             PlatformColor = Color.FromArgb(64, 0, 0),
             SphereColor = Color.FromArgb(64, 0, 0),
             GutterColor = Color.FromArgb(64, 0, 0),
-        }).ToMotion(cameraDistanceCoff:5);
+        }).ToMotion(cameraDistance:25);
 
     public Task<Motion> IllBeBack()
     {

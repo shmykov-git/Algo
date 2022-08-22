@@ -24,14 +24,15 @@ namespace Model3D.Systems
 {
     public static class WaterSystem
     {
-
-        public static Shape Aqueduct()
+        public static Shape Aqueduct(WaterCubeOptions options = null) =>
+            AqueductMotion(options).WaterCubeMotionToStatic(options);
+        public static IEnumerable<Shape> AqueductMotion(WaterCubeOptions options = null)
         {
-            var sceneSize = new Vector3(16, 16, 16);
+            // todo: cylinder collider
 
-            var options = new WaterCubeOptions()
+            options ??= new WaterCubeOptions()
             {
-                SceneSize = sceneSize,
+                SceneSize = new Vector3(16, 16, 16),
                 ParticleInitCount = 5000,
                 SkipAnimations = 150,
                 SceneSteps = (1, 1),
@@ -39,7 +40,7 @@ namespace Model3D.Systems
                 WaterEnabled = false,
                 WaterSpeed = 0.066,
                 WaterDir = new Vector3(0.2, 1, 0.2),
-                WaterPosition = new Vector3(-2, -sceneSize.y / 2 + 8, -2),
+                WaterPosition = new Vector3(-2, -16 / 2 + 8, -2),
                 ParticlePerEmissionCount = 10,
                 GravityPower = 0.001,
                 LiquidPower = 0.0002,
@@ -47,8 +48,9 @@ namespace Model3D.Systems
                 ParticleCount = 10000,
                 ParticlePlaneBackwardThikness = 1,
                 PlatformType = PlatformType.Circle,
-                PlatformSize = 16,
             };
+
+            var sceneSize = options.SceneSize;
 
             var rnd = new Random(options.Seed);
 
@@ -87,14 +89,14 @@ namespace Model3D.Systems
 
             var ball = Shapes.Ball.MoveY(-sceneSize.y / 2 + 3).ApplyColor(ballColor);
 
-            WaterSystemPlatform.Item[] GetInitItemsFn(int n) =>
+            Item[] GetInitItemsFn(int n) =>
                 (n).SelectRange(_ =>
                 {
                     var alfa = rnd.NextDouble() * 2 * Math.PI;
                     var r = 6.3 + rnd.NextDouble();
                     var y = rnd.NextDouble() - 0.3;
 
-                    return new WaterSystemPlatform.Item()
+                    return new Item()
                     {
                         Position = new Vector3(r * Math.Cos(alfa), y, r * Math.Sin(alfa)),
                         Speed = new Vector3(0, 0, 0)
@@ -106,17 +108,17 @@ namespace Model3D.Systems
                 particle.ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null, null, null);
             }
 
-            return WaterSystemPlatform.Cube(
+            return WaterSystemPlatform.CubeMotion(
                 new WaterCubeModel()
                 {
-                    RunCalculations = false,
-                    DebugColliders = false,
-                    DebugCollidersNoVisible = false,
-                    DebugCollidersSkipCube = false,
-                    DebugCollidersSkipShift = true,
-                    DebugCollidersAsLines = true,
-                    DebugCollidersAsLinesThikness = 2,
-                    DebugNetPlanes = false,
+                    //RunCalculations = false,
+                    //DebugColliders = false,
+                    //DebugCollidersNoVisible = false,
+                    //DebugCollidersSkipCube = false,
+                    //DebugCollidersSkipShift = true,
+                    //DebugCollidersAsLines = true,
+                    //DebugCollidersAsLinesThikness = 2,
+                    //DebugNetPlanes = false,
 
                     PlaneModels = new List<WaterCubePlaneModel>()
                     {

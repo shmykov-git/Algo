@@ -23,7 +23,7 @@ namespace Model3D.Systems.Model
         public Vector3 WaterDir = new Vector3(0.04, 1.5, 0.04);
         public Vector3 WaterPosition = new Vector3(0, 0, 0);
         public int Seed = 0;
-        public int SkipAnimations = 100;
+        public int SkipAnimations = 0;
         public int EmissionAnimations = 1;
         public int StepAnimations = 200;
         public int? StepDebugNotify = 50;
