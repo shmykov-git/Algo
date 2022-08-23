@@ -58,7 +58,19 @@ namespace Model3D.Systems
             var particle = Shapes.Icosahedron.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
 
             var cube = Shapes.Cube.Scale(cubeSize);
-            var logicCube = cube.ReversePlanes();
+
+            Shape GetCubeCollider(PlatformType type)
+            {
+                switch (type)
+                {
+                    // todo: выливается
+                    case PlatformType.Circle:
+                        return Surfaces.Circle(100, 2).Perfecto().Scale(cubeSize.x, cubeSize.y, 1).AddVolumeZ(cubeSize.z).ToOy();
+
+                    default:
+                        return cube.ReversePlanes();
+                }
+            }
 
             Shape GetCubeGround(PlatformType type)
             {
@@ -80,13 +92,14 @@ namespace Model3D.Systems
                         throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             }
-            
+
             var cubeGround = GetCubeGround(options.PlatformType).ApplyColor(options.PlatformColor);
+            var cubeCollider = GetCubeCollider(options.PlatformType);
 
             model.PlaneModels.Add(new WaterCubePlaneModel()
             {
                 VisibleShape = cubeGround,
-                ColliderShape = logicCube,
+                ColliderShape = cubeCollider,
                 DebugColliderSkip = model.DebugCollidersSkipCube,
                 ColliderShift = particleRadius
             });
@@ -132,7 +145,7 @@ namespace Model3D.Systems
 
             // Configuration
 
-            var sceneSize = logicCube.GetBorders();
+            var sceneSize = cubeCollider.GetBorders();
             var sceneColliders = model.PlaneModels.SelectMany(GetCollider).ToArray();
 
             var animator = new Animator(new AnimatorOptions()

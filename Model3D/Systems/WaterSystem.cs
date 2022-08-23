@@ -112,11 +112,11 @@ namespace Model3D.Systems
                 new WaterCubeModel()
                 {
                     //RunCalculations = false,
-                    //DebugColliders = false,
+                    //DebugColliders = true,
+                    //DebugCollidersAsLines = true,
                     //DebugCollidersNoVisible = false,
                     //DebugCollidersSkipCube = false,
                     //DebugCollidersSkipShift = true,
-                    //DebugCollidersAsLines = true,
                     //DebugCollidersAsLinesThikness = 2,
                     //DebugNetPlanes = false,
 
