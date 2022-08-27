@@ -65,7 +65,12 @@ namespace Model3D.Systems
                 {
                     // todo: выливается
                     case PlatformType.Circle:
-                        return Surfaces.Circle(100, 2).Perfecto().Scale(cubeSize.x, cubeSize.y, 1).AddVolumeZ(cubeSize.z).ToOy();
+                        return new[]
+                        {
+                            Surfaces.Circle(100, 2).Perfecto().Scale(cubeSize.x, cubeSize.y, 1).AddVolumeZ(cubeSize.z)
+                                .ToOy().FilterPlanes(p => p.NOne.MultS(Vector3.YAxis).Abs() < 0.999),
+                            cube.FilterPlanes(p => p.NOne.MultS(Vector3.YAxis).Abs() > 0.999).ReversePlanes()
+                        }.ToSingleShape();
 
                     default:
                         return cube.ReversePlanes();
