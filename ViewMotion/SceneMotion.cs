@@ -38,9 +38,14 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        // todo: save video
+        //var s = Shapes.Stone().ApplyColor(Color.Blue);
 
-        return Aqueduct();
+        IEnumerable<Shape> Animate()
+        {
+            return (120).SelectRange(i => Surfaces.ShamrockDynamic(120, 20, i).ApplyColor(Color.Blue).WithBackPlanes(Color.Red));
+        }
+      
+        return Animate().ToMotion(3);
 
         //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 

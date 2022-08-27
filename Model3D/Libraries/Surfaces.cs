@@ -223,6 +223,21 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
+        public static Shape ShamrockDynamic(int un, int vn, int ui, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Shamrock,
+                UFrom = 0,
+                UTo = 4 * Math.PI * ui / (un-1),
+                UN = un,
+                VFrom = -Math.PI,
+                VTo = Math.PI,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+        }.Normalize();
+
         public static Shape Shell(int un, int vn, int nSpins = 2, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo

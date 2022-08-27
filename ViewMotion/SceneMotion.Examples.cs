@@ -59,7 +59,7 @@ partial class SceneMotion
             StepAnimations = 10,
         });
 
-        return frames.ToMotion(s0);
+        return frames.ToMotion(null, s0);
     }
 
     public Task<Motion> Fountain()
@@ -85,6 +85,6 @@ partial class SceneMotion
             FountainColor = Color.Gray,
         });
 
-        return frames.ToMotion(s0);
+        return frames.ToMotion(null, s0);
     }
 }

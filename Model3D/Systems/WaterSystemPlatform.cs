@@ -63,7 +63,6 @@ namespace Model3D.Systems
             {
                 switch (type)
                 {
-                    // todo: выливается
                     case PlatformType.Circle:
                         return new[]
                         {
