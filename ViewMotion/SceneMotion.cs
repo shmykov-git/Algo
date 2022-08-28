@@ -42,7 +42,8 @@ partial class SceneMotion
 
         IEnumerable<Shape> Animate()
         {
-            yield return vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
+            //yield return Shapes.Ball.ApplyColor(Color.Red);
+            yield return vectorizer.GetContentShape("d13").ApplyColor(Color.Red);
             //return (240).SelectRange(i => Surfaces.ShamrockDynamic(240, 20, i).ApplyColor(Color.Blue).WithBackPlanes(Color.Red));
         }
       

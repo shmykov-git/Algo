@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
+using Meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
 using ViewMotion;
@@ -18,6 +19,7 @@ using ViewMotion.Annotations;
 using ViewMotion.Commands;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
+using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
 using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
 using Shape = Model.Shape;
@@ -42,6 +44,32 @@ namespace ViewMotion
         }
 
         public double Speed { get; set; }
+
+        public double Light
+        {
+            get => light;
+            set
+            {
+                light = value;
+                OnPropertyChanged(nameof(Light));
+                RefreshLights();
+            }
+        }
+
+        private void RefreshLights()
+        {
+            var alfa = 2 * Math.PI * Light * 0.1;
+            var q = Quaternion.FromEulerAngle(alfa, 0, 0);
+            settings.Lights.ForEach((l, i) =>
+            {
+                if (l.LightType == LightType.Ambient)
+                    return;
+
+                var newL = l.With(ll=>ll.Direction *= q);
+                Lights[i].Content = GetLight(newL);
+            });
+        }
+
         public bool IsAutoReplay { get; set; } = true;
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
@@ -134,6 +162,7 @@ namespace ViewMotion
 
         private List<ViewState> viewStates = new();
         private string frameInfo;
+        private double light;
 
         private void OnNewCalculatedFrame(Shape frameShape)
         {
@@ -233,6 +262,16 @@ namespace ViewMotion
             Refresh();
         }
 
+        Light GetLight(LightOptions lightOptions)
+        {
+            return lightOptions.LightType switch
+            {
+                LightType.Directional => new DirectionalLight(lightOptions.Color, lightOptions.Direction.ToV3D()),
+                LightType.Ambient => new AmbientLight(lightOptions.Color),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
         public ViewerModel(Settings settings, SceneMotion scene)
         {
             this.settings = settings;
@@ -248,12 +287,7 @@ namespace ViewMotion
             {
                 Lights.Add(new ModelVisual3D()
                 {
-                    Content = lightOptions.LightType switch
-                    {
-                        LightType.Directional => new DirectionalLight(lightOptions.Color, lightOptions.Direction.ToV3D()),
-                        LightType.Ambient => new AmbientLight(lightOptions.Color),
-                        _ => throw new ArgumentOutOfRangeException()
-                    }
+                    Content = GetLight(lightOptions)
                 });
             }
 
