@@ -38,11 +38,12 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        //var s = Shapes.Stone().ApplyColor(Color.Blue);
+        //var s = vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
 
         IEnumerable<Shape> Animate()
         {
-            return (120).SelectRange(i => Surfaces.ShamrockDynamic(120, 20, i).ApplyColor(Color.Blue).WithBackPlanes(Color.Red));
+            yield return vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
+            //return (240).SelectRange(i => Surfaces.ShamrockDynamic(240, 20, i).ApplyColor(Color.Blue).WithBackPlanes(Color.Red));
         }
       
         return Animate().ToMotion(3);
