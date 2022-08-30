@@ -48,7 +48,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return Fountain();
+            return vectorizer.GetContentShape("l11", 175).ApplyColor(Color.Black);
 
             var contentName = "lenin1";
 

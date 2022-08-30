@@ -43,11 +43,11 @@ partial class SceneMotion
         IEnumerable<Shape> Animate()
         {
             //yield return Shapes.Ball.ApplyColor(Color.Red);
-            yield return vectorizer.GetContentShape("d13").ApplyColor(Color.Red);
-            //return (240).SelectRange(i => Surfaces.ShamrockDynamic(240, 20, i).ApplyColor(Color.Blue).WithBackPlanes(Color.Red));
+            yield return vectorizer.GetContentShape("l11", 175).ApplyColor(Color.Red);
+            //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
       
-        return Animate().ToMotion(3);
+        return Animate().ToMotion(2);
 
         //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 
