@@ -45,6 +45,7 @@
             <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" IsEnabled="{Binding CanCalc}" />
             <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsAutoReplay, Mode=TwoWay}">Auto replay</CheckBox>
+            <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsReverseReplay, Mode=TwoWay}">With reverse</CheckBox>
             <DockPanel DockPanel.Dock="Top">
                 <Label DockPanel.Dock="Left">Speed</Label>
                 <Slider DockPanel.Dock="Left" Value="{Binding Speed, Mode=TwoWay}"></Slider>

@@ -39,13 +39,34 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         //var s = vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
+        var s = Surfaces.Shell(40, 10).Perfecto();
 
-        //var s = Shapes.Ball.Perfecto();
+        var d = 1.005;
+
+        Shape Step(double mult)
+        {
+            Vector3 Transform(Vector3 p)
+            {
+                p *= mult;
+
+                if (p.x.Abs() > 0.5)
+                    p.x = p.x.Sign() * 0.5;
+                if (p.y.Abs() > 0.5)
+                    p.y = p.y.Sign() * 0.5;
+                if (p.z.Abs() > 0.5)
+                    p.z = p.z.Sign() * 0.5;
+
+                return p;
+            }
+
+            return s.TransformPoints(Transform);
+        }
 
         IEnumerable<Shape> Animate()
         {
-            //return (101).Range().Select(i => s.Where(v=>v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
-            yield return vectorizer.GetContentShape("w40", 200, 0.01).ApplyColor(Color.Red);
+            return (550).Range(i=>d.Pow(i)).Select(v=> Step(v).ToMetaShape3(1, 1, Color.Red, Color.Green));
+            //return (101).Range().Select(i => s.Where(v => v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
+            //yield return vectorizer.GetContentShape("w40", 200, 0.01).ApplyColor(Color.Red);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
       

@@ -71,6 +71,7 @@ namespace ViewMotion
         }
 
         public bool IsAutoReplay { get; set; } = true;
+        public bool IsReverseReplay { get; set; } = true;
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         
@@ -227,7 +228,12 @@ namespace ViewMotion
 
             do
             {
-                foreach (var shape in viewStates.ToArray())
+                IEnumerable<ViewState> states = viewStates;
+                
+                if (IsReverseReplay)
+                    states = states.Concat(states.Reverse());
+
+                foreach (var shape in states.ToArray())
                 {
                     await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));
 

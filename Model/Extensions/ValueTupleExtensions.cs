@@ -42,6 +42,7 @@ namespace Model.Extensions
         }
 
         public static IEnumerable<int> Range(this int n) => n.SelectRange(i => i);
+        public static IEnumerable<T> Range<T>(this int n, Func<int, T> fn) => n.SelectRange(fn);
 
         public static IEnumerable<T> SelectRange<T>(this int range, Func<int, T> selectFn)
         {
