@@ -40,10 +40,12 @@ partial class SceneMotion
     {
         //var s = vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
 
+        //var s = Shapes.Ball.Perfecto();
+
         IEnumerable<Shape> Animate()
         {
-            //yield return Shapes.Ball.ApplyColor(Color.Red);
-            yield return vectorizer.GetContentShape("l11", 175).ApplyColor(Color.Red);
+            //return (101).Range().Select(i => s.Where(v=>v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
+            yield return vectorizer.GetContentShape("w40", 200, 0.01).ApplyColor(Color.Red);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
       

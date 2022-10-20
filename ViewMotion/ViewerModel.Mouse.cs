@@ -21,7 +21,7 @@ partial class ViewerModel
     {
         var camera = settings.CameraOptions;
 
-        const double power = 4;
+        const double power = 5;
         var pr = camera.LookDirection.MultS(camera.Position);
         var center = camera.Position - camera.LookDirection.ToLenWithCheck(pr);
 
