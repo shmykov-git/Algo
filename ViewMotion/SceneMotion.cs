@@ -39,8 +39,9 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         //var s = vectorizer.GetContentShape("d13").ApplyColor(Color.DarkRed);
-        var s = Surfaces.Shell(40, 10).Perfecto();
+        var s = Shapes.Ball.Perfecto();
 
+        var k = 0.1;
         var d = 1.005;
 
         Shape Step(double mult)
@@ -64,7 +65,7 @@ partial class SceneMotion
 
         IEnumerable<Shape> Animate()
         {
-            return (550).Range(i=>d.Pow(i)).Select(v=> Step(v).ToMetaShape3(1, 1, Color.Red, Color.Green));
+            return (550).Range(i=>d.Pow(i)).Select(v=> Step(v).ToMetaShape3(k, k, Color.Red, Color.Green));
             //return (101).Range().Select(i => s.Where(v => v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
             //yield return vectorizer.GetContentShape("w40", 200, 0.01).ApplyColor(Color.Red);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
