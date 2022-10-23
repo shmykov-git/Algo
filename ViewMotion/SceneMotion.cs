@@ -39,13 +39,15 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var polygon = new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }.ToShape().Perfecto().ToPolygon();
-        var fn = polygon.VolumeFn(0.5);
+        //var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
+        var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
 
-        var plane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon).ApplyZ(fn);
+        var fn = polygon.VolumeFn(0.25);
+        var cutPlane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon);
+        var plane = cutPlane.ApplyZ(fn);
+        var backPlane = cutPlane.ApplyZ(v => -fn(v));
 
-        var s = plane.MoveZ(-0.1).ApplyColor(Color.Blue).WithBackPlanes(Color.Green)/*.ToMetaShape3(0.1, 0.1, Color.Green, Color.Red)*/ /*+ polygon.ToShape().ToMetaShape3(1, 1, Color.Blue, Color.Blue)*/;
-        s = s + s.FlipX();
+        var s = plane.ApplyColor(Color.Blue).WithBackPlanes(Color.Green) + backPlane.ApplyColor(Color.Green).WithBackPlanes(Color.Blue);
 
         IEnumerable<Shape> Animate()
         {

@@ -285,7 +285,7 @@ namespace Model.Extensions
             };
         }
 
-        public static Func<Vector2, double> VolumeFn(this Polygon polygon, double? step = null, double? smothDistance = null)
+        public static Func<Vector2, double> VolumeFn(this Polygon polygon, double? step = null)
         {
             var netStep = step ?? polygon.Points.SelectCirclePair((a, b) => (b - a).Len).Min();
             var net = new Net<Vector2, int>(polygon.Points.Select((p, i) => (p, i)), netStep);
@@ -295,20 +295,18 @@ namespace Model.Extensions
                 .ToArray()
                 .CircleShift(-1);
 
-            double Smooth(double x) => 0.25 * Math.Pow(x, 0.2);
+            double Smooth(double x)
+            {
+                var y = 0.25 * Math.Pow(x, 0.2) - 0.1;
+
+                return y < 0 ? 0 : y;
+            }
 
             double Fn(Vector2 x) => Smooth(net.SelectNeighbors(x)
                 .Select(i => Math.Min(lines[i].l1.SegmentDistance(x), lines[i].l2.SegmentDistance(x)))
                 .Min());
 
-            var dirs = new Vector2[] {(1, 0), (-1, 0), (0, 1), (0, -1)};
-
-            double SmoothFn(Vector2 x)
-            {
-                return dirs.Select(d => Fn(x + d * smothDistance.Value)).Average();
-            }
-
-            return smothDistance.HasValue ? SmoothFn : Fn;
+            return Fn;
         }
     }
 }
