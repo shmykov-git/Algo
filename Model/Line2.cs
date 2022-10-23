@@ -31,7 +31,18 @@ namespace Model
             return x => (x - a) * n < epsilon;
         }
 
-        public double Distance(Vector2 x) => Math.Abs(Fn(x));
+        public double Distance(Vector2 x) => Math.Abs(Fn(x) / AB.Len);
+
+        public double SegmentDistance(Vector2 x)
+        {
+            if (FnB(x) > 0)
+                return (x - B).Len;
+
+            if (FnA(x) < 0)
+                return (x - A).Len;
+
+            return Distance(x);
+        }
 
         public Line2(Vector2 a, Vector2 b)
         {

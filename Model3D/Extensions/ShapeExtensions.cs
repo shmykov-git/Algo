@@ -16,6 +16,7 @@ using MathNet.Numerics;
 using Meta;
 using Model.Graphs;
 using View3D.Libraries;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Extensions
 {
@@ -52,6 +53,8 @@ namespace Model3D.Extensions
             Materials = shape.Materials
         };
 
+        public static Shape ApplyZ(this Shape shape, Func<Vector2, double> func) =>
+            ApplyZ(shape, (x, y) => func((x, y)));
         public static Shape ApplyZ(this Shape shape, Func3Z func) => new Shape
         {
             Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z + func(p.x, p.y), p.w)).ToArray(),

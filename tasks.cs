@@ -220,3 +220,7 @@ class Item
 }
 
 #endregion
+
+#region Объем полигонов в зависимости от расстояния до границы
+
+#endregion

@@ -284,5 +284,29 @@ namespace Model.Extensions
                 Points = points.ToArray()
             };
         }
+
+        public static Func<Vector2, double> DistanceFn(this Polygon polygon, double? step = null, double? smothDistance = null)
+        {
+            var netStep = step ?? polygon.Points.SelectCirclePair((a, b) => (b - a).Len).Min();
+            var net = new Net<Vector2, int>(polygon.Points.Select((p, i) => (p, i)), netStep);
+            var lines = polygon.Points
+                .SelectCirclePair((a, b) => new Line2(a, b))
+                .SelectCirclePair((l1, l2) => (l1, l2))
+                .ToArray()
+                .CircleShift(-1);
+
+            double Fn(Vector2 x) => net.SelectNeighbors(x)
+                .Select(i => Math.Min(lines[i].l1.SegmentDistance(x), lines[i].l2.SegmentDistance(x)))
+                .Min();
+
+            var dirs = new Vector2[] {(1, 0), (-1, 0), (0, 1), (0, -1)};
+
+            double SmoothFn(Vector2 x)
+            {
+                return dirs.Select(d => Fn(x + d * smothDistance.Value)).Average();
+            }
+
+            return smothDistance.HasValue ? SmoothFn : Fn;
+        }
     }
 }

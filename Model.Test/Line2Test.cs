@@ -55,5 +55,15 @@ namespace Model.Test
             var angD = Angle.LeftDirection(a, b, d);
             var angE = Angle.LeftDirection(a, b, e);
         }
+
+        [Test]
+        public void SegmentTest()
+        {
+            var l = new Line2((0, 0), (1, 0));
+
+            var d1 = l.SegmentDistance((2, 2));
+            var d2 = l.SegmentDistance((-1, -1));
+            var d3 = l.SegmentDistance((1, 100));
+        }
     }
 }

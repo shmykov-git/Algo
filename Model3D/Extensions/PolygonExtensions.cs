@@ -213,5 +213,7 @@ namespace Model3D.Extensions
 
         public static Polygon[] ComposeObsolet(this Polygon[] polygons, (int takeI, int incJ)[] internals)
             => polygons.Compose(internals.Select(v => v.Reverse()).ToArray());
+
+        
     }
 }

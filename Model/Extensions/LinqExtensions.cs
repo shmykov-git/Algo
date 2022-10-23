@@ -363,5 +363,18 @@ namespace Model.Extensions
 
             e.WaitOne();
         }
+
+        public static TItem[] CircleShift<TItem>(this TItem[] items, int shift)
+        {
+            var newItems = new TItem[items.Length];
+            var n = items.Length;
+
+            for (var i = 0; i < items.Length; i++)
+            {
+                newItems[i] = items[(i - shift + n) % n];
+            }
+
+            return newItems;
+        }
     }
 }
