@@ -287,7 +287,7 @@ namespace Model.Extensions
 
         public static Func<Vector2, double> VolumeFn(this Polygon polygon, double? step = null)
         {
-            var netStep = step ?? polygon.Points.SelectCirclePair((a, b) => (b - a).Len).Min();
+            var netStep = step ?? polygon.Points.SelectCirclePair((a, b) => (b - a).Len).Max();
             var net = new Net<Vector2, int>(polygon.Points.Select((p, i) => (p, i)), netStep);
             var lines = polygon.Points
                 .SelectCirclePair((a, b) => new Line2(a, b))
