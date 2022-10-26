@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
@@ -21,7 +22,7 @@ partial class ViewerModel
     {
         var camera = settings.CameraOptions;
 
-        const double power = 5;
+        const double power = 10;
         var pr = camera.LookDirection.MultS(camera.Position);
         var center = camera.Position - camera.LookDirection.ToLenWithCheck(pr);
 
@@ -31,7 +32,9 @@ partial class ViewerModel
 
         camera.Position = center + (camera.Position - center) * q;
         camera.LookDirection *= q;
-        camera.UpDirection *= q;
+        
+        if (camera.RotateUpDirection)
+            camera.UpDirection *= q;
 
         RefreshCamera();
     }

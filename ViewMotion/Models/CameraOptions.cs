@@ -8,4 +8,5 @@ class CameraOptions
     public Vector3 LookDirection { get; set; }
     public Vector3 UpDirection { get; set; }
     public double FieldOfView { get; set; } = 60;
+    public bool RotateUpDirection { get; set; }
 }

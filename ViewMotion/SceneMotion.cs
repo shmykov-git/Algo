@@ -39,21 +39,21 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
-        //var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
+        //var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
+        ////var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
 
-        var fn = polygon.VolumeFn(0.25);
-        var cutPlane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon);
-        var plane = cutPlane.ApplyZ(fn);
-        var backPlane = cutPlane.ApplyZ(fn.Minus());
+        //var fn = polygon.VolumeFn(0.25);
+        //var cutPlane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon);
+        //var plane = cutPlane.ApplyZ(fn);
+        //var backPlane = cutPlane.ApplyZ(fn.Minus());
 
-        var s = plane.ApplyColor(Color.Blue)/*.WithBackPlanes(Color.Green)*/ + backPlane.ReversePlanes().ApplyColor(Color.Green).WithBackPlanes(Color.Blue);
+        //var s = plane.ApplyColor(Color.Blue)/*.WithBackPlanes(Color.Green)*/ + backPlane.ReversePlanes().ApplyColor(Color.Green).WithBackPlanes(Color.Blue);
 
         IEnumerable<Shape> Animate()
         {
-            yield return s;
+            //yield return s;
             //return (101).Range().Select(i => s.Where(v => v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
-            //yield return vectorizer.GetContentShape("w40", 200, 0.01).ApplyColor(Color.Red);
+            yield return vectorizer.GetContentShape("b17").ApplyColor(Color.Blue);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
       
