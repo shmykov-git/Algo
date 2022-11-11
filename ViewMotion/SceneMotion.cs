@@ -39,6 +39,11 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        var q = Quaternion.Identity;
+        //q.ToMatrix()
+
+        Matrix4 GetQ(double a) => new Quaternion(1, a, 0, 0).Normalize().ToMatrix();
+
         //var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
         ////var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
 
@@ -48,16 +53,21 @@ partial class SceneMotion
         //var backPlane = cutPlane.ApplyZ(fn.Minus());
 
         //var s = plane.ApplyColor(Color.Blue)/*.WithBackPlanes(Color.Green)*/ + backPlane.ReversePlanes().ApplyColor(Color.Green).WithBackPlanes(Color.Blue);
+        
+        Shape GetShape(Matrix4 q)
+        {
+            return Surfaces.Sphere(20, 20).Perfecto().TransformPoints(p => q * p).ToLines(1, Color.Blue) + Shapes.CoodsWithText;
+        }
 
         IEnumerable<Shape> Animate()
         {
             //yield return s;
-            //return (101).Range().Select(i => s.Where(v => v.y <= -0.5 + 0.01 * i).ToLines(1, Color.Red));
-            yield return vectorizer.GetContentShape("b17").ApplyColor(Color.Blue);
+            return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
+            //yield return vectorizer.GetContentShape("b17").ApplyColor(Color.Blue);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
       
-        return Animate().ToMotion(2);
+        return Animate().ToMotion(10);
 
         //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 
