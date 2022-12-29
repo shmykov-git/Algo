@@ -20,6 +20,7 @@ using Model3D.Systems;
 using Model3D.Systems.Model;
 using Model3D.Tools;
 using Model3D.Tools.Model;
+using Model4D;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
 
@@ -42,7 +43,18 @@ partial class SceneMotion
     {
         //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
         //    .ToMotion();
-        
+
+        //Func<Vector3, bool> solidFn = v => v.x.Pow2() + v.y.Pow2() + v.z.Pow2() < 1;
+        Func<Vector3, bool> solidFn = v => MandelbrotQuaternionFractalSystem.CheckBounds(new Model4D.Quaternion(v.x, v.y, v.z, 0), 1000);
+        var ss = Surfer.FindSurface(solidFn, 0.02);
+
+        return new[]
+        {
+            ss.ToSpots3(0.8).ApplyColor(Color.Blue),
+            MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
+            Shapes.CoodsWithText
+        }.ToSingleShape().ToMotion();
+
         var n = 50;
         double Fn(int k) => 3.0 * k / (n - 1) - 1.5;
 

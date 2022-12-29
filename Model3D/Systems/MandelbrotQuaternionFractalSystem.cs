@@ -8,7 +8,7 @@ public static class MandelbrotQuaternionFractalSystem
 {
     private static int MandelbrotDistance(Quaternion c, int maxIterations)
     {
-        Func<Quaternion, Quaternion> GetFn(Quaternion cc) => z => z * z + cc;
+        Func<Quaternion, Quaternion> GetFn(Quaternion cc) => z => z*z + cc;
         bool IsOutside(Quaternion z) => z.Len2 > 4;
 
         var fn = GetFn(c);
