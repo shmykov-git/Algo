@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,17 @@ namespace ViewMotion.Extensions;
 
 static class MotionExtensions
 {
+    public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null,
+        TimeSpan? stepDelay = null)
+    {
+        IEnumerable<Shape> Animate()
+        {
+            yield return shape;
+        }
+
+        return Animate().ToMotion(cameraDistance, startShape);
+    }
+
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {
         stepDelay ??= TimeSpan.FromMilliseconds(1);

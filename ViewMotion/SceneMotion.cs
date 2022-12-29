@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
+using Mapster.Utils;
 using Model;
 using Model.Extensions;
 using Model.Fourier;
@@ -39,9 +40,49 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
+        //    .ToMotion();
+        
+        var n = 50;
+        double Fn(int k) => 3.0 * k / (n - 1) - 1.5;
+
+        var vs = (n, n, n).SelectRange((a, b, c) => new Model4D.Quaternion(
+                Fn(a),
+                Fn(b),
+                Fn(c),
+                0
+                ))
+            .Where(q => MandelbrotQuaternionFractalSystem.CheckBounds(q, 1000)).ToArray();
+        
+        var point = Shapes.Dodecahedron.Mult(0.04);
+
+        var s = vs.Select(v => point.Move(v.x, v.y, v.z)).ToSingleShape();
+
+        return new[]
+        {
+            s.ApplyColor(Color.Blue),
+            MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
+            Shapes.CoodsWithText
+        }.ToSingleShape().ToMotion();
+
+        //return Shapes.Ball.Perfecto(0.1).TransformPoints(p => new Quaternion(1, p.x, p.y, p.z).Normalize().EulerAngles()).Perfecto().ToMetaShape3(0.1, 0.1, Color.Blue, Color.Red).ToMotion();
+
+        //var net = Parquets.Triangles(50, 100).ToShape3().Perfecto(1.5);
+
+        //var fShape = new Fr[]
+        //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
+        
+
+        //return .ToMetaShape3(0.1, 0.1, Color.Blue, Color.Green).ToMotion();
+
         //var s = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape(1000, 0.05).ApplyColor(Color.Blue);//.ToShape().Perfecto().ToPolygon();
         ////var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
-        
+
+        //var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
+        //var catNet = net.Cut(polygon);
+        //var joinNet = catNet.ToShape2()
+
+        //return net.ApplyZ(Funcs3Z.Waves).ApplyColor(Color.Blue).ToMotion();
         //var fn = polygon.VolumeFn(0.25);
         //var cutPlane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon);
         //var plane = cutPlane.ApplyZ(fn);
@@ -54,15 +95,15 @@ partial class SceneMotion
         //    return Surfaces.Sphere(20, 20).Perfecto().TransformPoints(p => q * p).ToLines(1, Color.Blue) + Shapes.CoodsWithText;
         //}
 
-        IEnumerable<Shape> Animate()
-        {
-            //yield return s;
-            //return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
-            yield return vectorizer.GetContentShape("me1").ApplyColor(Color.Blue);
-            //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
-        }
+        //IEnumerable<Shape> Animate()
+        //{
+        //    //yield return s;
+        //    //return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
+        //    //yield return vectorizer.GetContentShape("me1").ApplyColor(Color.Blue);
+        //    //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
+        //}
       
-        return Animate().ToMotion(2);
+        //return Animate().ToMotion(2);
 
         //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
 
