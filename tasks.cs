@@ -226,5 +226,43 @@ class Item
 #region 3d мандельброт
 // Обойти поверхность мандельброта в 3d. Кубик со стороной d. Имеет соседей. У каждого кубика есть точка внутри множества и одна вне множества.
 // Поверхность: множество соединенных точек принадлежащих кубикам
+
+// todo: Surfer доделать
+
+// SceneMotion:
+
+Func<Vector3, bool> solidFn = v => v.x.Pow2() + v.y.Pow2() + v.z.Pow2() < 1;
+//Func<Vector3, bool> solidFn = v => MandelbrotQuaternionFractalSystem.CheckBounds(new Model4D.Quaternion(v.x, v.y, v.z, 0), 1000);
+var ss = Surfer.FindSurface(solidFn, 0.02);
+
+return new[]
+{
+    ss/*.ToSpots3(0.8)*/.ApplyColor(Color.Blue),
+    //MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
+    Shapes.CoodsWithText
+}.ToSingleShape().ToMotion();
+
+var n = 50;
+double Fn(int k) => 3.0 * k / (n - 1) - 1.5;
+
+var vs = (n, n, n).SelectRange((a, b, c) => new Model4D.Quaternion(
+        Fn(a),
+        Fn(b),
+        Fn(c),
+        0
+    ))
+    .Where(q => MandelbrotQuaternionFractalSystem.CheckBounds(q, 1000)).ToArray();
+
+var point = Shapes.Dodecahedron.Mult(0.04);
+
+var s = vs.Select(v => point.Move(v.x, v.y, v.z)).ToSingleShape();
+
+return new[]
+{
+    s.ApplyColor(Color.Blue),
+    MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
+    Shapes.CoodsWithText
+}.ToSingleShape().ToMotion();
+
 #endregion
 

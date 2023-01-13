@@ -360,6 +360,9 @@ namespace Model3D.Extensions
 
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
+        public static Shape ToShapedSpots3(this Shape shape, Shape pointShape, Color? color = null) =>
+            shape.ToSpots3WithMaterial(50, pointShape, color.HasValue ? new Material { Color = color.Value } : null);
+
         public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
             shape.ToSpots3WithMaterial(mult, Shapes.Cube.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
 

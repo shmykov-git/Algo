@@ -2,11 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model.Graphs;
+using Model.Libraries;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
 {
@@ -15,10 +19,18 @@ namespace Model3D.Tools
         public static Shape FindSurface(Func<Vector3, bool> solidFn, double precision = 0.002)
         {
             var bound0 = (i:FindBoundI(solidFn, precision), j:0, k:0);
+            var siblings = new[] {(1, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0), (0, -1, 0), (0, 0, -1)};
+            (int i, int j, int k) Add((int i, int j, int k) a, (int i, int j, int k) b) => (a.i + b.i, a.j + b.j, a.k + b.k);
+            int Distance((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i).Abs() + (a.j - b.j).Abs() + (b.k - b.k).Abs();
+            IEnumerable<(int i, int j, int k)> Siblings((int i, int j, int k) a) => siblings.Select(b => Add(a, b));
 
             Vector3 ToV3((int i, int j, int k) p) => new Vector3(p.i * precision, p.j * precision, p.k * precision);
+            Vector3 ToCenterV3((int i, int j, int k) p) => ToV3(p) - 0.5 * new Vector3(precision, precision, precision);
 
-            var net = new HashSet<(int, int, int)>();
+            var net = new HashSet<(int i, int j, int k)>();
+            IEnumerable<(int i, int j, int k)> NetSiblings((int i, int j, int k) a) => Siblings(a).Where(s => net.Contains(s));
+            // 3я точка ищется в 2х плоскостях точке a, b среди 8 точек
+            //(int i, int j, int k) FindThird((int i, int j, int k) a, (int i, int j, int k) b) => NetSiblings(a).First(s => s!=b && Distance(s, b))
             var cash = new Dictionary<(int, int, int), int>();
 
             int SolidFn((int i, int j, int k) p)
@@ -45,8 +57,6 @@ namespace Model3D.Tools
                 return value > 0 ? 1 : 0;
             }
 
-
-
             bool IsBound((int i, int j, int k) p)
             {
                 var v =
@@ -62,6 +72,8 @@ namespace Model3D.Tools
                 return v > 0 && v < 8;
             }
 
+
+
             var stack = new Stack<(int i, int j, int k)>();
             stack.Push(bound0);
 
@@ -73,20 +85,64 @@ namespace Model3D.Tools
                     continue;
 
                 net.Add(p);
-
-                stack.Push((p.i + 1, p.j, p.k));
-                stack.Push((p.i, p.j + 1, p.k));
-                stack.Push((p.i, p.j, p.k + 1));
-                stack.Push((p.i - 1, p.j, p.k));
-                stack.Push((p.i, p.j - 1, p.k));
-                stack.Push((p.i, p.j, p.k - 1));
+                Siblings(p).ForEach(stack.Push);
             }
 
-            // todo: построить нормальный shape
+            var ps = new Vector3[net.Count];
+            var pdDic = net.Select((p, i) => (p, i)).ToDictionary(v=>v.p, v=>v.i);
+            pdDic.ForEach(v => ps[v.Value] = ToCenterV3(v.Key));
+
+            // найти первые 2 вершины, далее присоединять одну и отказываться от одной из 2х, повторить
+            var a = bound0;
+            //var b = NetSiblings(a).First();
+
+            //int[][] GetConvexes()
+            //{
+
+            //}
+
+            // направление?
+            // todo: обход сетки
+            var pairs = new ((int i, int j, int k) a, (int i, int j, int k) b)[]
+            {
+                ((1, 0, 0), (0, 1, 0)),
+                ((1, 0, 0), (0, 0, 1)),
+                ((1, 0, 0), (0, -1, 0)),
+                ((1, 0, 0), (0, 0, -1)),
+                
+                ((-1, 0, 0), (0, 1, 0)),
+                ((-1, 0, 0), (0, 0, 1)),
+                ((-1, 0, 0), (0, -1, 0)),
+                ((-1, 0, 0), (0, 0, -1)),
+
+                ((0, 1, 0), (0, 0, 1)),
+                ((0, 0, 1), (0, -1, 0)),
+                ((0, -1, 0), (0, 0, -1)),
+                ((0, 0, -1), (0, 1, 0)),
+            };
+
+            //var zr = new Vector3(0, 0, 0);
+            
+            var convexes = pdDic.SelectMany(v =>
+                pairs
+                    .Select(pr => (a: Add(v.Key, pr.a), b: Add(v.Key, pr.b)))
+                    .Where(pr => net.Contains(pr.a) && net.Contains(pr.b))
+                    .Select(pr => new[] {v.Value, pdDic[pr.a], pdDic[pr.b]}))
+                //.Select(c=>Angle.IsLeftDirection(zr, ps[c[0]], ps[c[1]]))
+                .ToArray();
+
+            var edges = pdDic.SelectMany(v =>
+                NetSiblings(v.Key)
+                    .Select(s => (a: v.Key, b: s))
+                    .Select(pr => (pdDic[pr.a], pdDic[pr.b]).OrderedEdge()))
+                    .Distinct();
+
+            var g = new Graph(edges);
 
             return new Shape()
             {
-                Points3 = net.Select(ToV3).ToArray()
+                Points3 = ps,
+                Convexes = convexes
             };
         }
 
@@ -99,12 +155,5 @@ namespace Model3D.Tools
 
             return i;
         }
-
-        //struct Cood
-        //{
-        //    public int i;
-        //    public int j;
-        //    public int k;
-        //}
     }
 }
