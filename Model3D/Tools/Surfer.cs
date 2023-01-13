@@ -21,7 +21,11 @@ namespace Model3D.Tools
             var bound0 = (i:FindBoundI(solidFn, precision), j:0, k:0);
             var siblings = new[] {(1, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0), (0, -1, 0), (0, 0, -1)};
             (int i, int j, int k) Add((int i, int j, int k) a, (int i, int j, int k) b) => (a.i + b.i, a.j + b.j, a.k + b.k);
-            int Distance((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i).Abs() + (a.j - b.j).Abs() + (b.k - b.k).Abs();
+            (int i, int j, int k) Sub((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i, a.j - b.j, a.k - b.k);
+            (int i, int j, int k) Mult((int i, int j, int k) a, (int i, int j, int k) b) => (a.i * b.i, a.j * b.j, a.k * b.k);
+            bool IsOrt((int i, int j, int k) a, (int i, int j, int k) b) => Mult(a, b) == default;
+            //int Distance((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i).Abs() + (a.j - b.j).Abs() + (b.k - b.k).Abs();
+
             IEnumerable<(int i, int j, int k)> Siblings((int i, int j, int k) a) => siblings.Select(b => Add(a, b));
 
             Vector3 ToV3((int i, int j, int k) p) => new Vector3(p.i * precision, p.j * precision, p.k * precision);
@@ -29,6 +33,13 @@ namespace Model3D.Tools
 
             var net = new HashSet<(int i, int j, int k)>();
             IEnumerable<(int i, int j, int k)> NetSiblings((int i, int j, int k) a) => Siblings(a).Where(s => net.Contains(s));
+            
+            IEnumerable<(int i, int j, int k)> OrthogonalNetSiblings((int i, int j, int k) a, (int i, int j, int k) b)
+            {
+                var ab = Sub(b, a);
+                return NetSiblings(b).Where(s => IsOrt(ab, Sub(s, b)));
+            }
+
             // 3я точка ищется в 2х плоскостях точке a, b среди 8 точек
             //(int i, int j, int k) FindThird((int i, int j, int k) a, (int i, int j, int k) b) => NetSiblings(a).First(s => s!=b && Distance(s, b))
             var cash = new Dictionary<(int, int, int), int>();
@@ -89,8 +100,8 @@ namespace Model3D.Tools
             }
 
             var ps = new Vector3[net.Count];
-            var pdDic = net.Select((p, i) => (p, i)).ToDictionary(v=>v.p, v=>v.i);
-            pdDic.ForEach(v => ps[v.Value] = ToCenterV3(v.Key));
+            var psInd = net.Select((p, i) => (p, i)).ToDictionary(v=>v.p, v=>v.i);
+            psInd.ForEach(v => ps[v.Value] = ToCenterV3(v.Key));
 
             // найти первые 2 вершины, далее присоединять одну и отказываться от одной из 2х, повторить
             var a = bound0;
@@ -103,41 +114,40 @@ namespace Model3D.Tools
 
             // направление?
             // todo: обход сетки
-            var pairs = new ((int i, int j, int k) a, (int i, int j, int k) b)[]
-            {
-                ((1, 0, 0), (0, 1, 0)),
-                ((1, 0, 0), (0, 0, 1)),
-                ((1, 0, 0), (0, -1, 0)),
-                ((1, 0, 0), (0, 0, -1)),
+            //var pairs = new ((int i, int j, int k) a, (int i, int j, int k) b)[]
+            //{
+            //    ((1, 0, 0), (0, 1, 0)),
+            //    ((1, 0, 0), (0, 0, 1)),
+            //    ((1, 0, 0), (0, -1, 0)),
+            //    ((1, 0, 0), (0, 0, -1)),
                 
-                ((-1, 0, 0), (0, 1, 0)),
-                ((-1, 0, 0), (0, 0, 1)),
-                ((-1, 0, 0), (0, -1, 0)),
-                ((-1, 0, 0), (0, 0, -1)),
+            //    ((-1, 0, 0), (0, 1, 0)),
+            //    ((-1, 0, 0), (0, 0, 1)),
+            //    ((-1, 0, 0), (0, -1, 0)),
+            //    ((-1, 0, 0), (0, 0, -1)),
 
-                ((0, 1, 0), (0, 0, 1)),
-                ((0, 0, 1), (0, -1, 0)),
-                ((0, -1, 0), (0, 0, -1)),
-                ((0, 0, -1), (0, 1, 0)),
-            };
+            //    ((0, 1, 0), (0, 0, 1)),
+            //    ((0, 0, 1), (0, -1, 0)),
+            //    ((0, -1, 0), (0, 0, -1)),
+            //    ((0, 0, -1), (0, 1, 0)),
+            //};
 
             //var zr = new Vector3(0, 0, 0);
             
-            var convexes = pdDic.SelectMany(v =>
-                pairs
-                    .Select(pr => (a: Add(v.Key, pr.a), b: Add(v.Key, pr.b)))
-                    .Where(pr => net.Contains(pr.a) && net.Contains(pr.b))
-                    .Select(pr => new[] {v.Value, pdDic[pr.a], pdDic[pr.b]}))
-                //.Select(c=>Angle.IsLeftDirection(zr, ps[c[0]], ps[c[1]]))
+            //var convexes = pdDic.SelectMany(v =>
+            //    pairs
+            //        .Select(pr => (a: Add(v.Key, pr.a), b: Add(v.Key, pr.b)))
+            //        .Where(pr => net.Contains(pr.a) && net.Contains(pr.b))
+            //        .Select(pr => new[] {v.Value, pdDic[pr.a], pdDic[pr.b]}))
+            //    //.Select(c=>Angle.IsLeftDirection(zr, ps[c[0]], ps[c[1]]))
+            //    .ToArray();
+
+            // todo: убрать лишние
+            var convexes = net.SelectMany(a => NetSiblings(a).SelectMany(b => OrthogonalNetSiblings(a, b).Select(c=>(a,b,c))))
+                .Select(v => new[]{ psInd[v.a], psInd[v.b], psInd[v.c] })
                 .ToArray();
-
-            var edges = pdDic.SelectMany(v =>
-                NetSiblings(v.Key)
-                    .Select(s => (a: v.Key, b: s))
-                    .Select(pr => (pdDic[pr.a], pdDic[pr.b]).OrderedEdge()))
-                    .Distinct();
-
-            var g = new Graph(edges);
+                    //.Select(pr => (pdDic[pr.a], pdDic[pr.b]).OrderedEdge()))
+                    //.Distinct();
 
             return new Shape()
             {

@@ -44,16 +44,16 @@ partial class SceneMotion
         //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
         //    .ToMotion();
 
-        Func<Vector3, bool> solidFn = v => v.x.Pow2() + v.y.Pow2() + v.z.Pow2() < 1 ;
-        //Func<Vector3, bool> solidFn = v => MandelbrotQuaternionFractalSystem.CheckBounds(new Model4D.Quaternion(v.x, v.y, v.z, 0), 1000);
-        var step = 0.37;
-        var ss = Surfer.FindSurface(solidFn, step).Where(v => v.x >= 0 && v.y >= 0 && v.z >= 0);
+        //Func<Vector3, bool> solidFn = v => v.x.Pow2() + v.y.Pow2() + v.z.Pow2() < 1 ;
+        Func<Vector3, bool> solidFn = v => MandelbrotQuaternionFractalSystem.CheckBounds(new Model4D.Quaternion(v.x, v.y, v.z, 0), 1000);
+        var step = 0.02;
+        var ss = Surfer.FindSurface(solidFn, step)/*.Where(v => v.x >= 0 && v.y >= 0)*/;
 
         return new[]
         {
-            ss.ApplyColor(Color.Chocolate),
-            ss.ToSpots3(3*step).ApplyColor(Color.Blue),
-            ss.ToShapedSpots3(Shapes.Cube.MassCentered().Mult(0.5 * step).ToLines(step), Color.Green),
+            ss.ApplyColor(Color.Blue),
+            //ss.ToSpots3(3*step).ApplyColor(Color.Blue),
+            //ss.ToShapedSpots3(Shapes.Cube.MassCentered().Mult(0.5 * step).ToLines(step), Color.Green),
             //MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
             Surfaces.Sphere(40, 20).ToLines(0.1, Color.Red),
             Shapes.CoodsWithText
