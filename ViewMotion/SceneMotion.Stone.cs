@@ -51,7 +51,7 @@ partial class SceneMotion
         {
             VisibleShape = stoneVisible,
             LogicShape = stoneLogic,
-            Items = ps.Select((p, i) => new Item()
+            Items = ps.Select((p, i) => new StoneItem()
             {
                 Position = p,
                 Mass = masses[i]
@@ -185,7 +185,7 @@ partial class SceneMotion
     {
         public Shape VisibleShape;
         public Shape LogicShape;
-        public Item[] Items;
+        public StoneItem[] Items;
         public double Mass;
         public ExQuaternion Rotation;
         public Vector3 Position;
@@ -196,7 +196,7 @@ partial class SceneMotion
         //public ExQuaternion RotationAcceleration;
     }
 
-    class Item
+    class StoneItem
     {
         public Vector3 Position;
         public double Mass;

@@ -71,7 +71,7 @@ namespace ViewMotion
         }
 
         public bool IsAutoReplay { get; set; } = true;
-        public bool IsReverseReplay { get; set; } = true;
+        public bool IsReverseReplay { get; set; } = false;
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         

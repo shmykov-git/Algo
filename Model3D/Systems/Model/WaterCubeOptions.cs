@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using Aspose.ThreeD.Utilities;
+using Model.Interfaces;
 
 namespace Model3D.Systems.Model
 {
@@ -32,6 +33,7 @@ namespace Model3D.Systems.Model
         public PlatformType PlatformType = PlatformType.Square;
         public double? PlatformSize = null;
         public Color PlatformColor = Color.Black;
+        public bool IsReverseReplay { get; set; } = true;
     }
 
     public enum PlatformType

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Aspose.ThreeD;
+using Mapster;
 using Meta;
 using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +16,7 @@ public partial class App : Application
         base.OnStartup(e);
 
         DI.Configure(services => services
-            .AddSingleton<Viewer>(p => new Viewer() {DataContext = p.GetService<ViewerModel>()})
+            .AddSingleton<Viewer>(p => new Viewer() { DataContext = p.GetService<ViewerModel>() })
             .AddTransient<ViewerModel>()
             .AddTransient<SceneMotion>()
             .AddTransient<Settings>()
