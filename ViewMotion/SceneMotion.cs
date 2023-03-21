@@ -49,8 +49,8 @@ partial class SceneMotion
         var options = new WaterfallOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
-            GutterCurvature = 0,
-            GutterRotation = new Vector3(0.05, 6, 1),
+            GutterCurvature = 0.4,
+            //GutterRotation = new Vector3(0.05, 6, 1),
             ParticleInitCount = 500,
             SceneMotionSteps = 100,
             StepAnimations = 10,
@@ -75,13 +75,13 @@ partial class SceneMotion
                 ? gutterTmp.MoveZ(-2.5)
                 : gutterTmp.MoveZ(-2 / options.GutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / options.GutterCurvature))
                     .MoveZ(6 / options.GutterCurvature - 2.5);
-            var gutter = gutterTmp.Centered().Rotate(rotation, Vector3.YAxis).Move(move).ApplyColor(options.GutterColor);
+            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).ApplyColor(options.GutterColor);
             
             return gutter;
         }
 
-        var gutter1 = GetGutter(new Vector3(4, 80, 1), options.GutterRotation, new Vector3(0, cubeSize.y / 2 - 3, -2));
-        var gutter2 = GetGutter(new Vector3(4, 40, 1), new Vector3(0.05, -6, 1), new Vector3(0, cubeSize.y / 2 - 10, 3));
+        var gutter1 = GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2));
+        var gutter2 = GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3));
 
         //var logicGutter = gutter.AddBorder(-particleRadius);
 
