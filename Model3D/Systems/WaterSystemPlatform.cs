@@ -66,7 +66,7 @@ namespace Model3D.Systems
                     case PlatformType.Circle:
                         return new[]
                         {
-                            Surfaces.Circle(100, 2).Perfecto().Scale(cubeSize.x, cubeSize.y, 1).AddVolumeZ(cubeSize.z)
+                            Surfaces.Circle(100, 2).Perfecto().Scale(cubeSize.x, cubeSize.z, 1).AddVolumeZ(cubeSize.y)
                                 .ToOy().FilterPlanes(p => p.NOne.MultS(Vector3.YAxis).Abs() < 0.999),
                             cube.FilterPlanes(p => p.NOne.MultS(Vector3.YAxis).Abs() > 0.999).ReversePlanes()
                         }.ToSingleShape();

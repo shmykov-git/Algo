@@ -51,12 +51,13 @@ partial class SceneMotion
             SceneSize = new Vector3(12, 15, 12),
             GutterCurvature = 0.4,
             //GutterRotation = new Vector3(0.05, 6, 1),
-            ParticleInitCount = 500,
-            SceneMotionSteps = 100,
+            ParticleInitCount = 1000,
+            SceneMotionSteps = 200,
             StepAnimations = 10,
             PlatformColor = Color.FromArgb(64, 0, 0),
             SphereColor = Color.FromArgb(64, 0, 0),
             GutterColor = Color.FromArgb(64, 0, 0),
+            PlatformType = PlatformType.Circle
         };
 
         var rnd = new Random(options.Seed);
@@ -64,9 +65,9 @@ partial class SceneMotion
         var cubeSize = options.SceneSize;
         var particleRadius = options.ParticleRadius;
 
-        var moveShpereZ = 0;
-        var sphere = Shapes.Ball.Perfecto(options.SphereRadius).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(moveShpereZ).Move(options.SphereOffset).ApplyColor(options.SphereColor);
-        var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(options.SphereRadius).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(moveShpereZ).Move(options.SphereOffset).MovePlanes(-particleRadius);
+        var moveSphereZ = 0;
+        var sphere = Shapes.Ball.Perfecto(options.SphereRadius).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ).Move(options.SphereOffset).ApplyColor(options.SphereColor);
+        var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(options.SphereRadius).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ).Move(options.SphereOffset).MovePlanes(-particleRadius);
 
         Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move)
         {
@@ -102,7 +103,8 @@ partial class SceneMotion
             new WaterCubeModel()
             {
                 PlaneModels = models,
-                GetInitItemsFn = GetInitItems
+                GetInitItemsFn = GetInitItems,
+                //DebugColliders = true,
             }, options).ToMotion(25);
     }
 
