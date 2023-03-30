@@ -48,7 +48,7 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return vectorizer.GetContentShape("l11", 175).ApplyColor(Color.Black);
+            return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
 
             var contentName = "lenin1";
 

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Navigation;
 using Mapster.Utils;
 using MathNet.Numerics;
@@ -46,6 +46,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+
         var options = new WaterfallOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
@@ -81,17 +82,18 @@ partial class SceneMotion
             return gutter;
         }
 
-        var gutter1 = GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2));
-        var gutter2 = GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3));
-
-        //var logicGutter = gutter.AddBorder(-particleRadius);
+        var gutters = new[]
+        {
+            GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2)),
+            GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3))
+        };
 
         var models = new List<WaterCubePlaneModel>
         {
             new() {VisibleShape = sphere, ColliderShape = logicSphere},
-            new() {VisibleShape = gutter1, ColliderShape = gutter1, ColliderShift = -particleRadius},
-            new() {VisibleShape = gutter2, ColliderShape = gutter2, ColliderShift = -particleRadius},
         };
+
+        models.AddRange(gutters.Select(g=> new WaterCubePlaneModel() { VisibleShape = g, ColliderShape = g, ColliderShift = -particleRadius }));
 
         Item[] GetInitItems(int n) => (n).SelectRange(_ => new Item
         {
@@ -110,7 +112,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene1()
     {
-        return Waterfall();
+        return IllBeBack();
 
 
         //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
