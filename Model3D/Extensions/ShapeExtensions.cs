@@ -1412,5 +1412,10 @@ namespace Model3D.Extensions
 
             return shape.TransformPoints(TransformFn);
         }
+
+        public static Shape ModifyIf(this Shape shape, bool condition, Func<Shape, Shape> modifyIfTrueFn, Func<Shape, Shape> modifyIfFalseFn = null)
+        {
+            return condition ? modifyIfTrueFn(shape) : modifyIfFalseFn?.Invoke(shape) ?? shape;
+        }
     }
 }

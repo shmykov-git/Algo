@@ -47,17 +47,13 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
 
-        var options = new WaterfallOptions()
+        var options = new WaterCubeOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
-            GutterCurvature = 0.4,
-            //GutterRotation = new Vector3(0.05, 6, 1),
             ParticleInitCount = 1000,
             SceneMotionSteps = 200,
             StepAnimations = 10,
-            PlatformColor = Color.FromArgb(64, 0, 0),
-            SphereColor = Color.FromArgb(64, 0, 0),
-            GutterColor = Color.FromArgb(64, 0, 0),
+            PlatformColor = Color.FromArgb(128, 0, 0),
             PlatformType = PlatformType.Circle
         };
 
@@ -67,17 +63,38 @@ partial class SceneMotion
         var particleRadius = options.ParticleRadius;
 
         var moveSphereZ = 0;
-        var sphere = Shapes.Ball.Perfecto(options.SphereRadius).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ).Move(options.SphereOffset).ApplyColor(options.SphereColor);
-        var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(options.SphereRadius).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ).Move(options.SphereOffset).MovePlanes(-particleRadius);
 
-        Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move)
+        (Shape sphere, Shape collider) GetHalfSphere(double radius, Vector3 move, Vector3? rotate = null, bool up = true)
+        {
+            var sphere = Shapes.Ball.Perfecto()
+                .ModifyIf(up, s=>s.Where(v => v.y > -0.14), s => s.Where(v => v.y < 0.14).ReversePlanes().AddNormalVolume(-0.2/radius))
+                .Mult(radius)
+                .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+                .Move(move)
+                .ApplyColor(options.PlatformColor);
+            
+            var collider = Shapes.IcosahedronSp2.Perfecto()
+                .ModifyIf(up, s => s.Where(v => v.y > -0.034), s => s.Where(v => v.y < 0.034).ReversePlanes())
+                .Mult(radius)
+                .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+                .Move(move);
+
+            return (sphere, collider);
+        }
+
+        var (sphere, logicSphere) = GetHalfSphere(5, new Vector3(0, -cubeSize.y / 2 + 3, moveSphereZ), null, false);
+
+        //var sphere = Shapes.Ball.Perfecto(3).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ).ApplyColor(options.PlatformColor);
+        //var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(3).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(moveSphereZ);
+
+        Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move, double gutterCurvature = 0.4)
         {
             var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(scale).AddPerimeterVolume(.6);
-            gutterTmp = options.GutterCurvature.Abs() < 0.001
+            gutterTmp = gutterCurvature.Abs() < 0.001
                 ? gutterTmp.MoveZ(-2.5)
-                : gutterTmp.MoveZ(-2 / options.GutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / options.GutterCurvature))
-                    .MoveZ(6 / options.GutterCurvature - 2.5);
-            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).ApplyColor(options.GutterColor);
+                : gutterTmp.MoveZ(-2 / gutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / gutterCurvature))
+                    .MoveZ(6 / gutterCurvature - 2.5);
+            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).ApplyColor(options.PlatformColor);
             
             return gutter;
         }
@@ -90,15 +107,14 @@ partial class SceneMotion
 
         var models = new List<WaterCubePlaneModel>
         {
-            new() {VisibleShape = sphere, ColliderShape = logicSphere},
+            new() {VisibleShape = sphere, ColliderShape = logicSphere, ColliderShift = -particleRadius},
         };
 
         models.AddRange(gutters.Select(g=> new WaterCubePlaneModel() { VisibleShape = g, ColliderShape = g, ColliderShift = -particleRadius }));
 
         Item[] GetInitItems(int n) => (n).SelectRange(_ => new Item
         {
-            Position = rnd.NextCenteredV3(1.5) + new Vector3(0, cubeSize.y / 2 - 1, -3) + options.WaterPosition +
-                       options.WatterOffset
+            Position = rnd.NextCenteredV3(1.5) + new Vector3(0, cubeSize.y / 2 - 1, -3) + options.WaterPosition
         }).ToArray();
 
         return WaterSystemPlatform.CubeMotion(
