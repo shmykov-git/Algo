@@ -51,10 +51,10 @@ partial class SceneMotion
         {
             SceneSize = new Vector3(12, 15, 12),
             ParticleInitCount = 800,
-            SceneMotionSteps = 200,
+            SceneMotionSteps = 150,
             StepAnimations = 10,
-            PlatformColor = Color.FromArgb(64, 128, 0),
-            PlatformType = PlatformType.Circle
+            PlatformColor = Color.FromArgb(80, 120, 160),
+            PlatformType = PlatformType.Square
         };
 
         var rnd = new Random(options.Seed);
@@ -64,18 +64,31 @@ partial class SceneMotion
 
         (Shape sphere, Shape collider) GetHalfSphere(double radius, Vector3 move, double removeLine = 0.5001, Vector3? rotate = null, bool up = true)
         {
-            var sphere = Shapes.Ball.Perfecto()
-                .ModifyIf(up, s=>s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2/radius))
+            var sphere = Surfaces.SphereAngle(30, 60, 2*Math.PI, 0).Mult(0.5).ToOy()
+                .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2 / radius))
                 .Mult(radius)
                 .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
                 .Move(move)
                 .ApplyColor(options.PlatformColor);
-            
-            var collider = Shapes.IcosahedronSp2.Perfecto()
+
+            var collider = Surfaces.SphereAngle(10, 20, 2 * Math.PI, 0).Mult(0.5).ToOy()
                 .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes())
                 .Mult(radius)
                 .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
                 .Move(move);
+
+            //var sphere = Shapes.Ball.Perfecto()
+            //    .ModifyIf(up, s=>s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2/radius))
+            //    .Mult(radius)
+            //    .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+            //    .Move(move)
+            //    .ApplyColor(options.PlatformColor);
+
+            //var collider = Shapes.IcosahedronSp2.Perfecto()
+            //    .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes())
+            //    .Mult(radius)
+            //    .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+            //    .Move(move);
 
             return (sphere, collider);
         }
@@ -101,7 +114,7 @@ partial class SceneMotion
         var spheres = new[]
         {
             GetHalfSphere(2.5, new Vector3(0, -cubeSize.y / 2 + 2.5, 0)),
-            GetHalfSphere(4, new Vector3(-3.3, -cubeSize.y / 2 + 2.5, 0), -0.1, null, false)
+            GetHalfSphere(4, new Vector3(-3.5, -cubeSize.y / 2 + 2.5, 0), -0.1, null, false)
         };
 
         var models = new List<WaterCubePlaneModel>
@@ -122,7 +135,8 @@ partial class SceneMotion
             {
                 PlaneModels = models,
                 GetInitItemsFn = GetInitItems,
-                //DebugColliders = true,
+                DebugColliders = true,
+                DebugCollidersAsLines = true,
             }, options).ToMotion(25);
     }
 
