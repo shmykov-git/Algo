@@ -6,6 +6,7 @@ using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Model.Interfaces;
 using Model3D.Tools;
+using View3D.Tools;
 
 namespace ViewMotion;
 
@@ -22,6 +23,8 @@ public partial class App : Application
             .AddTransient<Settings>()
             .AddSingleton<IDirSettings>(p => p.GetService<Settings>())
             .AddSingleton<ContentFinder>()
+            .AddTransient<View3D.Settings>()
+            .AddSingleton<StaticSceneRender>()
             .AddSingleton<Scene>()
             .AddSingleton<Vectorizer>()
             .AddSingleton<ThreadPool>());

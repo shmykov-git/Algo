@@ -17,7 +17,7 @@ namespace View3D
             DI.Configure(services => services
                 .AddSingleton<Settings>()
                 .AddSingleton<IDirSettings>(p => p.GetService<Settings>())
-                .AddSingleton<SceneManager>()
+                .AddSingleton<StaticSceneRender>()
                 .AddSingleton<ContentFinder>()
                 .AddSingleton<Scene>()
                 .AddSingleton<Vectorizer>()
@@ -26,14 +26,14 @@ namespace View3D
             using var serviceProvider = DI.Build();
 
             var settings = DI.Get<Settings>();
-            var sceneManager = DI.Get<SceneManager>();
+            var staticSceneViewer = DI.Get<StaticSceneRender>();
             var scene = DI.Get<Scene>();
 
             try
             {
                 var sw = Stopwatch.StartNew();
                 var shape = scene.GetShape();
-                var meshedScene = sceneManager.CreateScene(shape);
+                var meshedScene = staticSceneViewer.CreateScene(shape);
                 sw.Stop();
 
                 Console.WriteLine($"Scene generation time {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}");

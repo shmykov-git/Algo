@@ -50,10 +50,10 @@ partial class SceneMotion
         var options = new WaterCubeOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
-            ParticleInitCount = 800,
+            ParticleInitCount = 1000,
             SceneMotionSteps = 150,
             StepAnimations = 10,
-            PlatformColor = Color.FromArgb(80, 120, 160),
+            PlatformColor = Color.FromArgb(60, 100, 140),
             PlatformType = PlatformType.Square
         };
 
@@ -67,28 +67,15 @@ partial class SceneMotion
             var sphere = Surfaces.SphereAngle(30, 60, 2*Math.PI, 0).Mult(0.5).ToOy()
                 .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2 / radius))
                 .Mult(radius)
-                .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+                .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
                 .Move(move)
                 .ApplyColor(options.PlatformColor);
 
             var collider = Surfaces.SphereAngle(10, 20, 2 * Math.PI, 0).Mult(0.5).ToOy()
                 .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes())
                 .Mult(radius)
-                .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
+                .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
                 .Move(move);
-
-            //var sphere = Shapes.Ball.Perfecto()
-            //    .ModifyIf(up, s=>s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2/radius))
-            //    .Mult(radius)
-            //    .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
-            //    .Move(move)
-            //    .ApplyColor(options.PlatformColor);
-
-            //var collider = Shapes.IcosahedronSp2.Perfecto()
-            //    .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes())
-            //    .Mult(radius)
-            //    .ModifyIf(rotate.HasValue, s => s.Rotate(rotate.Value))
-            //    .Move(move);
 
             return (sphere, collider);
         }
@@ -114,12 +101,12 @@ partial class SceneMotion
         var spheres = new[]
         {
             GetHalfSphere(2.5, new Vector3(0, -cubeSize.y / 2 + 2.5, 0)),
-            GetHalfSphere(4, new Vector3(-3.5, -cubeSize.y / 2 + 2.5, 0), -0.1, null, false)
+            GetHalfSphere(4, new Vector3(-2, -cubeSize.y / 2 + 2.5, 0), -0.1, new Vector3(1, 1.5, 0), false)
         };
 
         var models = new List<WaterCubePlaneModel>
         {
-            //new WaterCubePlaneModel { VisibleShape = Shapes.CoodsWithText }
+            new WaterCubePlaneModel { VisibleShape = Shapes.CoodsWithText.Mult(5) }
         };
 
         models.AddRange(gutters.Select(g => new WaterCubePlaneModel() { VisibleShape = g, ColliderShape = g, ColliderShift = -particleRadius }));
@@ -135,8 +122,8 @@ partial class SceneMotion
             {
                 PlaneModels = models,
                 GetInitItemsFn = GetInitItems,
-                DebugColliders = true,
-                DebugCollidersAsLines = true,
+                //DebugColliders = true,
+                //DebugCollidersAsLines = true,
             }, options).ToMotion(25);
     }
 

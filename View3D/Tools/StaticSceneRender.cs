@@ -11,11 +11,11 @@ using System.Linq;
 
 namespace View3D.Tools
 {
-    class SceneManager
+    public class StaticSceneRender
     {
         private readonly Settings settings;
 
-        public SceneManager(Settings settings)
+        public StaticSceneRender(Settings settings)
         {
             this.settings = settings;
         }

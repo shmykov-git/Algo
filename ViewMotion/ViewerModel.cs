@@ -14,6 +14,7 @@ using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
+using View3D.Tools;
 using ViewMotion;
 using ViewMotion.Annotations;
 using ViewMotion.Commands;
@@ -31,6 +32,42 @@ namespace ViewMotion
         private bool isCalculating = true;
         private bool isPlaying = false;
         private List<Action> buttonRefreshes = new();
+        private Shape lastFrameShape = null;
+
+
+        public ViewerModel(Settings settings, SceneMotion scene, StaticSceneRender staticRender, View3D.Settings staticSettings)
+        {
+            this.settings = settings;
+            this.staticRender = staticRender;
+            this.staticSettings = staticSettings;
+
+            Camera = new PerspectiveCamera(
+                settings.CameraOptions.Position.ToP3D(),
+                settings.CameraOptions.LookDirection.ToV3D(),
+                settings.CameraOptions.UpDirection.ToV3D(),
+                settings.CameraOptions.FieldOfView);
+
+            foreach (var lightOptions in settings.Lights)
+            {
+                Lights.Add(new ModelVisual3D()
+                {
+                    Content = GetLight(lightOptions)
+                });
+            }
+
+            var motion = scene.Scene().GetAwaiter().GetResult();
+
+            if (motion.Shape != null)
+                OnNewCalculatedFrame(motion.Shape);
+
+            if (motion.CameraDistance.HasValue)
+            {
+                settings.CameraOptions.Position = settings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
+                RefreshCamera();
+            }
+
+            CalculateFrames(motion);
+        }
 
         private void SaveRefresh(Action refresh) => buttonRefreshes.Add(refresh);
         private void RefreshButtons() => buttonRefreshes.ForEach(refresh => refresh());
@@ -72,6 +109,22 @@ namespace ViewMotion
 
         public bool IsAutoReplay { get; set; } = true;
         public bool IsReverseReplay { get; set; } = false;
+
+        public string ExportName => "⇒ Export";
+        public ICommand ExportCommand => new Command(() =>
+        {
+            var staticScene = staticRender.CreateScene(lastFrameShape);
+            staticScene.Save(staticSettings.FullFileName, staticSettings.Format);
+            ShowStaticScene(staticSettings.FullFileName);
+        }, () => lastFrameShape != null, SaveRefresh);
+
+        private void ShowStaticScene(string fullFileName)
+        {
+            var process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.FileName = fullFileName;
+            process.Start();
+        }
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         
@@ -119,7 +172,8 @@ namespace ViewMotion
         public Action<ModelVisual3D> UpdateModel { get; set; }
 
         private Settings settings;
-        private readonly SceneMotion scene;
+        private readonly StaticSceneRender staticRender;
+        private readonly View3D.Settings staticSettings;
 
         private Dictionary<Model.Material, Material> materials = new();
         private bool isControlPanelVisible = true;
@@ -167,12 +221,14 @@ namespace ViewMotion
 
         private void OnNewCalculatedFrame(Shape frameShape)
         {
+            lastFrameShape = frameShape;
             var viewState = GetViewState(frameShape);
 
             if (settings.AllowFrameHistory)
                 viewStates.Add(viewState);
 
             FrameInfo = $"Frames: {viewStates.Count}";
+            RefreshButtons();
             ShowViewShape(viewState);
         }
 
@@ -278,38 +334,6 @@ namespace ViewMotion
             };
         }
 
-        public ViewerModel(Settings settings, SceneMotion scene)
-        {
-            this.settings = settings;
-            this.scene = scene;
-
-            Camera = new PerspectiveCamera(
-                settings.CameraOptions.Position.ToP3D(), 
-                settings.CameraOptions.LookDirection.ToV3D(), 
-                settings.CameraOptions.UpDirection.ToV3D(), 
-                settings.CameraOptions.FieldOfView);
-
-            foreach (var lightOptions in settings.Lights)
-            {
-                Lights.Add(new ModelVisual3D()
-                {
-                    Content = GetLight(lightOptions)
-                });
-            }
-
-            var motion = scene.Scene().GetAwaiter().GetResult();
-
-            if (motion.Shape != null)
-                OnNewCalculatedFrame(motion.Shape);
-
-            if (motion.CameraDistance.HasValue)
-            {
-                settings.CameraOptions.Position = settings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
-                RefreshCamera();
-            }
-
-            CalculateFrames(motion);
-        }
 
         private IEnumerable<Point> ToDefaultTexturePoints(int[] convex)
         {
