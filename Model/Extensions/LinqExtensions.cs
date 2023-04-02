@@ -249,6 +249,22 @@ namespace Model.Extensions
             }
         }
 
+        public static IEnumerable<(T a, T b, T c)> SelectByTriple<T>(this IEnumerable<T> list) => list.SelectByTriple((a, b, c) => (a, b, c));
+        public static IEnumerable<TRes> SelectByTriple<T, TRes>(this IEnumerable<T> list, Func<T, T, T, TRes> func)
+        {
+            var i = 0;
+            var prevPrevT = default(T);
+            var prevT = default(T);
+            foreach (var t in list)
+            {
+                if (++i % 3 == 0)
+                    yield return func(prevPrevT, prevT, t);
+
+                prevPrevT = prevT;
+                prevT = t;
+            }
+        }
+
         public static IEnumerable<TRes> SelectByPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
         {
             var i = 0;

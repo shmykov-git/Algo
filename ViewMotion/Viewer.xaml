@@ -43,7 +43,6 @@
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Center" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}"></CheckBox>
             <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
             <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" IsEnabled="{Binding CanCalc}" />
-            <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}"/>
             <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsAutoReplay, Mode=TwoWay}">Auto replay</CheckBox>
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsReverseReplay, Mode=TwoWay}">With reverse</CheckBox>
@@ -55,6 +54,7 @@
                 <Label DockPanel.Dock="Left">Lights</Label>
                 <Slider DockPanel.Dock="Left" Value="{Binding Light, Mode=TwoWay}"></Slider>
             </DockPanel>
+            <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="0 50 0 0"/>
         </DockPanel>
         <Grid>
             <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>

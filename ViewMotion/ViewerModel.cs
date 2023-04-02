@@ -32,8 +32,11 @@ namespace ViewMotion
         private bool isCalculating = true;
         private bool isPlaying = false;
         private List<Action> buttonRefreshes = new();
-        private Shape lastFrameShape = null;
+        private ViewState lastViewState = null;
 
+        private List<ViewState> viewStates = new();
+        private string frameInfo;
+        private double light;
 
         public ViewerModel(Settings settings, SceneMotion scene, StaticSceneRender staticRender, View3D.Settings staticSettings)
         {
@@ -113,10 +116,11 @@ namespace ViewMotion
         public string ExportName => "⇒ Export";
         public ICommand ExportCommand => new Command(() =>
         {
-            var staticScene = staticRender.CreateScene(lastFrameShape);
+            var frameShape = GetShapeFromViewState(lastViewState);
+            var staticScene = staticRender.CreateScene(frameShape);
             staticScene.Save(staticSettings.FullFileName, staticSettings.Format);
             ShowStaticScene(staticSettings.FullFileName);
-        }, () => lastFrameShape != null, SaveRefresh);
+        }, () => lastViewState != null, SaveRefresh);
 
         private void ShowStaticScene(string fullFileName)
         {
@@ -215,19 +219,14 @@ namespace ViewMotion
             Camera.UpDirection = settings.CameraOptions.UpDirection.ToV3D();
         }
 
-        private List<ViewState> viewStates = new();
-        private string frameInfo;
-        private double light;
-
         private void OnNewCalculatedFrame(Shape frameShape)
         {
-            lastFrameShape = frameShape;
             var viewState = GetViewState(frameShape);
 
             if (settings.AllowFrameHistory)
                 viewStates.Add(viewState);
 
-            FrameInfo = $"Frames: {viewStates.Count}";
+            FrameInfo = $"Frame: {viewStates.Count}";
             RefreshButtons();
             ShowViewShape(viewState);
         }
@@ -242,6 +241,7 @@ namespace ViewMotion
                 TextureCoordinates = shape.TexturePoints == null
                     ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
                     : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D())),
+                ModelMaterial = shape.Materials?[0],
                 Material = GetMaterial(shape.Materials?[0])
             }).ToArray();
 
@@ -251,8 +251,26 @@ namespace ViewMotion
             };
         }
 
+        private Shape GetShapeFromViewState(ViewState viewState)
+        {
+            return viewState.ViewShapes.Select(s =>
+            {
+                var ss= new Shape()
+                {
+                    Points3 = s.Positions.Select(p => new Vector3(p.X, p.Y, p.Z)).ToArray(),
+                    Convexes = s.TriangleIndices.SelectByTriple().Select(t => new[] {t.a, t.b, t.c}).ToArray(),
+                    Materials = (s.TriangleIndices.Count / 3).SelectRange(_ => s.ModelMaterial)
+                        .ToArray(), //todo: check null
+                    TexturePoints = null, //todo: not supported
+                };
+
+                return ss;
+            }).ToSingleShape();
+        }
+
         private async Task ShowViewShape(ViewState state)
         {
+            lastViewState = state;
             var model = new ModelVisual3D();
 
             foreach (var viewShape in state.ViewShapes)
@@ -289,8 +307,10 @@ namespace ViewMotion
                 if (IsReverseReplay)
                     states = states.Concat(states.Reverse());
 
-                foreach (var shape in states.ToArray())
+                foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
                 {
+                    FrameInfo = $"Frame: {i} from {viewStates.Count}";
+
                     await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));
 
                     if (!isPlaying)
@@ -365,6 +385,7 @@ namespace ViewMotion
             //public Vector3DCollection Normals;
             public PointCollection TextureCoordinates;
             public Material Material;
+            public Model.Material ModelMaterial;
         }
     }
 }
