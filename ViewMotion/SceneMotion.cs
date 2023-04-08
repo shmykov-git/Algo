@@ -49,8 +49,8 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         var a = new Vector3(2, 3, 5);
-        var b = new Vector3(0.5, 0, 0.2);
-        var n = 100;
+        var b = new Vector3(1, 1, 2);
+        var n = 300;
 
         double Sin(double x) => 0.5 * (1 + Math.Sin(Math.PI * (x - 0.5)));
 
@@ -64,7 +64,7 @@ partial class SceneMotion
                 return center + q * (a - center);
             };
 
-        var cameraFn = GetCircleFn(a, new Vector3(0, 0, 0), Vector3.YAxis);
+        var cameraFn = GetCircleFn(a, b, Vector3.YAxis);
 
 
         (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step)
@@ -76,7 +76,7 @@ partial class SceneMotion
             return (pos, look, up);
         }
 
-        var s = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
+        var s = Shapes.Cube.ToMetaShape3(5, 5, Color.Red, Color.Green);
 
         IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
 
