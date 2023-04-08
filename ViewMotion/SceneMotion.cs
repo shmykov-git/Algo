@@ -29,6 +29,8 @@ using ViewMotion.Models;
 using Vector3 = Aspose.ThreeD.Utilities.Vector3;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
 
+
+
 namespace ViewMotion;
 
 partial class SceneMotion
@@ -46,31 +48,39 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var a = new Vector3(10, 10, 10);
-        var b = new Vector3(1, 1, 1);
+        var a = new Vector3(2, 3, 5);
+        var b = new Vector3(0.5, 0, 0.2);
         var n = 100;
 
-        Vector3 GetCameraPosition(int step)
-        {
-            return a + (step / (n - 1.0)) * (b - a);
-        }
+        double Sin(double x) => 0.5 * (1 + Math.Sin(Math.PI * (x - 0.5)));
 
-        Vector3 GetCameraLookDirection(int step)
-        {
-            return -GetCameraPosition(step).Normalize();
-        }
-
-        var s = Shapes.Ball.ToMetaShape3(1, 1, Color.Red, Color.Green);
-
-        IEnumerable<Shape> Animate()
-        {
-            for (var i = 0; i < n; i++)
+        Func<double, Vector3> GetLineFn(Vector3 a, Vector3 b) => x => a + x * (b - a);
+        Func<double, Vector3> GetCircleFn(Vector3 a, Vector3 center, Vector3 normal) =>
+            x =>
             {
-                yield return s;
-            }
+                var alfa = 2 * Math.PI * x;
+                var q = Aspose.ThreeD.Utilities.Quaternion.FromAngleAxis(alfa, normal);
+
+                return center + q * (a - center);
+            };
+
+        var cameraFn = GetCircleFn(a, new Vector3(0, 0, 0), Vector3.YAxis);
+
+
+        (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step)
+        {
+            var pos = cameraFn(Sin(step / (n - 1.0)));
+            var look = -pos.Normalize();
+            var up = Vector3.YAxis;
+
+            return (pos, look, up);
         }
 
-        return Animate().ToMotion(new MotionOptions() {CameraMotionOptions = new CameraMotionOptions(){PositionFn = GetCameraPosition, LookDirectionFn = GetCameraLookDirection } });
+        var s = Shapes.Cube.ToMetaShape3(1, 1, Color.Red, Color.Green);
+
+        IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
+
+        return Animate().ToMotion(new MotionOptions() {CameraMotionOptions = new CameraMotionOptions() {CameraFn = GetCamera}});
     }
 
     public Task<Motion> Scene1()

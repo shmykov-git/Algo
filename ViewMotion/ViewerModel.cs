@@ -223,14 +223,12 @@ namespace ViewMotion
             {
                 var step = isCalculating ? viewStates.Count : playStep;
 
-                if (cameraMotionOptions.PositionFn != null)
-                    motionSettings.CameraOptions.Position = cameraMotionOptions.PositionFn(step);
+                if (cameraMotionOptions.CameraFn != null)
+                {
+                    var c = motionSettings.CameraOptions;
 
-                if (cameraMotionOptions.LookDirectionFn != null)
-                    motionSettings.CameraOptions.LookDirection = cameraMotionOptions.LookDirectionFn(step);
-
-                if (cameraMotionOptions.UpDirectionFn != null)
-                    motionSettings.CameraOptions.UpDirection = cameraMotionOptions.UpDirectionFn(step);
+                    (c.Position, c.LookDirection, c.UpDirection) = cameraMotionOptions.CameraFn(step);
+                }
             }
 
             Camera.Position = motionSettings.CameraOptions.Position.ToP3D();
