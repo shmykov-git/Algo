@@ -13,6 +13,15 @@ namespace ViewMotion.Extensions;
 
 static class MotionExtensions
 {
+    public static Task<Motion> ToMotion(this Shape shape, MotionOptions options)
+    {
+        IEnumerable<Shape> Animate()
+        {
+            yield return shape;
+        }
+
+        return Animate().ToMotion(options);
+    }
     public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null,
         TimeSpan? stepDelay = null)
     {
@@ -24,9 +33,19 @@ static class MotionExtensions
         return Animate().ToMotion(cameraDistance, startShape);
     }
 
-    public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
+    public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {
-        stepDelay ??= TimeSpan.FromMilliseconds(1);
+        return ToMotion(shapes, new MotionOptions()
+        {
+            CameraDistance = cameraDistance,
+            StartShape = startShape,
+            StepDelay = stepDelay
+        });
+    }
+
+    public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)
+    {
+        var stepDelay = options.StepDelay ?? TimeSpan.FromMilliseconds(1);
 
         var queue = new ConcurrentQueue<(int, TaskCompletionSource)>();
         Shape? shape = null;
@@ -59,7 +78,7 @@ static class MotionExtensions
 
             while (true)
             {
-                await Task.Delay(stepDelay.Value);
+                await Task.Delay(stepDelay);
 
                 if (queue.TryDequeue(out (int num, TaskCompletionSource t) v))
                 {
@@ -92,11 +111,12 @@ static class MotionExtensions
             }
         }
 
-        shape = startShape;
+        shape = options.StartShape;
 
         return new Motion
         {
-            CameraDistance = cameraDistance,
+            CameraMotionOptions= options.CameraMotionOptions,
+            CameraDistance = options.CameraDistance,
             Shape = shape,
             Step = Step
         };

@@ -13,11 +13,11 @@ namespace View3D.Tools
 {
     public class StaticSceneRender
     {
-        private readonly Settings settings;
+        private readonly StaticSettings staticSettings;
 
-        public StaticSceneRender(Settings settings)
+        public StaticSceneRender(StaticSettings staticSettings)
         {
-            this.settings = settings;
+            this.staticSettings = staticSettings;
         }
 
         public Aspose.ThreeD.Scene CreateScene(Model.Shape shape)
@@ -26,7 +26,7 @@ namespace View3D.Tools
             
             if (shape.Materials == null)
             {
-                AddMaterialNode(scene, shape, defaultMaterial, settings.AddNormalsWhenNoMaterial);
+                AddMaterialNode(scene, shape, defaultMaterial, staticSettings.AddNormalsWhenNoMaterial);
             }
             else
             {
@@ -53,7 +53,7 @@ namespace View3D.Tools
 
             main.Material = new PbrMaterial()
             {
-                MetallicFactor = settings.MetallicFactor,
+                MetallicFactor = staticSettings.MetallicFactor,
                 //RoughnessFactor = 1,
                 //OcclusionTexture = t,
                 EmissiveColor = new Vector3(m.Color),

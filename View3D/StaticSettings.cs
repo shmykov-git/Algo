@@ -5,7 +5,7 @@ using Model.Interfaces;
 
 namespace View3D
 {
-    public class Settings : IDirSettings
+    public class StaticSettings : IDirSettings
     {
         //public FileFormat Format => FileFormat.FBX7700Binary;
         public FileFormat Format => FileFormat.GLTF2_Binary;

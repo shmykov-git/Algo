@@ -13,14 +13,14 @@ partial class ViewerModel
     {
         const double power = 0.9;
 
-        settings.CameraOptions.Position *= delta > 0 ? power : 1 / power;
+        motionSettings.CameraOptions.Position *= delta > 0 ? power : 1 / power;
 
         RefreshCamera();
     }
 
     public void Rotate(double x, double y)
     {
-        var camera = settings.CameraOptions;
+        var camera = motionSettings.CameraOptions;
 
         const double power = 10;
         var pr = camera.LookDirection.MultS(camera.Position);
@@ -43,13 +43,13 @@ partial class ViewerModel
     public void Move(double x, double y)
     {
         const double power = 1;
-        var pr = settings.CameraOptions.LookDirection.MultS(settings.CameraOptions.Position).Abs();
+        var pr = motionSettings.CameraOptions.LookDirection.MultS(motionSettings.CameraOptions.Position).Abs();
 
-        var dx = -settings.CameraOptions.LookDirection.MultV(settings.CameraOptions.UpDirection).ToLen(x);
-        var dy = settings.CameraOptions.UpDirection.ToLen(y);
+        var dx = -motionSettings.CameraOptions.LookDirection.MultV(motionSettings.CameraOptions.UpDirection).ToLen(x);
+        var dy = motionSettings.CameraOptions.UpDirection.ToLen(y);
 
         var move = pr*power * (dx + dy);
-        settings.CameraOptions.Position += move;
+        motionSettings.CameraOptions.Position += move;
 
         RefreshCamera();
     }

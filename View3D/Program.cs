@@ -15,8 +15,8 @@ namespace View3D
         static void Main(string[] args)
         {
             DI.Configure(services => services
-                .AddSingleton<Settings>()
-                .AddSingleton<IDirSettings>(p => p.GetService<Settings>())
+                .AddSingleton<StaticSettings>()
+                .AddSingleton<IDirSettings>(p => p.GetService<StaticSettings>())
                 .AddSingleton<StaticSceneRender>()
                 .AddSingleton<ContentFinder>()
                 .AddSingleton<Scene>()
@@ -25,7 +25,7 @@ namespace View3D
             
             using var serviceProvider = DI.Build();
 
-            var settings = DI.Get<Settings>();
+            var settings = DI.Get<StaticSettings>();
             var staticSceneViewer = DI.Get<StaticSceneRender>();
             var scene = DI.Get<Scene>();
 

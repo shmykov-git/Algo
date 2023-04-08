@@ -46,90 +46,35 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        var a = new Vector3(10, 10, 10);
+        var b = new Vector3(1, 1, 1);
+        var n = 100;
 
-        var options = new WaterCubeOptions()
+        Vector3 GetCameraPosition(int step)
         {
-            SceneSize = new Vector3(12, 15, 12),
-            ParticleInitCount = 1000,
-            SceneMotionSteps = 150,
-            StepAnimations = 10,
-            PlatformColor = Color.FromArgb(60, 100, 140),
-            PlatformType = PlatformType.Square
-        };
-
-        var rnd = new Random(options.Seed);
-
-        var cubeSize = options.SceneSize;
-        var particleRadius = options.ParticleRadius;
-
-        (Shape sphere, Shape collider) GetHalfSphere(double radius, Vector3 move, double removeLine = 0.5001, Vector3? rotate = null, bool up = true)
-        {
-            var sphere = Surfaces.SphereAngle(30, 60, 2*Math.PI, 0).Mult(0.5).ToOy()
-                .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2 / radius))
-                .Mult(radius)
-                .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
-                .Move(move)
-                .ApplyColor(options.PlatformColor);
-
-            var collider = Surfaces.SphereAngle(10, 20, 2 * Math.PI, 0).Mult(0.5).ToOy()
-                .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes())
-                .Mult(radius)
-                .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
-                .Move(move);
-
-            return (sphere, collider);
+            return a + (step / (n - 1.0)) * (b - a);
         }
 
-        Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move, double gutterCurvature = 0.4)
+        Vector3 GetCameraLookDirection(int step)
         {
-            var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(scale).AddPerimeterVolume(.6);
-            gutterTmp = gutterCurvature.Abs() < 0.001
-                ? gutterTmp.MoveZ(-2.5)
-                : gutterTmp.MoveZ(-2 / gutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / gutterCurvature))
-                    .MoveZ(6 / gutterCurvature - 2.5);
-            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).ApplyColor(options.PlatformColor);
-            
-            return gutter;
+            return -GetCameraPosition(step).Normalize();
         }
 
-        var gutters = new[]
+        var s = Shapes.Ball.ToMetaShape3(1, 1, Color.Red, Color.Green);
+
+        IEnumerable<Shape> Animate()
         {
-            GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2)),
-            GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3))
-        };
-
-        var spheres = new[]
-        {
-            GetHalfSphere(2.5, new Vector3(0, -cubeSize.y / 2 + 2.5, 0)),
-            GetHalfSphere(4, new Vector3(-2, -cubeSize.y / 2 + 2.5, 0), -0.1, new Vector3(1, 1.5, 0), false)
-        };
-
-        var models = new List<WaterCubePlaneModel>
-        {
-            new WaterCubePlaneModel { VisibleShape = Shapes.CoodsWithText.Mult(5) }
-        };
-
-        models.AddRange(gutters.Select(g => new WaterCubePlaneModel() { VisibleShape = g, ColliderShape = g, ColliderShift = -particleRadius }));
-        models.AddRange(spheres.Select(s => new WaterCubePlaneModel() { VisibleShape = s.sphere, ColliderShape = s.collider, ColliderShift = -particleRadius }));
-
-        Item[] GetInitItems(int n) => (n).SelectRange(_ => new Item
-        {
-            Position = rnd.NextCenteredV3(1.5) + new Vector3(0, cubeSize.y / 2 - 1, -3) + options.WaterPosition
-        }).ToArray();
-
-        return WaterSystemPlatform.CubeMotion(
-            new WaterCubeModel()
+            for (var i = 0; i < n; i++)
             {
-                PlaneModels = models,
-                GetInitItemsFn = GetInitItems,
-                //DebugColliders = true,
-                //DebugCollidersAsLines = true,
-            }, options).ToMotion(25);
+                yield return s;
+            }
+        }
+
+        return Animate().ToMotion(new MotionOptions() {CameraMotionOptions = new CameraMotionOptions(){PositionFn = GetCameraPosition, LookDirectionFn = GetCameraLookDirection } });
     }
 
     public Task<Motion> Scene1()
     {
-        return IllBeBack();
 
 
         //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)

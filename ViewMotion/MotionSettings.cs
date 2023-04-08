@@ -9,7 +9,7 @@ using ViewMotion.Models;
 
 namespace ViewMotion;
 
-class Settings : IDirSettings
+class MotionSettings : IDirSettings
 {
     public CameraOptions CameraOptions { get; } = new()
     {

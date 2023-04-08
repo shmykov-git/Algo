@@ -14,6 +14,7 @@ using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
+using View3D;
 using View3D.Tools;
 using ViewMotion;
 using ViewMotion.Annotations;
@@ -38,19 +39,21 @@ namespace ViewMotion
         private string frameInfo;
         private double light;
 
-        public ViewerModel(Settings settings, SceneMotion scene, StaticSceneRender staticRender, View3D.Settings staticSettings)
+        private CameraMotionOptions cameraMotionOptions;
+
+        public ViewerModel(MotionSettings motionSettings, SceneMotion scene, StaticSceneRender staticRender, StaticSettings staticSettings)
         {
-            this.settings = settings;
+            this.motionSettings = motionSettings;
             this.staticRender = staticRender;
             this.staticSettings = staticSettings;
 
             Camera = new PerspectiveCamera(
-                settings.CameraOptions.Position.ToP3D(),
-                settings.CameraOptions.LookDirection.ToV3D(),
-                settings.CameraOptions.UpDirection.ToV3D(),
-                settings.CameraOptions.FieldOfView);
+                motionSettings.CameraOptions.Position.ToP3D(),
+                motionSettings.CameraOptions.LookDirection.ToV3D(),
+                motionSettings.CameraOptions.UpDirection.ToV3D(),
+                motionSettings.CameraOptions.FieldOfView);
 
-            foreach (var lightOptions in settings.Lights)
+            foreach (var lightOptions in motionSettings.Lights)
             {
                 Lights.Add(new ModelVisual3D()
                 {
@@ -58,14 +61,15 @@ namespace ViewMotion
                 });
             }
 
-            var motion = scene.Scene().GetAwaiter().GetResult();
+            var motion = scene.Scene().Result;
+            cameraMotionOptions = motion.CameraMotionOptions;
 
             if (motion.Shape != null)
                 OnNewCalculatedFrame(motion.Shape);
 
             if (motion.CameraDistance.HasValue)
             {
-                settings.CameraOptions.Position = settings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
+                motionSettings.CameraOptions.Position = motionSettings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
                 RefreshCamera();
             }
 
@@ -77,6 +81,7 @@ namespace ViewMotion
 
         private void Refresh()
         {
+            RefreshCamera();
             RefreshButtons();
             OnPropertyChanged(nameof(CalcName));
             OnPropertyChanged(nameof(ReplayName));
@@ -100,7 +105,7 @@ namespace ViewMotion
         {
             var alfa = 2 * Math.PI * Light * 0.1;
             var q = Quaternion.FromEulerAngle(alfa, 0, 0);
-            settings.Lights.ForEach((l, i) =>
+            motionSettings.Lights.ForEach((l, i) =>
             {
                 if (l.LightType == LightType.Ambient)
                     return;
@@ -175,9 +180,9 @@ namespace ViewMotion
 
         public Action<ModelVisual3D> UpdateModel { get; set; }
 
-        private Settings settings;
+        private MotionSettings motionSettings;
         private readonly StaticSceneRender staticRender;
-        private readonly View3D.Settings staticSettings;
+        private readonly View3D.StaticSettings staticSettings;
 
         private Dictionary<Model.Material, Material> materials = new();
         private bool isControlPanelVisible = true;
@@ -214,20 +219,35 @@ namespace ViewMotion
 
         public void RefreshCamera()
         {
-            Camera.Position = settings.CameraOptions.Position.ToP3D();
-            Camera.LookDirection = settings.CameraOptions.LookDirection.ToV3D();
-            Camera.UpDirection = settings.CameraOptions.UpDirection.ToV3D();
+            if (cameraMotionOptions != null && (isPlaying || isCalculating))
+            {
+                var step = isCalculating ? viewStates.Count : playStep;
+
+                if (cameraMotionOptions.PositionFn != null)
+                    motionSettings.CameraOptions.Position = cameraMotionOptions.PositionFn(step);
+
+                if (cameraMotionOptions.LookDirectionFn != null)
+                    motionSettings.CameraOptions.LookDirection = cameraMotionOptions.LookDirectionFn(step);
+
+                if (cameraMotionOptions.UpDirectionFn != null)
+                    motionSettings.CameraOptions.UpDirection = cameraMotionOptions.UpDirectionFn(step);
+            }
+
+            Camera.Position = motionSettings.CameraOptions.Position.ToP3D();
+            Camera.LookDirection = motionSettings.CameraOptions.LookDirection.ToV3D();
+            Camera.UpDirection = motionSettings.CameraOptions.UpDirection.ToV3D();
         }
 
         private void OnNewCalculatedFrame(Shape frameShape)
         {
             var viewState = GetViewState(frameShape);
 
-            if (settings.AllowFrameHistory)
+            if (motionSettings.AllowFrameHistory)
                 viewStates.Add(viewState);
 
             FrameInfo = $"Frame: {viewStates.Count}";
             RefreshButtons();
+            RefreshCamera();
             ShowViewShape(viewState);
         }
 
@@ -296,6 +316,7 @@ namespace ViewMotion
             UpdateModel?.Invoke(model);
         }
 
+        private int playStep = 0;
         async Task Play()
         {
             isPlaying = true;
@@ -309,9 +330,11 @@ namespace ViewMotion
 
                 foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
                 {
-                    FrameInfo = $"Frame: {i} from {viewStates.Count}";
+                    playStep = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
+                    FrameInfo = $"Frame: {playStep+1} from {viewStates.Count}";
 
                     await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));
+                    RefreshCamera();
 
                     if (!isPlaying)
                         break;

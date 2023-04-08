@@ -35,12 +35,12 @@ namespace View3D
     {
         #region ctor
 
-        private readonly Settings settings;
+        private readonly StaticSettings staticSettings;
         private readonly Vectorizer vectorizer;
 
-        public Scene(Settings settings, Vectorizer vectorizer)
+        public Scene(StaticSettings staticSettings, Vectorizer vectorizer)
         {
-            this.settings = settings;
+            this.staticSettings = staticSettings;
             this.vectorizer = vectorizer;
         }
 
