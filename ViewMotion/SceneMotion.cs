@@ -25,6 +25,7 @@ using Model3D.Tools;
 using Model3D.Tools.Model;
 using Model4D;
 using ViewMotion.Extensions;
+using ViewMotion.Libraries;
 using ViewMotion.Models;
 using Vector3 = Aspose.ThreeD.Utilities.Vector3;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
@@ -53,46 +54,19 @@ partial class SceneMotion
         var b = new Vector3(0, 0, 0);
         var n = 100;
 
-        double Line(double x) => x;
-        double Sin(double x) => 0.5 * (1 + Math.Sin(Math.PI * (x - 0.5))); // по кругу
-        double Poly2(double x) => x < 0.5 ? 2 * x * x : -2 * x * x + 4 * x - 1; // ускорение и торможение
-
-        return new[]
-        {
-            (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Sin(x))).ToShape2().ToShape3().ToLines(1, Color.Green),
-            (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Poly2(x))).ToShape2().ToShape3().ToLines(1, Color.Blue),
-            (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Line(x))).ToShape2().ToShape3().ToLines(1, Color.Red),
-            Shapes.Coods2WithText
-        }.ToSingleShape().Centered().ToMotion();
-
-        Func<double, Vector3> GetLineFn(Vector3 a, Vector3 b) => x => a + x * (b - a);
-        Func<double, Vector3> GetCircleFn(Vector3 a, Vector3 center, Vector3 normal) =>
-            x =>
-            {
-                var alfa = 2 * Math.PI * x;
-                var q = Quaternion.FromAngleAxis(alfa, normal);
-
-                return center + q * (a - center);
-            };
-
-        var cameraFn = GetCircleFn(a, b, Vector3.YAxis);
-
-
-        (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step)
-        {
-            var pos = cameraFn(Poly2((double) step / n)); // step / (n - 1.0)
-            var look = -pos.Normalize();
-            var up = Vector3.YAxis;
-
-            return (pos, look, up);
-        }
+        //return new[]
+        //{
+        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Sin(x))).ToShape2().ToShape3().ToLines(1, Color.Green),
+        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Poly2(x))).ToShape2().ToShape3().ToLines(1, Color.Blue),
+        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Line(x))).ToShape2().ToShape3().ToLines(1, Color.Red),
+        //    Shapes.Coods2WithText
+        //}.ToSingleShape().Centered().ToMotion();
 
         var s = Shapes.Cube.ToMetaShape3(5, 5, Color.Red, Color.Green);
 
         IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
 
-        //todo: camera animations
-        return Animate().ToMotion(new MotionOptions() {CameraMotionOptions = new CameraMotionOptions() {CameraFn = GetCamera}});
+        return Animate().ToMotion(/*new MotionOptions() {CameraMotionOptions = CameraAnimations.FlyArround(new Vector3(2, 2, 2)) }*/);
     }
 
     public Task<Motion> Scene1()

@@ -11,7 +11,7 @@ namespace ViewMotion;
 
 class MotionSettings : IDirSettings
 {
-    public CameraOptions CameraOptions { get; } = new()
+    public CameraOptions CameraOptions { get; set; } = new()
     {
         Position = 0.5 * new Vector3(-3, 3, 10),
         LookDirection = -(0.5 * new Vector3(-3, 3, 10)).Normalize(),

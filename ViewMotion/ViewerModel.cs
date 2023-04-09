@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -20,6 +21,7 @@ using ViewMotion;
 using ViewMotion.Annotations;
 using ViewMotion.Commands;
 using ViewMotion.Extensions;
+using ViewMotion.Libraries;
 using ViewMotion.Models;
 using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
@@ -47,6 +49,12 @@ namespace ViewMotion
             this.staticRender = staticRender;
             this.staticSettings = staticSettings;
 
+            var motion = scene.Scene().Result;
+            cameraMotionOptions = motion.CameraMotionOptions;
+            
+            if (cameraMotionOptions?.CameraStartOptions != null)
+                motionSettings.CameraOptions = cameraMotionOptions.CameraStartOptions;
+
             Camera = new PerspectiveCamera(
                 motionSettings.CameraOptions.Position.ToP3D(),
                 motionSettings.CameraOptions.LookDirection.ToV3D(),
@@ -61,9 +69,6 @@ namespace ViewMotion
                 });
             }
 
-            var motion = scene.Scene().Result;
-            cameraMotionOptions = motion.CameraMotionOptions;
-
             if (motion.Shape != null)
                 OnNewCalculatedFrame(motion.Shape);
 
@@ -74,6 +79,19 @@ namespace ViewMotion
             }
 
             CalculateFrames(motion);
+        }
+
+        public ComboBoxItem[] Animations => new[] {"", "Облет вокруг"}.Select(s=>new ComboBoxItem(){Content = s}).ToArray();
+
+        public int AnimationIndex { get; set; }
+
+        private void SetCameraAnimation()
+        {
+            cameraMotionOptions = AnimationIndex switch
+            {
+                1 => CameraAnimations.FlyArround(motionSettings.CameraOptions.Position),
+                _ => null
+            };
         }
 
         private void SaveRefresh(Action refresh) => buttonRefreshes.Add(refresh);
@@ -227,7 +245,7 @@ namespace ViewMotion
                 {
                     var c = motionSettings.CameraOptions;
 
-                    (c.Position, c.LookDirection, c.UpDirection) = cameraMotionOptions.CameraFn(step);
+                    (c.Position, c.LookDirection, c.UpDirection) = cameraMotionOptions.CameraFn(step, viewStates.Count);
                 }
             }
 
@@ -315,9 +333,12 @@ namespace ViewMotion
         }
 
         private int playStep = 0;
+
         async Task Play()
         {
             isPlaying = true;
+
+            SetCameraAnimation();
 
             do
             {
