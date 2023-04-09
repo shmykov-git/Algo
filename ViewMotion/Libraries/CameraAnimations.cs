@@ -12,7 +12,7 @@ namespace ViewMotion.Libraries
 {
     internal static class CameraAnimations
     {
-        public static CameraMotionOptions FlyArround(Vector3 cameraStartPosition)
+        public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition)
         {
             var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition, Vector3.Origin, Vector3.YAxis);
             var cameraAcceleration = Accelerations.Poly2;

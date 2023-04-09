@@ -66,7 +66,7 @@ partial class SceneMotion
 
         IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
 
-        return Animate().ToMotion(/*new MotionOptions() {CameraMotionOptions = CameraAnimations.FlyArround(new Vector3(2, 2, 2)) }*/);
+        return Animate().ToMotion(/*new MotionOptions() {CameraMotionOptions = CameraAnimations.FlyAround(new Vector3(2, 2, 2)) }*/);
     }
 
     public Task<Motion> Scene1()

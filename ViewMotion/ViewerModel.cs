@@ -81,7 +81,7 @@ namespace ViewMotion
             CalculateFrames(motion);
         }
 
-        public ComboBoxItem[] Animations => new[] {"", "Облет вокруг"}.Select(s=>new ComboBoxItem(){Content = s}).ToArray();
+        public string[] Animations => new[] {"No animation", "Fly around"};
 
         public int AnimationIndex { get; set; }
 
@@ -89,7 +89,7 @@ namespace ViewMotion
         {
             cameraMotionOptions = AnimationIndex switch
             {
-                1 => CameraAnimations.FlyArround(motionSettings.CameraOptions.Position),
+                1 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position),
                 _ => null
             };
         }
