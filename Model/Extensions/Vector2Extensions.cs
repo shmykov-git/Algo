@@ -7,6 +7,20 @@ namespace Model.Extensions
 {
     public static class Vector2Extensions
     {
+        public static Polygon ToPolygon(this IEnumerable<Vector2> points) => new() { Points = points.ToArray() };
+        public static Shape2 ToShape2(this IEnumerable<Vector2> points, bool closed = false)
+        {
+            var ps = points.ToArray();
+
+            return new()
+            {
+                Points = ps,
+                Convexes = closed
+                    ? ps.Index().SelectCirclePair((i, j) => new[] {i, j}).ToArray()
+                    : ps.Index().SelectPair((i, j) => new[] {i, j}).ToArray()
+            };
+        }
+
         public static Vector2 Scale(this Vector2 a, Vector2 aSize, Vector2 bSize)
         {
             return new Vector2
