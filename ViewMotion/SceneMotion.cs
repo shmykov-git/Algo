@@ -50,17 +50,13 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return Waterfall2();
+
         var a = new Vector3(2, 3, 5);
         var b = new Vector3(0, 0, 0);
         var n = 100;
 
-        //return new[]
-        //{
-        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Sin(x))).ToShape2().ToShape3().ToLines(1, Color.Green),
-        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Poly2(x))).ToShape2().ToShape3().ToLines(1, Color.Blue),
-        //    (1000).SelectRange(i => i / 1000.0).Select(x => new Vector2(x, Line(x))).ToShape2().ToShape3().ToLines(1, Color.Red),
-        //    Shapes.Coods2WithText
-        //}.ToSingleShape().Centered().ToMotion();
+        
 
         var s = Shapes.Cube.ToMetaShape3(5, 5, Color.Red, Color.Green);
 

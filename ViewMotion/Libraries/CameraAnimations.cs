@@ -15,7 +15,7 @@ namespace ViewMotion.Libraries
         public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition)
         {
             var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition, Vector3.Origin, Vector3.YAxis);
-            var cameraAcceleration = Accelerations.Poly2;
+            var cameraAcceleration = Accelerations.PolyA2(0.25);
 
             (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step, int maxStep)
             {
