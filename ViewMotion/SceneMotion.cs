@@ -50,19 +50,12 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Waterfall2();
-
-        var a = new Vector3(2, 3, 5);
-        var b = new Vector3(0, 0, 0);
         var n = 100;
-
-        
-
-        var s = Shapes.Cube.ToMetaShape3(5, 5, Color.Red, Color.Green);
+        var s = vectorizer.GetText("?", 500).Perfecto().ApplyColor(Color.LightCoral);
 
         IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
 
-        return Animate().ToMotion(/*new MotionOptions() {CameraMotionOptions = CameraAnimations.FlyAround(new Vector3(2, 2, 2)) }*/);
+        return Animate().ToMotion();
     }
 
     public Task<Motion> Scene1()
