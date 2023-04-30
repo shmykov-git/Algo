@@ -51,7 +51,7 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         var n = 100;
-        var s = vectorizer.GetText("?", 500).Perfecto().ApplyColor(Color.LightCoral);
+        var s = vectorizer.GetContentShape("st1").Perfecto().ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Red, Color.Red, Color.Red);
 
         IEnumerable<Shape> Animate() => (n).SelectRange(_ => s);
 
