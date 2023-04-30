@@ -81,7 +81,7 @@ namespace ViewMotion
             CalculateFrames(motion);
         }
 
-        public string[] Animations => new[] {"No animation", "Fly around"};
+        public string[] Animations => new[] {"No animation", "Fly around", "Fly far around"};
 
         public int AnimationIndex { get; set; }
 
@@ -90,6 +90,7 @@ namespace ViewMotion
             cameraMotionOptions = AnimationIndex switch
             {
                 1 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position),
+                2 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.Position.Length*0.5),
                 _ => null
             };
         }

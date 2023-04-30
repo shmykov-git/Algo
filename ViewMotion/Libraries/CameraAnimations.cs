@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
 using Model.Libraries;
+using Model3D.Extensions;
 using Model3D.Libraries;
 using ViewMotion.Models;
 
@@ -12,9 +13,9 @@ namespace ViewMotion.Libraries
 {
     internal static class CameraAnimations
     {
-        public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition)
+        public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition, double centerDistance = 0)
         {
-            var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition, Vector3.Origin, Vector3.YAxis);
+            var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition, -cameraStartPosition.ToLenWithCheck(centerDistance), Vector3.YAxis);
             var cameraAcceleration = Accelerations.PolyA2(0.25);
 
             (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step, int maxStep)
