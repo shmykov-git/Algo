@@ -15,11 +15,88 @@ using ViewMotion.Extensions;
 using ViewMotion.Models;
 using static Model3D.Systems.WaterSystemPlatform;
 using Model3D.Tools;
+using MathNet.Numerics;
+using View3D.Libraries;
 
 namespace ViewMotion;
 
 partial class SceneMotion
 {
+    public Task<Motion> SliderMotion()
+    {
+        // see result here: https://www.youtube.com/watch?v=RkE_z8ilk8g&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
+
+        var sceneColor = Color.FromArgb(50, 60, 70);
+
+        var options = new WaterCubeOptions()
+        {
+            SceneSize = new Vector3(16, 16, 16),
+            StepAnimations = 5,
+            SceneMotionSteps = 500,
+            WaterSpeed = 0.07,
+            FrictionFactor = 0.6,
+            ParticlePerEmissionCount = 2,
+            ParticleCount = 10000,
+            ParticlePlaneBackwardThikness = 2,
+            PlatformColor = sceneColor
+        };
+
+        var rnd = new Random(options.Seed);
+        var cubeSize = options.SceneSize;
+
+        var ground = Surfaces.Plane(9, 9).FilterConvexes(c => c[0].IsEven()).Perfecto().Scale(cubeSize).ToOy().AddNormalVolume(0.25).AlignY(0).MoveY(-cubeSize.y / 2).ApplyColor(sceneColor);
+        var logicGround = ground
+            .FilterPlanes(p => p.NOne.MultS(-Vector3.YAxis) < 0.999)
+            .FilterConvexPlanes((convex, _) =>
+            {
+                var c = convex.Center();
+
+                if (c.x < -0.99 * cubeSize.x / 2 || c.x > 0.99 * cubeSize.x / 2)
+                    return false;
+
+                if (c.z < -0.99 * cubeSize.z / 2 || c.z > 0.99 * cubeSize.z / 2)
+                    return false;
+
+                return true;
+            });
+
+        Shape TransformSpiral(Shape s) => s.Normalize().Scale(1, 1, 1 / Math.PI).Perfecto(11)
+            .CurveZ(Funcs3.Spiral(1.25)).Mult(4).ToOyM().RotateOy(Math.PI / 10)
+            .Move(0, -cubeSize.y / 2 + 9.5, -2);
+
+        var spiral = TransformSpiral(Surfaces.ChessCylinder(15, 123)).AddNormalVolume(0.15).ApplyColor(sceneColor);
+        var logicSpiral = TransformSpiral(Surfaces.Cylinder(15, 123)).ReversePlanes();
+
+        var logicBox = Surfaces.Plane(23, 23).Perfecto().Transform(Multiplications.Cube)
+            .FilterConvexes(c => c[0].IsEven()).Where(v => v.y < -0.3)
+            .Mult(10).AlignY(0).MoveY(-cubeSize.y / 2 + 1).ReversePlanes();
+
+        var box = logicBox.AddNormalVolume(-0.15).Normalize().ApplyColor(sceneColor);
+
+        var waterDir = new Vector3(-0.6, -0.15, 1);
+        var tap = Shapes.Cube.Perfecto(0.9).AlignZ(0).Scale(1, 1, 2.5).Rotate(waterDir, Vector3.YAxis)
+            .Move(2, -cubeSize.y / 2 + 14, 2.5).ApplyColor(sceneColor);
+
+        Item[] GetStepItems(int n) => (n).SelectRange(_ => new Item
+        {
+            Position = rnd.NextCenteredV3(0.3) + new Vector3(2, -cubeSize.y / 2 + 14, 2.5),
+            Speed = -options.WaterSpeed * waterDir
+        }).ToArray();
+
+        return WaterSystemPlatform.CubeMotion(
+            new WaterCubeModel()
+            {
+                PlaneModels = new List<WaterCubePlaneModel>()
+                {
+                    new() {VisibleShape = spiral, ColliderShape = logicSpiral, ColliderShift = options.ParticleRadius},
+                    new() {VisibleShape = box, ColliderShape = logicBox},
+                    new() {VisibleShape = tap},
+                    new() {VisibleShape = ground, ColliderShape = logicGround},
+                },
+                GetStepItemsFn = GetStepItems
+            }, options).ToMotion(35);
+    }
+
     public Task<Motion> CubeGalaxiesIntersection()
     {
         // see result: https://www.youtube.com/watch?v=l9XWBsMDY9w&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2

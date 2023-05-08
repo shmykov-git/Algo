@@ -24,6 +24,7 @@ using Model3D.Systems.Model;
 using Model3D.Tools;
 using Model3D.Tools.Model;
 using Model4D;
+using View3D.Libraries;
 using ViewMotion.Extensions;
 using ViewMotion.Libraries;
 using ViewMotion.Models;
@@ -48,10 +49,9 @@ partial class SceneMotion
 
     #endregion
 
-
     public Task<Motion> Scene()
     {
-        return CubeGalaxiesIntersection();
+        return SliderMotion();
     }
 
     public Task<Motion> Scene1()
