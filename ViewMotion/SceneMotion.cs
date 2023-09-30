@@ -130,7 +130,7 @@ partial class SceneMotion
         {
             //yield return s;
             //return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
-            yield return vectorizer.GetContentShape("pbp").ApplyColor(Color.Black);
+            yield return vectorizer.GetContentShape("cat1").ApplyColor(Color.Black);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
 

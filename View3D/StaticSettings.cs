@@ -24,7 +24,7 @@ namespace View3D
         public double MetallicFactor => 0.7; // 0 - пластик, 1 - метал (не блестит)
 
         public string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Scene");
-        public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\View3D\..\..\..\View3D\Content");
+        public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Content");
         public string FullFileName => Path.Combine(OutputDirectory, FileName);
         public bool AddNormalsWhenNoMaterial => false;
         public string GetContentFileName(string fileName) => Path.Combine(InputDirectory, fileName);

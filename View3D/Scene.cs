@@ -48,9 +48,9 @@ namespace View3D
 
         public Shape GetShape()
         {
-            return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
+            //return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
 
-            var contentName = "lenin1";
+            var contentName = "pbp";
 
             var options = new ShapeOptions()
             {
@@ -97,7 +97,7 @@ namespace View3D
 
             return new[]
                 {
-                    vectorizer.GetContentShape(contentName, options),
+                    vectorizer.GetContentShape(contentName, options).ApplyColor(Color.Blue),
                     //vectorizer.GetContentShape(contentName, lineOptions).MoveZ(0.015),
                 }.ToSingleShape();
         }
