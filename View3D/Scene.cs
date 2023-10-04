@@ -50,11 +50,11 @@ namespace View3D
         {
             //return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
 
-            var contentName = "pbp";
+            var contentName = "wc";
 
             var options = new ShapeOptions()
             {
-                ColorLevel = 222,                                       // 0 - white, 200 - middle, 255 - black
+                ColorLevel = 150,                                       // 0 - white, 200 - middle, 255 - black
                 //InvertColor = true,                                     // invert black and white color
                 //ColorMask = ColorMasks.Ellipse4(1, 1),                        // function to set white color to outside points
                 ZVolume = 0.02,                                         // null - no volume, number - add volume to the shape
