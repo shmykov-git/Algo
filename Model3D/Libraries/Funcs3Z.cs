@@ -9,7 +9,8 @@ namespace Model3D.Libraries
     {
         public static Func3Z Zero = (x, y) => 0;
         public static Func3Z Hyperboloid = (x, y) => x * x - y * y;
-        public static Func3Z HyperboloidM = (x, y) => - x * x + y * y;
+        public static Func3Z HyperboloidM = (x, y) => -x * x + y * y;
+        public static Func3Z Atan = (x, y) => Math.Atan2(1, Math.Sqrt(x* x + y * y));
         public static Func3Z HyperboloidR(double kX, double kY) => (x, y) => (x/kX).Pow2() - (y/kY).Pow2();
         public static Func3Z Paraboloid = (x, y) => x * x + y * y;
         public static Func3Z ParaboloidM = (x, y) => - x * x - y * y;

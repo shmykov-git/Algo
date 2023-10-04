@@ -28,6 +28,7 @@ using View3D.Libraries;
 using Shape = Model.Shape;
 using Triangulator = Model.Tools.Triangulator;
 using Vector2 = Model.Vector2;
+using Aspose.ThreeD.Entities;
 
 namespace View3D
 {
@@ -48,9 +49,29 @@ namespace View3D
 
         public Shape GetShape()
         {
-            //return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
+            var c1 = Color.DarkOrange; // Color.FromArgb(63, 27, 0);
+            var c2 = Color.Black;
+            var txt = vectorizer.GetTextLine("все будет заведись", "Gogol").Centered().Mult(3);
 
-            var contentName = "wc";
+            return new[]
+            {
+                vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
+                new Shape[]
+                {
+                    new Shape[]
+                    {
+                        txt.PullOnSurface(SurfaceFuncs.CylinderYm),
+                        txt.MoveX(Math.PI*2/3).PullOnSurface(SurfaceFuncs.CylinderYm),
+                        txt.MoveX(Math.PI*4/3).PullOnSurface(SurfaceFuncs.CylinderYm)
+                    }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
+                    Shapes.CylinderR(50, 0.01, 1).ToOy().AlignY(1).ApplyColor(c1)
+                }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
+            }.ToSingleShape();
+
+            //return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().Perfecto().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
+            //return Parquets.PentagonalKershner8(0.05, 1.5).ToShape3().Perfecto(3).ApplyZ(Funcs3Z.Atan).ToMetaShape3().Rotate(Rotates.Z_Y);
+
+            var contentName = "vs";
 
             var options = new ShapeOptions()
             {

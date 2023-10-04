@@ -466,7 +466,7 @@ namespace View3D
 
         public Shape Chess()
         {
-            var white = Color.FromArgb(10, 10, 255);
+            var white = Color.FromArgb(255, 104, 0);
             var c11 = Color.White;
             var black = Color.Black;
 
