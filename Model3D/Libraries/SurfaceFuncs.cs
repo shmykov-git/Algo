@@ -59,6 +59,7 @@ namespace Model3D.Libraries
         public static SurfaceFunc Cylinder => (double u, double v) => new Vector3(Math.Cos(u), Math.Sin(u), v);
         public static SurfaceFunc CylinderY => (double u, double v) => new Vector3(Math.Cos(u), v, Math.Sin(u));
         public static SurfaceFunc CylinderYm => (double u, double v) => new Vector3(Math.Cos(u), v, -Math.Sin(u));
+        public static SurfaceFunc CylinderABYm(double a, double b) => (double u, double v) => new Vector3(a * Math.Cos(u), v, -b * Math.Sin(u));
         public static SurfaceFunc Circle => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), 0);
         public static SurfaceFunc Cone => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), 1);
         public static SurfaceFunc ConeM => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), -1);

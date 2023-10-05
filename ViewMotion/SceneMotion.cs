@@ -130,26 +130,40 @@ partial class SceneMotion
         var c2 = Color.Black;
         var txt = vectorizer.GetTextLine("все будет заведись", "Gogol").Centered().Mult(3);
 
-        var s = new[]
-            {
-                vectorizer.GetTextLine("#").Perfecto(0.2).ApplyColor(c1).Rotate(1,1,1).Move(-0.6, 0.6, 0),
-                vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
-                new Shape[]
-                {
-                    new Shape[]
-                    {
-                        txt.MoveX(Math.PI*-1/3).PullOnSurface(SurfaceFuncs.CylinderYm),
-                        txt.MoveX(Math.PI*1/3).PullOnSurface(SurfaceFuncs.CylinderYm),
-                        txt.MoveX(Math.PI*3/3).PullOnSurface(SurfaceFuncs.CylinderYm)
-                    }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
-                    Shapes.CylinderR(50, 0.01, 1).ToOy().AlignY(1).ApplyColor(c1)
-                }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
-            }.ToSingleShape();
+        //var s = new[]
+        //    {
+        //        vectorizer.GetTextLine("#").Perfecto(0.2).ApplyColor(c1).Rotate(1,1,1).Move(-0.6, 0.6, 0),
+        //        vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
+        //        new Shape[]
+        //        {
+        //            new Shape[]
+        //            {
+        //                txt.MoveX(Math.PI*-1/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+        //                txt.MoveX(Math.PI*1/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+        //                txt.MoveX(Math.PI*3/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
+        //            }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
+        //            Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
+        //        }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
+        //    }.ToSingleShape();
 
         IEnumerable <Shape> Animate()
         {
-            for(var i=0; i<100; i++)
-                yield return s;
+            for (var i = 0; i < 100; i++)
+                yield return new[]
+                {
+                    vectorizer.GetTextLine("#").Perfecto(0.2).Rotate(2*Math.PI * i/100).Rotate(1,1,1).Move(-0.6, 0.6, 0).ApplyColor(c1),
+                    vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
+                    new Shape[]
+                    {
+                        new Shape[]
+                        {
+                            txt.MoveX(Math.PI*-1/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*1/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*3/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
+                        }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
+                        Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
+                    }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
+                }.ToSingleShape();
 
             //yield return s;
             //return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
