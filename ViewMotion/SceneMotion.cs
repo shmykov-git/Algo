@@ -49,12 +49,12 @@ partial class SceneMotion
 
     #endregion
 
-    public Task<Motion> Scene1()
+    public Task<Motion> Scene()
     {
-        return SliderMotion();
+        return VariatorServiceMotion();
     }
 
-    public Task<Motion> Scene()
+    public Task<Motion> Scene1()
     {
 
         //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
@@ -67,12 +67,13 @@ partial class SceneMotion
 
         //return new[]
         //{
-        //    ss.ApplyColor(Color.Blue),
+        //    vectorizer.GetContentShape("dd", 226)
+        //    //ss.ApplyColor(Color.Blue),
         //    //ss.ToSpots3(3*step).ApplyColor(Color.Blue),
         //    //ss.ToShapedSpots3(Shapes.Cube.MassCentered().Mult(0.5 * step).ToLines(step), Color.Green),
         //    //MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
         //    //Surfaces.Sphere(40, 20).ToLines(0.1, Color.Red),
-        //    Shapes.CoodsWithText
+        //    //Shapes.CoodsWithText
         //}.ToSingleShape().ToMotion();
 
         //var n = 50;

@@ -22,6 +22,36 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
+    public Task<Motion> VariatorServiceMotion()
+    {
+        var c1 = Color.DarkOrange;
+        var c2 = Color.Black;
+        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol", multY:1.1).Centered().Mult(3);
+        var n = 200;
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var i = 0; i < n; i++)
+                yield return new[]
+                {
+                    vectorizer.GetTextLine("#").Perfecto(0.2).Rotate(2*Math.PI * i/n).Rotate(1,1,1).Move(-0.6, 0.6, 0).ApplyColor(c1),
+                    vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
+                    new Shape[]
+                    {
+                        new Shape[]
+                        {
+                            txt.MoveX(Math.PI*-1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*3/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
+                        }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
+                        Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
+                    }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
+                }.ToSingleShape();
+        }
+
+        return Animate().ToMotion(2);
+    }
+
     public Task<Motion> SliderMotion()
     {
         // see result here: https://www.youtube.com/watch?v=RkE_z8ilk8g&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
