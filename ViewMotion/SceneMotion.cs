@@ -32,7 +32,8 @@ using Vector3 = Aspose.ThreeD.Utilities.Vector3;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
 using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
 using Vector2 = Model.Vector2;
-
+using Model.Tools;
+using System.Drawing.Text;
 
 namespace ViewMotion;
 
@@ -49,153 +50,124 @@ partial class SceneMotion
 
     #endregion
 
-    public Task<Motion> Scene()
+    class Node : INet3Item
     {
-        return VariatorServiceMotion();
+        public int i;
+        public List<int> ns;
+        public Vector3 position;
+        public Vector3 speed = Vector3.Origin;
+        public Func<Vector3> PositionFn => () => position;
     }
 
-    public Task<Motion> Scene1()
+    class PointObject
     {
+        public Vector3 position;
+        public Vector3 speed;
+        public double mass;
+    }
 
-        //return MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToMetaShape3().ApplyColor(Color.Red)
-        //    .ToMotion();
+    public Task<Motion> Scene()
+    {
+        var rnd = new Random();
 
-        ////Func<Vector3, bool> solidFn = v => v.x.Pow2() + v.y.Pow2() + v.z.Pow2() < 1 ;
-        //Func<Vector3, bool> solidFn = v => MandelbrotQuaternionFractalSystem.CheckBounds(new Model4D.Quaternion(v.x, v.y, v.z, 0), 1000);
-        //var step = 0.05;
-        //var ss = Surfer.FindSurface(solidFn, step)/*.Where(v => v.x >= 0 && v.y >= 0)*/;
+        var n = 5;
+        var k = 0.01;
+        var aCoef = k * 1;
+        var gCoef = k * 1;
 
-        //return new[]
-        //{
-        //    vectorizer.GetContentShape("dd", 226)
-        //    //ss.ApplyColor(Color.Blue),
-        //    //ss.ToSpots3(3*step).ApplyColor(Color.Blue),
-        //    //ss.ToShapedSpots3(Shapes.Cube.MassCentered().Mult(0.5 * step).ToLines(step), Color.Green),
-        //    //MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
-        //    //Surfaces.Sphere(40, 20).ToLines(0.1, Color.Red),
-        //    //Shapes.CoodsWithText
-        //}.ToSingleShape().ToMotion();
-
-        //var n = 50;
-        //double Fn(int k) => 3.0 * k / (n - 1) - 1.5;
-
-        //var vs = (n, n, n).SelectRange((a, b, c) => new Model4D.Quaternion(
-        //        Fn(a),
-        //        Fn(b),
-        //        Fn(c),
-        //        0
-        //        ))
-        //    .Where(q => MandelbrotQuaternionFractalSystem.CheckBounds(q, 1000)).ToArray();
-
-        //var point = Shapes.Dodecahedron.Mult(0.04);
-
-        //var s = vs.Select(v => point.Move(v.x, v.y, v.z)).ToSingleShape();
-
-        //return new[]
-        //{
-        //    s.ApplyColor(Color.Blue),
-        //    MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().ToSpots3().ApplyColor(Color.Red),
-        //    Shapes.CoodsWithText
-        //}.ToSingleShape().ToMotion();
-
-        //return Shapes.Ball.Perfecto(0.1).TransformPoints(p => new Quaternion(1, p.x, p.y, p.z).Normalize().EulerAngles()).Perfecto().ToMetaShape3(0.1, 0.1, Color.Blue, Color.Red).ToMotion();
-
-        //var net = Parquets.Triangles(50, 100).ToShape3().Perfecto(1.5);
-
-        //var fShape = new Fr[]
-        //    {(-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1)};
-
-
-        //return .ToMetaShape3(0.1, 0.1, Color.Blue, Color.Green).ToMotion();
-
-        //var s = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape(1000, 0.05).ApplyColor(Color.Blue);//.ToShape().Perfecto().ToPolygon();
-        ////var polygon = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).ToShape().Perfecto().ToPolygon();
-
-        //var polygon = new Fr[] { (-41, 0.25), (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 1.8), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().Perfecto().ToPolygon();
-        //var catNet = net.Cut(polygon);
-        //var joinNet = catNet.ToShape2()
-
-        //return net.ApplyZ(Funcs3Z.Waves).ApplyColor(Color.Blue).ToMotion();
-        //var fn = polygon.VolumeFn(0.25);
-        //var cutPlane = Surfaces.Plane(100, 100).Perfecto().Cut(polygon);
-        //var plane = cutPlane.ApplyZ(fn);
-        //var backPlane = cutPlane.ApplyZ(fn.Minus());
-
-        //var s = plane.ApplyColor(Color.Blue)/*.WithBackPlanes(Color.Green)*/ + backPlane.ReversePlanes().ApplyColor(Color.Green).WithBackPlanes(Color.Blue);
-
-        //Shape GetShape(Matrix4 q)
-        //{
-        //    return Surfaces.Sphere(20, 20).Perfecto().TransformPoints(p => q * p).ToLines(1, Color.Blue) + Shapes.CoodsWithText;
-        //}
-        var c1 = Color.DarkOrange; // Color.FromArgb(63, 27, 0);
-        var c2 = Color.Black;
-        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol").Centered().Mult(3);
-
-        //var s = new[]
-        //    {
-        //        vectorizer.GetTextLine("#").Perfecto(0.2).ApplyColor(c1).Rotate(1,1,1).Move(-0.6, 0.6, 0),
-        //        vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
-        //        new Shape[]
-        //        {
-        //            new Shape[]
-        //            {
-        //                txt.MoveX(Math.PI*-1/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-        //                txt.MoveX(Math.PI*1/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-        //                txt.MoveX(Math.PI*3/3).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
-        //            }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
-        //            Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
-        //        }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
-        //    }.ToSingleShape();
-
-        IEnumerable <Shape> Animate()
+        var bullet = new PointObject
         {
-            for (var i = 0; i < 100; i++)
-                yield return new[]
-                {
-                    vectorizer.GetTextLine("#").Perfecto(0.2).Rotate(2*Math.PI * i/100).Rotate(1,1,1).Move(-0.6, 0.6, 0).ApplyColor(c1),
-                    vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
-                    new Shape[]
-                    {
-                        new Shape[]
-                        {
-                            txt.MoveX(Math.PI*-1/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-                            txt.MoveX(Math.PI*1/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-                            txt.MoveX(Math.PI*3/3-2*Math.PI * i/100).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
-                        }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
-                        Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
-                    }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
-                }.ToSingleShape();
+            position = new Vector3(-5, 0, 0),
+            speed = new Vector3(0.03, 0, 0),
+            mass = 1000
+        };
 
-            //yield return s;
+        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCube.Move(i, j, k)).ToSingleShape().Normalize().Centered();
+        var ps = block.Points3;
+
+        //var block = Shapes.Line.Centered();
+        var nodes = block.PointIndices.Select(i => new Node() 
+        { 
+            i = i,
+            position = ps[i]
+        }).ToArray();
+        nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
+
+        var net = new Net3<Node>(nodes, 2);
+
+        //block = block.TransformPoints(p => p += 0.1 * new Vector3(rnd.NextDouble(), rnd.NextDouble(), rnd.NextDouble()));
+
+        Func<double, double> blockForceFn = d => -aCoef / d.Pow4() + gCoef / d.Pow2();
+        Func<double, double> bulletForceFn = d => -k / (d - 0.5).Pow4();
+
+        Vector3 CalcSpeed(Vector3 p0, Vector3 s0, IEnumerable<Vector3> ps)
+        {
+            Vector3 offset = Vector3.Origin;
+
+            foreach(var p in ps)
+            {
+                var d = (p - p0).Length;
+                var ds = blockForceFn(d);
+
+                offset += ds * (p - p0) / d;
+            }
+
+            //Debug.WriteLine($"{(p0-points.First()).Length}");
+
+            return s0 + offset;
+        }
+
+        bool IsBroken(Vector3 a, Vector3 b) => (b - a).Length2 > 9;
+
+        void Step()
+        {
+            net.SelectNeighbors(bullet.position)
+                .Where(n => (n.position - bullet.position).Length2 < 4)
+                .ForEach(n =>
+                {
+                    var d = (n.position - bullet.position).Length;
+                    var ds = 0.5 * (bullet.mass + 1) * bulletForceFn(d);
+                    n.speed -= ds * (n.position - bullet.position) / d;
+                    bullet.speed += ds * (n.position - bullet.position) / (d * bullet.mass);
+                });
+
+            nodes.ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
+            nodes.ForEach(n => n.ns.ToArray().ForEach(j =>
+            {
+                if (IsBroken(n.position, nodes[j].position))
+                {
+                    n.ns.Remove(j);
+                }
+            }));
+
+            nodes.ForEach(n => n.position += n.speed);
+            bullet.position += bullet.speed;
+        }
+
+        Shape GetBlock(int i) => new Shape
+        {
+            Points3 = nodes.Select(n => n.position).ToArray(),
+            Convexes = nodes.SelectMany(n => n.ns.Select(j => (n.i, j).OrderedEdge())).Distinct().Select(v => v.EdgeToArray()).ToArray(),
+        };
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var i = 0; i < 1000; i++)
+            {
+                yield return new[] 
+                {
+                    GetBlock(i).Mult(1.0 / n).ToMetaShape3(1, 1, Color.Blue, Color.Green),
+                    Shapes.IcosahedronSp3.Perfecto(0.1).Move(bullet.position/n).ApplyColor(Color.Red),
+                    Shapes.CoodsWithText
+                }.ToSingleShape();
+                
+                Step();
+            }
             //return (101).Range(i => GetQ(i / 100.0)).Select(GetShape);
             //yield return vectorizer.GetContentShape("cat1").ApplyColor(Color.Black);
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
 
         return Animate().ToMotion(2);
-
-        //var s = Surfaces.Plane(10,10).Perfecto().AddVolumeZ(0.5).ApplyColor(Color.Blue);
-
-        //return new[]
-        //{
-        //    s,
-
-        //}.ToMotion();
-
-
-        //var s0 = vectorizer.GetContentShape("lenin1").ApplyColor(Color.Blue);
-
-        //return (100).Range()
-        //    .Select(i => vectorizer.GetContentShape("lenin1", new ShapeOptions(){ZVolume = 0.02, SmoothOutLevel = i}).ApplyColor(Color.Blue))
-        //    .ToMotion();
-
-        //s0.ApplyZ(Funcs3Z.Hyperboloid)
-
-        //return (20).Range()
-        //    .Select(i => (3 + Math.Sin(2 * Math.PI * i/20))/4)
-        //    .Select(d => s0.Mult(d).ApplyZ(Funcs3Z.Hyperboloid).Mult(1 / d))
-        //    .ToMotion();
-
-
     }
 }

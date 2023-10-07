@@ -15,12 +15,14 @@ namespace Model
         public int[][] Convexes;
         public Material[] Materials;
         public Vector2[][] TexturePoints;
+        private Dictionary<int, int[]> _links;
 
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();
         public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? new (int, int)[0][] : Convexes.Select(convex => convex.Length == 2 ? new[] { (convex[0], convex[1]) } : convex.SelectCirclePair((i, j) => (i, j)));
-        public (int, int)[] Edges => ConvexesIndices.SelectMany(edges => edges).ToArray();
-        public (int, int)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e=>e.OrderedEdge())).Distinct().ToArray();
+        public (int i, int j)[] Edges => ConvexesIndices.SelectMany(edges => edges).ToArray();
+        public (int i, int j)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e=>e.OrderedEdge())).Distinct().ToArray();
+        public Dictionary<int, int[]> Links => _links ??= ConvexesIndices.SelectMany(vs => vs.SelectMany(v => new[] { v, v.ReversedEdge() })).Distinct().GroupBy(v=>v.Item1).ToDictionary(vv => vv.Key, vv => vv.Select(v=>v.Item2).ToArray());
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
 

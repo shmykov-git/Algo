@@ -64,6 +64,11 @@ namespace Model.Extensions
             return e.i < e.j ? e : (e.j, e.i);
         }
 
+        public static int[] EdgeToArray(this (int i, int j) e)
+        {
+            return new[] { e.i, e.j };
+        }
+
         public static (int i, int j) Add(this (int i, int j) a, (int i, int j) b)
         {
             return (a.i + b.i, a.j + b.j);

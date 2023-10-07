@@ -12,6 +12,7 @@ namespace Model.Extensions
         public static int Sgn(this double x) => x < 0 ? -1 : 1;
         public static double Pow2(this double x) => x * x;
         public static double Pow3(this double x) => x * x * x;
+        public static double Pow4(this double x) => x * x * x * x;
         public static double Pow6(this double x) => x.Pow3().Pow2();
         public static double Pow12(this double x) => x.Pow6().Pow2();
     }
