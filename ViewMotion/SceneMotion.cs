@@ -70,19 +70,19 @@ partial class SceneMotion
     {
         var rnd = new Random();
 
-        var n = 5;
+        var n = 10;
         var k = 0.01;
         var aCoef = k * 1;
         var gCoef = k * 1;
 
         var bullet = new PointObject
         {
-            position = new Vector3(-5, 0, 0),
-            speed = new Vector3(0.03, 0, 0),
-            mass = 1000
+            position = new Vector3(-9, 0, 0),
+            speed = new Vector3(1.027, 0, 0),
+            mass = 17
         };
 
-        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCube.Move(i, j, k)).ToSingleShape().Normalize().Centered();
+        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCube.Move(i, j, k)).ToSingleShape().Normalize().Centered().Rotate(1,2,3);
         var ps = block.Points3;
 
         //var block = Shapes.Line.Centered();
@@ -132,6 +132,10 @@ partial class SceneMotion
                 });
 
             nodes.ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
+
+            nodes.ForEach(n => n.position += n.speed);
+            bullet.position += bullet.speed;
+
             nodes.ForEach(n => n.ns.ToArray().ForEach(j =>
             {
                 if (IsBroken(n.position, nodes[j].position))
@@ -139,9 +143,6 @@ partial class SceneMotion
                     n.ns.Remove(j);
                 }
             }));
-
-            nodes.ForEach(n => n.position += n.speed);
-            bullet.position += bullet.speed;
         }
 
         Shape GetBlock(int i) => new Shape
@@ -156,9 +157,9 @@ partial class SceneMotion
             {
                 yield return new[] 
                 {
-                    GetBlock(i).Mult(1.0 / n).ToMetaShape3(1, 1, Color.Blue, Color.Green),
-                    Shapes.IcosahedronSp3.Perfecto(0.1).Move(bullet.position/n).ApplyColor(Color.Red),
-                    Shapes.CoodsWithText
+                    GetBlock(i).ToMetaShape3(5, 5, Color.Blue, Color.Green),
+                    Shapes.IcosahedronSp3.Perfecto(0.5).Move(bullet.position).ApplyColor(Color.Red),
+                    Shapes.CoodsWithText.Mult(10)
                 }.ToSingleShape();
                 
                 Step();
@@ -168,6 +169,6 @@ partial class SceneMotion
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
 
-        return Animate().ToMotion(2);
+        return Animate().ToMotion(20);
     }
 }
