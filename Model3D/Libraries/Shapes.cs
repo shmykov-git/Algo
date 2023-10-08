@@ -183,6 +183,39 @@ namespace Model.Libraries
             }
         };
 
+        public static Shape NativeCubeWithCenterPoint => new Shape
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(1, 1, 0),
+                new Vector3(0, 1, 0),
+                new Vector3(0, 0, 1),
+                new Vector3(1, 0, 1),
+                new Vector3(1, 1, 1),
+                new Vector3(0, 1, 1),
+                new Vector3(0.5, 0.5, 0.5)
+            },
+            Convexes = new int[][]
+            {
+                new int[] {0, 3, 2, 1},
+                new int[] {0, 1, 5, 4},
+                new int[] {0, 4, 7, 3},
+                new int[] {6, 5, 1, 2},
+                new int[] {6, 2, 3, 7},
+                new int[] {6, 7, 4, 5},
+                new int[] {8, 0},
+                new int[] {8, 1},
+                new int[] {8, 2},
+                new int[] {8, 3},
+                new int[] {8, 4},
+                new int[] {8, 5},
+                new int[] {8, 6},
+                new int[] {8, 7},
+            }
+        };
+
         public static Shape IcosahedronSp1 => Icosahedron.SplitSphere(1.2);
         public static Shape IcosahedronSp2 => IcosahedronSp1.SplitSphere(1.2);
         public static Shape IcosahedronSp3 => IcosahedronSp2.SplitSphere(1.3);

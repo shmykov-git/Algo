@@ -276,6 +276,11 @@ namespace Model3D.Extensions
                 .Join(shape.ToSpots3(multPoint, pointColor, spotShape));
         }
 
+        public static Shape RemoveConvexes(this Shape shape) => new Shape
+        {
+            Points = shape.Points
+        };
+
         public static Shape ToCubeMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null)
         {
             return shape.ToLines(multLines, linesColor)
@@ -1004,19 +1009,21 @@ namespace Model3D.Extensions
             return shape.Mult(0.5 / r);
         }
 
-        public static Shape Normalize(this Shape shape)
+        public static Shape Normalize(this Shape shape, bool allow2D = false)
         {
             var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
             
             var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
             var convexes = shape.Convexes.Transform(i => bi.bi[i])
-                .Select(convex => convex.OrderSafeDistinct().ToArray())
-                .Where(convex => convex.Length >= 3).ToArray();
+                .Select(convex => convex.OrderSafeDistinct().ToArray());
+
+            if (!allow2D)
+                convexes = convexes.Where(convex => convex.Length >= 3);
 
             return new Shape()
             {
                 Points = points, 
-                Convexes = convexes
+                Convexes = convexes.ToArray()
             };
         }
 

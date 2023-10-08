@@ -119,6 +119,13 @@ namespace Model3D
                 .SelectMany(v => netData[v.i][v.j][v.k].Select(vv => vv.Value));
         }
 
+        public IEnumerable<TNetItem> SelectItemsByRadius(Vector3 position, double radius)
+        {
+            var r2 = radius * radius;
+
+            return SelectNeighbors(position).Where(n => (n.PositionFn() - position).Length2 < r2);
+        }
+
         public void Update()
         {
             var updates = data.Select(v => (item: v, index: v.Index, newIndex: GetIndex(v.Fn()))).Where(v => v.index != v.newIndex).ToArray();

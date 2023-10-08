@@ -68,9 +68,13 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        //return Shapes.NativeCubeWithCenterPoint.Centered().ToMetaShape3(1, 1, Color.Red, Color.Blue).ToMotion(2);
+
         var rnd = new Random();
 
-        var n = 10;
+        var n = 7;
+        var bulletRadius = 2;
+        var brokenRadius = 3;
         var k = 0.01;
         var aCoef = k * 1;
         var gCoef = k * 1;
@@ -78,11 +82,12 @@ partial class SceneMotion
         var bullet = new PointObject
         {
             position = new Vector3(-9, 0, 0),
-            speed = new Vector3(1.027, 0, 0),
-            mass = 17
+            speed = new Vector3(1.001, 0, 0),
+            mass = 30
         };
 
-        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCube.Move(i, j, k)).ToSingleShape().Normalize().Centered().Rotate(1,2,3);
+        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().Normalize(true).Centered();
+        //return block.ToMetaShape3(5, 5, Color.Blue, Color.Green).ToMotion(n * 2);
         var ps = block.Points3;
 
         //var block = Shapes.Line.Centered();
@@ -93,7 +98,7 @@ partial class SceneMotion
         }).ToArray();
         nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
 
-        var net = new Net3<Node>(nodes, 2);
+        var net = new Net3<Node>(nodes, bulletRadius);
 
         //block = block.TransformPoints(p => p += 0.1 * new Vector3(rnd.NextDouble(), rnd.NextDouble(), rnd.NextDouble()));
 
@@ -114,15 +119,14 @@ partial class SceneMotion
 
             //Debug.WriteLine($"{(p0-points.First()).Length}");
 
-            return s0 + offset;
+            return s0 + offset * 0.8;
         }
 
-        bool IsBroken(Vector3 a, Vector3 b) => (b - a).Length2 > 9;
+        bool IsBroken(Vector3 a, Vector3 b) => (b - a).Length2 > brokenRadius * brokenRadius;
 
         void Step()
         {
-            net.SelectNeighbors(bullet.position)
-                .Where(n => (n.position - bullet.position).Length2 < 4)
+            net.SelectItemsByRadius(bullet.position, bulletRadius)
                 .ForEach(n =>
                 {
                     var d = (n.position - bullet.position).Length;
@@ -159,7 +163,8 @@ partial class SceneMotion
                 {
                     GetBlock(i).ToMetaShape3(5, 5, Color.Blue, Color.Green),
                     Shapes.IcosahedronSp3.Perfecto(0.5).Move(bullet.position).ApplyColor(Color.Red),
-                    Shapes.CoodsWithText.Mult(10)
+                    Surfaces.Plane(2*n, 2*n).Centered().ToOx().ToLines(3, Color.White)
+                    //Shapes.CoodsWithText.Mult(10)
                 }.ToSingleShape();
                 
                 Step();
@@ -169,6 +174,6 @@ partial class SceneMotion
             //return (75).SelectRange(i => vectorizer.GetContentShape("t5", new ShapeOptions() { ZVolume = 0.02, ColorLevel = 50 + 2*i }).ApplyColor(Color.Red));
         }
 
-        return Animate().ToMotion(20);
+        return Animate().ToMotion(n*2);
     }
 }
