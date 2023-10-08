@@ -64,6 +64,7 @@ partial class SceneMotion
         public Vector3 position;
         public Vector3 speed;
         public double mass;
+        public double radius;
     }
 
     public Task<Motion> Scene()
@@ -78,15 +79,18 @@ partial class SceneMotion
         var k = 0.01;
         var aCoef = k * 1;
         var gCoef = k * 1;
+        var dampingCoef = 0.8;
+        var forceBorder = 0.7;
 
         var bullet = new PointObject
         {
             position = new Vector3(-9, 0, 0),
-            speed = new Vector3(1.001, 0, 0),
-            mass = 30
+            speed = new Vector3(0.5, 0, 0),
+            mass = 10*4,
+            radius = 0.5
         };
 
-        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().Normalize(true).Centered();
+        var block = (n, n, n).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered();
         //return block.ToMetaShape3(5, 5, Color.Blue, Color.Green).ToMotion(n * 2);
         var ps = block.Points3;
 
@@ -102,8 +106,23 @@ partial class SceneMotion
 
         //block = block.TransformPoints(p => p += 0.1 * new Vector3(rnd.NextDouble(), rnd.NextDouble(), rnd.NextDouble()));
 
-        Func<double, double> blockForceFn = d => -aCoef / d.Pow4() + gCoef / d.Pow2();
-        Func<double, double> bulletForceFn = d => -k / (d - 0.5).Pow4();
+        Func<double, double> blockForceFn = d =>
+        {
+            if (d < forceBorder)
+                d = forceBorder;
+
+            return -aCoef / d.Pow4() + gCoef / d.Pow2();
+        };
+
+        Func<double, double> bulletForceFn = d =>
+        {
+            var a = -bullet.radius;
+
+            if (d + a < forceBorder)
+                d = forceBorder - a;
+
+            return -k / (d + a).Pow4();
+        };
 
         Vector3 CalcSpeed(Vector3 p0, Vector3 s0, IEnumerable<Vector3> ps)
         {
@@ -119,7 +138,7 @@ partial class SceneMotion
 
             //Debug.WriteLine($"{(p0-points.First()).Length}");
 
-            return s0 + offset * 0.8;
+            return s0 + offset * dampingCoef;
         }
 
         bool IsBroken(Vector3 a, Vector3 b) => (b - a).Length2 > brokenRadius * brokenRadius;
@@ -162,7 +181,7 @@ partial class SceneMotion
                 yield return new[] 
                 {
                     GetBlock(i).ToMetaShape3(5, 5, Color.Blue, Color.Green),
-                    Shapes.IcosahedronSp3.Perfecto(0.5).Move(bullet.position).ApplyColor(Color.Red),
+                    Shapes.IcosahedronSp3.Perfecto(bullet.radius).Move(bullet.position).ApplyColor(Color.Red),
                     Surfaces.Plane(2*n, 2*n).Centered().ToOx().ToLines(3, Color.White)
                     //Shapes.CoodsWithText.Mult(10)
                 }.ToSingleShape();

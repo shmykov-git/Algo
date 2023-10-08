@@ -1009,6 +1009,7 @@ namespace Model3D.Extensions
             return shape.Mult(0.5 / r);
         }
 
+        public static Shape NormalizeWith2D(this Shape shape) => Normalize(shape, true);
         public static Shape Normalize(this Shape shape, bool allow2D = false)
         {
             var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
@@ -1017,7 +1018,9 @@ namespace Model3D.Extensions
             var convexes = shape.Convexes.Transform(i => bi.bi[i])
                 .Select(convex => convex.OrderSafeDistinct().ToArray());
 
-            if (!allow2D)
+            if (allow2D)
+                convexes = convexes.Where(convex => convex.Length >= 2);
+            else
                 convexes = convexes.Where(convex => convex.Length >= 3);
 
             return new Shape()

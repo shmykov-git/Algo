@@ -341,6 +341,7 @@ namespace ViewMotion
             isPlaying = true;
 
             SetCameraAnimation();
+            ViewState? shape0 = null;
 
             do
             {
@@ -351,6 +352,9 @@ namespace ViewMotion
 
                 foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
                 {
+                    if (i == 0)
+                        shape0 = shape;
+
                     playStep = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
                     FrameInfo = $"Frame: {playStep+1} from {viewStates.Count}";
 
@@ -361,6 +365,9 @@ namespace ViewMotion
                         break;
                 }
             } while (IsAutoReplay && isPlaying);
+
+            if (shape0 != null)
+                await ShowViewShape(shape0);
 
             isPlaying = false;
             Refresh();
