@@ -1,4 +1,5 @@
 ﻿using System;
+using Model.Extensions;
 
 namespace Model.Libraries
 {
@@ -14,5 +15,7 @@ namespace Model.Libraries
 
             return x => fi((x - mu) / sigma) / sigma; 
         }
+
+        public static Func1 BackParabola(double a) => x => x.Abs() < 0.00001 ? 0 : a / (x * x);
     }
 }

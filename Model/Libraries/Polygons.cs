@@ -68,6 +68,18 @@ namespace Model.Libraries
             }.GetPoints().Reverse().ToArray()
         }.Scale((a, b));
 
+        public static Polygon Circle(double r, int count) => new Polygon
+        {
+            Points = new Func2Info
+            {
+                Fn = t => (r * Math.Sin(t), r * Math.Cos(t)),
+                From = 0,
+                To = 2 * Math.PI,
+                N = count,
+                Closed = true
+            }.GetPoints().Reverse().ToArray()
+        };
+
         public static Polygon Elipse(double a, double b, int count) => new Polygon
         {
             Points = new Func2Info

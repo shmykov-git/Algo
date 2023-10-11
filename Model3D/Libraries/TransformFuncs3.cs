@@ -47,7 +47,7 @@ namespace Model3D.Libraries
             };
         }
 
-        private static TransformFunc3 WrapCylinderZ(Func2 xyFn, Func2 zFn)
+        private static TransformFunc3 WrapCylinderZObsolet(Func2 xyFn, Func2 zFn)
         {
             return v =>
             {
@@ -58,6 +58,28 @@ namespace Model3D.Libraries
             };
         }
 
+        private static TransformFunc3 WrapCylinderZ(double r, Func2 xyFn, Func2 zFn)
+        {
+            return v =>
+            {
+                var vZ = zFn(v.y);
+                var vXY = xyFn(v.x);
+
+                return new Vector3((r + v.z) * vXY.x * vZ.x, vZ.y, (r + v.z) * vXY.y * vZ.x);
+            };
+        }
+        private static TransformFunc3 WrapCylinderZ(Func1 rf, Func2 xyFn, Func2 zFn)
+        {
+            return v =>
+            {
+                var vZ = zFn(v.y);
+                var vXY = xyFn(v.x);
+                var r = rf(vXY.Len);
+
+                return new Vector3((r + v.z) * vXY.x * vZ.x, vZ.y, (r + v.z) * vXY.y * vZ.x);
+            };
+        }
+
         public static TransformFunc3 Heart => PullOnSphere(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 Sphere => PullOnSphere(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 HeartWrap => WrapSphere(Funcs2.Circle(), Funcs2.Heart());
@@ -65,7 +87,9 @@ namespace Model3D.Libraries
         public static TransformFunc3 SphereWrap => WrapSphere(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 SphereWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 CylinderWrap => WrapSphere(Funcs2.Circle(), Funcs2.VerticalLine());
-        public static TransformFunc3 CylinderWrapZ => WrapCylinderZ(Funcs2.Circle(), Funcs2.VerticalLine());
+        public static TransformFunc3 CylinderWrapZ => WrapCylinderZObsolet(Funcs2.Circle(), Funcs2.VerticalLine());
+        public static TransformFunc3 CylinderWrapZR(double r) => WrapCylinderZ(r, Funcs2.Circle(), Funcs2.VerticalLine());
+        public static TransformFunc3 CylinderWrapZR(Func1 rF) => WrapCylinderZ(rF, Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 Flower(double a, double b, int n) => WrapSphereZ(Funcs2.Flower(n, b), Funcs2.Torus(a));
         public static TransformFunc3 Torus(double a) => WrapSphereZ(Funcs2.Circle(), Funcs2.Torus(a));
 

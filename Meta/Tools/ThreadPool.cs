@@ -58,7 +58,7 @@ namespace Meta.Tools
                 }
             })
             {
-                Priority = ThreadPriority.Highest,
+                Priority = ThreadPriority.AboveNormal,
                 Name = name,
                 IsBackground = true,
             };

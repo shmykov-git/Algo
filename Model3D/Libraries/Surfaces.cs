@@ -8,6 +8,7 @@ using MathNet.Numerics;
 
 namespace Model3D.Libraries
 {
+
     public static class Surfaces
     {
         public static Shape APowerB(int un, int vn, double from, double to) => new Shape

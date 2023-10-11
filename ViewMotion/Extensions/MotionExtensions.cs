@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,12 +46,12 @@ static class MotionExtensions
 
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)
     {
-        var stepDelay = options.StepDelay ?? TimeSpan.FromMilliseconds(1);
+        var stepDelay = options.StepDelay ?? TimeSpan.FromMilliseconds(50);
 
         var queue = new ConcurrentQueue<(int, TaskCompletionSource)>();
         Shape? shape = null;
 
-        var th = new Thread(async () =>
+        var th = new Thread(() =>
         {
             var motion = shapes.GetEnumerator();
 
@@ -78,12 +79,12 @@ static class MotionExtensions
 
             while (true)
             {
-                await Task.Delay(stepDelay);
+                Thread.Sleep(stepDelay);
 
                 if (queue.TryDequeue(out (int num, TaskCompletionSource t) v))
                 {
                     var hasNewShape = CalculateNextShape();
-                    v.t.SetResult();
+                    Task.Run(() => v.t.SetResult());
 
                     if (!hasNewShape)
                         break;
