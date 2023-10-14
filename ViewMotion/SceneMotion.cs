@@ -224,8 +224,6 @@ partial class SceneMotion
         var bulletShape = Shapes.IcosahedronSp3.Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
         //var surfaceShape = Surfaces.Plane(2 * n, 2 * n).Centered().Where(v => v.ToV2().Len > 10).MoveZ(fixZPos).ToLines(5, Color.Blue);
 
-        (3000).ForEach(_ => Step());
-
         IEnumerable<Shape> Animate()
         {
             for (var i = 0; i < sceneCount; i++)
