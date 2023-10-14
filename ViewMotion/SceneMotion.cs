@@ -72,7 +72,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        //return new BulletMotionExample().Scene();
+        return new BulletMotionExample2().Scene();
 
         //return Shapes.NativeCubeWithCenterPoint.Centered().ToMetaShape3(1, 1, Color.Red, Color.Blue).ToMotion(2);
 
