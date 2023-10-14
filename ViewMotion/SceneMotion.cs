@@ -79,16 +79,19 @@ partial class SceneMotion
         var rnd = new Random();
 
         var sceneCount = 1000;
-        var n = 25;
+        var n = 50;
         var activeRadius = 5;
         var brokenRadius = 50;
         var k = 0.05;
         var aCoef = k * 1;
         var gCoef = k * 1;
-        var bulletForceCoef = k * 0.01;  // fix bullet interactive force
-        var bulletBorderCoef = -0;      // depends on bullet.radius
+        var bulletForceCoef = k * 0.005;  // fix bullet interactive force
+        var bulletBorderCoef = -0.4;      // depends on bullet.radius
         var dampingCoef = 0.8;
-        var forceBorder = 0.6;
+        var forceBorder = 0.5;
+        var gravityCoef = 0.0001;
+        var gravity = new Vector3(0, -1, 0);
+        var rotate = -0.2;
 
         var fixZPos = 14;
         var bullet = new PointObject
@@ -99,11 +102,11 @@ partial class SceneMotion
             radius = 1,
         };
 
-        var aim = (5, 5, 5).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered().MoveZ(50);
+        //var aim = (5, 5, 5).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered().MoveZ(50);
         var block = (n, n, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
-            .Mult(0.1)
+            .Mult(0.05)
             .PullOnSurface(SurfaceFuncs.Paraboloid)
-            .Mult(10)
+            .Mult(20)
             .Where(v=>v.z < fixZPos + 1.5)
 
         //var block = (n, n, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D()
@@ -137,6 +140,11 @@ partial class SceneMotion
         nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
         nodes.ForEach(n => n.locked = fixZPos < n.position.z && n.position.z < 40);
 
+        block = block.RotateOx(rotate);
+        ps = block.Points3;
+        nodes.ForEach(n => n.position = ps[n.i]);
+
+        block = block.Normalize();
         var net = new Net3<Node>(nodes, activeRadius);
 
         //block = block.TransformPoints(p => p += 0.1 * new Vector3(rnd.NextDouble(), rnd.NextDouble(), rnd.NextDouble()));
@@ -188,8 +196,10 @@ partial class SceneMotion
                     n.speed -= ds * (n.position - bullet.position) / (d * n.mass);
                     bullet.speed += ds * (n.position - bullet.position) / (d * bullet.mass);
                 });
+            bullet.speed += gravityCoef * gravity;
 
             nodes.Where(n=>!n.locked).ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
+            nodes.Where(n => !n.locked).ForEach(n => n.speed += gravityCoef * gravity);
 
             nodes.Where(n => !n.locked).ForEach(n => n.position += n.speed);
             bullet.position += bullet.speed;
@@ -210,8 +220,11 @@ partial class SceneMotion
             //Convexes = nodes.SelectMany(n => n.ns.Select(j => (n.i, j).OrderedEdge())).Distinct().Select(v => v.EdgeToArray()).ToArray(),
         };
 
+        var border = Surfaces.Torus(60, 10, 11).Perfecto(37).MoveZ(fixZPos + 0.5).RotateOx(rotate).ApplyColor(Color.SaddleBrown);
         var bulletShape = Shapes.IcosahedronSp3.Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
         //var surfaceShape = Surfaces.Plane(2 * n, 2 * n).Centered().Where(v => v.ToV2().Len > 10).MoveZ(fixZPos).ToLines(5, Color.Blue);
+
+        (3000).ForEach(_ => Step());
 
         IEnumerable<Shape> Animate()
         {
@@ -221,6 +234,7 @@ partial class SceneMotion
                 {
                     GetBlock(i).ApplyColor(Color.Blue),//.ToMetaShape3(5, 5, Color.Blue, Color.Green),
                     bulletShape.Move(bullet.position),
+                    border,
                     //surfaceShape,
                     //Shapes.CoodsWithText.Mult(10)
                 }.ToSingleShape();
