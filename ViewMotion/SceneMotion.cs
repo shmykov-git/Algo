@@ -73,17 +73,14 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         var sceneCount = 2000;
-        var activeRadius = 5;
-        var brokenRadius = 50;
-        var k = 1;
-        var aCoef = k * 1;
-        var gCoef = k * 1;
         var dampingCoef = 0.8;
         var forceBorder = 0.75;
-        var gravity = new Vector3(0, -0.0001, 0);
+        var gravity = new Vector3(0, -0.000005, 0);
+        var rotationSpeed = 0;// 0.001;
+        var fixBottom = true;
 
         var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-        var block = vectorizer.GetPixelShape("hh1").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        var block = vectorizer.GetPixelShape("hh2").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         var bY = block.BorderY;
         var ps = block.Points3;
 
@@ -93,6 +90,7 @@ partial class SceneMotion
             position = ps[i]
         }).ToArray();
         nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
+        nodes.ForEach(n => n.speed = rotationSpeed * n.position.MultV(Vector3.YAxis));
 
         var a = 0.933;
         var b = 1;
@@ -103,14 +101,6 @@ partial class SceneMotion
                 x = forceBorder;
 
             return c * (x - a) * (x + b) / x.Pow4();
-        };
-
-        double BlockForceFn2(double d)
-        {
-            if (d < forceBorder)
-                d = forceBorder;
-
-            return -aCoef / d.Pow4() + gCoef / d.Pow2();
         };
 
         Vector3 CalcSpeed(Vector3 p0, Vector3 s0, IEnumerable<Vector3> ps)
@@ -128,13 +118,15 @@ partial class SceneMotion
             return s0 + offset * dampingCoef;
         }
 
-        bool NeedCalc(Node n) => n.position.y > bY.a;
+        bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
+        Vector3 FixY(Vector3 a) => a.y > bY.a ? a : new Vector3(a.x, bY.a, a.z);
 
         void Step()
         {
-            nodes.Where(NeedCalc).ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
-            nodes.Where(NeedCalc).ForEach(n => n.speed += gravity);
-            nodes.Where(NeedCalc).ForEach(n => n.position += n.speed);
+            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
+            nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
+            nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
+            nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
         }
 
         Shape GetBlock(int i) => new Shape
@@ -152,7 +144,8 @@ partial class SceneMotion
                     GetBlock(i).ApplyColor(Color.Blue),
                 }.ToSingleShape();
 
-                Step();
+
+                (20).ForEach(_=>Step());
             }
         }
 
