@@ -578,6 +578,21 @@ namespace Model3D.Tools
             }
         }
 
+        public Shape GetPixelShape(string name, int colorLevel = 200)
+        {
+            using var bitmap = new Bitmap(contentFinder.FindContentFileName(name));
+            var map = GetMapFromBitmap(bitmap, colorLevel);
+            var n = map[0].Length;
+            var m = map.Length;
+
+            var shape = new Shape
+            {
+                Points2 = (n, m).SelectRange((j, i) => (j, i)).Where(v => map[v.i][v.j]).Select(v => new Vector2(v.j - 1, m - 2 - v.i)).ToArray()
+            };
+
+            return shape;
+        }
+
         public Shape GetContentShape(string name, int colorLevel = 200, double volume = 0.02, double smoothOutScalar = -0.1, int polygonOptimizationLevel = 3, bool invert = false) => GetContentShape(name,
             new ShapeOptions()
             {
