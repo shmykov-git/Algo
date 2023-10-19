@@ -103,7 +103,7 @@ partial class SceneMotion
         var a = 0.933;
         var b = 1;
         var c = 0.1;
-        var forceBorder = 0.75;
+        var forceBorder = 0.65;
         double BlockForceFn(double x)
         {
             if (x < forceBorder)
