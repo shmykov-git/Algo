@@ -34,6 +34,7 @@ using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
 using Vector2 = Model.Vector2;
 using Model.Tools;
 using System.Drawing.Text;
+using System.Threading.Tasks.Sources;
 
 namespace ViewMotion;
 
@@ -58,7 +59,7 @@ partial class SceneMotion
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
         public double speedY = 0;
-        public int nsY = 0;
+        //public int nsY = 0;
         public double mass = 1;
         public bool locked;
         public Func<Vector3> PositionFn => () => position;
@@ -115,7 +116,7 @@ partial class SceneMotion
         {
             var p0 = n.position;
             Vector3 offset = Vector3.Origin;
-            n.nsY = 0;
+            //n.nsY = 0;
 
             foreach (var j in n.ns)
             {
@@ -127,8 +128,8 @@ partial class SceneMotion
 
                 offset += ds * (p - p0) / d;
 
-                if (!IsBottom(sn))
-                    n.nsY++;
+                //if (!IsBottom(sn))
+                //    n.nsY++;
             }
 
             var speed = n.speed + offset * dampingCoef;
@@ -149,10 +150,16 @@ partial class SceneMotion
         Vector3 CalcBounceSpeed(Node n)
         {
             Vector3 offset = Vector3.Origin;
+            var sns = n.ns.Select(j => nodes[j]).Where(IsBottom).ToArray();
 
-            foreach (var sn in n.ns.Select(j => nodes[j]).Where(IsBottom))
+            if (sns.Length == 0)
+                return offset;
+
+            var sumCoefY = sns.Select(sn => n.position.y - sn.position.y).Sum();
+
+            foreach (var (sn, i) in sns.Select((v, i) => (v, i)))
             {
-                offset += (n.position - sn.position).ToLenWithCheck(sn.speedY / sn.nsY);
+                offset += (n.position - sn.position).ToLenWithCheck(n.speedY * (n.position.y - sn.position.y) / sumCoefY);
             }
 
             return offset;
