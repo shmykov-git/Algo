@@ -409,6 +409,10 @@ namespace Model.Libraries
         public static Shape CirclePlatform(double x = 3, double y = 3, double z = 0.1) => Surfaces.Circle(100, 2)
             .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(Color.Black);
 
+        public static Shape CirclePlatformWithLines(double x = 3, double y = 3, double z = 0.1, int nLine = 10, Color? platformColor = null, Color? lineColor = null) =>
+            Surfaces.Circle(100, 2).Mult(0.5).Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(platformColor??Color.Black)
+            + Surfaces.Circle(nLine + 1, 2).Mult(0.5).Scale(x, y, 1).ToOy().ToLines(1, lineColor??Color.Red);
+
         public static Shape HeartPlatform(double x = 3, double y = 3, double z = 0.1) => Polygons.Heart(1, 1, 100)
             .ToShape(1).Centered().Scale(2.3 * x, 2.3 * y, z).ToOy().MoveY(-z / 2)
             .ApplyColor(Color.Black);

@@ -57,6 +57,8 @@ partial class SceneMotion
         public List<int> ns;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
+        public double speedY = 0;
+        public int nsY = 0;
         public double mass = 1;
         public bool locked;
         public Func<Vector3> PositionFn => () => position;
@@ -74,14 +76,18 @@ partial class SceneMotion
     {
         var sceneCount = 2000;
         var dampingCoef = 0.8;
-        var forceBorder = 0.75;
         var gravity = new Vector3(0, -0.00005, 0);
         var stepsPerScene = 10;
-        var rotationSpeed = 0.015;
+        var rotationSpeed = 0.005;
         var fixBottom = false;
+        var useDeformation = false;
 
         var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        
+        if (useDeformation)
+            block = block.Mult(0.03).PullOnSurface(SurfaceFuncs.Hyperboloid).Mult(1/0.03);
+
         var bY = block.BorderY;
         var ps = block.Points3;
 
@@ -96,6 +102,7 @@ partial class SceneMotion
         var a = 0.933;
         var b = 1;
         var c = 0.1;
+        var forceBorder = 0.75;
         double BlockForceFn(double x)
         {
             if (x < forceBorder)
@@ -104,28 +111,62 @@ partial class SceneMotion
             return c * (x - a) * (x + b) / x.Pow4();
         };
 
-        Vector3 CalcSpeed(Vector3 p0, Vector3 s0, IEnumerable<Vector3> ps)
+        Vector3 CalcSpeed(Node n)
         {
+            var p0 = n.position;
             Vector3 offset = Vector3.Origin;
+            n.nsY = 0;
 
-            foreach(var p in ps)
+            foreach (var j in n.ns)
             {
+                var sn = nodes[j];
+                var p = sn.position;
+
                 var d = (p - p0).Length;
                 var ds = BlockForceFn(d);
 
                 offset += ds * (p - p0) / d;
+
+                if (!IsBottom(sn))
+                    n.nsY++;
             }
 
-            return s0 + offset * dampingCoef;
+            var speed = n.speed + offset * dampingCoef;
+
+            if (IsBottom(n) && speed.y < 0)
+            {
+                n.speedY = -speed.y;
+                speed = speed.ZeroY();
+            }
+            else
+            {
+                n.speedY = 0;
+            }
+
+            return speed;
         }
 
+        Vector3 CalcBounceSpeed(Node n)
+        {
+            Vector3 offset = Vector3.Origin;
+
+            foreach (var sn in n.ns.Select(j => nodes[j]).Where(IsBottom))
+            {
+                offset += (n.position - sn.position).ToLenWithCheck(sn.speedY / sn.nsY);
+            }
+
+            return offset;
+        }
+
+        bool IsBottom(Node n) => n.position.y <= bY.a;
         bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
         Vector3 FixY(Vector3 a) => a.y > bY.a ? a : new Vector3(a.x, bY.a, a.z);
 
         void Step()
         {
-            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n.position, n.speed, n.ns.Select(j => nodes[j].position)));
+            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
             nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
+            nodes.Where(CanCalc).Where(n=>!IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeed(n));
             nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
         }
@@ -136,6 +177,8 @@ partial class SceneMotion
             Convexes = block.Convexes
         };
 
+        var platform = Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50).MoveY(bY.a);
+
         IEnumerable<Shape> Animate()
         {
             for (var i = 0; i < sceneCount; i++)
@@ -143,6 +186,7 @@ partial class SceneMotion
                 yield return new[]
                 {
                     GetBlock(i).ApplyColor(Color.Blue),
+                    platform
                 }.ToSingleShape();
 
 
