@@ -75,9 +75,10 @@ partial class SceneMotion
         var sceneCount = 2000;
         var dampingCoef = 0.8;
         var forceBorder = 0.75;
-        var gravity = new Vector3(0, -0.000005, 0);
-        var rotationSpeed = 0;// 0.001;
-        var fixBottom = true;
+        var gravity = new Vector3(0, -0.00005, 0);
+        var stepsPerScene = 10;
+        var rotationSpeed = 0.001;
+        var fixBottom = false;
 
         var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         var block = vectorizer.GetPixelShape("hh2").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
@@ -90,7 +91,7 @@ partial class SceneMotion
             position = ps[i]
         }).ToArray();
         nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
-        nodes.ForEach(n => n.speed = rotationSpeed * n.position.MultV(Vector3.YAxis));
+        nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
 
         var a = 0.933;
         var b = 1;
@@ -145,7 +146,7 @@ partial class SceneMotion
                 }.ToSingleShape();
 
 
-                (20).ForEach(_=>Step());
+                (stepsPerScene).ForEach(_=>Step());
             }
         }
 
