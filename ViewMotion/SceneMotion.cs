@@ -77,11 +77,11 @@ partial class SceneMotion
         var forceBorder = 0.75;
         var gravity = new Vector3(0, -0.00005, 0);
         var stepsPerScene = 10;
-        var rotationSpeed = 0.001;
+        var rotationSpeed = 0.015;
         var fixBottom = false;
 
         var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-        var block = vectorizer.GetPixelShape("hh2").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         var bY = block.BorderY;
         var ps = block.Points3;
 
