@@ -80,15 +80,23 @@ partial class SceneMotion
         var dampingCoef = 0.8;
         var gravity = new Vector3(0, -0.00005, 0);
         var stepsPerScene = 10;
-        var rotationAngleX = Math.PI / 6;
-        var rotationSpeed = 0;// 0.005;
-        var move = new Vector3(0, 3, 0);
+        var rotationAngleX = 0;// Math.PI / 6;
+        var rotationSpeed = 0.001;
+        var move = new Vector3(0, 30, 0);
         var fixBottom = false;
         var useDeformation = false;
+        var thickness = 3;
 
-        var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-        var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
-        
+        var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+        //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
+
+        var block = Shapes.IcosahedronSp3.Transform(TransformFuncs3.Heart).Perfecto(50).AlignY(0);
+
+        //var block = Solids.Sphere(10, 10, 5).Mult(20);
+
+        //return block.ToMetaShape3().ToMotion();
+
         if (useDeformation)
             block = block.Mult(0.03).PullOnSurface(SurfaceFuncs.Hyperboloid).Mult(1/0.03);
 
@@ -107,16 +115,19 @@ partial class SceneMotion
         nodes.ForEach(n => n.fAs = n.ns.Select(j => (n.position - nodes[j].position).Length).ToList());
         nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
 
+        Debug.WriteLine(nodes.SelectMany(n=>n.fAs).Average());
         //var a = 0.933;
-        var b = 1;
-        var c = 0.1;
-        var forceBorder = 0.65;
-        double BlockForceFn(double a, double x)
+        //var b = 1;
+        var c = 0.2;
+        var forceBorder = 0.75;
+        double BlockForceFn(double a, double y)
         {
+            var x = y / a;
+
             if (x < forceBorder)
                 x = forceBorder;
 
-            return c * (x - a) * (x + b) / x.Pow4();
+            return c * a * (x - 1) * (x + 1) / x.Pow4();
         };
 
         //var bounceCoef = 0.2;
@@ -191,7 +202,8 @@ partial class SceneMotion
             Convexes = block.Convexes
         };
 
-        var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(100).MoveY(bY.a).ToLines(20, Color.DarkRed);// Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50);
+        //var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(100).MoveY(bY.a).ToLines(20, Color.DarkRed);
+        var platform = Shapes.CirclePlatform().ApplyColor(Color.FromArgb(64,0,0)).Mult(50).ScaleY(0.2);
         var coods = Shapes.Coods.Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
 
         //(1000).ForEach(_ => Step());
@@ -204,7 +216,7 @@ partial class SceneMotion
             {
                 yield return new[]
                 {
-                    GetBlock(i).ApplyColor(Color.Blue), //.ToMetaShape3(1, 1, Color.Blue, Color.Red),
+                    GetBlock(i).ApplyColor(Color.Blue).ToMetaShape3(20, 20, Color.Blue, Color.Red),
                     //coods,
                     platform
                 }.ToSingleShape();
@@ -214,6 +226,6 @@ partial class SceneMotion
             }
         }
 
-        return Animate().ToMotion(block.Size.Length * 1.5);
+        return Animate().ToMotion(150);
     }
 }
