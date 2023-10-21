@@ -37,6 +37,21 @@ namespace Model3D.Extensions
             return new Vector2(v.x, v.y);
         }
 
+        public static Vector3 SetX(this Vector3 v, double a)
+        {
+            return new Vector3(a, v.y, v.z);
+        }
+
+        public static Vector3 SetY(this Vector3 v, double a)
+        {
+            return new Vector3(v.x, a, v.z);
+        }
+
+        public static Vector3 SetZ(this Vector3 v, double a)
+        {
+            return new Vector3(v.x, v.y, a);
+        }
+
         public static Vector3 ZeroX(this Vector3 v)
         {
             return new Vector3(0, v.y, v.z);

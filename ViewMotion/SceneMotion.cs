@@ -35,6 +35,7 @@ using Vector2 = Model.Vector2;
 using Model.Tools;
 using System.Drawing.Text;
 using System.Threading.Tasks.Sources;
+using Model.Graphs;
 
 namespace ViewMotion;
 
@@ -52,17 +53,16 @@ partial class SceneMotion
 
     #endregion
 
-    class Node : INet3Item
+    class Node /*: INet3Item*/
     {
         public int i;
         public List<int> ns;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
         public double speedY = 0;
-        //public int nsY = 0;
-        public double mass = 1;
-        public bool locked;
-        public Func<Vector3> PositionFn => () => position;
+        //public double mass = 1;
+        //public bool locked;
+        //public Func<Vector3> PositionFn => () => position;
     }
 
     class PointObject
@@ -79,7 +79,7 @@ partial class SceneMotion
         var dampingCoef = 0.8;
         var gravity = new Vector3(0, -0.00005, 0);
         var stepsPerScene = 10;
-        var rotationSpeed = 0.005;
+        var rotationSpeed = 0;// 0.005;
         var fixBottom = false;
         var useDeformation = false;
 
@@ -112,11 +112,11 @@ partial class SceneMotion
             return c * (x - a) * (x + b) / x.Pow4();
         };
 
+        //var bounceCoef = 0.2;
         Vector3 CalcSpeed(Node n)
         {
             var p0 = n.position;
             Vector3 offset = Vector3.Origin;
-            //n.nsY = 0;
 
             foreach (var j in n.ns)
             {
@@ -127,17 +127,14 @@ partial class SceneMotion
                 var ds = BlockForceFn(d);
 
                 offset += ds * (p - p0) / d;
-
-                //if (!IsBottom(sn))
-                //    n.nsY++;
             }
 
             var speed = n.speed + offset * dampingCoef;
 
             if (IsBottom(n) && speed.y < 0)
             {
-                n.speedY = -speed.y;
-                speed = speed.ZeroY();
+                n.speedY += - speed.y;
+                speed = speed.SetY(0);
             }
             else
             {
@@ -147,7 +144,7 @@ partial class SceneMotion
             return speed;
         }
 
-        Vector3 CalcBounceSpeed(Node n)
+        Vector3 CalcBounceSpeedOffset(Node n)
         {
             Vector3 offset = Vector3.Origin;
             var sns = n.ns.Select(j => nodes[j]).Where(IsBottom).ToArray();
@@ -155,11 +152,11 @@ partial class SceneMotion
             if (sns.Length == 0)
                 return offset;
 
-            var sumCoefY = sns.Select(sn => n.position.y - sn.position.y).Sum();
+            var sumY = sns.Select(sn => n.position.y - sn.position.y).Sum();
 
             foreach (var (sn, i) in sns.Select((v, i) => (v, i)))
             {
-                offset += (n.position - sn.position).ToLenWithCheck(n.speedY * (n.position.y - sn.position.y) / sumCoefY);
+                offset += (n.position - sn.position).ToLenWithCheck(n.speedY * (n.position.y - sn.position.y) / sumY);
             }
 
             return offset;
@@ -169,11 +166,14 @@ partial class SceneMotion
         bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
         Vector3 FixY(Vector3 a) => a.y > bY.a ? a : new Vector3(a.x, bY.a, a.z);
 
+
         void Step()
         {
-            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
             nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
-            nodes.Where(CanCalc).Where(n=>!IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeed(n));
+            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
+            //Debug.WriteLine(speedY);
+            //nodes.ForEach(n => n.speed += new Vector3(0, speedY/nodes.Length, 0));
+            nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
             nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
         }
@@ -185,6 +185,11 @@ partial class SceneMotion
         };
 
         var platform = Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50).MoveY(bY.a);
+        var coods = Shapes.Coods.Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
+
+        (1000).ForEach(_ => Step());
+
+        //return GetBlock(0).ToMetaShape3(1, 1, Color.Blue, Color.Red).ToMotion();
 
         IEnumerable<Shape> Animate()
         {
@@ -192,8 +197,9 @@ partial class SceneMotion
             {
                 yield return new[]
                 {
-                    GetBlock(i).ApplyColor(Color.Blue),
-                    platform
+                    GetBlock(i).ApplyColor(Color.Blue).ToMetaShape3(1, 1, Color.Blue, Color.Red),
+                    //coods,
+                    //platform
                 }.ToSingleShape();
 
 

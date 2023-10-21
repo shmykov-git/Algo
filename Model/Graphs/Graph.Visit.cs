@@ -113,6 +113,40 @@ namespace Model.Graphs
             } while (startNode != null);
         }
 
+        public IEnumerable<Node[]> FullVisit()
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Stack<Node>(nodes.Count);
+            var startNode = nodes[0];
+
+            do
+            {
+                queue.Push(startNode);
+                List<Node> connected = new();
+
+                do
+                {
+                    var n = queue.Pop();
+                    if (!visited[n.i])
+                    {
+                        visited[n.i] = true;
+
+                        connected.Add(n);
+
+                        foreach (var edge in n.edges)
+                        {
+                            queue.Push(edge.Another(n));
+                        }
+                    }
+                } while (queue.Count > 0);
+
+                yield return connected.ToArray();
+
+                var index = visited.IndexValue().Where(v => !v.value).Select(v => v.index).FirstOrDefault();
+                startNode = index == 0 ? null : nodes[index];
+            } while (startNode != null);
+        }
+
         public IEnumerable<Edge> VisitEdges(int seed = 0, GraphVisitStrategy directionFn = null, Node node = null)
         {
             directionFn ??= GraphVisitStrateges.SimpleRandom(seed);
