@@ -57,6 +57,7 @@
             <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
             <Button DockPanel.Dock="Top" Command="{Binding CalcCommand}" Content="{Binding CalcName}" IsEnabled="{Binding CanCalc}" />
             <Button DockPanel.Dock="Top" Command="{Binding ReplayCommand}" Content="{Binding ReplayName}"/>
+            <Slider DockPanel.Dock="Top" Value="{Binding FrameNumber, Mode=TwoWay}" Minimum="0" Maximum="{Binding FrameMaxNumber}" ></Slider>
             <ComboBox  DockPanel.Dock="Top" ItemsSource="{Binding Animations}" SelectedIndex="{Binding AnimationIndex, Mode=TwoWay}" />
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsAutoReplay, Mode=TwoWay}">Auto replay</CheckBox>
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Left" IsChecked="{Binding Path=IsReverseReplay, Mode=TwoWay}">With reverse</CheckBox>

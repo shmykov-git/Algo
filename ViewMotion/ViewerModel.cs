@@ -109,6 +109,8 @@ namespace ViewMotion
         }
 
         public double Speed { get; set; }
+        public int FrameNumber { get => frameNumber; set { frameNumber = value; OnPropertyChanged(); RefreshView(); } }
+        public int FrameMaxNumber { get => frameMaxNumber; set { frameMaxNumber = value; OnPropertyChanged(); } }
 
         public double Light
         {
@@ -119,6 +121,14 @@ namespace ViewMotion
                 OnPropertyChanged(nameof(Light));
                 RefreshLights();
             }
+        }
+
+        private void RefreshView()
+        {
+            if (isPlaying | isCalculating)
+                return;
+
+            ShowViewShape(viewStates[FrameNumber]);
         }
 
         private void RefreshLights()
@@ -241,7 +251,7 @@ namespace ViewMotion
         {
             if (cameraMotionOptions != null && (isPlaying || isCalculating))
             {
-                var step = isCalculating ? viewStates.Count : playStep;
+                var step = isCalculating ? viewStates.Count : frameNum;
 
                 if (cameraMotionOptions.CameraFn != null)
                 {
@@ -263,7 +273,10 @@ namespace ViewMotion
             if (motionSettings.AllowFrameHistory)
                 viewStates.Add(viewState);
 
+
             FrameInfo = $"Frame: {viewStates.Count}";
+            FrameMaxNumber = viewStates.Count - 1;
+            FrameNumber = viewStates.Count - 1;
             RefreshButtons();
             RefreshCamera();
             ShowViewShape(viewState);
@@ -334,7 +347,9 @@ namespace ViewMotion
             UpdateModel?.Invoke(model);
         }
 
-        private int playStep = 0;
+        private int frameNum = 0;
+        private int frameNumber;
+        private int frameMaxNumber;
 
         async Task Play()
         {
@@ -352,11 +367,9 @@ namespace ViewMotion
 
                 foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
                 {
-                    if (i == 0)
-                        shape0 = shape;
-
-                    playStep = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
-                    FrameInfo = $"Frame: {playStep+1} from {viewStates.Count}";
+                    frameNum = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
+                    FrameInfo = $"Frame: {frameNum+1} from {viewStates.Count}";
+                    FrameNumber = frameNum;
 
                     await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));
                     RefreshCamera();
@@ -365,9 +378,6 @@ namespace ViewMotion
                         break;
                 }
             } while (IsAutoReplay && isPlaying);
-
-            if (shape0 != null)
-                await ShowViewShape(shape0);
 
             isPlaying = false;
             Refresh();
