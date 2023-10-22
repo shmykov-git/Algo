@@ -73,19 +73,11 @@ partial class SceneMotion
         public double fC;
     }
 
-    class PointObject
-    {
-        public Vector3 position;
-        public Vector3 speed;
-        public double mass;
-        public double radius;
-    }
-
     public Task<Motion> Scene()
     {
         var sceneCount = 2000;
         var dampingCoef = 0.8;
-        var gravity = new Vector3(0, -0.0005, 0);
+        var gravity = new Vector3(0, -0.00001, 0);
         var stepsPerScene = 10;
         var rotationAngleX = 0;// Math.PI / 6;
         var rotationSpeed = 0;// 0.001;
@@ -93,12 +85,16 @@ partial class SceneMotion
         var fixBottom = false;
         var useDeformation = false;
         var thickness = 3;
+        double blowPower = 10;
+        double materialPower = 10;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        var block = Shapes.IcosahedronSp3.WithCenterPoint().Perfecto(100).AlignY(0);
+        var block = Surfaces.Shell2(30, 10, -0.5, 0.5, 1.8, 3.2).WithCenterPoint().Perfecto(100).AlignY(0);
+
+
 
         //var block = Solids.Sphere(10, 10, 5).Mult(20);
 
@@ -119,8 +115,6 @@ partial class SceneMotion
             position = ps[i]
         }).ToArray();
 
-        double blowPower = 0.3;
-        double materialPower = 5;
         var nLast = nodes.Length - 1;
         nodes.ForEach(n => n.edges = block.Links[n.i].Select(j => new Edge
         {

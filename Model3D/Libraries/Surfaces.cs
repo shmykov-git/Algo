@@ -239,16 +239,31 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
-        public static Shape Shell(int un, int vn, int nSpins = 2, bool triangulate = false) => new Shape
+        public static Shape Shell(int un, int vn, int nToSpins = 2, bool triangulate = false) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
                 Fn = SurfaceFuncs.Shell,
                 UFrom = 0,
-                UTo = nSpins * 2 * Math.PI,
+                UTo = nToSpins * 2 * Math.PI,
                 UN = un,
                 VFrom = -Math.PI,
                 VTo = Math.PI,
+                VN = vn,
+            }.GetPoints(),
+            Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
+        }.Normalize();
+
+        public static Shape Shell2(int un, int vn, double vFromSpin = -0.5, double vToSpin = 0.5, double uFromSpins = 0, double uToSpins = 2, bool triangulate = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = SurfaceFuncs.Shell,
+                UFrom = uFromSpins * 2 * Math.PI,
+                UTo = uToSpins * 2 * Math.PI,
+                UN = un,
+                VFrom = vFromSpin * 2 * Math.PI,
+                VTo = vToSpin * 2 * Math.PI,
                 VN = vn,
             }.GetPoints(),
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
