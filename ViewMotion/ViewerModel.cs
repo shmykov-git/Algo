@@ -128,6 +128,7 @@ namespace ViewMotion
             if (isPlaying | isCalculating)
                 return;
 
+            ShowFrame(FrameNumber, viewStates.Count);
             ShowViewShape(viewStates[FrameNumber]);
         }
 
@@ -273,10 +274,10 @@ namespace ViewMotion
             if (motionSettings.AllowFrameHistory)
                 viewStates.Add(viewState);
 
-
-            FrameInfo = $"Frame: {viewStates.Count}";
             FrameMaxNumber = viewStates.Count - 1;
             FrameNumber = viewStates.Count - 1;
+
+            ShowFrame(FrameNumber, viewStates.Count);
             RefreshButtons();
             RefreshCamera();
             ShowViewShape(viewState);
@@ -317,6 +318,11 @@ namespace ViewMotion
 
                 return ss;
             }).ToSingleShape();
+        }
+
+        private void ShowFrame(int frameNumber, int framesCount)
+        {
+            FrameInfo = $"Frame: {frameNumber + 1} from {framesCount}";
         }
 
         private async Task ShowViewShape(ViewState state)
@@ -368,7 +374,7 @@ namespace ViewMotion
                 foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
                 {
                     frameNum = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
-                    FrameInfo = $"Frame: {frameNum+1} from {viewStates.Count}";
+                    ShowFrame(frameNum, viewStates.Count);
                     FrameNumber = frameNum;
 
                     await Task.WhenAll(ShowViewShape(shape), Task.Delay((int)(5 + 20 * Speed)));

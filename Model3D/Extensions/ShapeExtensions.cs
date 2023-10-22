@@ -915,7 +915,19 @@ namespace Model3D.Extensions
         {
             var s = shape.Size;
 
-            return shape.Mult(size / new[]{ s.x, s.y, s.z}.Max());
+            return shape.Mult(size / new[] { s.x, s.y, s.z }.Max());
+        }
+
+        public static Shape WithCenterPoint(this Shape shape)
+        {
+            var c = shape.MassCenter;
+            var n = shape.PointsCount;
+
+            return new Shape
+            {
+                Points3 = shape.Points3.Concat(new[] { c }).ToArray(),
+                Convexes = shape.Convexes.Concat((n).SelectRange(i => new[] { i, n })).ToArray()
+            };
         }
 
         public static Shape BottomedY(this Shape shape)

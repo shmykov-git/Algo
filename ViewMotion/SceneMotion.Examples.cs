@@ -21,6 +21,9 @@ using Model3D;
 
 namespace ViewMotion;
 
+/// <summary>
+/// You can find some video results on this youtube channel https://www.youtube.com/channel/UCSXMjRAXWmRL4rV7wy06eOA
+/// </summary>
 partial class SceneMotion
 {
     #region Bullet
