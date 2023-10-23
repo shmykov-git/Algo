@@ -56,8 +56,8 @@ partial class SceneMotion
     class Node /*: INet3Item*/
     {
         public int i;
-        public List<Edge> edges;
-        public List<Pln> planes;
+        public Edge[] edges;
+        public Pln[] planes;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
         public double speedY = 0;
@@ -99,24 +99,26 @@ partial class SceneMotion
         var move = new Vector3(0, 15, 0);
         var fixBottom = false;
         var useDeformation = false;
+        var useSkeleton = true;
         var thickness = 3;
 
-        double blowPower = 0.001;
-        double blowPowerStep = 0.1 * blowPower / stepsPerScene;
+        double blowPower = 0.0003;
+        double blowPowerStep = 0 * 0.1 * blowPower / stepsPerScene;
         int blowPowerStepNum = 100 * stepsPerScene;
 
-        double skeletonPower = 0.01;
+        double skeletonPower = 1;
         double materialPower = 1;
-        double frictionForce = 0.005;
-        double clingForce = 0.06;
+        double frictionForce = 0.006;
+        double clingForce = 0.006;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        var block = Shapes.IcosahedronSp3.Perfecto(20).AlignY(0);
+        var block = Shapes.IcosahedronSp3.Transform(TransformFuncs3.Sphere).Transform(TransformFuncs3.Heart).Normalize().Perfecto(50).AlignY(0);
 
-
+        if (useSkeleton)
+            block = block.WithCenterPoint();
 
         //var block = Solids.Sphere(10, 10, 5).Mult(20);
 
@@ -137,16 +139,16 @@ partial class SceneMotion
             position = ps[i]
         }).ToArray();
 
-        //var nLast = nodes.Length - 1;
+        var nLast = nodes.Length - 1;
         nodes.ForEach(n => n.edges = block.Links[n.i].Select(j => new Edge
         {
             i = n.i,
             j = j,
             fA = (n.position - nodes[j].position).Length,
-            type = /*j == nLast ? EdgeType.Skeleton : */EdgeType.Material
-            //fC = j == nLast ? skeletonPower : materialPower
-        }).ToList());
-        nodes.ForEach(n => n.planes = block.Convexes.Where(c=>c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new Pln() { i = c[0], j = c[1], k = c[2] }).ToList());
+            type = (useSkeleton && nLast == j) ? EdgeType.Skeleton : EdgeType.Material
+        }).ToArray());
+
+        nodes.ForEach(n => n.planes = block.Convexes.Where(c=>c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new Pln() { i = c[0], j = c[1], k = c[2] }).ToArray());
         //nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
         //nodes.ForEach(n => n.fAs = n.ns.Select(j => (n.position - nodes[j].position).Length).ToList());
         nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
@@ -163,12 +165,12 @@ partial class SceneMotion
             if (x < forceBorder)
                 x = forceBorder;
 
-            return forcePower * c * a * (x - 1) * (x + 1) / x.Pow4();
+            return forcePower * c * (x - 1) * (x + 1) / x.Pow4();
         };
 
         Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
 
-        Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(nodes[p.i].position, nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
+        Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(nodes[p.i].position, nodes[p.j].position, nodes[p.k].position)).Center()/*.Normalize()*/;
 
         //var bounceCoef = 0.2;
         Vector3 CalcSpeed(Node n)
@@ -224,7 +226,7 @@ partial class SceneMotion
 
         Vector3 CalcBlowSpeedOffset(Node n)
         {
-            if (blowPower > 0)
+            if (blowPower > 0 && n.planes.Length > 0)
                 return blowPower * BlowForce(n);
             else
                 return Vector3.Origin;
@@ -272,10 +274,11 @@ partial class SceneMotion
             nStep++;
         }
 
+        var normalizedBlock = block.Normalize();
         Shape GetBlock(int i) => new Shape
         {
             Points3 = nodes.Select(n => n.position).ToArray(),
-            Convexes = block.Convexes
+            Convexes = normalizedBlock.Convexes
         };
 
         var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(50).MoveY(bY.a).ToLines(30, Color.Black);
@@ -293,8 +296,8 @@ partial class SceneMotion
                 yield return new[]
                 {
                     showMeta 
-                        ? GetBlock(i).Normalize()/*.ApplyColor(Color.Blue)*/.ToMetaShape3(10, 20, Color.Blue, Color.Red)
-                        : GetBlock(i).Normalize().ApplyColor(Color.Blue),
+                        ? GetBlock(i).ToMetaShape3(10, 20, Color.Blue, Color.Red)
+                        : GetBlock(i).ApplyColor(Color.Blue),
                     //coods,
                     platform
                 }.ToSingleShape();
