@@ -70,29 +70,31 @@ partial class SceneMotion
         public int i;
         public int j;
         public double fA;
-        public double fC;
+        public double fC = 1;
     }
 
     public Task<Motion> Scene()
     {
         var sceneCount = 2000;
+        var showMeta = false;
         var dampingCoef = 0.8;
-        var gravity = new Vector3(0, -0.00001, 0);
+        var gravity = new Vector3(0, -0.0001, 0);
         var stepsPerScene = 10;
         var rotationAngleX = 0;// Math.PI / 6;
-        var rotationSpeed = 0;// 0.001;
-        var move = new Vector3(0, 30, 0);
+        var rotationSpeed = 0.01;
+        var move = new Vector3(0, 3, 0);
         var fixBottom = false;
         var useDeformation = false;
         var thickness = 3;
-        double blowPower = 10;
-        double materialPower = 10;
+        double blowPower = 0.1;
+        double materialPower = 1;
+        double frictionForce = 0.005;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-        //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        var block = Surfaces.Shell2(30, 10, -0.5, 0.5, 1.8, 3.2).WithCenterPoint().Perfecto(100).AlignY(0);
+        //var block = Surfaces.Shell2(30, 10, -0.5, 0.5, 1.8, 3.2).WithCenterPoint().Perfecto(100).AlignY(0);
 
 
 
@@ -121,7 +123,7 @@ partial class SceneMotion
             i = n.i,
             j = j,
             fA = (n.position - nodes[j].position).Length,
-            fC = j == nLast ? blowPower : materialPower
+            //fC = j == nLast ? blowPower : materialPower
         }).ToList());
 
         //nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
@@ -131,7 +133,7 @@ partial class SceneMotion
         Debug.WriteLine(nodes.SelectMany(n=>n.edges.Select(e=>e.fA)).Average());
         //var a = 0.933;
         //var b = 1;
-        var forcePower = 0.001;
+        var forcePower = 0.1;
         var forceBorder = 0.75;
         double BlockForceFn(double c, double a, double y)
         {
@@ -166,6 +168,11 @@ partial class SceneMotion
             {
                 n.speedY += - speed.y;
                 speed = speed.SetY(0);
+
+                var fForce = -speed.ToLenWithCheck(frictionForce);
+                speed = fForce.Length2 > speed.Length2
+                    ? Vector3.Origin
+                    : speed + fForce;
             }
             else
             {
@@ -215,7 +222,7 @@ partial class SceneMotion
             Convexes = block.Convexes
         };
 
-        var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(300).MoveY(bY.a).ToLines(50, Color.Black);
+        var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(50).MoveY(bY.a).ToLines(30, Color.Black);
         //var platform = Shapes.CirclePlatform().ApplyColor(Color.FromArgb(64,0,0)).Mult(150).ScaleY(0.2);
         var coods = Shapes.Coods.Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
 
@@ -229,7 +236,9 @@ partial class SceneMotion
             {
                 yield return new[]
                 {
-                    GetBlock(i).Normalize()/*.ApplyColor(Color.Blue)*/.ToMetaShape3(50, 100, Color.Blue, Color.Red),
+                    showMeta 
+                        ? GetBlock(i).Normalize()/*.ApplyColor(Color.Blue)*/.ToMetaShape3(10, 20, Color.Blue, Color.Red)
+                        : GetBlock(i).Normalize().ApplyColor(Color.Blue),
                     //coods,
                     platform
                 }.ToSingleShape();
@@ -239,6 +248,6 @@ partial class SceneMotion
             }
         }
 
-        return Animate().ToMotion(250);
+        return Animate().ToMotion(50);
     }
 }
