@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Input;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
@@ -8,6 +9,14 @@ namespace ViewMotion;
 
 partial class ViewerModel
 {
+
+    public void KeyDown(Key key)
+    {
+        if (key == Key.Space)
+        {
+            DoReplay();
+        }
+    }
 
     public void Wheel(int delta)
     {

@@ -95,5 +95,10 @@ namespace ViewMotion
                 viewerModel.UpdateModel = model => AnimatedObject.Children[^1] = model;
             };
         }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            viewerModel.KeyDown(e.Key);
+        }
     }
 }

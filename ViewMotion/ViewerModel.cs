@@ -168,14 +168,16 @@ namespace ViewMotion
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
         
-        public ICommand ReplayCommand => new Command(() =>
+        public ICommand ReplayCommand => new Command(DoReplay, () => !isCalculating, SaveRefresh);
+
+        private void DoReplay()
         {
             if (isPlaying)
                 isPlaying = false;
             else
                 Play();
             Refresh();
-        }, () => !isCalculating, SaveRefresh);
+        }
 
         public ICommand CalcCommand => new Command(() =>
         {

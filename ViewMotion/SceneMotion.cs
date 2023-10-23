@@ -57,6 +57,7 @@ partial class SceneMotion
     {
         public int i;
         public List<Edge> edges;
+        public List<Pln> planes;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
         public double speedY = 0;
@@ -65,37 +66,55 @@ partial class SceneMotion
         //public Func<Vector3> PositionFn => () => position;
     }
 
+    enum EdgeType
+    {
+        Material,
+        Skeleton
+    }
+
     class Edge
     {
         public int i;
         public int j;
         public double fA;
-        public double fC = 1;
+        public EdgeType type = EdgeType.Material;
+    }
+
+    class Pln
+    {
+        public int i;
+        public int j;
+        public int k;
     }
 
     public Task<Motion> Scene()
     {
         var sceneCount = 2000;
-        var showMeta = false;
+        var showMeta = true;
         var dampingCoef = 0.8;
         var gravity = new Vector3(0, -0.0001, 0);
         var stepsPerScene = 10;
         var rotationAngleX = 0;// Math.PI / 6;
-        var rotationSpeed = 0.01;
-        var move = new Vector3(0, 3, 0);
+        var rotationSpeed = 0; // 0.01;
+        var move = new Vector3(0, 15, 0);
         var fixBottom = false;
         var useDeformation = false;
         var thickness = 3;
-        double blowPower = 0.1;
+
+        double blowPower = 0.001;
+        double blowPowerStep = 0.1 * blowPower / stepsPerScene;
+        int blowPowerStepNum = 100 * stepsPerScene;
+
+        double skeletonPower = 0.01;
         double materialPower = 1;
         double frictionForce = 0.005;
-        double clingForce = 0.02;
+        double clingForce = 0.06;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-        var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        //var block = Surfaces.Shell2(30, 10, -0.5, 0.5, 1.8, 3.2).WithCenterPoint().Perfecto(100).AlignY(0);
+        var block = Shapes.IcosahedronSp3.Perfecto(20).AlignY(0);
 
 
 
@@ -118,15 +137,16 @@ partial class SceneMotion
             position = ps[i]
         }).ToArray();
 
-        var nLast = nodes.Length - 1;
+        //var nLast = nodes.Length - 1;
         nodes.ForEach(n => n.edges = block.Links[n.i].Select(j => new Edge
         {
             i = n.i,
             j = j,
             fA = (n.position - nodes[j].position).Length,
-            //fC = j == nLast ? blowPower : materialPower
+            type = /*j == nLast ? EdgeType.Skeleton : */EdgeType.Material
+            //fC = j == nLast ? skeletonPower : materialPower
         }).ToList());
-
+        nodes.ForEach(n => n.planes = block.Convexes.Where(c=>c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new Pln() { i = c[0], j = c[1], k = c[2] }).ToList());
         //nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
         //nodes.ForEach(n => n.fAs = n.ns.Select(j => (n.position - nodes[j].position).Length).ToList());
         nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
@@ -146,6 +166,10 @@ partial class SceneMotion
             return forcePower * c * a * (x - 1) * (x + 1) / x.Pow4();
         };
 
+        Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
+
+        Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(nodes[p.i].position, nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
+
         //var bounceCoef = 0.2;
         Vector3 CalcSpeed(Node n)
         {
@@ -158,7 +182,14 @@ partial class SceneMotion
                 var p = sn.position;
 
                 var d = (p - p0).Length;
-                var ds = BlockForceFn(e.fC, e.fA, d);
+
+                var fc = e.type switch
+                {
+                    EdgeType.Skeleton => skeletonPower,
+                    _ => materialPower,
+                };
+
+                var ds = BlockForceFn(fc, e.fA, d);
 
                 offset += ds * (p - p0) / d;
             }
@@ -191,6 +222,14 @@ partial class SceneMotion
             return speed;
         }
 
+        Vector3 CalcBlowSpeedOffset(Node n)
+        {
+            if (blowPower > 0)
+                return blowPower * BlowForce(n);
+            else
+                return Vector3.Origin;
+        }
+
         Vector3 CalcBounceSpeedOffset(Node n)
         {
             Vector3 offset = Vector3.Origin;
@@ -213,16 +252,24 @@ partial class SceneMotion
         bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
         Vector3 FixY(Vector3 a) => a.y > bY.a ? a : new Vector3(a.x, bY.a, a.z);
 
-
+        var nStep = 0;
         void Step()
         {
+            if (nStep > blowPowerStepNum)
+            {
+                blowPower += blowPowerStep;
+            }
+
             nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
+            nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(n));
             nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
             //Debug.WriteLine(speedY);
             //nodes.ForEach(n => n.speed += new Vector3(0, speedY/nodes.Length, 0));
             nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
             nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
+
+            nStep++;
         }
 
         Shape GetBlock(int i) => new Shape
@@ -253,7 +300,7 @@ partial class SceneMotion
                 }.ToSingleShape();
 
 
-                (stepsPerScene).ForEach(_=>Step());
+                (stepsPerScene).ForEach(_ => Step());
             }
         }
 
