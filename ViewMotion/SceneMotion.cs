@@ -89,6 +89,7 @@ partial class SceneMotion
         double blowPower = 0.1;
         double materialPower = 1;
         double frictionForce = 0.005;
+        double clingForce = 0.02;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
@@ -164,19 +165,27 @@ partial class SceneMotion
 
             var speed = n.speed + offset * dampingCoef;
 
-            if (IsBottom(n) && speed.y < 0)
+            if (IsBottom(n))
             {
-                n.speedY += - speed.y;
-                speed = speed.SetY(0);
+                if (speed.y < 0)
+                {
+                    n.speedY += -speed.y;
+                    speed = speed.SetY(0);
 
-                var fForce = -speed.ToLenWithCheck(frictionForce);
-                speed = fForce.Length2 > speed.Length2
-                    ? Vector3.Origin
-                    : speed + fForce;
-            }
-            else
-            {
-                n.speedY = 0;
+                    var fForce = -speed.ToLenWithCheck(frictionForce);
+                    speed = fForce.Length2 > speed.Length2
+                        ? Vector3.Origin
+                        : speed + fForce;
+                }
+                else
+                {
+                    n.speedY = 0;
+
+                    var clForce = -Vector3.YAxis.ToLenWithCheck(clingForce);
+                    speed = clForce.Length2 > speed.VectorY().Length2
+                        ? Vector3.Origin
+                        : speed + clForce;
+                }
             }
 
             return speed;
