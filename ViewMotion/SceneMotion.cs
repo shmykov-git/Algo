@@ -92,7 +92,7 @@ partial class SceneMotion
         var sceneCount = 2000;
         var showMeta = true;
         var dampingCoef = 0.8;
-        var gravity = new Vector3(0, -0.0001, 0);
+        var gravity = new Vector3(0, -0.0001, 0); // no wind
         var stepsPerScene = 10;
         var rotationAngleX = 0;// Math.PI / 6;
         var rotationSpeed = 0; // 0.01;
@@ -103,13 +103,14 @@ partial class SceneMotion
         var thickness = 3;
 
         double blowPower = 0.00005;
-        double blowPowerStep = 0 * 0.1 * blowPower / stepsPerScene;
-        int blowPowerStepNum = 10000 * stepsPerScene;
+        var useBlowUp = false;
+        double blowUpPowerStep = 0.1 * blowPower / stepsPerScene;
+        int blowUpPowerStepNum = 100 * stepsPerScene;
 
         double skeletonPower = 1;
         double materialPower = 1;
         double frictionForce = 0.006;
-        double clingForce = 0.01;
+        double clingForce = 0.006;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
@@ -257,9 +258,10 @@ partial class SceneMotion
         var nStep = 0;
         void Step()
         {
-            if (nStep > blowPowerStepNum)
+            if (useBlowUp)
             {
-                blowPower += blowPowerStep;
+                if (nStep > blowUpPowerStepNum)
+                    blowPower += blowUpPowerStep;
             }
 
             nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
@@ -281,7 +283,7 @@ partial class SceneMotion
             Convexes = normalizedBlock.Convexes
         };
 
-        var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(50).MoveY(bY.a).ToLines(30, Color.Black);
+        var platform = Surfaces.Plane(20, 20).ToOy().Perfecto(100).MoveY(bY.a).ToLines(30, Color.Black);
         //var platform = Shapes.CirclePlatform().ApplyColor(Color.FromArgb(64,0,0)).Mult(150).ScaleY(0.2);
         var coods = Shapes.Coods.Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
 
