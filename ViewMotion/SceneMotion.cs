@@ -102,20 +102,20 @@ partial class SceneMotion
         var useSkeleton = true;
         var thickness = 3;
 
-        double blowPower = 0.0003;
+        double blowPower = 0.00005;
         double blowPowerStep = 0 * 0.1 * blowPower / stepsPerScene;
-        int blowPowerStepNum = 100 * stepsPerScene;
+        int blowPowerStepNum = 10000 * stepsPerScene;
 
         double skeletonPower = 1;
         double materialPower = 1;
         double frictionForce = 0.006;
-        double clingForce = 0.006;
+        double clingForce = 0.01;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        var block = Shapes.IcosahedronSp3.Transform(TransformFuncs3.Sphere).Transform(TransformFuncs3.Heart).Normalize().Perfecto(50).AlignY(0);
+        var block = Shapes.Dodecahedron.Normalize().Perfecto(20).AlignY(0);
 
         if (useSkeleton)
             block = block.WithCenterPoint();
@@ -296,7 +296,7 @@ partial class SceneMotion
                 yield return new[]
                 {
                     showMeta 
-                        ? GetBlock(i).ToMetaShape3(10, 20, Color.Blue, Color.Red)
+                        ? GetBlock(i).ToMetaShape3(30, 60, Color.Blue, Color.Red)
                         : GetBlock(i).ApplyColor(Color.Blue),
                     //coods,
                     platform
