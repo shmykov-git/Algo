@@ -58,6 +58,7 @@ partial class SceneMotion
         public int i;
         public Edge[] edges;
         public Pln[] planes;
+        public Vector3 position0;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
         public double speedY = 0;
@@ -90,7 +91,9 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         var sceneCount = 2000;
-        var showMeta = true;
+        var showMeta = false;
+        var color1 = Color.SaddleBrown;
+        var color2 = Color.Red;
         var dampingCoef = 0.8;
         var gravity = new Vector3(0, -0.0001, 0); // no wind
         var stepsPerScene = 10;
@@ -110,13 +113,13 @@ partial class SceneMotion
         double skeletonPower = 1;
         double materialPower = 1;
         double frictionForce = 0.006;
-        double clingForce = 0.006;
+        double clingForce = 0.0075;
 
         var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
 
-        var block = Shapes.Dodecahedron.Normalize().Perfecto(20).AlignY(0);
+        var block = Shapes.Stone(4, 4, 1, 2).Normalize().Perfecto(50).AlignY(0);
 
         if (useSkeleton)
             block = block.WithCenterPoint();
@@ -137,6 +140,7 @@ partial class SceneMotion
         var nodes = block.PointIndices.Select(i => new Node() 
         { 
             i = i,
+            position0 = ps[i],
             position = ps[i]
         }).ToArray();
 
@@ -168,6 +172,14 @@ partial class SceneMotion
 
             return forcePower * c * (x - 1) * (x + 1) / x.Pow4();
         };
+
+        //Quaternion GetRotation(Node n, Vector3 center0, Vector3 center)
+        //{
+        //    var a = (nodes[n.i].position0 - center0).Normalize();
+        //    var b = (nodes[n.i].position - center).Normalize();
+
+        //    return Quaternion.FromRotation(a, b);
+        //}
 
         Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
 
@@ -277,11 +289,31 @@ partial class SceneMotion
         }
 
         var normalizedBlock = block.Normalize();
-        Shape GetBlock(int i) => new Shape
+        var nodesNoCenter = nodes.SkipLast(1).ToArray();
+        var center0 = nodesNoCenter.Select(n => n.position0).Center();
+
+        Shape GetBlock(int i)
         {
-            Points3 = nodes.Select(n => n.position).ToArray(),
-            Convexes = normalizedBlock.Convexes
-        };
+            //var center = nodesNoCenter.Select(n=>n.position).Center();
+            //var p = nodesNoCenter[37].position - center;
+            //var p0 = nodesNoCenter[37].position0 - center0;
+            //var q = Quaternion.FromRotation(p0.Normalize(), p.Normalize());
+            //var q = nodesNoCenter.Skip(37).Take(1).Select(n=>GetRotation(n,center0, center)).Aggregate((a, b) => a + b) / nodesNoCenter.Length;
+
+            //var blockShape = new Shape
+            //{
+            //    Points3 = nodesNoCenter.Select(n => q * (n.position0 - center0) + center).ToArray(),
+            //    Convexes = normalizedBlock.Convexes
+            //};
+
+            var modelShape = new Shape
+            {
+                Points3 = nodes.Select(n => n.position).ToArray(),
+                Convexes = normalizedBlock.Convexes
+            };
+
+            return /*blockShape.ApplyColor(color1) + */modelShape.ApplyColor(color2);
+        }
 
         var platform = Surfaces.Plane(20, 20).ToOy().Perfecto(100).MoveY(bY.a).ToLines(30, Color.Black);
         //var platform = Shapes.CirclePlatform().ApplyColor(Color.FromArgb(64,0,0)).Mult(150).ScaleY(0.2);
@@ -298,8 +330,8 @@ partial class SceneMotion
                 yield return new[]
                 {
                     showMeta 
-                        ? GetBlock(i).ToMetaShape3(30, 60, Color.Blue, Color.Red)
-                        : GetBlock(i).ApplyColor(Color.Blue),
+                        ? GetBlock(i).ToMetaShape3(30, 60, color1, color2)
+                        : GetBlock(i)/*.ApplyColor(color1)*/,
                     //coods,
                     platform
                 }.ToSingleShape();
