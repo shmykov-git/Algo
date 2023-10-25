@@ -8,12 +8,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using Meta.Extensions;
 using Model;
+using Model3D.Actives;
+using Model3D.Extensions;
 using ViewMotion.Models;
 
 namespace ViewMotion.Extensions;
 
 static class MotionExtensions
 {
+    public static Task<Motion> ToMotion(this ActiveWorld world, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
+        world.Animate().ToMotion(new MotionOptions()
+        {
+            CameraDistance = cameraDistance,
+            StartShape = startShape,
+            StepDelay = stepDelay
+        });
+
+    public static Task<Motion> ToMotion(this ActiveWorld world, MotionOptions options) => world.Animate().ToMotion(options);
+
     public static Task<Motion> ToMotion(this Shape shape, MotionOptions options)
     {
         IEnumerable<Shape> Animate()
@@ -23,16 +35,15 @@ static class MotionExtensions
 
         return Animate().ToMotion(options);
     }
-    public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null,
-        TimeSpan? stepDelay = null)
-    {
-        IEnumerable<Shape> Animate()
-        {
-            yield return shape;
-        }
 
-        return Animate().ToMotion(cameraDistance, startShape);
-    }
+    public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) => 
+        new[] { shape }.ToMotion(cameraDistance, startShape, stepDelay);
+
+    public static Task<Motion> ToWorldMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
+        new[] { shape }.ToWorldMotion(cameraDistance, startShape, stepDelay);
+
+    public static Task<Motion> ToWorldMotion(this ActiveShape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
+        (new[] { shape }, new Shape[0]).ToWorldMotion(cameraDistance, startShape, stepDelay);
 
     public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {
@@ -42,6 +53,51 @@ static class MotionExtensions
             StartShape = startShape,
             StepDelay = stepDelay
         });
+    }
+
+    public static Task<Motion> ToWorldMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
+    {
+        var world = new ActiveWorld();
+        world.AddActiveShapes(shapes);
+
+        return world.ToMotion(new MotionOptions()
+        {
+            CameraDistance = cameraDistance,
+            StartShape = startShape,
+            StepDelay = stepDelay
+        });
+    }
+
+    public static Task<Motion> ToWorldMotion(this (Shape[] actives, Shape[] statics) shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
+        (shapes.actives.Select(a => a.ToActiveShape()).ToArray(), shapes.statics).ToWorldMotion(cameraDistance, startShape, stepDelay);
+
+    public static Task<Motion> ToWorldMotion(this (ActiveShape[] actives, Shape[] statics) shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
+    {
+        var world = new ActiveWorld();
+        world.AddActiveShapes(shapes.actives);
+        world.AddShapes(shapes.statics);
+
+        return world.ToMotion(new MotionOptions()
+        {
+            CameraDistance = cameraDistance,
+            StartShape = startShape,
+            StepDelay = stepDelay
+        });
+    }
+
+    public static ActiveWorld ToWorld(this (Shape[] actives, Shape[] statics) shapes, Action<ActiveWorldOptions>? modifyFn = null) =>
+        (shapes.actives.Select(a => a.ToActiveShape()).ToArray(), shapes.statics).ToWorld(modifyFn);    
+
+    public static ActiveWorld ToWorld(this (ActiveShape[] actives, Shape[] statics) shapes, Action<ActiveWorldOptions>? modifyFn = null)
+    {
+        var options = ActiveWorldValues.DefaultActiveWorldOptions;
+        modifyFn?.Invoke(options);
+
+        var world = new ActiveWorld(options);
+        world.AddActiveShapes(shapes.actives);
+        world.AddShapes(shapes.statics);
+
+        return world;
     }
 
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)

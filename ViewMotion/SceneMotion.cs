@@ -36,6 +36,7 @@ using Model.Tools;
 using System.Drawing.Text;
 using System.Threading.Tasks.Sources;
 using Model.Graphs;
+using Model3D.Actives;
 
 namespace ViewMotion;
 
@@ -90,6 +91,22 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return Shapes.Stone(4, 4).Perfecto(3).AlignY(0).MoveY(1).ToWorldMotion(10);
+
+        var n = 12;
+        var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))
+            .Select(v => Shapes.Stone(4, v.i).RotateToMassY().Perfecto(0.5).AlignY(0).Move(new Vector3(Math.Cos(v.fi), 0, Math.Sin(v.fi)))).ToArray();
+
+        var statics = new[]
+        {
+            Surfaces.Plane(20, 20).ToOy().Perfecto(3).ToLines(1, Color.Black)
+        };
+
+        return (actives, statics).ToWorld().ToMotion(2);
+    }
+
+    public Task<Motion> Scene1()
+    {
         var sceneCount = 2000;
         var showMeta = false;
         var color1 = Color.SaddleBrown;
@@ -115,11 +132,14 @@ partial class SceneMotion
         double frictionForce = 0.006;
         double clingForce = 0.0075;
 
-        var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+        //var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
         //var block = vectorizer.GetPixelShape("hh3").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
         //block = block.Where(v => v.Length <= 4).NormalizeWith2D();
-
-        var block = Shapes.Stone(4, 4, 1, 2).Normalize().Perfecto(50).AlignY(0);
+        //
+        var n = 8;
+        var block = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))
+            .Select(v => Shapes.Stone(4, v.i).Move(2 * new Vector3(Math.Cos(v.fi), 0, Math.Sin(v.fi))))
+            .ToSingleShape().Normalize().Perfecto(50).AlignY(0);
 
         if (useSkeleton)
             block = block.WithCenterPoint();
@@ -154,8 +174,6 @@ partial class SceneMotion
         }).ToArray());
 
         nodes.ForEach(n => n.planes = block.Convexes.Where(c=>c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new Pln() { i = c[0], j = c[1], k = c[2] }).ToArray());
-        //nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
-        //nodes.ForEach(n => n.fAs = n.ns.Select(j => (n.position - nodes[j].position).Length).ToList());
         nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
 
         Debug.WriteLine(nodes.SelectMany(n=>n.edges.Select(e=>e.fA)).Average());
@@ -279,8 +297,6 @@ partial class SceneMotion
             nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
             nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(n));
             nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
-            //Debug.WriteLine(speedY);
-            //nodes.ForEach(n => n.speed += new Vector3(0, speedY/nodes.Length, 0));
             nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
             nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
@@ -294,34 +310,20 @@ partial class SceneMotion
 
         Shape GetBlock(int i)
         {
-            //var center = nodesNoCenter.Select(n=>n.position).Center();
-            //var p = nodesNoCenter[37].position - center;
-            //var p0 = nodesNoCenter[37].position0 - center0;
-            //var q = Quaternion.FromRotation(p0.Normalize(), p.Normalize());
-            //var q = nodesNoCenter.Skip(37).Take(1).Select(n=>GetRotation(n,center0, center)).Aggregate((a, b) => a + b) / nodesNoCenter.Length;
-
-            //var blockShape = new Shape
-            //{
-            //    Points3 = nodesNoCenter.Select(n => q * (n.position0 - center0) + center).ToArray(),
-            //    Convexes = normalizedBlock.Convexes
-            //};
-
             var modelShape = new Shape
             {
                 Points3 = nodes.Select(n => n.position).ToArray(),
                 Convexes = normalizedBlock.Convexes
             };
 
-            return /*blockShape.ApplyColor(color1) + */modelShape.ApplyColor(color2);
+            return modelShape.ApplyColor(color1);
         }
 
-        var platform = Surfaces.Plane(20, 20).ToOy().Perfecto(100).MoveY(bY.a).ToLines(30, Color.Black);
+        var platform = Surfaces.Plane(20, 20).ToOy().Perfecto(300).MoveY(bY.a).ToLines(50, Color.Black);
         //var platform = Shapes.CirclePlatform().ApplyColor(Color.FromArgb(64,0,0)).Mult(150).ScaleY(0.2);
         var coods = Shapes.Coods.Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
 
         //(1000).ForEach(_ => Step());
-
-        //return GetBlock(0).ToMetaShape3(1, 1, Color.Blue, Color.Red).ToMotion();
 
         IEnumerable<Shape> Animate()
         {

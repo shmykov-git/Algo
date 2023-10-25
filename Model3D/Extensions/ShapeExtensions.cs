@@ -17,6 +17,7 @@ using Meta;
 using Model.Graphs;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
+using Model3D.Actives;
 
 namespace Model3D.Extensions
 {
@@ -210,33 +211,33 @@ namespace Model3D.Extensions
         // using nothing
         //public static Shape ToSingleShape1(this IEnumerable<Shape> shapeList)
         //{
-        //    var shapes = shapeList.ToArray();
+        //    var activeShapes = shapeList.ToArray();
 
-        //    while (shapes.Length > 1)
+        //    while (activeShapes.Length > 1)
         //    {
-        //        shapes = shapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
+        //        activeShapes = activeShapes.SelectByPair((a, b) => a + (b ?? Shape.Empty)).ToArray();
         //    }
 
-        //    return shapes[0];
+        //    return activeShapes[0];
         //}
 
         // using tasks
         //public static Shape ToSingleShape2(this IEnumerable<Shape> shapeList)
         //{
-        //    var shapes = shapeList.ToArray();
+        //    var activeShapes = shapeList.ToArray();
 
-        //    if (shapes.Length == 0)
+        //    if (activeShapes.Length == 0)
         //        return Shape.Empty;
 
-        //    while (shapes.Length > 1)
+        //    while (activeShapes.Length > 1)
         //    {
-        //        var tasks = shapes.SelectByPair((a, b) => Task.Run(()=>a + (b ?? Shape.Empty))).ToArray();
+        //        var tasks = activeShapes.SelectByPair((a, b) => Task.Run(()=>a + (b ?? Shape.Empty))).ToArray();
         //        //Debug.WriteLine(tasks.Length);
         //        Task.WhenAll(tasks).Wait();
-        //        shapes = tasks.Select(t => t.Result).ToArray();
+        //        activeShapes = tasks.Select(t => t.Result).ToArray();
         //    }
 
-        //    return shapes[0];
+        //    return activeShapes[0];
         //}
 
         // using algo threadpool
@@ -778,6 +779,8 @@ namespace Model3D.Extensions
 
         public static Shape RotateY(this Shape shape, Vector3 v) =>
             shape.Rotate(Quaternion.FromRotation(Vector3.YAxis, v.Normalize()));
+
+        public static Shape Rotate(this Shape shape, double angle, Vector3 axis) => shape.Rotate(Quaternion.FromAngleAxis(angle, axis));
 
         public static Shape Rotate(this Shape shape, Quaternion q)
         {
@@ -1438,6 +1441,18 @@ namespace Model3D.Extensions
         public static Shape ModifyIf(this Shape shape, bool condition, Func<Shape, Shape> modifyIfTrueFn, Func<Shape, Shape> modifyIfFalseFn = null)
         {
             return condition ? modifyIfTrueFn(shape) : modifyIfFalseFn?.Invoke(shape) ?? shape;
+        }
+
+        public static ActiveShape ToActiveShape(this Shape shape, ActiveShapeOptions options = null)
+        {
+            return new ActiveShape(shape, options ?? ActiveWorldValues.DefaultActiveShapeOptions);
+        }
+        public static ActiveShape ToActiveShape(this Shape shape, Action<ActiveShapeOptions> modifyFn)
+        {
+            var options = ActiveWorldValues.DefaultActiveShapeOptions;
+            modifyFn(options);
+
+            return new ActiveShape(shape, options);
         }
     }
 }
