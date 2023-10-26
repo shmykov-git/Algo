@@ -31,7 +31,6 @@ public static class ActiveWorldValues
         SceneCount = 2000,
         StepsPerScene = 10,
         OverCalculationMult = 1,
-        UseDefaultGround = true,
         MaterialDapming = 0.8,
         Gravity = new Vector3(0, -0.0000005, 0),
         GravityPower = 1,
@@ -41,12 +40,21 @@ public static class ActiveWorldValues
         FrictionForce = 1.2,
         ClingForce = 1.5,
         AllowModifyStatics = false,
+        DefaultGround = ActiveWorldDefaultGroundOptions,
         StepModifyFn = null,
     };
 
-    public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions = new ActiveShapeBlowUpOptions
+    public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions => new ActiveShapeBlowUpOptions
     {
         SinceStep = 100 * 10,
         BlowUpStepPower = 0.0000001,
+    };
+
+    public static ActiveWorldDefaultGroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldDefaultGroundOptions
+    {
+        LineMult = 3,
+        Mult = 10,
+        Size = 11,
+        Color = Color.Black,
     };
 }

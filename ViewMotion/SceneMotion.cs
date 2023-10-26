@@ -57,15 +57,23 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
-            .ToActiveShape(o =>
+        return (
+            new[]
             {
-                o.BlowPower = 0.00005;
-                o.StepModifyFn = a =>
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
+                .ToActiveShape(o =>
                 {
-                    //a.Options.BlowPower += 0.00005 / 100;
-                };
-            }).ToWorld(o =>
+                    o.BlowPower = 0.00005;
+                    o.StepModifyFn = a =>
+                    {
+                        //a.Options.BlowPower += 0.00005 / 100;
+                    };
+                })
+            }, new [] 
+            {
+                vectorizer.GetText("Пора спать").Perfecto(2).AlignY(0).MoveY(2).ApplyColor(Color.SandyBrown)
+            }
+            ).ToWorld(o =>
             {
                 Shape? g = null;
 
@@ -73,12 +81,12 @@ partial class SceneMotion
                 o.OverCalculationMult = 1;
                 o.StepModifyFn = w =>
                 {
-                    g ??= w.Shapes[0];
+                    //w.ActiveShapes[0].Options.BlowPower += 0.00005 / 100;
 
-                    var m = (1 + 0.01 * (w.Options.StepNumber % 100));
-
-                    w.ActiveShapes[0].Options.BlowPower += 0.00005 / 100;
-                    w.Shapes[0] = g.Mult(0.1 / m).ApplyZ(Funcs3Z.Waves).Mult(10*m);
+                    g ??= w.Shapes[^1];
+                    var t = w.Options.StepNumber * 0.0001;
+                    var mult = 0.2;
+                    w.Shapes[^1] = g.ToOyM().Mult(mult).ApplyZ(Funcs3Z.Waves2(t)).Mult(1/mult).ToOy();
                 };
             }).ToMotion(10);
 

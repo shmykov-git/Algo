@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using Aspose.ThreeD.Utilities;
 
 namespace Model3D.Actives;
@@ -17,7 +18,16 @@ public class ActiveWorldOptions
     public double WindPower { get; set; }
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }
-    public bool UseDefaultGround {  get; set; }
     public bool AllowModifyStatics {  get; set; }
+    public ActiveWorldDefaultGroundOptions DefaultGround { get; set; }
     public Action<ActiveWorld> StepModifyFn { get; set; }
+}
+
+
+public class ActiveWorldDefaultGroundOptions
+{
+    public int Size { get; set; }
+    public double LineMult { get; set; }
+    public double Mult { get; set; }
+    public Color? Color { get; set; }
 }

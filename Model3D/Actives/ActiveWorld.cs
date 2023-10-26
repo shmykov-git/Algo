@@ -132,8 +132,12 @@ public partial class ActiveWorld
 
     private void Activate()
     {
-        if (options.UseDefaultGround)
-            AddShape(Surfaces.Plane(11, 11).Normalize().ToOy().Perfecto(10).ToLines(1, Color.Black));
+        if (options.DefaultGround != null)
+        {
+            var o = options.DefaultGround;
+            var ground = Surfaces.Plane(o.Size, o.Size).Normalize().ToOy().Perfecto(o.Mult).ToLines(o.LineMult, o.Color ?? Color.Black);
+            AddShape(ground);
+        }
 
         activeShapes.ForEach(a => a.Activate());
     }
