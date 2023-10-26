@@ -1443,10 +1443,27 @@ namespace Model3D.Extensions
             return condition ? modifyIfTrueFn(shape) : modifyIfFalseFn?.Invoke(shape) ?? shape;
         }
 
-        public static ActiveShape ToActiveShape(this Shape shape, ActiveShapeOptions options = null)
+        public static ActiveShape ToActiveShape(this Shape shape, ActiveShapeOptions options)
         {
             return new ActiveShape(shape, options ?? ActiveWorldValues.DefaultActiveShapeOptions);
         }
+
+        public static ActiveShape ToActiveShape(this Shape shape, bool? useSkeleton = null, double? blowPower = null, bool? showMeta = null)
+        {
+            var options = ActiveWorldValues.DefaultActiveShapeOptions;
+
+            if (useSkeleton.HasValue)
+                options.UseSkeleton = useSkeleton.Value;
+
+            if (blowPower.HasValue)
+                options.BlowPower = blowPower.Value;
+
+            if (showMeta.HasValue)
+                options.ShowMeta = showMeta.Value;
+
+            return new ActiveShape(shape, options);
+        }
+
         public static ActiveShape ToActiveShape(this Shape shape, Action<ActiveShapeOptions> modifyFn)
         {
             var options = ActiveWorldValues.DefaultActiveShapeOptions;

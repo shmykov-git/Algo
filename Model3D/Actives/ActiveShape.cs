@@ -97,7 +97,7 @@ public class ActiveShape
 
         if (options.ShowMeta)
         {
-            shape = shape.ToMetaShape3(options.MetaLineMult, options.MetaLineMult, options.Color2, options.Color1);
+            shape = shape.ToMetaShape3(options.MetaPointMult, options.MetaLineMult, options.Color2, options.Color1);
         }
         else
         {

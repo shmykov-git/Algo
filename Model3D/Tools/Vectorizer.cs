@@ -593,6 +593,14 @@ namespace Model3D.Tools
             return shape;
         }
 
+        public Shape GetMaterialShape(string name, int colorLevel = 200, int thickness = 3, double mult = 0.1)
+        {
+            var blockLine = (thickness).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+            var shape = GetPixelShape(name, colorLevel).Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+
+            return shape.Mult(mult).AlignY(0);
+        }
+
         public Shape GetContentShape(string name, int colorLevel = 200, double volume = 0.02, double smoothOutScalar = -0.1, int polygonOptimizationLevel = 3, bool invert = false) => GetContentShape(name,
             new ShapeOptions()
             {

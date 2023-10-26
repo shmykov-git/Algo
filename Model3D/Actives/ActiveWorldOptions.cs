@@ -8,6 +8,7 @@ public class ActiveWorldOptions
     public int StepsPerScene { get; set; }
     public double MaterialDapming { get; set; }
     public Vector3 Gravity { get; set; }
+    public double GravityPower {  get; set; }
     public Vector3 Wind { get; set; }
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }

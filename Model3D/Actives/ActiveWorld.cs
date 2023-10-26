@@ -146,7 +146,7 @@ public partial class ActiveWorld
                     s.Options.BlowPower += s.Options.BlowUp.BlowUpStepPower;
             }
 
-            s.Nodes.ForEach(n => n.speed += options.Gravity);
+            s.Nodes.ForEach(n => n.speed += options.GravityPower * options.Gravity);
             s.Nodes.ForEach(n => n.speed += CalcBlowSpeedOffset(n, s.Options));
             s.Nodes.ForEach(n => n.speed = CalcSpeed(n, s.Options));
             s.Nodes.Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));

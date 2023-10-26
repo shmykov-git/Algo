@@ -16,7 +16,7 @@ public static class ActiveWorldValues
         RotationAxis = Vector3.ZAxis,
         RotationSpeedAngle = 0, // 0.001
         RotationSpeedAxis = Vector3.YAxis,
-        UseSkeleton = true,
+        UseSkeleton = false,
         ShowSkeletonPoint = false,
         SkeletonPower = 0.002,
         MaterialPower = 0.001,
@@ -30,7 +30,8 @@ public static class ActiveWorldValues
         StepsPerScene = 10,
         UseDefaultGround = true,
         MaterialDapming = 0.8,
-        Gravity = new Vector3(0, -0.000001, 0),
+        Gravity = new Vector3(0, -0.0000005, 0),
+        GravityPower = 1,
         Wind = Vector3.Origin,
         FrictionForce = 0.00006,
         ClingForce = 0.000075

@@ -91,7 +91,10 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.Stone(4, 4).Perfecto(3).AlignY(0).MoveY(1).ToWorldMotion(10);
+        return vectorizer.GetMaterialShape("hh3").MoveY(1).ToActiveShape().ToWorld().ToMotion();
+
+        return Surfaces.Torus(60, 11, 4).Perfecto(5).AlignY(0).MoveY(1)
+            .ToActiveShape().ToWorldMotion(10);
 
         var n = 12;
         var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))
