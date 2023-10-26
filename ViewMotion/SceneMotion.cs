@@ -57,7 +57,30 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1).ToActiveShape(false, 0.00005).ToWorld(o=> { o.OverCalculationMult = 1; }).ToMotion(10);
+        return Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
+            .ToActiveShape(o =>
+            {
+                o.BlowPower = 0.00005;
+                o.StepModifyFn = a =>
+                {
+                    //a.Options.BlowPower += 0.00005 / 100;
+                };
+            }).ToWorld(o =>
+            {
+                Shape? g = null;
+
+                o.AllowModifyStatics = true;
+                o.OverCalculationMult = 1;
+                o.StepModifyFn = w =>
+                {
+                    g ??= w.Shapes[0];
+
+                    var m = (1 + 0.01 * (w.Options.StepNumber % 100));
+
+                    w.ActiveShapes[0].Options.BlowPower += 0.00005 / 100;
+                    w.Shapes[0] = g.Mult(0.1 / m).ApplyZ(Funcs3Z.Waves).Mult(10*m);
+                };
+            }).ToMotion(10);
 
         var n = 12;
         var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))

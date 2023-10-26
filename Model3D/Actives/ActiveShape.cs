@@ -85,6 +85,12 @@ public class ActiveShape
         this.nodes = nodes;
     }
 
+    public void Step()
+    {
+        if (options.StepModifyFn != null)
+            options.StepModifyFn(this);
+    }
+
     public Shape GetStepShape()
     {
         var shape = new Shape

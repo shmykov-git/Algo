@@ -21,7 +21,9 @@ public static class ActiveWorldValues
         SkeletonPower = 0.002,
         MaterialPower = 0.001,
         BlowPower = 0, //0.001,
-        BlowUp = null
+        BlowUp = null,
+        StepModifyFn = null,
+
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -37,7 +39,9 @@ public static class ActiveWorldValues
         WindPower = 0,
         MaterialForceMult = 0.00005,
         FrictionForce = 1.2,
-        ClingForce = 1.5
+        ClingForce = 1.5,
+        AllowModifyStatics = false,
+        StepModifyFn = null,
     };
 
     public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions = new ActiveShapeBlowUpOptions

@@ -1,10 +1,13 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using Aspose.ThreeD.Utilities;
+using Model;
 
 namespace Model3D.Actives;
 
 public class ActiveShapeOptions
 {
+    public int StepNumber { get; set; }
     public bool ShowMeta { get; set; }
     public double MetaLineMult { get; set; }
     public double MetaPointMult { get; set; }
@@ -21,6 +24,6 @@ public class ActiveShapeOptions
     public bool ShowSkeletonPoint { get; set; }
     public double MaterialPower { get; set; }
     public double BlowPower { get; set; }
-
     public ActiveShapeBlowUpOptions BlowUp { get; set; }
+    public Action<ActiveShape> StepModifyFn { get; set; }
 }

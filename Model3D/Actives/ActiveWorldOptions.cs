@@ -1,9 +1,11 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using System;
+using Aspose.ThreeD.Utilities;
 
 namespace Model3D.Actives;
 
 public class ActiveWorldOptions
 {
+    public int StepNumber { get; set; }
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }
     public int OverCalculationMult { get; set; }
@@ -16,4 +18,6 @@ public class ActiveWorldOptions
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }
     public bool UseDefaultGround {  get; set; }
+    public bool AllowModifyStatics {  get; set; }
+    public Action<ActiveWorld> StepModifyFn { get; set; }
 }

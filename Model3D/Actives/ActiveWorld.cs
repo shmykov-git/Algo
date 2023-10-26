@@ -16,6 +16,9 @@ public partial class ActiveWorld
     private List<ActiveShape> activeShapes = new();
     private List<Shape> shapes = new();
 
+    public ActiveWorldOptions Options => options;
+    public List<ActiveShape> ActiveShapes => activeShapes;
+    public List<Shape> Shapes => shapes;
 
     public ActiveWorld(ActiveWorldOptions options = null, ActiveShapeOptions activeShapeOptions = null)
     {
@@ -138,6 +141,17 @@ public partial class ActiveWorld
     int nStep = 0;
     private void Step()
     {
+        options.StepNumber = nStep;
+
+        activeShapes.ForEach(a =>
+        {
+            a.Options.StepNumber = nStep;
+            a.Step();
+        });
+
+        if (options.StepModifyFn != null)
+            options.StepModifyFn(this);
+
         foreach (var s in activeShapes)
         {
             if (s.Options.BlowUp != null)
@@ -160,12 +174,13 @@ public partial class ActiveWorld
     public IEnumerable<Shape> Animate()
     {
         Activate();
-        var statics = shapes.ToSingleShape();
+
+        var statics = options.AllowModifyStatics ? null : shapes.ToSingleShape();
 
         for (var i = 0; i < options.SceneCount; i++)
         {
             yield return activeShapes.Select(s => s.GetStepShape()).ToSingleShape()
-                       + statics;
+                       + (statics ?? shapes.ToSingleShape());
 
             (options.OverCalculationMult * options.StepsPerScene).ForEach(_ => Step());
         }
