@@ -28,13 +28,16 @@ public static class ActiveWorldValues
     {
         SceneCount = 2000,
         StepsPerScene = 10,
+        OverCalculationMult = 1,
         UseDefaultGround = true,
         MaterialDapming = 0.8,
         Gravity = new Vector3(0, -0.0000005, 0),
         GravityPower = 1,
-        Wind = Vector3.Origin,
-        FrictionForce = 0.00006,
-        ClingForce = 0.000075
+        Wind = new Vector3(0, 0, -0.0000002),
+        WindPower = 0,
+        MaterialForceMult = 0.00005,
+        FrictionForce = 1.2,
+        ClingForce = 1.5
     };
 
     public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions = new ActiveShapeBlowUpOptions

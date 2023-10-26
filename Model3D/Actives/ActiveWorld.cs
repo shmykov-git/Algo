@@ -78,7 +78,7 @@ public partial class ActiveWorld
                 n.speedY += -speed.y;
                 speed = speed.SetY(0);
 
-                var fForce = -speed.ToLenWithCheck(options.FrictionForce);
+                var fForce = -speed.ToLenWithCheck(options.MaterialForceMult * options.FrictionForce);
                 speed = fForce.Length2 > speed.Length2
                     ? Vector3.Origin
                     : speed + fForce;
@@ -87,7 +87,7 @@ public partial class ActiveWorld
             {
                 n.speedY = 0;
 
-                var clForce = -Vector3.YAxis.ToLenWithCheck(options.ClingForce);
+                var clForce = -Vector3.YAxis.ToLenWithCheck(options.MaterialForceMult * options.ClingForce);
                 speed = clForce.Length2 > speed.VectorY().Length2
                     ? Vector3.Origin
                     : speed + clForce;
@@ -146,7 +146,7 @@ public partial class ActiveWorld
                     s.Options.BlowPower += s.Options.BlowUp.BlowUpStepPower;
             }
 
-            s.Nodes.ForEach(n => n.speed += options.GravityPower * options.Gravity);
+            s.Nodes.ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
             s.Nodes.ForEach(n => n.speed += CalcBlowSpeedOffset(n, s.Options));
             s.Nodes.ForEach(n => n.speed = CalcSpeed(n, s.Options));
             s.Nodes.Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
@@ -167,7 +167,7 @@ public partial class ActiveWorld
             yield return activeShapes.Select(s => s.GetStepShape()).ToSingleShape()
                        + statics;
 
-            options.StepsPerScene.ForEach(_ => Step());
+            (options.OverCalculationMult * options.StepsPerScene).ForEach(_ => Step());
         }
     }
 }

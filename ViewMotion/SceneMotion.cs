@@ -91,10 +91,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return vectorizer.GetMaterialShape("hh3").MoveY(1).ToActiveShape().ToWorld().ToMotion();
-
-        return Surfaces.Torus(60, 11, 4).Perfecto(5).AlignY(0).MoveY(1)
-            .ToActiveShape().ToWorldMotion(10);
+        return Surfaces.Shamrock(120, 10, true).ToOy().Perfecto(5).AlignY(0).MoveY(1).ToActiveShape(false, 0.001).ToWorld(o=> { o.WindPower = 1; o.OverCalculationMult = 1; }).ToMotion(10);
 
         var n = 12;
         var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))
