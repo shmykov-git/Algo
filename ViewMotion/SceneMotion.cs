@@ -46,10 +46,12 @@ partial class SceneMotion
     #region ctor
 
     private readonly Vectorizer vectorizer;
+    private readonly Random rnd;
 
     public SceneMotion(Vectorizer vectorizer)
     {
         this.vectorizer = vectorizer;
+        this.rnd = new Random(0);
     }
 
     #endregion
@@ -91,7 +93,11 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Surfaces.Shamrock(120, 10, true).ToOy().Perfecto(5).AlignY(0).MoveY(1).ToActiveShape(false, 0.001).ToWorld(o=> { o.WindPower = 1; o.OverCalculationMult = 1; }).ToMotion(10);
+        //var s = Shapes.Cube.SplitPlanes(0.5);
+
+        //return Shapes.Cube.SplitPlanes(0.5).Mult(10).TransformPoints(p => p + rnd.NextV3()).ToMetaShape3(5,5).ToMotion(20);
+
+        return Shapes.Cube.SplitPlanes(0.2).Perfecto(2).AlignY(0).MoveY(1).ToActiveShape(false, 0.00002).ToWorld(o=> { o.OverCalculationMult = 1; }).ToMotion(10);
 
         var n = 12;
         var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))

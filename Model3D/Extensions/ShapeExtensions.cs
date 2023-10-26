@@ -1025,10 +1025,10 @@ namespace Model3D.Extensions
         }
 
         public static Shape NormalizeWith2D(this Shape shape) => Normalize(shape, true);
-        public static Shape Normalize(this Shape shape, bool allow2D = false)
+        public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true)
         {
             var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
-            
+                        
             var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
             var convexes = shape.Convexes.Transform(i => bi.bi[i])
                 .Select(convex => convex.OrderSafeDistinct().ToArray());
@@ -1037,6 +1037,15 @@ namespace Model3D.Extensions
                 convexes = convexes.Where(convex => convex.Length >= 2);
             else
                 convexes = convexes.Where(convex => convex.Length >= 3);
+
+            if (!allowSinglePoints)
+            {
+                var pointWithLinks = convexes.SelectMany(c => c).ToHashSet();
+                var (linkBi, filtered) = points.Index().WhereBi(pointWithLinks.Contains);
+                
+                points = filtered.Select(i => points[i]).ToArray();
+                convexes = convexes.Transform(i => linkBi[i]);
+            }
 
             return new Shape()
             {
@@ -1174,18 +1183,7 @@ namespace Model3D.Extensions
         public static Shape SplitPlanes(this Shape shape, double? minSize = null, int? count = null)
         {
             var k = minSize.HasValue ? (count ?? 20) : (count ?? 5);
-            shape = shape.SimpleTriangulateOddPlanes();
-
-            //int[][] GetSplitConvexes(int[] c)
-            //{
-            //    return new[]
-            //    {
-            //        new[] {c[5], c[0], c[1]},
-            //        new[] {c[1], c[2], c[3]},
-            //        new[] {c[3], c[4], c[5]},
-            //        new[] {c[1], c[3], c[5]},
-            //    };
-            //}
+            shape = shape.SimpleTriangulateOddPlanes().Normalize(false, false);
 
             while (k-- != 0)
             {
@@ -1193,11 +1191,10 @@ namespace Model3D.Extensions
                 if (shape.PointsCount == newShape.PointsCount)
                     break;
 
-                shape = newShape;
-                //shape.Convexes = shape.Convexes.SelectMany(GetSplitConvexes).ToArray();
+                shape = newShape.Normalize(false, false);
             }
 
-            return shape.Normalize();
+            return shape;
         }
 
         public static Shape FilterPlanes(this Shape shape, Func<Plane, bool> filterFn)
