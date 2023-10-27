@@ -78,6 +78,7 @@ partial class SceneMotion
 
         return (actives, statics).ToWorld(o =>
             {
+                o.DefaultGround.UseWaves = false;                    
             }).ToMotion(10);
     }
 }
