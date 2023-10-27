@@ -32,7 +32,7 @@ public static class ActiveWorldValues
         MaterialDapming = 0.8,
         Gravity = new Vector3(0, -0.0000005, 0),
         GravityPower = 1,
-        Wind = new Vector3(0, 0, -0.0000002),
+        Wind = new Vector3(0.0000002, 0, 0),
         WindPower = 0,
         MaterialForceMult = 0.00005,
         FrictionForce = 1.2,

@@ -18,6 +18,7 @@ using Model3D.Tools;
 using MathNet.Numerics;
 using View3D.Libraries;
 using Model3D;
+using Model3D.Actives;
 
 namespace ViewMotion;
 
@@ -26,6 +27,44 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> WorldMotion()
+    {
+        // list of active shapes
+        var actives = new ActiveShape[]
+            {
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
+                .ToActiveShape(o =>
+                {
+                    o.BlowPower = 0.00005;
+
+                    o.OnStep += a =>
+                    {
+                        // Add any shape animation
+                    };
+                })
+            };
+
+        // list of static shapes
+        var statics = new Shape[]
+            {
+                vectorizer.GetText("Caption").Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.Brown)
+            };
+
+        return (actives, statics).ToWorld(o =>
+        {
+            o.WindPower = 3.1; // try wind carefully
+
+            o.DefaultGround.UseWaves = true;
+            o.DefaultGround.WavesSize = 3;
+            
+            o.OnStep += w =>
+            {
+                // Add any world animation
+            };
+        }).ToMotion(10);
+
+    }
+
     #region Bullet
     public class BulletMotionExample2
     {
