@@ -110,6 +110,8 @@ public class ActiveShape
                 shape = shape.ApplyColor(options.Color1.Value);
         }
 
+        shape = options.Show(shape);
+
         return shape;
     }
 }

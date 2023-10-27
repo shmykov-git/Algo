@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Aspose.ThreeD.Utilities;
+using Meta.Extensions;
 using Model;
 
 namespace Model3D.Actives;
@@ -8,7 +9,11 @@ namespace Model3D.Actives;
 public class ActiveShapeOptions
 {
     public event Action<ActiveShape> OnStep;
+    public event Func<Shape, Shape> OnShow;
+
     public void Step(ActiveShape activeShape) => OnStep?.Invoke(activeShape);
+    public Shape Show(Shape shape) => OnShow.RollRaise(shape);
+
     public int StepNumber { get; set; }
     public bool ShowMeta { get; set; }
     public double MetaLineMult { get; set; }

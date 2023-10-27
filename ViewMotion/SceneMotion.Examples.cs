@@ -36,10 +36,19 @@ partial class SceneMotion
                 .ToActiveShape(o =>
                 {
                     o.BlowPower = 0.00005;
-
+                    
                     o.OnStep += a =>
+                    {                        
+                        // Add any modification to animate
+
+                        o.BlowPower += 0.0000001;
+                    };
+
+                    o.OnShow += s =>
                     {
-                        // Add any shape animation
+                        // change any shape options on show
+
+                        return s.ApplyColor(Color.LightBlue);
                     };
                 })
             };
@@ -47,7 +56,7 @@ partial class SceneMotion
         // list of static shapes
         var statics = new Shape[]
             {
-                vectorizer.GetText("Caption").Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.Brown)
+                vectorizer.GetText("Caption", 200).Perfecto(7).AlignY(0).MoveZ(-4).ApplyColor(Color.SaddleBrown)
             };
 
         return (actives, statics).ToWorld(o =>
