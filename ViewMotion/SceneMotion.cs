@@ -72,12 +72,12 @@ partial class SceneMotion
 
         var statics = new Shape[]
             {
-                //vectorizer.GetText("Пора спать").Perfecto(2).AlignY(0).MoveY(2).ApplyColor(Color.SandyBrown)
+                // todo: text size
+                vectorizer.GetText("Book of Fire", 300, "Royal Inferno").Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.SandyBrown)
             };
 
         return (actives, statics).ToWorld(o =>
             {
-                o.DefaultGround.UseWaves = true;
             }).ToMotion(10);
     }
 }

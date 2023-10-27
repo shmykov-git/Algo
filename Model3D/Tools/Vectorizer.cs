@@ -765,6 +765,9 @@ namespace Model3D.Tools
             return shape;
         }
 
+        /// <summary>
+        /// see: C:\Windows\Fonts
+        /// </summary>
         public Shape GetText(string text, int fontSize = 50, string fontName = "Arial", double zVolume = 0.1, double multY = 1,
             double multX = 1, bool aline = false, bool scale = true) =>
             GetText(text, new TextShapeOptions()
