@@ -57,48 +57,27 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return (
-            new[]
+        var actives = new[]
             {
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
                 .ToActiveShape(o =>
                 {
                     o.BlowPower = 0.00005;
-                    o.StepModifyFn = a =>
+                    o.OnStep += a =>
                     {
                         //a.Options.BlowPower += 0.00005 / 100;
                     };
                 })
-            }, new [] 
-            {
-                vectorizer.GetText("Пора спать").Perfecto(2).AlignY(0).MoveY(2).ApplyColor(Color.SandyBrown)
-            }
-            ).ToWorld(o =>
-            {
-                Shape? g = null;
+            };
 
-                o.AllowModifyStatics = true;
-                o.OverCalculationMult = 1;
-                o.StepModifyFn = w =>
-                {
-                    //w.ActiveShapes[0].Options.BlowPower += 0.00005 / 100;
+        var statics = new Shape[]
+            {
+                //vectorizer.GetText("Пора спать").Perfecto(2).AlignY(0).MoveY(2).ApplyColor(Color.SandyBrown)
+            };
 
-                    g ??= w.Shapes[^1];
-                    var t = w.Options.StepNumber * 0.0001;
-                    var mult = 0.2;
-                    w.Shapes[^1] = g.ToOyM().Mult(mult).ApplyZ(Funcs3Z.Waves2(t)).Mult(1/mult).ToOy();
-                };
+        return (actives, statics).ToWorld(o =>
+            {
+                o.DefaultGround.UseWaves = true;
             }).ToMotion(10);
-
-        var n = 12;
-        var actives = (n).SelectRange(i => (i, fi: i * 2 * Math.PI / n))
-            .Select(v => Shapes.Stone(4, v.i).RotateToMassY().Perfecto(0.5).AlignY(0).Move(new Vector3(Math.Cos(v.fi), 0, Math.Sin(v.fi)))).ToArray();
-
-        var statics = new[]
-        {
-            Surfaces.Plane(20, 20).ToOy().Perfecto(3).ToLines(1, Color.Black)
-        };
-
-        return (actives, statics).ToWorld().ToMotion(2);
     }
 }

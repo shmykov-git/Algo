@@ -87,8 +87,7 @@ public class ActiveShape
 
     public void Step()
     {
-        if (options.StepModifyFn != null)
-            options.StepModifyFn(this);
+        options.Step(this);
     }
 
     public Shape GetStepShape()

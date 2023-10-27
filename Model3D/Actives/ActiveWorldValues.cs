@@ -22,8 +22,6 @@ public static class ActiveWorldValues
         MaterialPower = 0.001,
         BlowPower = 0, //0.001,
         BlowUp = null,
-        StepModifyFn = null,
-
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -41,7 +39,6 @@ public static class ActiveWorldValues
         ClingForce = 1.5,
         AllowModifyStatics = false,
         DefaultGround = ActiveWorldDefaultGroundOptions,
-        StepModifyFn = null,
     };
 
     public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions => new ActiveShapeBlowUpOptions
@@ -56,5 +53,7 @@ public static class ActiveWorldValues
         Mult = 10,
         Size = 11,
         Color = Color.Black,
+        UseWaves = false,
+        WavesSize = 3,
     };
 }

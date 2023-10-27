@@ -6,6 +6,8 @@ namespace Model3D.Actives;
 
 public class ActiveWorldOptions
 {
+    public event Action<ActiveWorld> OnStep;
+    public void Step(ActiveWorld world) => OnStep?.Invoke(world);
     public int StepNumber { get; set; }
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }
@@ -20,7 +22,6 @@ public class ActiveWorldOptions
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
     public ActiveWorldDefaultGroundOptions DefaultGround { get; set; }
-    public Action<ActiveWorld> StepModifyFn { get; set; }
 }
 
 
@@ -30,4 +31,6 @@ public class ActiveWorldDefaultGroundOptions
     public double LineMult { get; set; }
     public double Mult { get; set; }
     public Color? Color { get; set; }
+    public bool UseWaves { get; set; }
+    public double WavesSize { get; set; }
 }

@@ -137,6 +137,17 @@ public partial class ActiveWorld
             var o = options.DefaultGround;
             var ground = Surfaces.Plane(o.Size, o.Size).Normalize().ToOy().Perfecto(o.Mult).ToLines(o.LineMult, o.Color ?? Color.Black);
             AddShape(ground);
+
+            if (options.DefaultGround.UseWaves)
+            {
+                options.AllowModifyStatics = true;
+
+                options.OnStep += w =>
+                {
+                    var t = w.Options.StepNumber * 0.0001;
+                    w.Shapes[^1] = ground.ToOyM().Mult(1/options.DefaultGround.WavesSize).ApplyZ(Funcs3Z.ActiveWaves(t)).Mult(options.DefaultGround.WavesSize).ToOy();
+                };
+            }
         }
 
         activeShapes.ForEach(a => a.Activate());
@@ -153,8 +164,7 @@ public partial class ActiveWorld
             a.Step();
         });
 
-        if (options.StepModifyFn != null)
-            options.StepModifyFn(this);
+        options.Step(this);
 
         foreach (var s in activeShapes)
         {
