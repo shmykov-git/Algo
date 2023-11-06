@@ -91,7 +91,7 @@ public class ActiveShape
 
         if (options.Fix != null && options.Fix.Dock != ActiveShapeOptions.FixDock.None)
         {
-            Func<Vector3, bool> FixFn(Vector3 point, Vector3 direction, double distance) => x => { var d = direction.MultS(x - point); return 0 <= d && d <= distance; };
+            Func<Vector3, bool> FixFn(Vector3 point, Vector3 direction, double distance) => x => direction.MultS(x - point).Abs() < distance;
 
             void Fix(Vector3 point, Vector3 direction, double distance)
             {

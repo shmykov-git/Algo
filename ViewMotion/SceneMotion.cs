@@ -59,7 +59,7 @@ partial class SceneMotion
     {
         var actives = new[]
             {
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1,2,3).AlignY(0).MoveY(1)
                 .ToActiveShape(o =>
                 {
                     o.UseBlow = true;
@@ -69,7 +69,7 @@ partial class SceneMotion
                         //a.Options.BlowPower += 0.00005 / 100;
                     };
                     o.Fix.Dock = ActiveShapeOptions.FixDock.Top;
-                    o.Fix.Distance = 0.1;
+                    o.Fix.Distance = 0.01;
                 })
             };
 

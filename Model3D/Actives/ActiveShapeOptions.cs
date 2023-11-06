@@ -51,6 +51,6 @@ public class ActiveShapeOptions
         public FixDock Dock { get; set; } = FixDock.None;
         public Vector3 Point { get; set; }
         public Vector3 Direction { get; set; } = Vector3.ZAxis;
-        public double Distance { get; set; } = 1;
+        public double Distance { get; set; } = 0.1;
     }
 }
