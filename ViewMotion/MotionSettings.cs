@@ -37,13 +37,13 @@ class MotionSettings : IDirSettings
         //{
         //    LightType = LightType.Directional,
         //    Color = Colors.White,
-        //    Direction = new Vector3(0.612372, 2.5, 0.612372)
+        //    Dock = new Vector3(0.612372, 2.5, 0.612372)
         //},
         //new()
         //{
         //    LightType = LightType.Directional,
         //    Color = Colors.White,
-        //    Direction = new Vector3(-0.612372, 2.5, 0.612372)
+        //    Dock = new Vector3(-0.612372, 2.5, 0.612372)
         //},
         new()
         {

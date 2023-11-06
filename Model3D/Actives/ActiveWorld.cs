@@ -132,7 +132,7 @@ public partial class ActiveWorld
     }
 
     bool IsBottom(Node n) => n.position.y <= 0;
-    //bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
+    bool CanCalc(Node n) => !n.locked;
     Vector3 FixY(Vector3 a) => a.y > 0 ? a : new Vector3(a.x, 0, a.z);
 
     private void Activate()
@@ -178,23 +178,16 @@ public partial class ActiveWorld
         foreach (var a in activeShapes)
         {
             a.Model.volume = GetActiveShapeVolume(a);
-            //Debug.WriteLine(a.Model.volume0 / a.Model.volume);
 
-            if (a.Options.BlowUp != null)
-            {
-                if (nStep > a.Options.BlowUp.SinceStep)
-                    a.Options.BlowPower += a.Options.BlowUp.BlowUpStepPower;
-            }
-
-            a.Nodes.ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
+            a.Nodes.Where(CanCalc).ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
             
             if (a.Options.UseBlow)
-                a.Nodes.ForEach(n => n.speed += CalcBlowSpeedOffset(a, n, a.Options));
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n, a.Options));
             
-            a.Nodes.ForEach(n => n.speed = CalcSpeed(n, a.Options));
-            a.Nodes.Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
-            a.Nodes.ForEach(n => n.position += n.speed);
-            a.Nodes.ForEach(n => n.position = FixY(n.position));
+            a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n, a.Options));
+            a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
+            a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
+            a.Nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
         }
 
         nStep++;

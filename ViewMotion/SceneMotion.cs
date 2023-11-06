@@ -68,6 +68,8 @@ partial class SceneMotion
                     {
                         //a.Options.BlowPower += 0.00005 / 100;
                     };
+                    o.Fix.Dock = ActiveShapeOptions.FixDock.Top;
+                    o.Fix.Distance = 0.1;
                 })
             };
 
@@ -79,7 +81,7 @@ partial class SceneMotion
 
         return (actives, statics).ToWorld(o =>
             {
-                o.PressurePowerMult = 0.001;
+                o.PressurePowerMult = 0.0005;
             }).ToMotion(10);
     }
 }

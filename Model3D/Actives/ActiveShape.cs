@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
@@ -62,7 +63,6 @@ public class ActiveShape
         var plns = staticModel.Convexes.Where(c => c.Length >= 3).Select(c => (c:c.ToList(), p:new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] })).ToArray();
         planes = plns.Select(v => v.p).ToArray();
         nodes.ForEach(n => n.planes = plns.Where(v => v.c.Contains(n.i)).Select(v => v.p).ToArray());
-        //nodes.ForEach(n => n.planes = staticModel.Convexes.Where(c => c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] }).ToArray());
 
         if (options.RotationSpeedAngle > 0)
         {
@@ -89,9 +89,47 @@ public class ActiveShape
             });
         }
 
-        staticNormModel = staticModel.Normalize();
+        if (options.Fix != null && options.Fix.Dock != ActiveShapeOptions.FixDock.None)
+        {
+            Func<Vector3, bool> FixFn(Vector3 point, Vector3 direction, double distance) => x => { var d = direction.MultS(x - point); return 0 <= d && d <= distance; };
+
+            void Fix(Vector3 point, Vector3 direction, double distance)
+            {
+                var lockFn = FixFn(point, direction, distance);
+                nodes.Where(n => lockFn(n.position)).ForEach(n => n.locked = true);
+            }
+
+            var b = staticModel.GetBorders();
+
+            switch (options.Fix.Dock)
+            {
+                case ActiveShapeOptions.FixDock.Point:
+                    Fix(options.Fix.Point, options.Fix.Direction, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Left:
+                    Fix(b.min, Vector3.XAxis, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Right:
+                    Fix(b.max, -Vector3.XAxis, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Bottom:
+                    Fix(b.min, Vector3.YAxis, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Top:
+                    Fix(b.max, -Vector3.YAxis, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Back:
+                    Fix(b.min, Vector3.ZAxis, options.Fix.Distance);
+                    break;
+                case ActiveShapeOptions.FixDock.Front:
+                    Fix(b.max, -Vector3.ZAxis, options.Fix.Distance);
+                    break;
+            }
+        }
+
         this.nodes = nodes;
 
+        staticNormModel = staticModel.Normalize();
         model = new();
     }
 

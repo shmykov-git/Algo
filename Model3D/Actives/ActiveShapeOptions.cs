@@ -32,5 +32,25 @@ public class ActiveShapeOptions
     public double MaterialPower { get; set; }
     public bool UseBlow {  get; set; }
     public double BlowPower { get; set; }
-    public ActiveShapeBlowUpOptions BlowUp { get; set; }
+    public FixOptions Fix { get; set; }
+
+    public enum FixDock
+    {
+        None = 0,
+        Point,
+        Left,
+        Top,
+        Right,
+        Bottom,
+        Back,
+        Front
+    }
+
+    public class FixOptions
+    {
+        public FixDock Dock { get; set; } = FixDock.None;
+        public Vector3 Point { get; set; }
+        public Vector3 Direction { get; set; } = Vector3.ZAxis;
+        public double Distance { get; set; } = 1;
+    }
 }

@@ -67,8 +67,8 @@ namespace View3D
         // Never Mind // var shape = ShapeFractals.NeverMindTree(6).Rotate(Rotates.Z_Y) + Shapes.Cube;
         // Never Mind 3D // var shape = ShapeFractals.NeverMindTree3D(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
         // Parabola Tree // var shape = ShapeFractals.ParabolaTree(5).Rotate(Rotates.Z_Y) + Shapes.Cube;
-        // Normal Distribution // var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).ToMetaShape3(3,3);
-        // Normal Distribution gradient // var shape = Surfaces.NormalDistribution(55, 55, 0.5, 10, 4).ToMetaShape3(5, 5).Rotate(Rotates.Z_Y).ApplyColorGradientY(Color.DarkRed, Color.Red, Color.White);
+        // Direction Distribution // var shape = Surfaces.NormalDistribution(30, 30, 0.6, 0, 6).ToMetaShape3(3,3);
+        // Direction Distribution gradient // var shape = Surfaces.NormalDistribution(55, 55, 0.5, 10, 4).ToMetaShape3(5, 5).Rotate(Rotates.Z_Y).ApplyColorGradientY(Color.DarkRed, Color.Red, Color.White);
         // Dark Heart //var shape = Parquets.Triangles(12, 40, 0.1).Scale((Math.PI / 3.1, 3.0.Sqrt() / 1.7)).Move((Math.PI, -Math.PI / 2)).ToShape3().ToPlaneLines(20).AddVolumeZ(0.1).Transform(TransformFuncs3.HeartWrapZ).Rotate(Rotates.Z_Y).Scale(1, 1, 0.7).Rotate(Rotates.Y_mZ).ApplyColorGradientY(Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.Black, Color.FromArgb(20, 20, 20), Color.Red, Color.Red);
         // Green tree // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10, true, Color.FromArgb(0, 10, 0), Color.FromArgb(0, 50, 0)).Rotate(Rotates.Z_Y);
         // Polynom // var shape = Surfaces.Cylinder(8, 61).MassCentered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;

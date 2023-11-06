@@ -22,7 +22,7 @@ public static class ActiveWorldValues
         MaterialPower = 0.001,
         UseBlow = false,
         BlowPower = 2,
-        BlowUp = null,
+        Fix = new(),
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -42,12 +42,6 @@ public static class ActiveWorldValues
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         DefaultGround = ActiveWorldDefaultGroundOptions,
-    };
-
-    public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions => new ActiveShapeBlowUpOptions
-    {
-        SinceStep = 100 * 10,
-        BlowUpStepPower = 0.0000001,        
     };
 
     public static ActiveWorldDefaultGroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldDefaultGroundOptions
