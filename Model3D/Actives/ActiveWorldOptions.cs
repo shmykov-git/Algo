@@ -18,6 +18,8 @@ public class ActiveWorldOptions
     public double GravityPower {  get; set; }
     public Vector3 Wind { get; set; }
     public double WindPower { get; set; }
+    public double PressurePower { get; set; }
+    public double PressurePowerMult { get; set; }
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }

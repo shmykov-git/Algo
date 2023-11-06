@@ -57,14 +57,13 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return WorldMotion();
-
         var actives = new[]
             {
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
                 .ToActiveShape(o =>
                 {
-                    o.BlowPower = 0.00005;
+                    o.UseBlow = true;
+                    //o.BlowPower = ;
                     o.OnStep += a =>
                     {
                         //a.Options.BlowPower += 0.00005 / 100;
@@ -75,12 +74,12 @@ partial class SceneMotion
         var statics = new Shape[]
             {
                 // todo: text size
-                vectorizer.GetText("Подушка", 300).Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.Brown)
+                //vectorizer.GetText("Подушка", 300).Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.Brown)
             };
 
         return (actives, statics).ToWorld(o =>
             {
-                o.DefaultGround.UseWaves = false;                    
+                o.PressurePowerMult = 0.001;
             }).ToMotion(10);
     }
 }

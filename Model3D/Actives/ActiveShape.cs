@@ -10,12 +10,17 @@ public class ActiveShape
 {
     private readonly ActiveShapeOptions options;
     private ActiveWorld.Node[] nodes;
+    private ActiveWorld.Plane[] planes;
+    private ActiveWorld.Model model;
+
     private Shape shape;
     private Shape staticModel;
     private Shape staticNormModel;
 
     public ActiveShapeOptions Options => options;
     public ActiveWorld.Node[] Nodes => nodes;
+    public ActiveWorld.Plane[] Planes => planes;
+    public ActiveWorld.Model Model => model;
 
     public ActiveShape(Shape shape, ActiveShapeOptions options)
     {
@@ -54,7 +59,10 @@ public class ActiveShape
             type = options.UseSkeleton && nLast == j ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
         }).ToArray());
 
-        nodes.ForEach(n => n.planes = staticModel.Convexes.Where(c => c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] }).ToArray());
+        var plns = staticModel.Convexes.Where(c => c.Length >= 3).Select(c => (c:c.ToList(), p:new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] })).ToArray();
+        planes = plns.Select(v => v.p).ToArray();
+        nodes.ForEach(n => n.planes = plns.Where(v => v.c.Contains(n.i)).Select(v => v.p).ToArray());
+        //nodes.ForEach(n => n.planes = staticModel.Convexes.Where(c => c.Length >= 3).Where(c => c.Any(j => n.i == j)).Select(c => new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] }).ToArray());
 
         if (options.RotationSpeedAngle > 0)
         {
@@ -83,6 +91,8 @@ public class ActiveShape
 
         staticNormModel = staticModel.Normalize();
         this.nodes = nodes;
+
+        model = new();
     }
 
     public void Step()

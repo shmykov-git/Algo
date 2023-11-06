@@ -8,6 +8,12 @@ public partial class ActiveWorld
     public const double Epsilon = 0.000000001;
     public const double Epsilon2 = Epsilon * Epsilon;
 
+    public class Model
+    {
+        public double volume0;
+        public double volume;
+    }
+
     public class Node : INet3Item
     {
         public int i;

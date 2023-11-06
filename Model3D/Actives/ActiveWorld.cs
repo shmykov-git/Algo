@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using Aspose.ThreeD.Utilities;
@@ -46,6 +47,8 @@ public partial class ActiveWorld
     }
 
     Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
+    double GetVolume(Vector3 a, Vector3 b, Vector3 c) => c.MultS(GetNormal(a, b, c));
+    double GetActiveShapeVolume(ActiveShape a) => a.Planes.Select(p => GetVolume(a.Nodes[p.i].position, a.Nodes[p.j].position, a.Nodes[p.k].position)).Sum();
 
     Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(n.nodes[p.i].position, n.nodes[p.j].position, n.nodes[p.k].position)).Center();
 
@@ -100,10 +103,12 @@ public partial class ActiveWorld
         return speed;
     }
 
-    Vector3 CalcBlowSpeedOffset(Node n, ActiveShapeOptions shapeOptions)
+    Vector3 CalcBlowSpeedOffset(ActiveShape a, Node n, ActiveShapeOptions shapeOptions)
     {
+        var blowForce = shapeOptions.BlowPower * a.Model.volume0 / a.Model.volume - options.PressurePower;
+
         if (shapeOptions.BlowPower > 0 && n.planes.Length > 0)
-            return shapeOptions.BlowPower * BlowForce(n);
+            return blowForce * options.PressurePowerMult * BlowForce(n);
         else
             return Vector3.Origin;
     }
@@ -150,7 +155,11 @@ public partial class ActiveWorld
             }
         }
 
-        activeShapes.ForEach(a => a.Activate());
+        activeShapes.ForEach(a =>
+        {
+            a.Activate();
+            a.Model.volume0 = GetActiveShapeVolume(a);
+        });
     }
 
     int nStep = 0;
@@ -165,21 +174,27 @@ public partial class ActiveWorld
         });
 
         options.Step(this);
-
-        foreach (var s in activeShapes)
+        
+        foreach (var a in activeShapes)
         {
-            if (s.Options.BlowUp != null)
+            a.Model.volume = GetActiveShapeVolume(a);
+            //Debug.WriteLine(a.Model.volume0 / a.Model.volume);
+
+            if (a.Options.BlowUp != null)
             {
-                if (nStep > s.Options.BlowUp.SinceStep)
-                    s.Options.BlowPower += s.Options.BlowUp.BlowUpStepPower;
+                if (nStep > a.Options.BlowUp.SinceStep)
+                    a.Options.BlowPower += a.Options.BlowUp.BlowUpStepPower;
             }
 
-            s.Nodes.ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
-            s.Nodes.ForEach(n => n.speed += CalcBlowSpeedOffset(n, s.Options));
-            s.Nodes.ForEach(n => n.speed = CalcSpeed(n, s.Options));
-            s.Nodes.Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
-            s.Nodes.ForEach(n => n.position += n.speed);
-            s.Nodes.ForEach(n => n.position = FixY(n.position));
+            a.Nodes.ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
+            
+            if (a.Options.UseBlow)
+                a.Nodes.ForEach(n => n.speed += CalcBlowSpeedOffset(a, n, a.Options));
+            
+            a.Nodes.ForEach(n => n.speed = CalcSpeed(n, a.Options));
+            a.Nodes.Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
+            a.Nodes.ForEach(n => n.position += n.speed);
+            a.Nodes.ForEach(n => n.position = FixY(n.position));
         }
 
         nStep++;

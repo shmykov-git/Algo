@@ -20,7 +20,8 @@ public static class ActiveWorldValues
         ShowSkeletonPoint = false,
         SkeletonPower = 0.002,
         MaterialPower = 0.001,
-        BlowPower = 0, //0.001,
+        UseBlow = false,
+        BlowPower = 2,
         BlowUp = null,
     };
 
@@ -37,6 +38,8 @@ public static class ActiveWorldValues
         MaterialForceMult = 0.00005,
         FrictionForce = 1.2,
         ClingForce = 1.5,
+        PressurePower = 1,
+        PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         DefaultGround = ActiveWorldDefaultGroundOptions,
     };
@@ -44,7 +47,7 @@ public static class ActiveWorldValues
     public static ActiveShapeBlowUpOptions DefaultActiveShapeBlowUpOptions => new ActiveShapeBlowUpOptions
     {
         SinceStep = 100 * 10,
-        BlowUpStepPower = 0.0000001,
+        BlowUpStepPower = 0.0000001,        
     };
 
     public static ActiveWorldDefaultGroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldDefaultGroundOptions
