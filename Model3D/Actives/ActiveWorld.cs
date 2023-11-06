@@ -66,8 +66,8 @@ public partial class ActiveWorld
 
             var fc = e.type switch
             {
-                EdgeType.Skeleton => shapeOptions.SkeletonPower,
-                _ => shapeOptions.MaterialPower,
+                EdgeType.Skeleton => shapeOptions.SkeletonPower * options.MaterialForceMult,
+                _ => shapeOptions.MaterialPower * options.MaterialForceMult,
             };
 
             var ds = BlockForceFn(fc, e.fA, d);
@@ -75,7 +75,7 @@ public partial class ActiveWorld
             offset += ds * (p - p0) / d;
         }
 
-        var speed = n.speed + offset * options.MaterialDapming;
+        var speed = n.speed + offset * options.MaterialDamping;
 
         if (IsBottom(n))
         {
@@ -84,7 +84,7 @@ public partial class ActiveWorld
                 n.speedY += -speed.y;
                 speed = speed.SetY(0);
 
-                var fForce = -speed.ToLenWithCheck(options.MaterialForceMult * options.FrictionForce);
+                var fForce = -speed.ToLenWithCheck(options.CollideForceMult * options.FrictionForce);
                 speed = fForce.Length2 > speed.Length2
                     ? Vector3.Origin
                     : speed + fForce;
@@ -93,7 +93,7 @@ public partial class ActiveWorld
             {
                 n.speedY = 0;
 
-                var clForce = -Vector3.YAxis.ToLenWithCheck(options.MaterialForceMult * options.ClingForce);
+                var clForce = -Vector3.YAxis.ToLenWithCheck(options.CollideForceMult * options.ClingForce);
                 speed = clForce.Length2 > speed.VectorY().Length2
                     ? Vector3.Origin
                     : speed + clForce;

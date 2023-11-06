@@ -32,18 +32,22 @@ partial class SceneMotion
         // list of active shapes
         var actives = new ActiveShape[]
             {
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).AlignY(0).MoveY(1)
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1)
                 .ToActiveShape(o =>
                 {
+                    o.UseSkeleton = true;
+                    o.SkeletonPower = 0.01;
                     o.UseBlow = true;
-                    o.BlowPower = 1;
+                    o.BlowPower = 2;
                     
                     o.OnStep += a =>
                     {                        
                         // Add any modification to animate
-
-                        o.BlowPower += 0.001;
+                        // o.BlowPower += 0.001;
                     };
+
+                    // Add any predefined animation
+                    o.OnStep += ActiveShapeAnimations.BlowUp(0.001);
 
                     o.OnShow += s =>
                     {
@@ -57,7 +61,7 @@ partial class SceneMotion
         // list of static shapes
         var statics = new Shape[]
             {
-                //vectorizer.GetText("Caption", 200).Perfecto(7).AlignY(0).MoveZ(-4).ApplyColor(Color.SaddleBrown)
+                vectorizer.GetText("Wind", 200).Perfecto(7).AlignY(0).MoveZ(-4).ApplyColor(Color.SaddleBrown)
             };
 
         return (actives, statics).ToWorld(o =>
@@ -65,7 +69,7 @@ partial class SceneMotion
             o.PressurePowerMult = 0.0001;
             o.WindPower = 3.1; // try wind carefully
             o.DefaultGround.UseWaves = true;
-            o.DefaultGround.WavesSize = 1;
+            o.DefaultGround.WavesSize = 2;
             
             o.OnStep += w =>
             {
