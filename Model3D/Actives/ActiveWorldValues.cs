@@ -30,7 +30,7 @@ public static class ActiveWorldValues
         SceneCount = 2000,
         StepsPerScene = 10,
         OverCalculationMult = 1,
-        MaterialDamping = 0.8,
+        MaterialDamping = 0.001,
         Gravity = new Vector3(0, -0.0000005, 0),
         GravityPower = 1,
         Wind = new Vector3(0.0000002, 0, 0),
@@ -42,10 +42,10 @@ public static class ActiveWorldValues
         PressurePower = 1,
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
-        DefaultGround = ActiveWorldDefaultGroundOptions,
+        Ground = ActiveWorldDefaultGroundOptions,
     };
 
-    public static ActiveWorldDefaultGroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldDefaultGroundOptions
+    public static ActiveWorldOptions.GroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldOptions.GroundOptions
     {
         LineMult = 3,
         Mult = 10,

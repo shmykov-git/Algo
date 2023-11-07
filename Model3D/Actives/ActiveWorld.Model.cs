@@ -12,6 +12,7 @@ public partial class ActiveWorld
     {
         public double volume0;
         public double volume;
+        public Vector3 speed;
     }
 
     public class Node : INet3Item
@@ -23,6 +24,7 @@ public partial class ActiveWorld
         public Vector3 position0;
         public Vector3 position;
         public Vector3 speed = Vector3.Origin;
+        //public Vector3 materialSpeed = Vector3.Origin;
         public double speedY = 0;
         public double mass = 1;
         public bool locked;

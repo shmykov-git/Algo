@@ -36,7 +36,7 @@ public partial class ActiveWorld
 
     
     private double forceBorder = 0.75;
-    double BlockForceFn(double power, double a, double y)
+    double MaterialForceFn(double power, double a, double y)
     {
         var x = y / a;
 
@@ -55,7 +55,7 @@ public partial class ActiveWorld
     Vector3 CalcSpeed(Node n, ActiveShapeOptions shapeOptions)
     {
         var p0 = n.position;
-        Vector3 offset = Vector3.Origin;
+        Vector3 materialSpeedOffset = Vector3.Origin;
 
         foreach (var e in n.edges)
         {
@@ -70,12 +70,13 @@ public partial class ActiveWorld
                 _ => shapeOptions.MaterialPower * options.MaterialForceMult,
             };
 
-            var ds = BlockForceFn(fc, e.fA, d);
+            var ds = MaterialForceFn(fc, e.fA, d);
 
-            offset += ds * (p - p0) / d;
+            materialSpeedOffset += ds * (p - p0) / d;
         }
 
-        var speed = n.speed + offset * options.MaterialDamping;
+        //var mSpeed = (n.materialSpeed + materialSpeedOffset) * options.MaterialDamping;
+        var speed = n.speed + materialSpeedOffset;
 
         if (IsBottom(n))
         {
@@ -103,11 +104,17 @@ public partial class ActiveWorld
         return speed;
     }
 
-    Vector3 CalcBlowSpeedOffset(ActiveShape a, Node n, ActiveShapeOptions shapeOptions)
+    Vector3 CalcMaterialSpeedDamping(ActiveShape a, Node n)
     {
-        var blowForce = shapeOptions.BlowPower * a.Model.volume0 / a.Model.volume - options.PressurePower;
+        return -options.MaterialDamping * (n.speed - a.Model.speed);
+    }
 
-        if (shapeOptions.BlowPower > 0 && n.planes.Length > 0)
+    Vector3 CalcBlowSpeedOffset(ActiveShape a, Node n)
+    {
+        var o = a.Options;
+        var blowForce = o.BlowPower * a.Model.volume0 / a.Model.volume - options.PressurePower;
+
+        if (o.BlowPower > 0 && n.planes.Length > 0)
             return blowForce * options.PressurePowerMult * BlowForce(n);
         else
             return Vector3.Origin;
@@ -131,26 +138,26 @@ public partial class ActiveWorld
         return offset;
     }
 
-    bool IsBottom(Node n) => n.position.y <= 0;
+    bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
     bool CanCalc(Node n) => !n.locked;
-    Vector3 FixY(Vector3 a) => a.y > 0 ? a : new Vector3(a.x, 0, a.z);
+    Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
 
     private void Activate()
     {
-        if (options.DefaultGround != null)
+        if (options.Ground != null)
         {
-            var o = options.DefaultGround;
-            var ground = Surfaces.Plane(o.Size, o.Size).Normalize().ToOy().Perfecto(o.Mult).ToLines(o.LineMult, o.Color ?? Color.Black);
+            var o = options.Ground;
+            var ground = Surfaces.Plane(o.Size, o.Size).Normalize().ToOy().Perfecto(o.Mult).MoveY(options.Ground.Y).ToLines(o.LineMult, o.Color ?? Color.Black);
             AddShape(ground);
 
-            if (options.DefaultGround.UseWaves)
+            if (options.Ground.UseWaves)
             {
                 options.AllowModifyStatics = true;
 
                 options.OnStep += w =>
                 {
                     var t = w.Options.StepNumber * 0.0001;
-                    w.Shapes[^1] = ground.ToOyM().Mult(1/options.DefaultGround.WavesSize).ApplyZ(Funcs3Z.ActiveWaves(t)).Mult(options.DefaultGround.WavesSize).ToOy();
+                    w.Shapes[^1] = ground.ToOyM().Mult(1/options.Ground.WavesSize).ApplyZ(Funcs3Z.ActiveWaves(t)).Mult(options.Ground.WavesSize).ToOy();
                 };
             }
         }
@@ -182,9 +189,13 @@ public partial class ActiveWorld
             a.Nodes.Where(CanCalc).ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
             
             if (a.Options.UseBlow)
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n, a.Options));
-            
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n));
+
+            a.Model.speed = a.Nodes.Where(CanCalc).Select(n => n.speed).Center();
+            a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialSpeedDamping(a, n));
+
             a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n, a.Options));
+
             a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
             a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             a.Nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));

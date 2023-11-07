@@ -25,16 +25,19 @@ public class ActiveWorldOptions
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
-    public ActiveWorldDefaultGroundOptions DefaultGround { get; set; }
+    public GroundOptions Ground { get; set; }
+    public bool UseInteractions { get; set; }
+
+    public class GroundOptions
+    {
+        public int Size { get; set; }
+        public double LineMult { get; set; }
+        public double Mult { get; set; }
+        public Color? Color { get; set; }
+        public bool UseWaves { get; set; }
+        public double WavesSize { get; set; }
+        public double Y { get; set; }
+    }
 }
 
 
-public class ActiveWorldDefaultGroundOptions
-{
-    public int Size { get; set; }
-    public double LineMult { get; set; }
-    public double Mult { get; set; }
-    public Color? Color { get; set; }
-    public bool UseWaves { get; set; }
-    public double WavesSize { get; set; }
-}

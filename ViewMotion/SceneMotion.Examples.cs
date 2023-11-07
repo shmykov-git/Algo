@@ -68,8 +68,8 @@ partial class SceneMotion
         {
             o.PressurePowerMult = 0.0001;
             o.WindPower = 3.1; // try wind carefully
-            o.DefaultGround.UseWaves = true;
-            o.DefaultGround.WavesSize = 2;
+            o.Ground.UseWaves = true;
+            o.Ground.WavesSize = 2;
             
             o.OnStep += w =>
             {

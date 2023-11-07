@@ -57,36 +57,28 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        //return WorldMotion();
+        return WorldMotion();
         //var pillow = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1);
-        var shape = Shapes.CylinderR(20, 1, 0.5, 16).ToOx().Perfecto().Scale(16, 3, 3).SplitPlanes(0.6).Perfecto(4).AlignY(0).MoveY(1).ApplyColor(Color.SaddleBrown);
+        var shape = Shapes.Cube.AlignY(0).MoveY(1).ApplyColor(Color.SaddleBrown);
 
         var actives = new[]
             {                
                 shape.ToActiveShape(o =>
                 {
-                    o.UseSkeleton = true;
-                    o.SkeletonPower = 1;
-                    o.MaterialPower = 10;
-                    o.UseBlow = true;
-                    o.BlowPower = 1;
-                    o.OnStep += ActiveShapeAnimations.BlowUp(-0.0003, 0, 3000);
-                    o.OnStep += ActiveShapeAnimations.BlowUp(0.003, 3000);
-                    o.Fix.Dock = ActiveShapeOptions.FixDock.Left;
-                    o.Fix.Distance = 0.1;
                 })
             };
 
         var statics = new Shape[]
             {
+                Shapes.Coods
                 // todo: text size
                 //vectorizer.GetText("Подушка", 300).Perfecto(5).AlignY(0).MoveZ(-2).ApplyColor(Color.Brown)
             };
 
         return (actives, statics).ToWorld(o =>
             {
-                o.PressurePowerMult = 0.0001;
-                o.GravityPower = 0.5;
+                o.UseInteractions = true;
+                o.Ground.Y = -1;
                 //o.OverCalculationMult = 10;
                 //o.SkipSteps = 1000;
             }).ToMotion(10);
