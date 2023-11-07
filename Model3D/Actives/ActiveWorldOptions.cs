@@ -13,7 +13,6 @@ public class ActiveWorldOptions
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }
     public int OverCalculationMult { get; set; } // same world forces, but not material forces
-    public bool UseMaterialDamping { get; set; }
     public double MaterialForceMult { get; set; }
     public double CollideForceMult { get; set; }
     public Vector3 Gravity { get; set; }

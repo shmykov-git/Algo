@@ -20,6 +20,7 @@ public static class ActiveWorldValues
         ShowSkeletonPoint = false,
         SkeletonPower = 2,
         MaterialPower = 1,
+        UseMaterialDamping = true,
         MaterialDamping = 0.001,
         UseBlow = false,
         BlowPower = 2,
@@ -43,7 +44,6 @@ public static class ActiveWorldValues
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         Ground = ActiveWorldDefaultGroundOptions,
-        UseMaterialDamping = true,
     };
 
     public static ActiveWorldOptions.GroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldOptions.GroundOptions

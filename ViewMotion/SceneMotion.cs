@@ -57,17 +57,16 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return WorldMotion();
-        var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
-        //var shape = Shapes.Dodecahedron.SplitPlanes(1).Rotate(3,1,4).AlignY(0).MoveY(1).ApplyColor(Color.SaddleBrown);
+        //return WorldMotion();
+        //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
+        var shape = Shapes.Cube.SplitPlanes(1).AlignY(0).MoveY(1).ApplyColorGradientX(Color.White, Color.Black);
 
         var actives = new[]
             {                
                 shape.ToActiveShape(o =>
                 {
                     //o.UseSkeleton = true;
-                    o.MaterialDamping = 0.001;
-                    o.RotationSpeedAngle = 0.001;
+                    //o.RotationSpeedAngle = 0.001;
                 })
             };
 
@@ -81,7 +80,6 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
             {
                 o.UseInteractions = true;
-                o.UseMaterialDamping = true;
                 //o.OverCalculationMult = 10;
                 //o.SkipSteps = 1000;
             }).ToMotion(10);

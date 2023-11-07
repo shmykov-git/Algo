@@ -113,7 +113,7 @@ public partial class ActiveWorld
         var anl = nl.MultS(r);
         var aCenter = a.Model.center + a.Model.angleSpeed.ToLenWithCheck(anl);
         var ar = n.position - aCenter;
-        var aSpeed = a.Model.angleSpeed * 1.5;
+        var aSpeed = a.Model.angleSpeed;
 
         var m = v + aSpeed.MultV(ar);
         var res = -a.Options.MaterialDamping * m;
@@ -203,11 +203,11 @@ public partial class ActiveWorld
             if (a.Options.UseBlow)
                 a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n));
 
-            if (options.UseMaterialDamping)
+            if (a.Options.UseMaterialDamping)
             {
                 a.Model.speed = a.NoSkeletonNodes.Select(n => n.speed).Center();
                 a.Model.center = a.NoSkeletonNodes.Select(n => n.position).Center();
-                a.Model.angleSpeed = a.NoSkeletonNodes.Where(n => (n.position - a.Model.center).Length2 > Epsilon2).Select(n => (n.speed - a.Model.speed).MultV(n.position - a.Model.center) / (n.position - a.Model.center).Length2).Center();
+                a.Model.angleSpeed = 1.5 * a.NoSkeletonNodes.Where(n => (n.position - a.Model.center).Length2 > Epsilon2).Select(n => (n.speed - a.Model.speed).MultV(n.position - a.Model.center) / (n.position - a.Model.center).Length2).Center();
                 a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialSpeedDamping(a, n));
             }
 
