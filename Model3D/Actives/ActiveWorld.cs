@@ -199,6 +199,8 @@ public partial class ActiveWorld
 
         var statics = options.AllowModifyStatics ? null : shapes.ToSingleShape();
 
+        (options.OverCalculationMult * options.SkipSteps).ForEach(_ => Step());
+
         for (var i = 0; i < options.SceneCount; i++)
         {
             yield return activeShapes.Select(s => s.GetStepShape()).ToSingleShape()

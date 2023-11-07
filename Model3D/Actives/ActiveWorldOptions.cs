@@ -8,6 +8,7 @@ public class ActiveWorldOptions
 {
     public event Action<ActiveWorld> OnStep;
     public void Step(ActiveWorld world) => OnStep?.Invoke(world);
+    public int SkipSteps { get; set; }
     public int StepNumber { get; set; }
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }

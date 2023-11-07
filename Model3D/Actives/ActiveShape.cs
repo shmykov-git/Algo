@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
+using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
 using Model3D.Extensions;
+using Material = Model.Material;
 
 namespace Model3D.Actives;
 
@@ -17,6 +20,7 @@ public class ActiveShape
     private Shape shape;
     private Shape staticModel;
     private Shape staticNormModel;
+    private Material? material;
 
     public ActiveShapeOptions Options => options;
     public ActiveWorld.Node[] Nodes => nodes;
@@ -129,6 +133,10 @@ public class ActiveShape
 
         this.nodes = nodes;
 
+        var gm = shape.Materials.GroupBy(v => v).ToArray();
+        if (gm.Length == 1)
+            material = gm[0].Key;
+
         staticNormModel = staticModel.Normalize();
         model = new();
     }
@@ -157,6 +165,9 @@ public class ActiveShape
             if (options.Color1.HasValue)
                 shape = shape.ApplyColor(options.Color1.Value);
         }
+
+        if (material != null)
+            shape = shape.ApplyMaterial(material);
 
         shape = options.Show(shape);
 

@@ -10,8 +10,8 @@ public static class ActiveWorldValues
         ShowMeta = false,
         MetaPointMult = 2,
         MetaLineMult = 2,
-        Color1 = Color.SaddleBrown,
-        Color2 = Color.Red,
+        Color1 = null,
+        Color2 = null,
         RotationAngle = 0,
         RotationAxis = Vector3.ZAxis,
         RotationSpeedAngle = 0, // 0.001

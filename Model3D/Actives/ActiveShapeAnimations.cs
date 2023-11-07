@@ -4,9 +4,9 @@ namespace Model3D.Actives;
 
 public static class ActiveShapeAnimations
 {
-    public static Action<ActiveShape> BlowUp(double stepPower, int since = 0) => a =>
+    public static Action<ActiveShape> BlowUp(double stepPower, int from = 0, int? to = null) => a =>
     {
-        if (a.Options.StepNumber >= since)
+        if (from <= a.Options.StepNumber && (!to.HasValue || a.Options.StepNumber < to.Value))
             a.Options.BlowPower += stepPower;
     };
 }

@@ -32,7 +32,7 @@ partial class SceneMotion
         // list of active shapes
         var actives = new ActiveShape[]
             {
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1)
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).ApplyColor(Color.LightBlue)
                 .ToActiveShape(o =>
                 {
                     o.UseSkeleton = true;
@@ -53,7 +53,7 @@ partial class SceneMotion
                     {
                         // change any shape options on show
 
-                        return s.ApplyColor(Color.LightBlue);
+                        return s; // s.ApplyColor(Color.LightBlue);
                     };
                 })
             };
