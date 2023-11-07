@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using Aspose.ThreeD.Shading;
@@ -24,6 +25,7 @@ public class ActiveShape
 
     public ActiveShapeOptions Options => options;
     public ActiveWorld.Node[] Nodes => nodes;
+    public IEnumerable<ActiveWorld.Node> NoSkeletonNodes => nodes.Where(n => options.UseSkeleton ? n.i != nodes.Length - 1 : true);
     public ActiveWorld.Plane[] Planes => planes;
     public ActiveWorld.Model Model => model;
 
@@ -41,7 +43,7 @@ public class ActiveShape
         if (options.UseSkeleton)
             staticModel = staticModel.WithCenterPoint();
 
-        if (options.RotationAngle > 0)
+        if (options.RotationAngle.Abs() > 0)
             staticModel = staticModel.Rotate(options.RotationAngle, options.RotationAxis);
 
         var ps = staticModel.Points3;
@@ -68,7 +70,7 @@ public class ActiveShape
         planes = plns.Select(v => v.p).ToArray();
         nodes.ForEach(n => n.planes = plns.Where(v => v.c.Contains(n.i)).Select(v => v.p).ToArray());
 
-        if (options.RotationSpeedAngle > 0)
+        if (options.RotationSpeedAngle.Abs() > 0)
         {
             var speedRotationCenter = options.RotationSpeedCenter ?? nodes.Select(n => n.position).Center();
 
@@ -133,9 +135,12 @@ public class ActiveShape
 
         this.nodes = nodes;
 
-        var gm = shape.Materials.GroupBy(v => v).ToArray();
-        if (gm.Length == 1)
-            material = gm[0].Key;
+        if (shape.Materials != null)
+        {
+            var gm = shape.Materials.GroupBy(v => v).ToArray();
+            if (gm.Length == 1)
+                material = gm[0].Key;
+        }
 
         staticNormModel = staticModel.Normalize();
         model = new();
@@ -153,7 +158,8 @@ public class ActiveShape
             Points3 = options.ShowSkeletonPoint || !options.UseSkeleton
                 ? nodes.Select(n => n.position).ToArray()
                 : nodes.SkipLast(1).Select(n => n.position).ToArray(),
-            Convexes = staticNormModel.Convexes
+            Convexes = staticNormModel.Convexes,
+            Materials = staticNormModel.Convexes.Length == (this.shape.Materials?.Length??0) ? this.shape.Materials : null,
         };
 
         if (options.ShowMeta)
@@ -162,12 +168,14 @@ public class ActiveShape
         }
         else
         {
-            if (options.Color1.HasValue)
-                shape = shape.ApplyColor(options.Color1.Value);
+            if (shape.Materials == null)
+            {
+                if (material != null)
+                    shape = shape.ApplyMaterial(material);
+                else if (options.Color1.HasValue)
+                    shape = shape.ApplyColor(options.Color1.Value);
+            }
         }
-
-        if (material != null)
-            shape = shape.ApplyMaterial(material);
 
         shape = options.Show(shape);
 

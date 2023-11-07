@@ -35,6 +35,8 @@ partial class SceneMotion
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).ApplyColor(Color.LightBlue)
                 .ToActiveShape(o =>
                 {
+                    o.RotationSpeedAxis = new Vector3(1,2,3).Normalize();
+                    o.RotationSpeedAngle = -0.001;
                     o.UseSkeleton = true;
                     o.SkeletonPower = 0.01;
                     o.UseBlow = true;

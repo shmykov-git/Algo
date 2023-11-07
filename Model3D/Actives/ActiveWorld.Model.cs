@@ -12,7 +12,9 @@ public partial class ActiveWorld
     {
         public double volume0;
         public double volume;
+        public Vector3 center;
         public Vector3 speed;
+        public Vector3 angleSpeed;
     }
 
     public class Node : INet3Item

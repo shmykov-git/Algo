@@ -106,7 +106,19 @@ public partial class ActiveWorld
 
     Vector3 CalcMaterialSpeedDamping(ActiveShape a, Node n)
     {
-        return -options.MaterialDamping * (n.speed - a.Model.speed);
+        var v = n.speed - a.Model.speed;
+
+        var r = n.position - a.Model.center;
+        var nl = a.Model.angleSpeed.Normalize();
+        var anl = nl.MultS(r);
+        var aCenter = a.Model.center + a.Model.angleSpeed.ToLenWithCheck(anl);
+        var ar = n.position - aCenter;
+        var aSpeed = a.Model.angleSpeed * 1.5;
+
+        var m = v + aSpeed.MultV(ar);
+        var res = -a.Options.MaterialDamping * m;
+
+        return res;
     }
 
     Vector3 CalcBlowSpeedOffset(ActiveShape a, Node n)
@@ -191,8 +203,13 @@ public partial class ActiveWorld
             if (a.Options.UseBlow)
                 a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n));
 
-            a.Model.speed = a.Nodes.Where(CanCalc).Select(n => n.speed).Center();
-            a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialSpeedDamping(a, n));
+            if (options.UseMaterialDamping)
+            {
+                a.Model.speed = a.NoSkeletonNodes.Select(n => n.speed).Center();
+                a.Model.center = a.NoSkeletonNodes.Select(n => n.position).Center();
+                a.Model.angleSpeed = a.NoSkeletonNodes.Where(n => (n.position - a.Model.center).Length2 > Epsilon2).Select(n => (n.speed - a.Model.speed).MultV(n.position - a.Model.center) / (n.position - a.Model.center).Length2).Center();
+                a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialSpeedDamping(a, n));
+            }
 
             a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n, a.Options));
 

@@ -10,7 +10,7 @@ public static class ActiveWorldValues
         ShowMeta = false,
         MetaPointMult = 2,
         MetaLineMult = 2,
-        Color1 = null,
+        Color1 = Color.SaddleBrown,
         Color2 = null,
         RotationAngle = 0,
         RotationAxis = Vector3.ZAxis,
@@ -20,6 +20,7 @@ public static class ActiveWorldValues
         ShowSkeletonPoint = false,
         SkeletonPower = 2,
         MaterialPower = 1,
+        MaterialDamping = 0.001,
         UseBlow = false,
         BlowPower = 2,
         Fix = new(),
@@ -30,7 +31,6 @@ public static class ActiveWorldValues
         SceneCount = 2000,
         StepsPerScene = 10,
         OverCalculationMult = 1,
-        MaterialDamping = 0.001,
         Gravity = new Vector3(0, -0.0000005, 0),
         GravityPower = 1,
         Wind = new Vector3(0.0000002, 0, 0),
@@ -43,6 +43,7 @@ public static class ActiveWorldValues
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         Ground = ActiveWorldDefaultGroundOptions,
+        UseMaterialDamping = true,
     };
 
     public static ActiveWorldOptions.GroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldOptions.GroundOptions
