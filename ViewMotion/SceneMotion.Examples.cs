@@ -35,10 +35,10 @@ partial class SceneMotion
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).ApplyColor(Color.LightBlue)
                 .ToActiveShape(o =>
                 {
-                    o.RotationSpeedAxis = Vector3.XAxis;
-                    o.RotationSpeedAngle = 0.001;
+                    o.RotationSpeedAxis = Vector3.YAxis;
+                    o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
-                    o.SkeletonPower = 0.01;
+                    o.SkeletonPower = 0.02;
                     o.UseBlow = true;
                     o.BlowPower = 2;
                     
@@ -69,7 +69,9 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
         {
             o.PressurePowerMult = 0.0001;
-            o.WindPower = 3.1; // try wind carefully
+            o.ClingForce = 0.1;
+            o.FrictionForce = 0.03;
+            o.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
             

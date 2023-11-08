@@ -57,7 +57,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        //return WorldMotion();
+        return WorldMotion();
         //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
         var shape = Shapes.Cube.SplitPlanes(1).AlignY(0).MoveY(1).ApplyColorGradientX(Color.White, Color.Black);
 
