@@ -8,8 +8,10 @@ public class ActiveWorldOptions
 {
     public event Action<ActiveWorld> OnStep;
     public void Step(ActiveWorld world) => OnStep?.Invoke(world);
-    public int SkipSteps { get; set; }
     public int StepNumber { get; set; }
+    public double ForceInteractionRadius { get; set; }
+
+    public int SkipSteps { get; set; }
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }
     public int OverCalculationMult { get; set; } // same world forces, but not material forces
@@ -25,7 +27,9 @@ public class ActiveWorldOptions
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
     public GroundOptions Ground { get; set; }
+    public bool UseWorldForces { get; set; }
     public bool UseInteractions { get; set; }
+    public double EdgeSize { get; set; }
 
     public class GroundOptions
     {

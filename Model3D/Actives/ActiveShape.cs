@@ -11,7 +11,7 @@ using Material = Model.Material;
 
 namespace Model3D.Actives;
 
-public class ActiveShape
+public class ActiveShape : INet3Item
 {
     private readonly ActiveShapeOptions options;
     private ActiveWorld.Node[] nodes;
@@ -22,12 +22,15 @@ public class ActiveShape
     private Shape staticModel;
     private Shape staticNormModel;
     private Material? material;
+    //private 
 
     public ActiveShapeOptions Options => options;
     public ActiveWorld.Node[] Nodes => nodes;
     public IEnumerable<ActiveWorld.Node> NoSkeletonNodes => nodes.Where(n => options.UseSkeleton ? n.i != nodes.Length - 1 : true);
     public ActiveWorld.Plane[] Planes => planes;
     public ActiveWorld.Model Model => model;
+
+    Func<Vector3> INet3Item.PositionFn => () => model.center;
 
     public ActiveShape(Shape shape, ActiveShapeOptions options)
     {
@@ -38,7 +41,12 @@ public class ActiveShape
     public void Activate()
     {
         staticModel = shape;
-        var rotationCenter = options.RotationCenter ?? staticModel.PointCenter;
+        model = new();
+
+        Model.borders0 = staticModel.GetBorders();
+        Model.center = staticModel.PointCenter;
+
+        var rotationCenter = options.RotationCenter ?? Model.center;
 
         if (options.UseSkeleton)
             staticModel = staticModel.WithCenterPoint();
@@ -51,8 +59,10 @@ public class ActiveShape
         var nodes = ps.Select((p, i) => new ActiveWorld.Node()
         {
             i = i,
+            model = model,
             position0 = p,
-            position = p
+            position = p,
+            speed = Vector3.Origin,
         }).ToArray();
 
         nodes.ForEach(n => n.nodes = nodes);
@@ -69,6 +79,9 @@ public class ActiveShape
         var plns = staticModel.Convexes.Where(c => c.Length >= 3).Select(c => (c:c.ToList(), p:new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] })).ToArray();
         planes = plns.Select(v => v.p).ToArray();
         nodes.ForEach(n => n.planes = plns.Where(v => v.c.Contains(n.i)).Select(v => v.p).ToArray());
+
+        if (options.Speed.Length > 0)
+            nodes.ForEach(n => n.speed += options.Speed / options.WorldOptions.OverCalculationMult);
 
         if (options.RotationSpeedAngle.Abs() > 0)
         {
@@ -90,7 +103,7 @@ public class ActiveShape
                     var p = new Plane(Vector3.Origin, b, c);
                     var pFn = p.ProjectionFn;
 
-                    n.speed = options.RotationSpeedAngle * pFn(position).MultV(options.RotationSpeedAxis);
+                    n.speed += (options.RotationSpeedAngle / options.WorldOptions.OverCalculationMult) * pFn(position).MultV(options.RotationSpeedAxis);
                 }
             });
         }
@@ -104,8 +117,8 @@ public class ActiveShape
                 var lockFn = FixFn(point, direction, distance);
                 nodes.Where(n => lockFn(n.position)).ForEach(n => n.locked = true);
             }
-
-            var b = staticModel.GetBorders();
+            
+            var b = Model.borders0;
 
             switch (options.Fix.Dock)
             {
@@ -142,8 +155,13 @@ public class ActiveShape
                 material = gm[0].Key;
         }
 
+        if (options.UseInteractions)
+        {
+            //var netSize = nodes.SelectMany(n => n.edges).Select(e => (nodes[e.i].position - nodes[e.j].position).Length).Max();
+            model.net = new Net3<ActiveWorld.Node>(nodes, options.WorldOptions.ForceInteractionRadius);
+        }
+        
         staticNormModel = staticModel.Normalize();
-        model = new();
     }
 
     public void Step()

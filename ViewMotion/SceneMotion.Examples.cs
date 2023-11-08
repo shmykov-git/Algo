@@ -27,6 +27,53 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> WorldInteractionMotion()
+    {
+        var actives = new ActiveShape[]
+            {
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(-2).ApplyColor(Color.LightBlue)
+                .ToActiveShape(o =>
+                {
+                    o.RotationSpeedAxis = Vector3.YAxis;
+                    o.RotationSpeedAngle = 0.0005;
+                    o.UseSkeleton = true;
+                    o.SkeletonPower = 0.02;
+                    o.UseBlow = true;
+                    o.BlowPower = 2;
+                }),
+                
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColor(Color.LightGreen)
+                .ToActiveShape(o =>
+                {
+                    o.RotationSpeedAxis = Vector3.YAxis;
+                    o.RotationSpeedAngle = 0.0005;
+                    o.UseSkeleton = true;
+                    o.SkeletonPower = 0.02;
+                    o.UseBlow = true;
+                    o.BlowPower = 2;
+                    o.Speed = new Vector3(-0.003, 0, 0);
+                }),
+            };
+
+        // list of static shapes
+        var statics = new Shape[]
+            {
+                vectorizer.GetText("Interaction", 200).Perfecto(7).AlignY(0).MoveZ(-4).ApplyColor(Color.SaddleBrown)
+            };
+
+        return (actives, statics).ToWorld(o =>
+        {
+            o.PressurePowerMult = 0.0001;
+            o.ClingForce = 0.1;
+            o.FrictionForce = 0.03;
+            o.WindPower = 2; // try wind carefully
+            o.Ground.UseWaves = true;
+            o.Ground.WavesSize = 2;
+            o.EdgeSize = 0.3;
+        }).ToMotion(10);
+
+    }
+
     public Task<Motion> WorldMotion()
     {
         // list of active shapes

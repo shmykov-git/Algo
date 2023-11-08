@@ -5,21 +5,25 @@ namespace Model3D.Actives;
 
 public partial class ActiveWorld
 {
-    public const double Epsilon = 0.000000001;
+    public const double Epsilon = 0.000001;
     public const double Epsilon2 = Epsilon * Epsilon;
 
     public class Model
     {
+        public double forceInteractionRadius;
+        public (Vector3 min, Vector3 max) borders0;
         public double volume0;
         public double volume;
         public Vector3 center;
         public Vector3 speed;
         public Vector3 angleSpeed;
+        public Net3<Node> net;
     }
 
     public class Node : INet3Item
     {
         public int i;
+        public Model model;
         public Node[] nodes;
         public Edge[] edges;
         public Plane[] planes;
@@ -30,7 +34,7 @@ public partial class ActiveWorld
         public double speedY = 0;
         public double mass = 1;
         public bool locked;
-        public Func<Vector3> PositionFn => () => position;
+        public Func<Vector3> PositionFn => () => position - model.center;
     }
 
     public enum EdgeType

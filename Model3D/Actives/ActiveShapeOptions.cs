@@ -14,6 +14,8 @@ public class ActiveShapeOptions
     public void Step(ActiveShape activeShape) => OnStep?.Invoke(activeShape);
     public Shape Show(Shape shape) => OnShow.RollRaise(shape);
 
+    public ActiveWorldOptions WorldOptions { get; set; }
+
     public int StepNumber { get; set; }
     public bool ShowMeta { get; set; }
     public double MetaLineMult { get; set; }
@@ -23,6 +25,7 @@ public class ActiveShapeOptions
     public double RotationAngle { get; set; }
     public Vector3 RotationAxis { get; set; }
     public Vector3? RotationCenter { get; set; }
+    public Vector3 Speed { get; set; }
     public double RotationSpeedAngle { get; set; }
     public Vector3 RotationSpeedAxis { get; set; }
     public Vector3? RotationSpeedCenter { get; set; }
@@ -35,6 +38,9 @@ public class ActiveShapeOptions
     public bool UseBlow {  get; set; }
     public double BlowPower { get; set; }
     public FixOptions Fix { get; set; }
+    public bool UseInteractions { get; set; }
+    public double InteractionForce { get; set; }
+
 
     public enum FixDock
     {
@@ -55,4 +61,6 @@ public class ActiveShapeOptions
         public Vector3 Direction { get; set; } = Vector3.ZAxis;
         public double Distance { get; set; } = 0.1;
     }
+
+    public void With(Action<ActiveShapeOptions> action) => action(this);
 }

@@ -16,6 +16,7 @@ public partial class ActiveWorld
     private readonly ActiveShapeOptions activeShapeOptions;
     private List<ActiveShape> activeShapes = new();
     private List<Shape> shapes = new();
+    private Net3<ActiveShape> worldNet;
 
     public ActiveWorldOptions Options => options;
     public List<ActiveShape> ActiveShapes => activeShapes;
@@ -27,133 +28,14 @@ public partial class ActiveWorld
         this.activeShapeOptions = activeShapeOptions;
     }
 
-    public void AddActiveShape(ActiveShape shape) => activeShapes.Add(shape);
-    public void AddActiveShapes(IEnumerable<ActiveShape> shapes) => activeShapes.AddRange(shapes);
-    public void AddActiveShape(Shape shape) => activeShapes.Add(shape.ToActiveShape(activeShapeOptions));
-    public void AddActiveShapes(IEnumerable<Shape> shapes) => activeShapes.AddRange(shapes.Select(shape => shape.ToActiveShape(activeShapeOptions)));
+    public void AddActiveShape(ActiveShape shape) { shape.Options.With(o => o.WorldOptions = options); activeShapes.Add(shape); }
+    public void AddActiveShapes(IEnumerable<ActiveShape> shapes) => shapes.ForEach(AddActiveShape);
+    public void AddActiveShape(Shape shape) => AddActiveShape(shape.ToActiveShape(activeShapeOptions));
+    public void AddActiveShapes(IEnumerable<Shape> shapes) => shapes.ForEach(AddActiveShape);
     public void AddShape(Shape shape) => shapes.Add(shape);
     public void AddShapes(IEnumerable<Shape> ss) => shapes.AddRange(ss);
 
     
-    private double forceBorder = 0.75;
-    double MaterialForceFn(double power, double a, double y)
-    {
-        var x = y / a;
-
-        if (x < forceBorder)
-            x = forceBorder;
-
-        return power * (x - 1) * (x + 1) / x.Pow4();
-    }
-
-    Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
-    double GetVolume(Vector3 a, Vector3 b, Vector3 c) => c.MultS(GetNormal(a, b, c));
-    double GetActiveShapeVolume(ActiveShape a) => a.Planes.Select(p => GetVolume(a.Nodes[p.i].position, a.Nodes[p.j].position, a.Nodes[p.k].position)).Sum();
-
-    Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(n.nodes[p.i].position, n.nodes[p.j].position, n.nodes[p.k].position)).Center();
-
-    Vector3 CalcSpeed(Node n, ActiveShapeOptions shapeOptions)
-    {
-        var p0 = n.position;
-        Vector3 materialSpeedOffset = Vector3.Origin;
-
-        foreach (var e in n.edges)
-        {
-            var sn = n.nodes[e.j];
-            var p = sn.position;
-
-            var d = (p - p0).Length;
-
-            var fc = e.type switch
-            {
-                EdgeType.Skeleton => shapeOptions.SkeletonPower * options.MaterialForceMult,
-                _ => shapeOptions.MaterialPower * options.MaterialForceMult,
-            };
-
-            var ds = MaterialForceFn(fc, e.fA, d);
-
-            materialSpeedOffset += ds * (p - p0) / d;
-        }
-
-        //var mSpeed = (n.materialSpeed + materialSpeedOffset) * options.MaterialDamping;
-        var speed = n.speed + materialSpeedOffset;
-
-        if (IsBottom(n))
-        {
-            if (speed.y < 0)
-            {
-                n.speedY += -speed.y;
-                speed = speed.SetY(0);
-
-                var fForce = -speed.ToLenWithCheck(options.CollideForceMult * options.FrictionForce);
-                speed = fForce.Length2 > speed.Length2
-                    ? Vector3.Origin
-                    : speed + fForce;
-            }
-            else
-            {
-                n.speedY = 0;
-
-                var clForce = -Vector3.YAxis.ToLenWithCheck(options.CollideForceMult * options.ClingForce);
-                speed = clForce.Length2 > speed.VectorY().Length2
-                    ? Vector3.Origin
-                    : speed + clForce;
-            }
-        }
-
-        return speed;
-    }
-
-    Vector3 CalcMaterialSpeedDamping(ActiveShape a, Node n)
-    {
-        var v = n.speed - a.Model.speed;
-
-        var r = n.position - a.Model.center;
-        var nl = a.Model.angleSpeed.Normalize();
-        var anl = nl.MultS(r);
-        var aCenter = a.Model.center + a.Model.angleSpeed.ToLenWithCheck(anl);
-        var ar = n.position - aCenter;
-        var aSpeed = a.Model.angleSpeed;
-
-        var m = v + aSpeed.MultV(ar);
-        var res = -a.Options.MaterialDamping * m;
-
-        return res;
-    }
-
-    Vector3 CalcBlowSpeedOffset(ActiveShape a, Node n)
-    {
-        var o = a.Options;
-        var blowForce = o.BlowPower * a.Model.volume0 / a.Model.volume - options.PressurePower;
-
-        if (o.BlowPower > 0 && n.planes.Length > 0)
-            return blowForce * options.PressurePowerMult * BlowForce(n);
-        else
-            return Vector3.Origin;
-    }
-
-    Vector3 CalcBounceSpeedOffset(Node n)
-    {
-        Vector3 offset = Vector3.Origin;
-        var sns = n.edges.Select(e => n.nodes[e.j]).Where(IsBottom).ToArray();
-
-        if (sns.Length == 0)
-            return offset;
-
-        var sumY = sns.Select(sn => n.position.y - sn.position.y).Sum();
-
-        foreach (var (sn, i) in sns.Select((v, i) => (v, i)))
-        {
-            offset += (n.position - sn.position).ToLenWithCheck(n.speedY * (n.position.y - sn.position.y) / sumY);
-        }
-
-        return offset;
-    }
-
-    bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
-    bool CanCalc(Node n) => !n.locked;
-    Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
-
     private void Activate()
     {
         if (options.Ground != null)
@@ -174,11 +56,21 @@ public partial class ActiveWorld
             }
         }
 
+        options.ForceInteractionRadius = GetForceInteractionRadius(options.EdgeSize);
+
         activeShapes.ForEach(a =>
         {
             a.Activate();
-            a.Model.volume0 = GetActiveShapeVolume(a);
+            
+            if (a.Options.UseBlow)
+                a.Model.volume0 = GetActiveShapeVolume(a);
         });
+
+        if (options.UseInteractions)
+        {
+            var netSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
+            worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), netSize);
+        }
     }
 
     int nStep = 0;
@@ -193,27 +85,66 @@ public partial class ActiveWorld
         });
 
         options.Step(this);
-        
+
+        activeShapes.ForEach(a => a.Model.center = a.NoSkeletonNodes.Select(n => n.position).Center());
+
+        if (options.UseInteractions)
+        {
+            foreach (var a in activeShapes)
+            {                
+                if (a.Options.UseInteractions)
+                    a.Model.net.Update();
+            }
+
+            var interactionCounter = 0;
+
+            foreach (var a in activeShapes)
+            {
+                if (a.Options.UseInteractions)
+                {
+                    foreach (var b in worldNet.SelectNeighbors(a))
+                    {
+                        foreach (var nb in b.Nodes)
+                        {
+                            var aNodes = a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius);
+                            //var aNodes = a.Nodes;
+                            foreach (var na in aNodes)
+                            {
+                                var mf = MaterialInteractionForceFn(a.Options.InteractionForce, options.EdgeSize, (na.position - nb.position).Length);
+                                na.speed += (na.position - nb.position).ToLenWithCheck(mf);
+                                interactionCounter++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Debug.WriteLine(interactionCounter);
+        }
+
         foreach (var a in activeShapes)
         {
-            a.Model.volume = GetActiveShapeVolume(a);
+            if (options.UseWorldForces)
+            {
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcWorldForce());
+            }
 
-            a.Nodes.Where(CanCalc).ForEach(n => n.speed += (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult);
-            
             if (a.Options.UseBlow)
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowSpeedOffset(a, n));
+            {
+                a.Model.volume = GetActiveShapeVolume(a);
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowForce(a, n));
+            }
 
             if (a.Options.UseMaterialDamping)
-            {
+            {                
                 a.Model.speed = a.NoSkeletonNodes.Select(n => n.speed).Center();
-                a.Model.center = a.NoSkeletonNodes.Select(n => n.position).Center();
-                a.Model.angleSpeed = 1.5 * a.NoSkeletonNodes.Where(n => (n.position - a.Model.center).Length2 > Epsilon2).Select(n => (n.speed - a.Model.speed).MultV(n.position - a.Model.center) / (n.position - a.Model.center).Length2).Center();
-                a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialSpeedDamping(a, n));
+                a.Model.angleSpeed = GetActiveShapeAngleSpeed(a);
+                a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));
             }
 
             a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n, a.Options));
+            a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
 
-            a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
             a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             a.Nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
         }

@@ -16,6 +16,7 @@ public static class ActiveWorldValues
         RotationAxis = Vector3.ZAxis,
         RotationSpeedAngle = 0, // 0.001
         RotationSpeedAxis = Vector3.YAxis,
+        Speed = Vector3.Origin,
         UseSkeleton = false,
         ShowSkeletonPoint = false,
         SkeletonPower = 2,
@@ -25,6 +26,8 @@ public static class ActiveWorldValues
         UseBlow = false,
         BlowPower = 2,
         Fix = new(),
+        UseInteractions = true,
+        InteractionForce = 1,
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -44,6 +47,9 @@ public static class ActiveWorldValues
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         Ground = ActiveWorldDefaultGroundOptions,
+        UseWorldForces = true,
+        UseInteractions = true,
+        EdgeSize = 0.5,
     };
 
     public static ActiveWorldOptions.GroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldOptions.GroundOptions

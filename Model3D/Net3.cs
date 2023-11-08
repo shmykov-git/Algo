@@ -30,6 +30,8 @@ namespace Model3D
         private List<Item>[][][] netData;
         private List<Item> data;
 
+        public double Size => netSize;
+
         public Vector3[] NetField => netData.SelectMany((a, i) =>
             a.SelectMany((b, j) => b.Select((c, k) => netSize * new Vector3(i + 0.5, j + 0.5, k + 0.5) + from))).ToArray();
 
@@ -49,6 +51,8 @@ namespace Model3D
         {
             AddItems(items);
         }
+
+        public Net3(IEnumerable<TNetItem> items, double netSize) : this(items.ToArray(), netSize) { }
 
         public Net3(TNetItem[] items, double netSize) : this(items.Select(kv => kv.PositionFn), netSize)
         {
@@ -110,6 +114,9 @@ namespace Model3D
         private static readonly (int i, int j, int k)[] dirs = (3, 3, 3).SelectRange((i, j, k) => (i - 1, j - 1, k - 1))
             .ToArray();
 
+
+        public IEnumerable<TNetItem> SelectNeighbors(TNetItem item) => SelectNeighbors(item.PositionFn()).Where(b=> !item.Equals(b));
+        
         public IEnumerable<TNetItem> SelectNeighbors(Vector3 item)
         {
             var v0 = GetIndex(item);
