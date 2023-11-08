@@ -119,7 +119,7 @@ public partial class ActiveWorld
                 }
             }
 
-            Debug.WriteLine(interactionCounter);
+            //Debug.WriteLine(interactionCounter);
         }
 
         foreach (var a in activeShapes)
