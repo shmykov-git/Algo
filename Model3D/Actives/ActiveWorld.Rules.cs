@@ -155,7 +155,7 @@ public partial class ActiveWorld // Rules
     }
 
     Vector3 CalcGroundForce() => (options.Ground.GravityPower * options.Ground.Gravity + options.Ground.WindPower * options.Ground.Wind) / options.OverCalculationMult;
-    Vector3 CalcSpaceForce(Node n) => (options.Space.MassCenter - n.position).ToLenWithCheck(options.Space.GravityConst * options.Space.GravityPower / options.OverCalculationMult / (n.position - options.Space.MassCenter).Length2);
+    Vector3 CalcSpaceForce(Node n) => (options.MassCenter.MassCenter - n.position).ToLenWithCheck(options.MassCenter.GravityConst * options.MassCenter.GravityPower / options.OverCalculationMult / (n.position - options.MassCenter.MassCenter).Length2);
 
     bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
     

@@ -146,6 +146,9 @@ namespace Model
 
                 double GetConvexArea(int[] c)
                 {
+                    if (c.Length < 3)
+                        return 0;
+
                     var a = ps[c[1]] - ps[c[0]];
                     var b = ps[c[2]] - ps[c[1]];
 

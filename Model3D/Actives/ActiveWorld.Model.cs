@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aspose.ThreeD.Utilities;
+using static Model3D.Actives.ActiveWorld;
 
 namespace Model3D.Actives;
 
@@ -25,6 +27,7 @@ public partial class ActiveWorld
         public int i;
         public Model model;
         public Node[] nodes;
+        public HashSet<int> selfInteractions;
         public Edge[] edges;
         public Plane[] planes;
         public Vector3 position0;
@@ -32,8 +35,9 @@ public partial class ActiveWorld
         public Vector3 speed = Vector3.Origin;
         //public Vector3 materialSpeed = Vector3.Origin;
         public double speedY = 0;
-        public double mass = 1; // world mass
+        public double mass = 1;
         public bool locked;
+        
         public Func<Vector3> PositionFn => () => position - model.center;
     }
 

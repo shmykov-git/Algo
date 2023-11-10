@@ -75,8 +75,8 @@ public partial class ActiveWorld
                 var averageVolume = worldVolume / activeShapes.Count;
                 activeShapes.ForEach(a =>
                 {
-                    var mass = a.Model.volume0 / averageVolume;
-                    a.Nodes.ForEach(n=>n.mass = mass);
+                    var massCoef = a.Model.volume0 / averageVolume;
+                    a.Nodes.ForEach(n=>n.mass *= massCoef);
                 });
             }
         }
@@ -110,6 +110,7 @@ public partial class ActiveWorld
             var interactionCounter = 0;
 
             foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+            {
                 foreach (var b in worldNet.SelectNeighbors(a))
                     foreach (var nb in b.Nodes)
                         foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
@@ -117,8 +118,19 @@ public partial class ActiveWorld
                             var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
                             na.speed += (na.position - nb.position).ToLenWithCheck(ma);
                             interactionCounter++;
-                        }              
+                        }
 
+                if (a.Options.UseSelfInteractions)
+                {
+                    foreach (var na in a.Nodes)
+                        foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => na.selfInteractions.Contains(n.i)))
+                        {
+                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
+                            na.speed += (na.position - nb.position).ToLenWithCheck(ma);
+                            interactionCounter++;
+                        }
+                }
+            }
             //Debug.WriteLine(interactionCounter);
         }
 
@@ -139,7 +151,7 @@ public partial class ActiveWorld
                 a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));
             }
 
-            if (options.UseSpace)
+            if (options.UseMassCenter)
             {
                 a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcSpaceForce(n));
             }

@@ -17,6 +17,7 @@ public static class ActiveWorldValues
         RotationSpeedAngle = 0, // 0.001
         RotationSpeedAxis = Vector3.YAxis,
         Speed = Vector3.Origin,
+        Mass = 1,
         UseSkeleton = false,
         ShowSkeletonPoint = false,
         SkeletonPower = 2,
@@ -27,6 +28,7 @@ public static class ActiveWorldValues
         BlowPower = 2,
         Fix = new(),
         UseInteractions = true,
+        UseSelfInteractions = false,
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -56,8 +58,8 @@ public static class ActiveWorldValues
             UseWaves = false,
             WavesSize = 3,
         },
-        UseSpace = false,
-        Space = new ActiveWorldOptions.SpaceOptions
+        UseMassCenter = false,
+        MassCenter = new ActiveWorldOptions.MassCenterOptions
         {
             MassCenter = new Vector3(0, 0, 0),
             GravityPower = 1,
@@ -69,7 +71,7 @@ public static class ActiveWorldValues
             EdgeSize = 0.5,
             InteractionForce = 1,
             InteractionAreaScale = new Vector3(2, 2, 2),
-            UseMass = true,
+            UseMass = true,            
         },
     };
 }

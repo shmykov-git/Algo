@@ -27,8 +27,8 @@ public class ActiveWorldOptions
     public bool UseGround { get; set; }
     public GroundOptions Ground { get; set; }
 
-    public bool UseSpace { get; set; }
-    public SpaceOptions Space { get; set; }
+    public bool UseMassCenter { get; set; }
+    public MassCenterOptions MassCenter { get; set; }
     
     
     public class InteractionOptions
@@ -39,7 +39,7 @@ public class ActiveWorldOptions
         public bool UseMass {  get; set; }
     }
 
-    public class SpaceOptions
+    public class MassCenterOptions
     {
         public Vector3 MassCenter { get; set; }
         public double GravityPower { get; set; }

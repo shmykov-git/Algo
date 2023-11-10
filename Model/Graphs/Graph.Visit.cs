@@ -8,6 +8,33 @@ namespace Model.Graphs
 {
     public partial class Graph
     {
+        public bool IsReached(int a, int b, int distance) => IsReached(nodes[a], nodes[b], distance);
+        public bool IsReached(Node a, Node b, int distance)
+        {
+            var visited = new bool[nodes.Count];
+            var queue = new Queue<(Node n, int d)>(nodes.Count);
+            queue.Enqueue((a, 0));
+
+            do
+            {
+                var n = queue.Dequeue();
+
+                if (n.n == b)
+                    return true;
+
+                if (!visited[n.n.i])
+                {
+                    visited[n.n.i] = true;
+
+                    foreach (var sn in n.n.Siblings)
+                        if (n.d < distance)
+                            queue.Enqueue((sn,n.d+1));
+                }
+            } while (queue.Count > 0);
+
+            return false;
+        }
+
         public bool IsConnected(Node a, Node b)
         {
             var visited = new bool[nodes.Count];

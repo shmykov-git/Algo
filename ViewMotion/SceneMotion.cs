@@ -62,12 +62,42 @@ partial class SceneMotion
         //var a = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(-1, 1, 0).ApplyColorGradientX(Color.White, Color.Green);
         //var b = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(1, 1, 0).ApplyColorGradientX(Color.Blue, Color.White);
 
+        var n = 25;
+        var fixZPos = 14;
+
+        //var actives = new[]
+        //{
+        //    Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).PutOn().ApplyColorGradientX(Color.Blue, Color.White)
+        //    .ToActiveShape(o =>
+        //        {
+        //            //o.UseSkeleton = true;
+        //            o.UseSelfInteractions = true;
+        //        }),
+
+
+        //    //(n, n, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
+        //    //    .Mult(0.1)
+        //    //    .PullOnSurface(SurfaceFuncs.Paraboloid)
+        //    //    .Mult(10)
+        //    //    .Where(v => v.z < fixZPos + 1.5)
+        //    //    .Perfecto(2)
+        //    //    .PutOn()
+        //    //    .ToActiveShape(o =>
+        //    //    {
+        //    //        //o.UseSkeleton = true;
+        //    //        o.UseSelfInteractions = false;
+        //    //    }),
+        //};
+
+
+
         var r = 5;
-        var actives2 = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20, 1, 3).Perfecto(2).PutOn().Move(r*x, 0, r*z).ToActiveShape(o =>
+        var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20, 1, 3).Perfecto(2).PutOn().Move(r * x, 0, r * z).ToActiveShape(o =>
         {
             o.Speed = Math.Pow(-1, i) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
-            o.UseSkeleton = true;
-            o.UseMaterialDamping = true;
+            //o.UseSkeleton = true;
+            o.UseSelfInteractions = true;
+            o.Mass = i % 2 == 0 ? 2 : 1;
         })).ToArray();
 
         //var actives = new[]
@@ -88,17 +118,18 @@ partial class SceneMotion
 
         var statics = new Shape[]
             {
-                Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
+                //Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
             };
 
-        return (actives2, statics).ToWorld(o =>
+        return (actives, statics).ToWorld(o =>
             {
                 o.UseGround = false;
-                o.UseSpace = true;
-                
-                o.UseInteractions = true;
-                o.Space.GravityConst = 0.00002;
-                o.Interaction.EdgeSize = 0.4;
+                o.UseMassCenter = true;
+                o.Interaction.EdgeSize = 0.3;
+
+                //o.UseInteractions = true;
+                //o.MassCenter.GravityConst = 0.00002;
+                //o.Interaction.EdgeSize = 0.4;
             }).ToMotion(10);
     }
 }

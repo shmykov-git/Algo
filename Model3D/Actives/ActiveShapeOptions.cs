@@ -26,6 +26,7 @@ public class ActiveShapeOptions
     public Vector3 RotationAxis { get; set; }
     public Vector3? RotationCenter { get; set; }
     public Vector3 Speed { get; set; }
+    public double Mass { get; set; }
     public double RotationSpeedAngle { get; set; }
     public Vector3 RotationSpeedAxis { get; set; }
     public Vector3? RotationSpeedCenter { get; set; }
@@ -39,6 +40,7 @@ public class ActiveShapeOptions
     public double BlowPower { get; set; }
     public FixOptions Fix { get; set; }
     public bool UseInteractions { get; set; }
+    public bool UseSelfInteractions { get; set; }
 
     public enum FixDock
     {

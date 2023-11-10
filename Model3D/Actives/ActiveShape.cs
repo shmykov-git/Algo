@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model3D.Extensions;
 using Material = Model.Material;
 
@@ -62,6 +64,7 @@ public class ActiveShape : INet3Item
             model = model,
             position0 = p,
             position = p,
+            mass = options.Mass,
             speed = Vector3.Origin,
         }).ToArray();
 
@@ -157,8 +160,15 @@ public class ActiveShape : INet3Item
 
         if (options.UseInteractions)
         {
-            //var netSize = nodes.SelectMany(n => n.edges).Select(e => (nodes[e.i].position - nodes[e.j].position).Length).Max();
             model.net = new Net3<ActiveWorld.Node>(nodes, options.WorldOptions.ForceInteractionRadius, true);
+
+            if (options.UseSelfInteractions)
+            {
+                var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => (e.i, e.j))).Distinct());
+                var s = Stopwatch.StartNew();
+                nodes.ForEachInParallel(a => a.selfInteractions = nodes.Where(b => !g.IsReached(a.i, b.i, 3)).Select(n => n.i).ToHashSet());
+                Debug.WriteLine($"SelfInteractions initialization time: {s.Elapsed}");
+            }
         }
         
         staticNormModel = staticModel.Normalize();
