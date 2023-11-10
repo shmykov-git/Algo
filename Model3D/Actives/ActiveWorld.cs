@@ -38,7 +38,7 @@ public partial class ActiveWorld
     
     private void Activate()
     {
-        if (options.Ground != null)
+        if (options.Ground != null && options.UseGround && options.Ground.ShowGround)
         {
             var o = options.Ground;
             var ground = Surfaces.Plane(o.Size, o.Size).Normalize().ToOy().Perfecto(o.Mult).MoveY(options.Ground.Y).ToLines(o.LineMult, o.Color ?? Color.Black);
@@ -68,8 +68,8 @@ public partial class ActiveWorld
 
         if (options.UseInteractions)
         {
-            var netSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
-            worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), netSize);
+            var clusterSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
+            worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), clusterSize, true, options.InteractionAreaScale);
         }
     }
 
@@ -90,6 +90,8 @@ public partial class ActiveWorld
 
         if (options.UseInteractions)
         {
+            worldNet.Update();
+
             foreach (var a in activeShapes)
             {                
                 if (a.Options.UseInteractions)
@@ -110,7 +112,7 @@ public partial class ActiveWorld
                             //var aNodes = a.Nodes;
                             foreach (var na in aNodes)
                             {
-                                var mf = MaterialInteractionForceFn(a.Options.InteractionForce, options.EdgeSize, (na.position - nb.position).Length);
+                                var mf = MaterialInteractionForceFn(options.InteractionForce, options.EdgeSize, (na.position - nb.position).Length);
                                 na.speed += (na.position - nb.position).ToLenWithCheck(mf);
                                 interactionCounter++;
                             }
@@ -124,10 +126,7 @@ public partial class ActiveWorld
 
         foreach (var a in activeShapes)
         {
-            if (options.UseWorldForces)
-            {
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcWorldForce());
-            }
+            a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialForce(n, a.Options));
 
             if (a.Options.UseBlow)
             {
@@ -142,8 +141,17 @@ public partial class ActiveWorld
                 a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));
             }
 
-            a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n, a.Options));
-            a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
+            if (options.UseSpace)
+            {
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcSpaceForce(n));
+            }
+
+            if (options.UseGround)
+            {
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcGroundForce());
+                a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcGroundSpeed(n, a.Options));
+                a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
+            }
 
             a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
             a.Nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));

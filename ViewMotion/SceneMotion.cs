@@ -57,34 +57,47 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return WorldInteractionMotion();
+        //return WorldInteractionMotion();
         //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
-        var a = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(-1, 1, 0).ApplyColorGradientX(Color.White, Color.Green);
-        var b = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(1, 1, 0).ApplyColorGradientX(Color.Blue, Color.White);
+        //var a = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(-1, 1, 0).ApplyColorGradientX(Color.White, Color.Green);
+        //var b = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(1, 1, 0).ApplyColorGradientX(Color.Blue, Color.White);
 
-        var actives = new[]
-            {
-                a.ToActiveShape(o =>
-                {
-                    o.UseSkeleton = true;
-                    o.RotationSpeedAngle = 0.001;
-                    o.Speed = new Vector3(0.001, 0, 0);
-                }),
-                b.ToActiveShape(o =>
-                {
-                    o.UseSkeleton = true;
-                    o.RotationSpeedAngle = 0.001;
-                    o.Speed = new Vector3(-0.001, 0, 0);
-                })
-            };
+        var r = 5;
+        var actives2 = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20, 1, 3).Perfecto(2).PutOn().Move(r*x, 0, r*z).ToActiveShape(o =>
+        {
+            o.Speed = Math.Pow(-1, i) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
+            o.UseSkeleton = true;
+            o.UseMaterialDamping = true;
+        })).ToArray();
+
+        //var actives = new[]
+        //    {
+        //        a.ToActiveShape(o =>
+        //        {
+        //            o.UseSkeleton = true;
+        //            o.RotationSpeedAngle = 0.001;
+        //            o.Speed = new Vector3(0.001, 0, 0);
+        //        }),
+        //        b.ToActiveShape(o =>
+        //        {
+        //            o.UseSkeleton = true;
+        //            o.RotationSpeedAngle = 0.001;
+        //            o.Speed = new Vector3(-0.001, 0, 0);
+        //        })
+        //    };
 
         var statics = new Shape[]
             {
+                Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
             };
 
-        return (actives, statics).ToWorld(o =>
+        return (actives2, statics).ToWorld(o =>
             {
-                //o.UseWorldForces = false;
+                o.UseGround = false;
+                o.UseSpace = true;
+                
+                o.UseInteractions = true;
+                o.Space.GravityConst = 0.00002;
                 o.EdgeSize = 0.4;
             }).ToMotion(10);
     }

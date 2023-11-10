@@ -52,10 +52,10 @@ public partial class ActiveWorld // Rules
 
     Vector3 BlowForce(Node n) => n.planes.Select(p => GetNormal(n.nodes[p.i].position, n.nodes[p.j].position, n.nodes[p.k].position)).Center();
 
-    Vector3 CalcSpeed(Node n, ActiveShapeOptions shapeOptions)
+    Vector3 CalcMaterialForce(Node n, ActiveShapeOptions shapeOptions)
     {
         var p0 = n.position;
-        Vector3 materialSpeedOffset = Vector3.Origin;
+        Vector3 materialForce = Vector3.Origin;
 
         foreach (var e in n.edges)
         {
@@ -72,11 +72,15 @@ public partial class ActiveWorld // Rules
 
             var ds = MaterialForceFn(fc, e.fA, d);
 
-            materialSpeedOffset += ds * (p - p0) / d;
+            materialForce += ds * (p - p0) / d;
         }
 
-        //var mSpeed = (n.materialSpeed + materialSpeedOffset) * options.MaterialDamping;
-        var speed = n.speed + materialSpeedOffset;
+        return materialForce;
+    }
+
+    Vector3 CalcGroundSpeed(Node n, ActiveShapeOptions shapeOptions)
+    {
+        var speed = n.speed;
 
         if (IsBottom(n))
         {
@@ -150,7 +154,8 @@ public partial class ActiveWorld // Rules
         return offset;
     }
 
-    Vector3 CalcWorldForce() => (options.GravityPower * options.Gravity + options.WindPower * options.Wind) / options.OverCalculationMult;
+    Vector3 CalcGroundForce() => (options.Ground.GravityPower * options.Ground.Gravity + options.Ground.WindPower * options.Ground.Wind) / options.OverCalculationMult;
+    Vector3 CalcSpaceForce(Node n) => (options.Space.MassCenter - n.position).ToLenWithCheck(options.Space.GravityConst * options.Space.GravityPower / options.OverCalculationMult / (n.position - options.Space.MassCenter).Length2);
 
     bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
     

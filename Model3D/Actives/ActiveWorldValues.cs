@@ -27,7 +27,6 @@ public static class ActiveWorldValues
         BlowPower = 2,
         Fix = new(),
         UseInteractions = true,
-        InteractionForce = 1,
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -35,10 +34,6 @@ public static class ActiveWorldValues
         SceneCount = 2000,
         StepsPerScene = 10,
         OverCalculationMult = 1,
-        Gravity = new Vector3(0, -0.0000005, 0),
-        GravityPower = 1,
-        Wind = new Vector3(0.0000002, 0, 0),
-        WindPower = 0,
         CollideForceMult = 0.00005,
         MaterialForceMult = 0.001,
         FrictionForce = 1.2,
@@ -46,19 +41,31 @@ public static class ActiveWorldValues
         PressurePower = 1,
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
-        Ground = ActiveWorldDefaultGroundOptions,
-        UseWorldForces = true,
+        UseGround = true,
+        Ground = new ActiveWorldOptions.GroundOptions
+        {
+            GravityPower = 1,
+            WindPower = 0,
+            Gravity = new Vector3(0, -0.0000005, 0),
+            Wind = new Vector3(0.0000002, 0, 0),
+            ShowGround = true,
+            LineMult = 3,
+            Mult = 10,
+            Size = 11,
+            Color = Color.Black,
+            UseWaves = false,
+            WavesSize = 3,
+        },
+        UseSpace = false,
+        Space = new ActiveWorldOptions.SpaceOptions
+        {
+            MassCenter = new Vector3(0, 0, 0),
+            GravityPower = 1,
+            GravityConst = 0.0000005
+        },
         UseInteractions = true,
         EdgeSize = 0.5,
-    };
-
-    public static ActiveWorldOptions.GroundOptions ActiveWorldDefaultGroundOptions => new ActiveWorldOptions.GroundOptions
-    {
-        LineMult = 3,
-        Mult = 10,
-        Size = 11,
-        Color = Color.Black,
-        UseWaves = false,
-        WavesSize = 3,
+        InteractionForce = 1,
+        InteractionAreaScale = new Vector3(2,2,2),
     };
 }

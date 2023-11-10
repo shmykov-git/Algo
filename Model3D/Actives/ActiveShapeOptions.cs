@@ -39,8 +39,6 @@ public class ActiveShapeOptions
     public double BlowPower { get; set; }
     public FixOptions Fix { get; set; }
     public bool UseInteractions { get; set; }
-    public double InteractionForce { get; set; }
-
 
     public enum FixDock
     {

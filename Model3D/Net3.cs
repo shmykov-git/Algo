@@ -4,6 +4,7 @@ using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model3D.Extensions;
 using Model3D.Tools;
 
 namespace Model3D
@@ -26,55 +27,70 @@ namespace Model3D
         private Vector3 from;
         private Vector3 to;
 
-        private readonly double netSize;
+        private readonly double clusterSize;
         private List<Item>[][][] netData;
         private List<Item> data;
 
-        public double Size => netSize;
+        public double Size => clusterSize;
 
         public Vector3[] NetField => netData.SelectMany((a, i) =>
-            a.SelectMany((b, j) => b.Select((c, k) => netSize * new Vector3(i + 0.5, j + 0.5, k + 0.5) + from))).ToArray();
+            a.SelectMany((b, j) => b.Select((c, k) => clusterSize * new Vector3(i + 0.5, j + 0.5, k + 0.5) + from))).ToArray();
 
         public TNetItem[] NetItems => data.Select(item=>item.Value).ToArray();
 
         public (int i, int j, int k) GetIndex(Vector3 v) => (
-            (int) ((v.x - from.x) / netSize),
-            (int) ((v.y - from.y) / netSize),
-            (int) ((v.z - from.z) / netSize));
+            (int) ((v.x - from.x) / clusterSize),
+            (int) ((v.y - from.y) / clusterSize),
+            (int) ((v.z - from.z) / clusterSize));
 
         public bool IsGood((int i, int j, int k) v) => 
             v.i >= 0 && v.i < nx && 
             v.j >= 0 && v.j < ny &&
             v.k >= 0 && v.k < nz;
 
-        public Net3(TNetItem[] items, Vector3 from, Vector3 to, double netSize) : this(from, to, netSize)
+        public Net3(TNetItem[] items, Vector3 from, Vector3 to, double clusterSize) : this(from, to, clusterSize)
         {
             AddItems(items);
         }
 
-        public Net3(IEnumerable<TNetItem> items, double netSize) : this(items.ToArray(), netSize) { }
+        public Net3(IEnumerable<TNetItem> items, double clusterSize) : this(items.ToArray(), clusterSize) { }
 
-        public Net3(TNetItem[] items, double netSize) : this(items.Select(kv => kv.PositionFn), netSize)
+        public Net3(TNetItem[] items, double clusterSize, bool asCube = false, Vector3? areaScale = null) : this(items.Select(kv => kv.PositionFn), clusterSize, asCube, areaScale ?? new Vector3(1, 1, 1))
         {
             AddItems(items);
         }
 
-        private Net3(IEnumerable<Func<Vector3>> posFns, double netSize)
+        public Net3(Vector3 from, Vector3 to, double clusterSize)
         {
-            var positions = posFns.Select(fn => fn()).ToArray();
-
-            this.from = new Vector3(positions.Min(p => p.x), positions.Min(p => p.y), positions.Min(p => p.z));
-            this.to = new Vector3(positions.Max(p => p.x), positions.Max(p => p.y), positions.Max(p => p.z));
-            this.netSize = netSize;
+            this.from = from;
+            this.to = to;
+            this.clusterSize = clusterSize;
 
             InitNet();
         }
 
-        public Net3(Vector3 from, Vector3 to, double netSize)
+        private Net3(IEnumerable<Func<Vector3>> posFns, double clusterSize, bool asCube, Vector3 areaScale)
         {
-            this.from = from;
-            this.to = to;
-            this.netSize = netSize;
+            var positions = posFns.Select(fn => fn()).ToArray();
+
+            var min = new Vector3(positions.Min(p => p.x), positions.Min(p => p.y), positions.Min(p => p.z));
+            var max = new Vector3(positions.Max(p => p.x), positions.Max(p => p.y), positions.Max(p => p.z));
+            var size = max - min;
+            var center = 0.5 * (min + max);
+
+            if (asCube)
+            {
+                var cubeSize = new Vector3(size.Length, size.Length, size.Length);
+                this.from = center - 0.5 * areaScale.MultC(cubeSize);
+                this.to = center + 0.5 * areaScale.MultC(cubeSize);
+            }
+            else
+            {
+                this.from = center - 0.5 * areaScale.MultC(size);
+                this.to = center + 0.5 * areaScale.MultC(size);
+            }
+
+            this.clusterSize = clusterSize;
 
             InitNet();
         }
@@ -87,9 +103,9 @@ namespace Model3D
 
         private void InitNet()
         {
-            this.nx = (int)((to.x - from.x) / netSize) + 1;
-            this.ny = (int)((to.y - from.y) / netSize) + 1;
-            this.nz = (int)((to.z - from.z) / netSize) + 1;
+            this.nx = (int)((to.x - from.x) / clusterSize) + 1;
+            this.ny = (int)((to.y - from.y) / clusterSize) + 1;
+            this.nz = (int)((to.z - from.z) / clusterSize) + 1;
 
             netData = (nx).SelectRange(i => (ny).SelectRange(j => (nz).SelectRange(k => new List<Item>()).ToArray()).ToArray()).ToArray();
             data = new List<Item>();

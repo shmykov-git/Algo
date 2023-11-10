@@ -66,7 +66,7 @@ partial class SceneMotion
             o.PressurePowerMult = 0.0001;
             o.ClingForce = 0.1;
             o.FrictionForce = 0.03;
-            o.WindPower = 2; // try wind carefully
+            o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
             o.EdgeSize = 0.4;
@@ -118,7 +118,7 @@ partial class SceneMotion
             o.PressurePowerMult = 0.0001;
             o.ClingForce = 0.1;
             o.FrictionForce = 0.03;
-            o.WindPower = 2; // try wind carefully
+            o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
             

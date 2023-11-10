@@ -17,22 +17,35 @@ public class ActiveWorldOptions
     public int OverCalculationMult { get; set; } // same world forces, but not material forces
     public double MaterialForceMult { get; set; }
     public double CollideForceMult { get; set; }
-    public Vector3 Gravity { get; set; }
-    public double GravityPower {  get; set; }
-    public Vector3 Wind { get; set; }
-    public double WindPower { get; set; }
     public double PressurePower { get; set; }
     public double PressurePowerMult { get; set; }
     public double FrictionForce { get; set; }
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
-    public GroundOptions Ground { get; set; }
-    public bool UseWorldForces { get; set; }
     public bool UseInteractions { get; set; }
     public double EdgeSize { get; set; }
+    public double InteractionForce { get; set; }
+    public Vector3 InteractionAreaScale { get; set; }
+
+    public bool UseGround { get; set; }
+    public GroundOptions Ground { get; set; }
+
+    public bool UseSpace { get; set; }
+    public SpaceOptions Space { get; set; }
+    public class SpaceOptions
+    {
+        public Vector3 MassCenter { get; set; }
+        public double GravityPower { get; set; }
+        public double GravityConst { get; set; }
+    }
 
     public class GroundOptions
     {
+        public Vector3 Gravity { get; set; }
+        public double GravityPower { get; set; }
+        public Vector3 Wind { get; set; }
+        public double WindPower { get; set; }
+        public bool ShowGround { get; set; }
         public int Size { get; set; }
         public double LineMult { get; set; }
         public double Mult { get; set; }

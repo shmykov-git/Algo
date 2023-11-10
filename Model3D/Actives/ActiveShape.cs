@@ -158,7 +158,7 @@ public class ActiveShape : INet3Item
         if (options.UseInteractions)
         {
             //var netSize = nodes.SelectMany(n => n.edges).Select(e => (nodes[e.i].position - nodes[e.j].position).Length).Max();
-            model.net = new Net3<ActiveWorld.Node>(nodes, options.WorldOptions.ForceInteractionRadius);
+            model.net = new Net3<ActiveWorld.Node>(nodes, options.WorldOptions.ForceInteractionRadius, true);
         }
         
         staticNormModel = staticModel.Normalize();
