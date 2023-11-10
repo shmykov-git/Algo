@@ -69,7 +69,7 @@ partial class SceneMotion
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
-            o.EdgeSize = 0.4;
+            o.Interaction.EdgeSize = 0.4;
         }).ToMotion(10);
 
     }

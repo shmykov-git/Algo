@@ -32,7 +32,7 @@ public partial class ActiveWorld
         public Vector3 speed = Vector3.Origin;
         //public Vector3 materialSpeed = Vector3.Origin;
         public double speedY = 0;
-        public double mass = 1;
+        public double mass = 1; // world mass
         public bool locked;
         public Func<Vector3> PositionFn => () => position - model.center;
     }

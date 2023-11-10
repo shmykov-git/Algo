@@ -23,15 +23,22 @@ public class ActiveWorldOptions
     public double ClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
     public bool UseInteractions { get; set; }
-    public double EdgeSize { get; set; }
-    public double InteractionForce { get; set; }
-    public Vector3 InteractionAreaScale { get; set; }
-
+    public InteractionOptions Interaction { get; set; }
     public bool UseGround { get; set; }
     public GroundOptions Ground { get; set; }
 
     public bool UseSpace { get; set; }
     public SpaceOptions Space { get; set; }
+    
+    
+    public class InteractionOptions
+    {
+        public double EdgeSize { get; set; }
+        public double InteractionForce { get; set; }
+        public Vector3 InteractionAreaScale { get; set; }
+        public bool UseMass {  get; set; }
+    }
+
     public class SpaceOptions
     {
         public Vector3 MassCenter { get; set; }

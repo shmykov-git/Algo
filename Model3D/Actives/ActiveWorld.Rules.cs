@@ -15,7 +15,7 @@ public partial class ActiveWorld // Rules
 
     double GetForceInteractionRadius(double edgeSize) => edgeSize * middleInteractionValue * minInteractionMult;
 
-    double MaterialInteractionForceFn(double power, double a, double y) 
+    double MaterialInteractionAcceleration(double power, double a, double y) 
     {
         var x = y / a;
 

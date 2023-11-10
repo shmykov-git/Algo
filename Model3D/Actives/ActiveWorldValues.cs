@@ -64,8 +64,12 @@ public static class ActiveWorldValues
             GravityConst = 0.0000005
         },
         UseInteractions = true,
-        EdgeSize = 0.5,
-        InteractionForce = 1,
-        InteractionAreaScale = new Vector3(2,2,2),
+        Interaction = new ActiveWorldOptions.InteractionOptions
+        {
+            EdgeSize = 0.5,
+            InteractionForce = 1,
+            InteractionAreaScale = new Vector3(2, 2, 2),
+            UseMass = true,
+        },
     };
 }

@@ -98,7 +98,7 @@ partial class SceneMotion
                 
                 o.UseInteractions = true;
                 o.Space.GravityConst = 0.00002;
-                o.EdgeSize = 0.4;
+                o.Interaction.EdgeSize = 0.4;
             }).ToMotion(10);
     }
 }

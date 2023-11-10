@@ -56,20 +56,29 @@ public partial class ActiveWorld
             }
         }
 
-        options.ForceInteractionRadius = GetForceInteractionRadius(options.EdgeSize);
+        options.ForceInteractionRadius = GetForceInteractionRadius(options.Interaction.EdgeSize);
 
         activeShapes.ForEach(a =>
         {
-            a.Activate();
-            
-            if (a.Options.UseBlow)
-                a.Model.volume0 = GetActiveShapeVolume(a);
+            a.Activate();            
+            a.Model.volume0 = GetActiveShapeVolume(a);
         });
 
         if (options.UseInteractions)
         {
             var clusterSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
-            worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), clusterSize, true, options.InteractionAreaScale);
+            worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), clusterSize, true, options.Interaction.InteractionAreaScale);
+
+            if (options.Interaction.UseMass)
+            {
+                var worldVolume = activeShapes.Select(a => a.Model.volume0).Sum();
+                var averageVolume = worldVolume / activeShapes.Count;
+                activeShapes.ForEach(a =>
+                {
+                    var mass = a.Model.volume0 / averageVolume;
+                    a.Nodes.ForEach(n=>n.mass = mass);
+                });
+            }
         }
     }
 
@@ -100,26 +109,15 @@ public partial class ActiveWorld
 
             var interactionCounter = 0;
 
-            foreach (var a in activeShapes)
-            {
-                if (a.Options.UseInteractions)
-                {
-                    foreach (var b in worldNet.SelectNeighbors(a))
-                    {
-                        foreach (var nb in b.Nodes)
+            foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+                foreach (var b in worldNet.SelectNeighbors(a))
+                    foreach (var nb in b.Nodes)
+                        foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
                         {
-                            var aNodes = a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius);
-                            //var aNodes = a.Nodes;
-                            foreach (var na in aNodes)
-                            {
-                                var mf = MaterialInteractionForceFn(options.InteractionForce, options.EdgeSize, (na.position - nb.position).Length);
-                                na.speed += (na.position - nb.position).ToLenWithCheck(mf);
-                                interactionCounter++;
-                            }
-                        }
-                    }
-                }
-            }
+                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
+                            na.speed += (na.position - nb.position).ToLenWithCheck(ma);
+                            interactionCounter++;
+                        }              
 
             //Debug.WriteLine(interactionCounter);
         }
