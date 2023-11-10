@@ -8,6 +8,35 @@ namespace Model.Graphs
 {
     public partial class Graph
     {
+        public int[] DistanceMap(int i) => DistanceMap(nodes[i]);
+        public int[] DistanceMap(Node node)
+        {
+            var map = new int[nodes.Count];
+
+            var visited = new bool[nodes.Count];
+            var queue = new Queue<(Node n, int d)>(nodes.Count);
+
+            queue.Enqueue((node,0));
+
+            do
+            {
+                var n = queue.Dequeue();
+
+                if (!visited[n.n.i])
+                {
+                    map[n.n.i] = n.d;
+                    visited[n.n.i] = true;
+
+                    foreach (var edge in n.n.edges)
+                    {
+                        queue.Enqueue((edge.Another(n.n), n.d + 1));
+                    }
+                }
+            } while (queue.Count > 0);
+
+            return map;
+        }
+
         public bool IsReached(int a, int b, int distance) => IsReached(nodes[a], nodes[b], distance);
         public bool IsReached(Node a, Node b, int distance)
         {

@@ -69,6 +69,7 @@ public static class ActiveWorldValues
         Interaction = new ActiveWorldOptions.InteractionOptions
         {
             EdgeSize = 0.5,
+            SelfInteractionGraphDistance = 3,
             InteractionForce = 1,
             InteractionAreaScale = new Vector3(2, 2, 2),
             UseMass = true,            

@@ -123,7 +123,7 @@ public partial class ActiveWorld
                 if (a.Options.UseSelfInteractions)
                 {
                     foreach (var na in a.Nodes)
-                        foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => na.selfInteractions.Contains(n.i)))
+                        foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => !na.selfInteractions.Contains(n.i)))
                         {
                             var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
                             na.speed += (na.position - nb.position).ToLenWithCheck(ma);
@@ -131,7 +131,7 @@ public partial class ActiveWorld
                         }
                 }
             }
-            //Debug.WriteLine(interactionCounter);
+            Debug.WriteLine(interactionCounter);
         }
 
         foreach (var a in activeShapes)

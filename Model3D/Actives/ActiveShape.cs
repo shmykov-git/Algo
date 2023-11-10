@@ -165,9 +165,12 @@ public class ActiveShape : INet3Item
             if (options.UseSelfInteractions)
             {
                 var g = new Graph(nodes.SelectMany(n => n.edges.Select(e => (e.i, e.j))).Distinct());
-                var s = Stopwatch.StartNew();
-                nodes.ForEachInParallel(a => a.selfInteractions = nodes.Where(b => !g.IsReached(a.i, b.i, 3)).Select(n => n.i).ToHashSet());
-                Debug.WriteLine($"SelfInteractions initialization time: {s.Elapsed}");
+                var distance = options.WorldOptions.Interaction.SelfInteractionGraphDistance;
+                nodes.ForEachInParallel(a =>
+                {
+                    var map = g.DistanceMap(a.i);
+                    a.selfInteractions = nodes.Where(b => map[b.i] <= distance).Select(n => n.i).ToHashSet();
+                });
             }
         }
         
