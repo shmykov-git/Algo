@@ -41,7 +41,7 @@ public class ActiveShapeOptions
     public FixOptions Fix { get; set; }
     public bool UseInteractions { get; set; }
     public bool UseSelfInteractions { get; set; }
-
+    public Vector3 ColliderScale { get; set; }
     public enum FixDock
     {
         None = 0,

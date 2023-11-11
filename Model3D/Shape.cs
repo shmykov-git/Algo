@@ -26,6 +26,8 @@ namespace Model
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
 
+        public double AverageEdgeLength { get { var ps = Points3; return OrderedEdges.Select(e => (ps[e.i] - ps[e.j]).Length).Average(); } }
+
         public Vector3[][] Planes
         {
             get

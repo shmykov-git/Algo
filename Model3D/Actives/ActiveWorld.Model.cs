@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Aspose.ThreeD.Utilities;
+using Model3D.Extensions;
 using static Model3D.Actives.ActiveWorld;
 
 namespace Model3D.Actives;
@@ -20,6 +21,7 @@ public partial class ActiveWorld
         public Vector3 speed;
         public Vector3 angleSpeed;
         public Net3<Node> net;
+        public Vector3 colliderScale;
     }
 
     public class Node : INet3Item
@@ -32,13 +34,14 @@ public partial class ActiveWorld
         public Plane[] planes;
         public Vector3 position0;
         public Vector3 position;
+        //public Vector3 colliderPosition => (position - model.center).MultC(model.colliderScale) + model.center;
         public Vector3 speed = Vector3.Origin;
         //public Vector3 materialSpeed = Vector3.Origin;
         public double speedY = 0;
         public double mass = 1;
         public bool locked;
-        
-        public Func<Vector3> PositionFn => () => position - model.center;
+
+        public Func<Vector3> PositionFn => () => position - model.center;// ().MultC(model.colliderScale);
     }
 
     public enum EdgeType

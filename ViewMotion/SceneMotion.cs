@@ -57,7 +57,11 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+
         //return WorldInteractionMotion();
+        return (3).SelectCirclePoints((i, x, z) => Shapes.Cube.SplitPlanes(0.4).PutOn().Move(0.5 * x, i * 1.3, 0.5 * z)).ToWorldMotion();
+
+
         //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
         //var a = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(-1, 1, 0).ApplyColorGradientX(Color.White, Color.Green);
         //var b = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(1, 1, 0).ApplyColorGradientX(Color.Blue, Color.White);
@@ -65,41 +69,41 @@ partial class SceneMotion
         var n = 50;
         var fixZPos = 14;
 
-        var actives = new[]
-        {
-            //Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).PutOn().ApplyColorGradientX(Color.Blue, Color.White)
-            //.ToActiveShape(o =>
-            //    {
-            //        //o.UseSkeleton = true;
-            //        o.UseSelfInteractions = true;
-            //    }),
-
-
-            (20, 5, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
-                .Mult(0.2)
-                .PullOnSurface(SurfaceFuncs.Cylinder)
-                .Mult(5)
-                //.Where(v => v.z < fixZPos + 1.5)
-                .Perfecto(2)
-                .ScaleY(0.5)
-                .PutOn()
-                .ToActiveShape(o =>
-                {
-                    //o.UseSkeleton = true;
-                    o.UseSelfInteractions = true;
-                }),
-        };
-
-
-
-        //var r = 5;
-        //var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20, 1, 3).Perfecto(2).PutOn().Move(r * x, 0, r * z).ToActiveShape(o =>
+        //var actives = new[]
         //{
-        //    o.Speed = Math.Pow(-1, i) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
-        //    //o.UseSkeleton = true;
-        //    o.UseSelfInteractions = true;
-        //    o.Mass = i % 2 == 0 ? 2 : 1;
-        //})).ToArray();
+        //    Shapes.IcosahedronSp2.PutOn().MoveY(1).ApplyColorGradientX(Color.Blue, Color.White)
+        //    .ToActiveShape(o =>
+        //        {
+        //            o.UseSkeleton = true;
+        //            //o.UseSelfInteractions = true;
+        //        }),
+
+
+        //    //(20, 5, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
+        //    //    .Mult(0.2)
+        //    //    .PullOnSurface(SurfaceFuncs.Cylinder)
+        //    //    .Mult(5)
+        //    //    //.Where(v => v.z < fixZPos + 1.5)
+        //    //    .Perfecto(2)
+        //    //    .ScaleY(0.5)
+        //    //    .PutOn()
+        //    //    .ToActiveShape(o =>
+        //    //    {
+        //    //        //o.UseSkeleton = true;
+        //    //        o.UseSelfInteractions = true;
+        //    //    }),
+        //};
+
+
+
+        var r = 2;
+        var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2).RotateToMassY().PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
+        {
+            //o.Speed = Math.Pow(-1, i) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
+            o.UseSkeleton = true;
+            //o.UseSelfInteractions = true;
+            o.Mass = i % 2 == 0 ? 2 : 1;
+        })).ToArray();
 
         //var actives = new[]
         //    {
@@ -125,10 +129,10 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
             {
                 o.UseGround = true;
-                o.UseMassCenter = false;
-                o.Interaction.EdgeSize = 0.2;
-                o.Interaction.SelfInteractionGraphDistance = 10;
-                o.Interaction.InteractionForce = 10;
+                //o.UseMassCenter = false;
+                //o.Interaction.EdgeSize = 0.2;
+                //o.Interaction.SelfInteractionGraphDistance = 10;
+                //o.Interaction.InteractionForce = 10;
                 //o.UseInteractions = true;
                 //o.MassCenter.GravityConst = 0.00002;
                 //o.Interaction.EdgeSize = 0.4;

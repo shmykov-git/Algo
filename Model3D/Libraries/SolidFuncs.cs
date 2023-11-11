@@ -11,9 +11,9 @@ namespace Model3D.Libraries
 
     public static class SolidFuncs
     {
-        //public static SolidFunc ShapeFuncY(Shape shape, Func3 fn)
+        //public static SolidFunc ShapeFuncY(Shape shape0, Func3 fn)
         //{
-        //    var points = shape.Points2;
+        //    var points = shape0.Points2;
 
         //    return (double u, double v, double l) =>
         //    {
@@ -24,7 +24,7 @@ namespace Model3D.Libraries
         //    };
         //}
 
-        //public static SolidFunc CylinderShapeFuncY(Shape shape) => ShapeFuncY(shape, Funcs2.Circle());
+        //public static SolidFunc CylinderShapeFuncY(Shape shape0) => ShapeFuncY(shape0, Funcs2.Circle());
 
         //public static SolidFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);
 

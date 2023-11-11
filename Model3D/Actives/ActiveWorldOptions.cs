@@ -33,7 +33,8 @@ public class ActiveWorldOptions
     
     public class InteractionOptions
     {
-        public double EdgeSize { get; set; }
+        public double EdgeSizeMult { get; set; }
+        public double? EdgeSize { get; set; }
         public int SelfInteractionGraphDistance { get; set; }
         public double InteractionForce { get; set; }
         public Vector3 InteractionAreaScale { get; set; }

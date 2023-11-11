@@ -18,7 +18,7 @@ public static class ActiveWorldValues
         RotationSpeedAxis = Vector3.YAxis,
         Speed = Vector3.Origin,
         Mass = 1,
-        UseSkeleton = false,
+        UseSkeleton = true,
         ShowSkeletonPoint = false,
         SkeletonPower = 2,
         MaterialPower = 1,
@@ -29,6 +29,7 @@ public static class ActiveWorldValues
         Fix = new(),
         UseInteractions = true,
         UseSelfInteractions = false,
+        ColliderScale = 0.73 * new Vector3(1, 1, 1),
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -68,7 +69,8 @@ public static class ActiveWorldValues
         UseInteractions = true,
         Interaction = new ActiveWorldOptions.InteractionOptions
         {
-            EdgeSize = 0.5,
+            EdgeSizeMult = 1.5,
+            EdgeSize = null, //auto
             SelfInteractionGraphDistance = 3,
             InteractionForce = 1,
             InteractionAreaScale = new Vector3(2, 2, 2),

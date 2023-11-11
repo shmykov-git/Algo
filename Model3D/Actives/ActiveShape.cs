@@ -20,7 +20,7 @@ public class ActiveShape : INet3Item
     private ActiveWorld.Plane[] planes;
     private ActiveWorld.Model model;
 
-    private Shape shape;
+    private Shape shape0;
     private Shape staticModel;
     private Shape staticNormModel;
     private Material? material;
@@ -31,22 +31,26 @@ public class ActiveShape : INet3Item
     public IEnumerable<ActiveWorld.Node> NoSkeletonNodes => nodes.Where(n => options.UseSkeleton ? n.i != nodes.Length - 1 : true);
     public ActiveWorld.Plane[] Planes => planes;
     public ActiveWorld.Model Model => model;
+    public Shape Shape => shape0;
 
     Func<Vector3> INet3Item.PositionFn => () => model.center;
 
     public ActiveShape(Shape shape, ActiveShapeOptions options)
     {
         this.options = options;
-        this.shape = shape;
+        this.shape0 = shape;
     }
 
     public void Activate()
     {
-        staticModel = shape;
-        model = new();
+        staticModel = shape0;
+        model = new ActiveWorld.Model
+        {
+            colliderScale = options.ColliderScale
+        };
 
-        Model.borders0 = staticModel.GetBorders();
         Model.center = staticModel.PointCenter;
+        Model.borders0 = staticModel.GetBorders();
 
         var rotationCenter = options.RotationCenter ?? Model.center;
 
@@ -151,9 +155,9 @@ public class ActiveShape : INet3Item
 
         this.nodes = nodes;
 
-        if (shape.Materials != null)
+        if (shape0.Materials != null)
         {
-            var gm = shape.Materials.GroupBy(v => v).ToArray();
+            var gm = shape0.Materials.GroupBy(v => v).ToArray();
             if (gm.Length == 1)
                 material = gm[0].Key;
         }
@@ -189,8 +193,8 @@ public class ActiveShape : INet3Item
             Points3 = options.ShowSkeletonPoint || !options.UseSkeleton
                 ? nodes.Select(n => n.position).ToArray()
                 : nodes.SkipLast(1).Select(n => n.position).ToArray(),
-            Convexes = staticNormModel.Convexes,
-            Materials = staticNormModel.Convexes.Length == (this.shape.Materials?.Length??0) ? this.shape.Materials : null,
+            Convexes = shape0.Convexes,
+            Materials = staticNormModel.Convexes.Length == (shape0.Materials?.Length??0) ? shape0.Materials : null,
         };
 
         if (options.ShowMeta)

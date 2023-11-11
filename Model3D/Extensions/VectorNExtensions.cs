@@ -92,6 +92,11 @@ namespace Model3D.Extensions
             return new Vector3(a.x * b.x, a.y * b.y, a.z * b.z);
         }
 
+        public static Vector3 DivC(this Vector3 a, Vector3 b)
+        {
+            return new Vector3(a.x / b.x, a.y / b.y, a.z / b.z);
+        }
+
         public static double MultS(this Vector3 a, Vector3 b)
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;

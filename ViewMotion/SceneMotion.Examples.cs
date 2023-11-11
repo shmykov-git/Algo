@@ -31,7 +31,7 @@ partial class SceneMotion
     {
         var actives = new ActiveShape[]
             {
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(-2).ApplyColor(Color.LightBlue)
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(-2).ApplyColorGradientX(Color.White, Color.LightBlue, Color.LightBlue, Color.LightBlue, Color.White)
                 .ToActiveShape(o =>
                 {
                     o.RotationSpeedAxis = Vector3.YAxis;
@@ -42,7 +42,7 @@ partial class SceneMotion
                     o.BlowPower = 2;
                 }),
                 
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColor(Color.LightGreen)
+                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColorGradientX(Color.White, Color.LightGreen, Color.LightGreen, Color.LightGreen, Color.White)
                 .ToActiveShape(o =>
                 {
                     o.RotationSpeedAxis = Vector3.YAxis;
@@ -69,7 +69,6 @@ partial class SceneMotion
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
-            o.Interaction.EdgeSize = 0.4;
         }).ToMotion(10);
 
     }

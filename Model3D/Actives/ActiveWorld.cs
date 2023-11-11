@@ -56,7 +56,15 @@ public partial class ActiveWorld
             }
         }
 
-        options.ForceInteractionRadius = GetForceInteractionRadius(options.Interaction.EdgeSize);
+        if (options.UseInteractions)
+        {
+            if (options.Interaction.EdgeSize == null)
+            {
+                options.Interaction.EdgeSize = options.Interaction.EdgeSizeMult * activeShapes.Select(a => a.Shape.AverageEdgeLength).Average();
+            }
+
+            options.ForceInteractionRadius = GetForceInteractionRadius(options.Interaction.EdgeSize.Value);
+        }
 
         activeShapes.ForEach(a =>
         {
@@ -115,7 +123,7 @@ public partial class ActiveWorld
                     foreach (var nb in b.Nodes)
                         foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
                         {
-                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
+                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
                             na.speed += (na.position - nb.position).ToLenWithCheck(ma);
                             interactionCounter++;
                         }
@@ -125,13 +133,13 @@ public partial class ActiveWorld
                     foreach (var na in a.Nodes)
                         foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => !na.selfInteractions.Contains(n.i)))
                         {
-                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize, (na.position - nb.position).Length);
+                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
                             na.speed += (na.position - nb.position).ToLenWithCheck(ma);
                             interactionCounter++;
                         }
                 }
             }
-            Debug.WriteLine(interactionCounter);
+            //Debug.WriteLine(interactionCounter);
         }
 
         foreach (var a in activeShapes)

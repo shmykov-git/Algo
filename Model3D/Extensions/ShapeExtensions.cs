@@ -171,7 +171,7 @@ namespace Model3D.Extensions
                 {
                     up ? convex.Reverse().ToArray() : convex,
                     (up ? convex : convex.Reverse()).Select(i => i + shape.Points.Length).ToArray()
-                }).ToArray() //.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape.Points.Length, j + shape.Points.Length, j }).ToArray())).ToArray(),
+                }).ToArray() //.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape0.Points.Length, j + shape0.Points.Length, j }).ToArray())).ToArray(),
             };
 
             return s;
@@ -624,6 +624,8 @@ namespace Model3D.Extensions
         public static Shape ScaleY(this Shape shape, double mult) => Scale(shape, 1, mult, 1);
         public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
 
+        public static Shape BackScale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(1/v.x, 1/v.y, 1/v.z).Move(center);
+        public static Shape Scale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(v.x, v.y, v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v) => shape.Scale(v.x, v.y, v.z);
         public static Shape Scale(this Shape shape, double x, double y, double z)
         {

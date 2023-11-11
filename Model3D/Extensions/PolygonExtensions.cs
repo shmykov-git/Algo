@@ -86,16 +86,16 @@ namespace Model3D.Extensions
         //        trConvexes = Triangulator.Triangulate(polygon, incorrectFix);
         //    }
 
-        //    var shape = new Shape()
+        //    var shape0 = new Shape()
         //        {
         //            Points2 = polygon.Points,
         //            Convexes = trConvexes
         //        }.Normalize();
 
         //    if (!volume.HasValue)
-        //        return shape;
+        //        return shape0;
 
-        //    return shape.AddVolumeZ(volume.Value);
+        //    return shape0.AddVolumeZ(volume.Value);
         //}
 
         public static Shape ToTriangulatedShape(this Polygon polygon, int countTriangle = 30, double? volume = null, double incorrectFix = 0)
