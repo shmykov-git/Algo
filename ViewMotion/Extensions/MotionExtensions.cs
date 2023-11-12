@@ -94,6 +94,9 @@ static class MotionExtensions
     public static ActiveWorld ToWorld(this IEnumerable<ActiveShape> actives, Action<ActiveWorldOptions>? modifyFn = null) =>
         (actives.ToArray(), new Shape[0]).ToWorld(modifyFn);
 
+    public static ActiveWorld ToWorld(this IEnumerable<Shape> actives, Action<ActiveWorldOptions>? modifyFn = null) =>
+        (actives.Select(a => a.ToActiveShape()).ToArray(), new Shape[0]).ToWorld(modifyFn);
+
     public static ActiveWorld ToWorld(this (Shape[] actives, Shape[] statics) shapes, Action<ActiveWorldOptions>? modifyFn = null) =>
         (shapes.actives.Select(a => a.ToActiveShape()).ToArray(), shapes.statics).ToWorld(modifyFn);
 

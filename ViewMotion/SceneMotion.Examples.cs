@@ -27,6 +27,9 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+
+    public Task<Motion> CookieWorldMotion() => (20).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.6, 0.3 * z)).ToWorldMotion();
+
     public Task<Motion> WorldInteractionMotion()
     {
         var actives = new ActiveShape[]

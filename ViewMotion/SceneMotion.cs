@@ -55,11 +55,13 @@ partial class SceneMotion
 
     #endregion
 
+
     public Task<Motion> Scene()
     {
-
+        return CookieWorldMotion();
+        //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();
         //return WorldInteractionMotion();
-        return (3).SelectCirclePoints((i, x, z) => Shapes.Cube.SplitPlanes(0.4).PutOn().Move(0.5 * x, i * 1.3, 0.5 * z)).ToWorldMotion();
+        return (10).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.8, 0.3 * z)).ToWorldMotion();
 
 
         //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
@@ -79,7 +81,7 @@ partial class SceneMotion
         //        }),
 
 
-        //    //(20, 5, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
+        //    //(20, 5, 1).SelectRange((y, j, k) => Shapes.NativeCubeWithCenterPoint.Move(y, j, k)).ToSingleShape().NormalizeWith2D().Centered()
         //    //    .Mult(0.2)
         //    //    .PullOnSurface(SurfaceFuncs.Cylinder)
         //    //    .Mult(5)
@@ -99,7 +101,7 @@ partial class SceneMotion
         var r = 2;
         var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2).RotateToMassY().PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
         {
-            //o.Speed = Math.Pow(-1, i) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
+            //o.Speed = Math.Pow(-1, y) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
             o.UseSkeleton = true;
             //o.UseSelfInteractions = true;
             o.Mass = i % 2 == 0 ? 2 : 1;

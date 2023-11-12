@@ -124,6 +124,11 @@ public partial class ActiveWorld
                         foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
                         {
                             var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
+
+                            if (options.UsePowerLimit)
+                                if (ma * na.mass > options.PowerLimit)
+                                    ma = options.PowerLimit / na.mass;
+
                             na.speed += (na.position - nb.position).ToLenWithCheck(ma);
                             interactionCounter++;
                         }

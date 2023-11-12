@@ -25,13 +25,12 @@ public partial class ActiveWorld // Rules
         return power * interactionCoef / x.Pow4();
     }
 
-    private double materialForceBorder = 0.75;
-    double MaterialForceFn(double power, double a, double y)
+    double MaterialForceFn(double power, double border, double a, double y)
     {
         var x = y / a;
 
-        if (x < materialForceBorder)
-            x = materialForceBorder;
+        if (x < border)
+            x = border;
 
         return power * (x - 1) * (x + 1) / x.Pow4();
     }
@@ -56,6 +55,7 @@ public partial class ActiveWorld // Rules
     {
         var p0 = n.position;
         Vector3 materialForce = Vector3.Origin;
+        var forceBorder = options.MaterialForceBorder;
 
         foreach (var e in n.edges)
         {
@@ -70,10 +70,14 @@ public partial class ActiveWorld // Rules
                 _ => shapeOptions.MaterialPower * options.MaterialForceMult,
             };
 
-            var ds = MaterialForceFn(fc, e.fA, d);
+            var ds = MaterialForceFn(fc, forceBorder, e.fA, d);
 
             materialForce += ds * (p - p0) / d;
         }
+
+        if (options.UsePowerLimit)
+            if (materialForce.Length2 > options.PowerLimit* options.PowerLimit)
+                materialForce = materialForce.ToLen(options.PowerLimit);
 
         return materialForce;
     }
@@ -111,16 +115,16 @@ public partial class ActiveWorld // Rules
     Vector3 CalcMaterialDampingForce(ActiveShape a, Node n)
     {
         var v = n.speed - a.Model.speed;
+        var angleV = a.Model.angleSpeed;
 
         var r = n.position - a.Model.center;
-        var nl = a.Model.angleSpeed.Normalize();
-        var anl = nl.MultS(r);
-        var aCenter = a.Model.center + a.Model.angleSpeed.ToLenWithCheck(anl);
-        var ar = n.position - aCenter;
-        var aSpeed = a.Model.angleSpeed;
-
-        var m = v + aSpeed.MultV(ar);
-        var res = -a.Options.MaterialDamping * m;
+        var rCenterOffset = angleV.Normalize().MultS(r);
+        var rotationCenter = a.Model.center + angleV.ToLenWithCheck(rCenterOffset);
+        var rotationRadiusV = rotationCenter - n.position;
+        var rotationSpeed = angleV.MultV(rotationRadiusV);
+        var materialSpeed = v - rotationSpeed;
+        var rotationDamping = 0.02 * rotationSpeed.Length / rotationRadiusV.Length;
+        var res = -a.Options.MaterialDamping * materialSpeed - rotationDamping * rotationSpeed;
 
         return res;
     }

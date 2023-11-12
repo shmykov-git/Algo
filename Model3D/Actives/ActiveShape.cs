@@ -208,7 +208,12 @@ public class ActiveShape : INet3Item
                 if (material != null)
                     shape = shape.ApplyMaterial(material);
                 else if (options.Color1.HasValue)
-                    shape = shape.ApplyColor(options.Color1.Value);
+                {
+                    if (options.Color2.HasValue)
+                        shape = shape.ApplyColorGradientX(options.Color1.Value, options.Color2.Value);
+                    else
+                        shape = shape.ApplyColor(options.Color1.Value);
+                }
             }
         }
 
