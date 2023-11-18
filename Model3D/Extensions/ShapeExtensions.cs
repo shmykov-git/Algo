@@ -514,7 +514,7 @@ namespace Model3D.Extensions
         }
 
         // normalized shape
-        public static IEnumerable<Shape> AddSkeleton(this Shape shape, double? step = null)
+        public static IEnumerable<Shape> AddSkeleton(this Shape shape, double? radius = null)
         {
             var center = shape.PointCenter;
             var ps = shape.Points3.Select(p => p - center).ToArray();
@@ -542,9 +542,13 @@ namespace Model3D.Extensions
                 return v;
             }
 
-            step ??= pData.Select(v => (v.cs.SelectMany(c => c.Line2(v.i)).Distinct().Select(i => ps[i]).Center() - ps[v.i]).Length).Average();
+            // todo: объединить точки
 
-            foreach (var _ in Minimizer.Gold(0, step.Value, 0.01 * step.Value, GetShapeVolumeAfterNormalShift, 2 * step.Value, false))
+            var delta = pData.Select(v => (v.cs.SelectMany(c => c.Line2(v.i)).Distinct().Select(i => ps[i]).Center() - ps[v.i]).Length).Average();
+            var precession = 0.01;
+            var speed = 2;
+
+            foreach (var _ in Minimizer.Gold(0, delta, precession * delta, GetShapeVolumeAfterNormalShift, speed * delta, false))
             {
                 yield return new Shape()
                 {
