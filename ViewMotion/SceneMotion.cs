@@ -77,7 +77,7 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         //return (Shapes.Cube.ScaleX(0.5).ToNumSpots3() + Shapes.CoodsWithText).ToMotion();
-        return GetSkeleton(Shapes.Stone(4, 10).Perfecto());
+        return GetSkeleton(Shapes.Stone(4, 1).Perfecto());
         //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
         //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5));
 

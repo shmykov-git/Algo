@@ -541,8 +541,11 @@ namespace Model3D.Extensions
 
                 return v;
             }
-
+            
             // todo: объединить точки
+            var groups = new List<List<int>>();
+            // group center, join radius
+            // todo: SupperShape3 
 
             var delta = pData.Select(v => (v.cs.SelectMany(c => c.Line2(v.i)).Distinct().Select(i => ps[i]).Center() - ps[v.i]).Length).Average();
             var precession = 0.01;
