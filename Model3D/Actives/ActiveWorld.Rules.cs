@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Extensions;
@@ -93,7 +95,7 @@ public partial class ActiveWorld // Rules
                 n.speedY += -speed.y;
                 speed = speed.SetY(0);
 
-                var fForce = -speed.ToLenWithCheck(options.CollideForceMult * options.FrictionForce);
+                var fForce = -speed.ToLenWithCheck(options.CollideForceMult * options.GroundFrictionForce);
                 speed = fForce.Length2 > speed.Length2
                     ? Vector3.Origin
                     : speed + fForce;
@@ -102,7 +104,7 @@ public partial class ActiveWorld // Rules
             {
                 n.speedY = 0;
 
-                var clForce = -Vector3.YAxis.ToLenWithCheck(options.CollideForceMult * options.ClingForce);
+                var clForce = -Vector3.YAxis.ToLenWithCheck(options.CollideForceMult * options.GroundClingForce);
                 speed = clForce.Length2 > speed.VectorY().Length2
                     ? Vector3.Origin
                     : speed + clForce;
@@ -166,4 +168,130 @@ public partial class ActiveWorld // Rules
     bool CanCalc(Node n) => !n.locked;
     
     Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
+
+
+    private void ParticleInteraction()
+    {
+        var interactionCounter = 0;
+
+        foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+        {
+            foreach (var b in worldNet.SelectNeighbors(a))
+                foreach (var nb in b.Nodes)
+                    foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
+                    {
+                        var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
+
+                        if (options.UsePowerLimit)
+                            if (ma * na.mass > options.PowerLimit)
+                                ma = options.PowerLimit / na.mass;
+
+                        na.speed += (na.position - nb.position).ToLenWithCheck(ma);
+                        interactionCounter++;
+                    }
+
+            if (a.Options.UseSelfInteractions)
+            {
+                foreach (var na in a.Nodes)
+                    foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => !na.selfInteractions.Contains(n.i)))
+                    {
+                        var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
+                        na.speed += (na.position - nb.position).ToLenWithCheck(ma);
+                        interactionCounter++;
+                    }
+            }
+        }
+        //Debug.WriteLine(interactionCounter);
+    }
+
+    Vector3 GetPointSpeed(Node[] ns, Plane plane, Vector3 p)
+    {
+        var a = (ns[plane.i].position - p).Length;
+        var b = (ns[plane.j].position - p).Length;
+        var c = (ns[plane.k].position - p).Length;
+
+        var s = a * b + b * c + a * c;
+        var speed = (b * c / s) * ns[plane.i].speed + (a * c / s) * ns[plane.j].speed + (a * b / s) * ns[plane.k].speed;
+
+        return speed;
+    }
+
+    private void PlaneInteraction()
+    {
+        var interactionCounter = 0;
+
+        foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+        {
+            foreach (var b in worldNet.SelectNeighbors(a))
+                foreach (var pb in b.Planes)
+                {
+                    var plane = new Model3D.Plane(b.Nodes[pb.i].position, b.Nodes[pb.j].position, b.Nodes[pb.k].position);
+                    var nOne = plane.NOne;
+                    var pCenter = plane.Center;
+                    var pSize = plane.Size;
+                    var pDistanceFn = plane.Fn;
+                    var pProjFn = plane.ProjectionFn;
+                    var isPointInsideFn = plane.IsPointInsideFn;
+
+                    foreach (var na in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize))
+                    {
+                        var interPoint = pProjFn(na.position);
+                        var triangleDistance = pDistanceFn(na.position);
+                        var isCrossingTriangle = triangleDistance.Sgn() != pDistanceFn(na.position + nOne * a.Options.MaterialThickness).Sgn();
+                        var isUnderTriangle = -a.Options.MaterialThickness <= triangleDistance && triangleDistance <= 0;
+                        var isInsideTriangle = isPointInsideFn(interPoint);
+                        var isInsideMaterial = isUnderTriangle && isInsideTriangle;
+                        var isCrossingMaterial = isCrossingTriangle && isInsideTriangle;
+
+                        if (isCrossingMaterial)
+                        {
+                            var interPointSpeed = GetPointSpeed(b.Nodes, pb, interPoint);
+                            var interSpeed = na.speed - interPointSpeed;
+                            var interSpeedN = interSpeed.MultS(nOne);
+
+                            if (interSpeedN < 0)
+                            {
+                                var slidingSpeed = interSpeed - nOne * interSpeedN;
+                                var frictionForce = -slidingSpeed.ToLenWithCheck(Math.Max(slidingSpeed.Length, options.CollideForceMult * options.MaterialFrictionForce), Epsilon);
+                                var clingForce = (-options.CollideForceMult * options.MaterialClingForce) * nOne;
+                                var rSpeed = interSpeedN.Abs() * nOne + /*frictionForce + */clingForce;
+                                na.rejectionSpeed += rSpeed;
+                                b.Nodes[pb.i].rejectionSpeed += -rSpeed / 3;
+                                b.Nodes[pb.j].rejectionSpeed += -rSpeed / 3;
+                                b.Nodes[pb.k].rejectionSpeed += -rSpeed / 3;
+                            }
+                        }
+
+                        if (isInsideMaterial)
+                        {
+                            var interPointSpeed = GetPointSpeed(b.Nodes, pb, interPoint);
+                            var interSpeed = na.speed - interPointSpeed;
+                            var interSpeedN = interSpeed.MultS(nOne);
+                            var slidingSpeed = interSpeed - nOne * interSpeedN;
+                            var frictionForce = -slidingSpeed.ToLenWithCheck(Math.Max(slidingSpeed.Length, options.CollideForceMult * options.MaterialFrictionForce), Epsilon);
+
+                            var elasticForce = (triangleDistance.Abs() * options.CollideForceMult * options.MaterialElasticForce) * nOne;
+                            var force = elasticForce + frictionForce;
+                            na.speed+= force;
+                            b.Nodes[pb.i].speed += -force / 3;
+                            b.Nodes[pb.j].speed += -force / 3;
+                            b.Nodes[pb.k].speed += -force / 3;
+                        }
+
+                        interactionCounter++;
+                    }
+                }
+        }
+
+        activeShapes.Where(a => a.Options.UseInteractions)
+            .ForEach(a => a.Nodes
+                .ForEach(n =>
+                {
+                    n.speed += n.rejectionSpeed;
+                    n.rejectionSpeed = Vector3.Origin;
+                }));
+
+        Debug.WriteLine(interactionCounter);
+    }
+
 }

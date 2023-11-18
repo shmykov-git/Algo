@@ -34,6 +34,7 @@ public class ActiveShapeOptions
     public double SkeletonPower { get; set; }
     public bool ShowSkeletonPoint { get; set; }
     public double MaterialPower { get; set; }
+    public double MaterialThickness { get; set; }
     public bool UseMaterialDamping { get; set; }
     public double MaterialDamping { get; set; }
     public bool UseBlow {  get; set; }

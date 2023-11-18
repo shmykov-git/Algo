@@ -183,6 +183,42 @@ namespace Model.Libraries
             }
         };
 
+        public static Shape CubeT => new Shape
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(0, 0, 1),
+                new Vector3(0, 1, 0),
+                new Vector3(0, 1, 1),
+                new Vector3(1, 0, 0),
+                new Vector3(1, 0, 1),
+                new Vector3(1, 1, 0),
+                new Vector3(1, 1, 1),
+            },
+            Convexes = new int[][]
+            {
+                //new[]{0, 1, 3, 2},
+                new[]{0, 1, 3},
+                new[]{3, 2, 0},
+                //new[]{1, 5, 7, 3},
+                new[]{1, 5, 7},
+                new[]{7, 3, 1},
+                //new[]{5, 4, 6, 7},
+                new[]{5, 4, 6},
+                new[]{6, 7, 5},
+                //new[]{4, 0, 2, 6},
+                new[]{4, 0, 2},
+                new[]{2, 6, 4},
+                //new[]{0, 4, 5, 1},
+                new[]{0, 4, 5},
+                new[]{5, 1, 0},
+                //new[]{2, 3, 7, 6}
+                new[]{2, 3, 7},
+                new[]{7, 6, 2}
+            }
+        };
+
         public static Shape PerfectCubeWithCenter => new Shape
         {
             Points3 = new Vector3[]

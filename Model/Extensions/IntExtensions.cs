@@ -7,6 +7,7 @@ namespace Model.Extensions
     public static class IntExtensions
     {
         public static int Abs(this int a) => Math.Abs(a);
+        public static int Sgn(this int x) => x < 0 ? -1 : 1;
 
         public static bool Even(this int a) => a.Abs() % 2 == 0;
         public static bool Odd(this int a) => a.Abs() % 2 == 1;
@@ -45,6 +46,31 @@ namespace Model.Extensions
 
             return c.Index().Select(i => c[(i + k) % c.Length]).ToArray();
         }
+
+        public static int[] Line2(this int[] c, int k)
+        {
+            var i = 0;
+            while (c[i] != k && i < c.Length)
+                i++;
+
+            if (i == c.Length)
+                return new int[0];
+
+            return new int[] { c[(i + 1) % c.Length], c[(i - 1 + c.Length) % c.Length] };
+        }
+
+        public static int[] Plane3(this int[] c, int k)
+        {
+            var i = 0;
+            while (c[i] != k && i < c.Length)
+                i++;
+
+            if (i == c.Length)
+                return new int[0];
+
+            return new int[] { c[(i - 1 + c.Length) % c.Length], k, c[(i + 1) % c.Length] };
+        }
+
 
         public static int[] JoinConvexes(this int[] a, int[] b)
         {

@@ -56,7 +56,7 @@ public partial class ActiveWorld
             }
         }
 
-        if (options.UseInteractions)
+        if (options.InteractionType.HasAnyFlag(InteractionType.Any))
         {
             if (options.Interaction.EdgeSize == null)
             {
@@ -72,7 +72,7 @@ public partial class ActiveWorld
             a.Model.volume0 = GetActiveShapeVolume(a);
         });
 
-        if (options.UseInteractions)
+        if (options.InteractionType.HasAnyFlag(InteractionType.Any))
         {
             var clusterSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
             worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), clusterSize, true, options.Interaction.InteractionAreaScale);
@@ -105,7 +105,7 @@ public partial class ActiveWorld
 
         activeShapes.ForEach(a => a.Model.center = a.NoSkeletonNodes.Select(n => n.position).Center());
 
-        if (options.UseInteractions)
+        if (options.InteractionType.HasAnyFlag(InteractionType.Any))
         {
             worldNet.Update();
 
@@ -115,36 +115,11 @@ public partial class ActiveWorld
                     a.Model.net.Update();
             }
 
-            var interactionCounter = 0;
+            if (options.InteractionType.HasFlag(InteractionType.Particle))
+                ParticleInteraction();
 
-            foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
-            {
-                foreach (var b in worldNet.SelectNeighbors(a))
-                    foreach (var nb in b.Nodes)
-                        foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
-                        {
-                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
-
-                            if (options.UsePowerLimit)
-                                if (ma * na.mass > options.PowerLimit)
-                                    ma = options.PowerLimit / na.mass;
-
-                            na.speed += (na.position - nb.position).ToLenWithCheck(ma);
-                            interactionCounter++;
-                        }
-
-                if (a.Options.UseSelfInteractions)
-                {
-                    foreach (var na in a.Nodes)
-                        foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => !na.selfInteractions.Contains(n.i)))
-                        {
-                            var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.InteractionForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
-                            na.speed += (na.position - nb.position).ToLenWithCheck(ma);
-                            interactionCounter++;
-                        }
-                }
-            }
-            //Debug.WriteLine(interactionCounter);
+            if (options.InteractionType.HasFlag(InteractionType.Plane))
+                PlaneInteraction();
         }
 
         foreach (var a in activeShapes)
@@ -174,6 +149,10 @@ public partial class ActiveWorld
                 a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcGroundForce());
                 a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcGroundSpeed(n, a.Options));
                 a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
+            }
+
+            if (a.Nodes.Any(n=>n.speed.Length > 0.1))
+            {
             }
 
             a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);

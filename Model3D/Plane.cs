@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
@@ -15,10 +17,22 @@ namespace Model3D
         public Vector3 b;
         public Vector3 c;
 
+        public IEnumerable<Vector3> points
+        {
+            get
+            {
+                yield return a;
+                yield return b;
+                yield return c;
+            }
+        }
+
         public Vector3 ca => a - c;
         public Vector3 cb => b - c;
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
+        public Vector3 Center => (a + b + c) / 3;
+        public double Size => Math.Max((b-a).Length, Math.Max((c-a).Length, (c-b).Length));
 
         public SurfaceFunc PointsFn
         {
@@ -48,6 +62,16 @@ namespace Model3D
                 var n = NOne;
 
                 return x => x - n * n.MultS(x - c);
+            }
+        }
+
+        public Func<Vector3, bool> IsPointInsideFn
+        {
+            get
+            {
+                var n = NOne;
+
+                return x => points.SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == 3;
             }
         }
 

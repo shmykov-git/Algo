@@ -37,6 +37,7 @@ public partial class ActiveWorld
         //public Vector3 colliderPosition => (position - model.center).MultC(model.colliderScale) + model.center;
         public Vector3 speed = Vector3.Origin;
         //public Vector3 materialSpeed = Vector3.Origin;
+        public Vector3 rejectionSpeed = Vector3.Origin;
         public double speedY = 0;
         public double mass = 1;
         public bool locked;

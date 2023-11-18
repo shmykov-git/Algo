@@ -20,10 +20,14 @@ public class ActiveWorldOptions
     public double CollideForceMult { get; set; }
     public double PressurePower { get; set; }
     public double PressurePowerMult { get; set; }
-    public double FrictionForce { get; set; }
-    public double ClingForce { get; set; }
+    public double GroundFrictionForce { get; set; }
+    public double GroundClingForce { get; set; }
+    public double MaterialFrictionForce { get; set; }
+    public double MaterialClingForce { get; set; }
+    //public double GroundClingForce { get; set; }
+    public double MaterialElasticForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
-    public bool UseInteractions { get; set; }
+    public InteractionType InteractionType { get; set; }
     public InteractionOptions Interaction { get; set; }
     public bool UseGround { get; set; }
     public GroundOptions Ground { get; set; }
@@ -67,4 +71,12 @@ public class ActiveWorldOptions
     }
 }
 
+[Flags]
+public enum InteractionType
+{
+    None = 0,
+    Particle = 1,
+    Plane = 2,
+    Any = Particle | Plane
+}
 

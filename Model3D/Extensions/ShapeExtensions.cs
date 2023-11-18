@@ -18,6 +18,8 @@ using Model.Graphs;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
 using Model3D.Actives;
+using System.Runtime.CompilerServices;
+using static Model3D.ShapeTreeFractal;
 
 namespace Model3D.Extensions
 {
@@ -498,10 +500,10 @@ namespace Model3D.Extensions
             Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
             Vector3 GetNP(IEnumerable<Vector3> vs) => vs.Center().ToLenWithCheck(ln => distance / ln);
 
-            var psMoves = shape.Convexes.Select((c,i)=>(c,i)).SelectMany(v => v.c.Select(i => (i, v.c, ind:v.i))).GroupBy(v => v.i).Select(gv =>
+            var psMoves = shape.Convexes.Select((c, i) => (c, i)).SelectMany(v => v.c.Select(i => (i, v.c, ind: v.i))).GroupBy(v => v.i).Select(gv =>
                     (i: gv.Key,
                         n: GetNP(gv.Select(v => GetN(v.c)))))
-                .OrderBy(v => v.i).ToDictionary(v=>v.i, v => v.n);
+                /*.OrderBy(v => v.i)*/.ToDictionary(v => v.i, v => v.n); // todo: check
 
             return new Shape()
             {
@@ -509,6 +511,47 @@ namespace Model3D.Extensions
                 Convexes = shape.Convexes,
                 Materials = shape.Materials
             };
+        }
+
+        // normalized shape
+        public static IEnumerable<Shape> AddSkeleton(this Shape shape, double? step = null)
+        {
+            var center = shape.PointCenter;
+            var ps = shape.Points3.Select(p => p - center).ToArray();
+
+            Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
+
+            var pData = shape.Convexes
+                .SelectMany(c => c.Select(i => (i, c)))
+                .GroupBy(v => v.i)
+                .Select(gv => (i: gv.Key, cs: gv.Select(v => v.c).ToArray()))
+                .Select(v => (v.i, v.cs, d: -v.cs.Select(GetN).Center().Normalize()))
+                .OrderBy(v => v.i)
+                .ToArray();
+
+            Vector3[] GetMovedPs(Vector3[] points, double move) => points.Select((p, i) => p + pData[i].d * move).ToArray();
+
+            double GetVolume(Vector3[] ps2) => shape.Convexes.Select(c => ps2[c[0]].GetVolume0(ps2[c[1]], ps2[c[2]])).Sum().Abs();
+
+            Vector3[] lastPs = ps;
+            double GetShapeVolumeAfterNormalShift(double d)
+            {
+                lastPs = GetMovedPs(ps, d);
+                var v = GetVolume(lastPs);
+
+                return v;
+            }
+
+            step ??= pData.Select(v => (v.cs.SelectMany(c => c.Line2(v.i)).Distinct().Select(i => ps[i]).Center() - ps[v.i]).Length).Average();
+
+            foreach (var _ in Minimizer.Gold(0, step.Value, 0.01 * step.Value, GetShapeVolumeAfterNormalShift, 2 * step.Value, false))
+            {
+                yield return new Shape()
+                {
+                    Points3 = lastPs.Select(p => p + center).ToArray(),
+                    Convexes = shape.Convexes,
+                };
+            }
         }
 
         public static Shape Mult(this Shape shape, double k)

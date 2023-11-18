@@ -228,5 +228,8 @@ namespace Model3D.Extensions
             return vs.SelectCircleTriple((a, b, c) => (b - a).MultV(c - b).MultS((b - a).MultV(x - b)) < 0 ? -1 : 1)
                 .Sum().Abs() == vs.Length;
         }
+
+        public static Vector3 GetPlaneNormal(this Vector3 center, Vector3 a, Vector3 b) => (a - center).MultV(b - center);
+        public static double GetVolume0(this Vector3 c, Vector3 a, Vector3 b) => c.MultS(c.GetPlaneNormal(a, b));
     }
 }

@@ -55,13 +55,37 @@ partial class SceneMotion
 
     #endregion
 
+    public Task<Motion> GetSkeleton(Shape s)
+    {
+        // предельное расположение точек - shape (объединить точки)
+        // максимальная длина ребра скелетона - shape (объединить точки)
+        // сохранить связи точек и новыми объединенными - shape skeleton (2d shape)
+        // перейти из shape2d в shape1d (с учетом массы точек, усреднением)
+        // длина ребра скелетона
+
+        IEnumerable<Shape> Animate()
+        {
+            foreach(var ss in s.AddSkeleton(0.01))
+            {
+                yield return s.ToMetaShape3(0.05, 0.05).ApplyColor(Color.Blue) + ss/*.ToNumSpots3()*/.ToMetaShape3(0.3, 0.3).ApplyColor(Color.Red);
+            }
+        }
+
+        return Animate().ToMotion(1);
+    }
 
     public Task<Motion> Scene()
     {
-        return CookieWorldMotion();
+        //return (Shapes.Cube.ScaleX(0.5).ToNumSpots3() + Shapes.CoodsWithText).ToMotion();
+        return GetSkeleton(Shapes.Stone(4, 10).Perfecto());
+        //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
+        //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5));
+
+        //return Shapes.CubeT.ToMotion();
+
         //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();
         //return WorldInteractionMotion();
-        return (10).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.8, 0.3 * z)).ToWorldMotion();
+        //return (10).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.8, 0.3 * z)).ToWorldMotion();
 
 
         //var shape = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.4).Rotate(1, 2, 3).AlignY(0).MoveY(1).ApplyColorGradientX(Color.Blue, Color.Red);
@@ -98,13 +122,16 @@ partial class SceneMotion
 
 
 
-        var r = 2;
-        var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2).RotateToMassY().PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
+        var r = 1;
+        //var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
+        var actives = (2).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(0, i*1.7, 0).ToActiveShape(o =>
+        //var actives = (2).SelectRange(i=> Shapes.Cube.SplitPlanes(0.5)/*.Rotate(i*0.7, new Vector3(1,1,1).Normalize())*/.PutOn().Move(i*0.1, i*1.6, i*0.1).ToActiveShape(o =>
         {
+            o.SkeletonPower = 10;
             //o.Speed = Math.Pow(-1, y) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
-            o.UseSkeleton = true;
+            //o.UseSkeleton = true;
             //o.UseSelfInteractions = true;
-            o.Mass = i % 2 == 0 ? 2 : 1;
+            //o.Mass = i % 2 == 0 ? 2 : 1;
         })).ToArray();
 
         //var actives = new[]
@@ -131,6 +158,9 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
             {
                 o.UseGround = true;
+                o.MaterialClingForce = 0;
+                o.MaterialFrictionForce = 0;
+                //o.Ground.GravityPower = 0.6;
                 //o.UseMassCenter = false;
                 //o.Interaction.EdgeSize = 0.2;
                 //o.Interaction.SelfInteractionGraphDistance = 10;

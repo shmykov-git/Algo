@@ -66,9 +66,10 @@ partial class SceneMotion
 
         return (actives, statics).ToWorld(o =>
         {
+            o.InteractionType = InteractionType.Particle;
             o.PressurePowerMult = 0.0001;
-            o.ClingForce = 0.1;
-            o.FrictionForce = 0.03;
+            o.GroundClingForce = 0.1;
+            o.GroundFrictionForce = 0.03;
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
@@ -118,8 +119,8 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
         {
             o.PressurePowerMult = 0.0001;
-            o.ClingForce = 0.1;
-            o.FrictionForce = 0.03;
+            o.GroundClingForce = 0.1;
+            o.GroundFrictionForce = 0.03;
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;
