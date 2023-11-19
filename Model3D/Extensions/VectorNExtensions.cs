@@ -103,6 +103,16 @@ namespace Model3D.Extensions
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
+        public static double MinXyz(this Vector3 a)
+        {
+            return Math.Min(a.x, Math.Min(a.y, a.z));
+        }
+
+        public static double MaxXyz(this Vector3 a)
+        {
+            return Math.Max(a.x, Math.Max(a.y, a.z));
+        }
+
         public static bool EqualsV(this Vector3 a, Vector3 b, double epsilon = Values.Epsilon9)
         {
             return (a.x - b.x).Abs() < epsilon && (a.y - b.y).Abs() < epsilon && (a.z - b.z).Abs() < epsilon;

@@ -19,8 +19,13 @@ public static class ActiveWorldValues
         Speed = Vector3.Origin,
         Mass = 1,
         UseSkeleton = true,
-        ShowSkeletonPoint = false,
-        SkeletonPower = 2,
+        Skeleton = new ActiveShapeOptions.SkeletonOptions
+        {
+            ShowPoints = false,
+            Type = ActiveShapeOptions.SkeletonType.ShapeSizeRatioRadius,
+            Radius = 0.3,
+            Power = 2,
+        },
         MaterialPower = 1,
         MaterialThickness = 0.2,
         UseMaterialDamping = true,

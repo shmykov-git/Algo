@@ -55,7 +55,27 @@ public class ActiveShape : INet3Item
         var rotationCenter = options.RotationCenter ?? Model.center;
 
         if (options.UseSkeleton)
-            staticModel = staticModel.WithCenterPoint();
+        {
+            switch (options.Skeleton.Type)
+            {
+                case ActiveShapeOptions.SkeletonType.CenterPoint:
+                    staticModel = staticModel.WithCenterPoint();
+                    model.skeletonPointCount = 1;
+                    break;
+
+                case ActiveShapeOptions.SkeletonType.ShapeSizeRatioRadius:
+                    var minXyz = staticModel.Centered().RotateToTopY().Size.MinXyz(); // todo: shape box ratio with size
+                    (staticModel, var skeletonPointCountXyz) = new SupperShape(staticModel).GetSkeleton(minXyz * options.Skeleton.Radius);
+                    model.skeletonPointCount = skeletonPointCountXyz;
+                    break;
+
+                case ActiveShapeOptions.SkeletonType.Radius:
+                    var maxXyz = staticModel.Centered().RotateToTopY().Size.MaxXyz();
+                    (staticModel, var skeletonPointCount) = new SupperShape(staticModel).GetSkeleton(maxXyz * options.Skeleton.Radius);
+                    model.skeletonPointCount = skeletonPointCount;
+                    break;
+            }
+        }
 
         if (options.RotationAngle.Abs() > 0)
             staticModel = staticModel.Rotate(options.RotationAngle, options.RotationAxis);
@@ -74,13 +94,13 @@ public class ActiveShape : INet3Item
 
         nodes.ForEach(n => n.nodes = nodes);
 
-        var nLast = nodes.Length - 1;
+        var skeletonI = nodes.Length - model.skeletonPointCount;
         nodes.ForEach(n => n.edges = staticModel.Links[n.i].Select(j => new ActiveWorld.Edge
         {
             i = n.i,
             j = j,
             fA = (n.position - nodes[j].position).Length,
-            type = options.UseSkeleton && nLast == j ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
+            type = options.UseSkeleton && j >= skeletonI ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
         }).ToArray());
 
         var plns = staticModel.Convexes.Where(c => c.Length >= 3).Select(c => (c:c.ToList(), p:new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] })).ToArray();
@@ -190,9 +210,9 @@ public class ActiveShape : INet3Item
     {
         var shape = new Shape
         {
-            Points3 = options.ShowSkeletonPoint || !options.UseSkeleton
+            Points3 = options.Skeleton.ShowPoints || !options.UseSkeleton
                 ? nodes.Select(n => n.position).ToArray()
-                : nodes.SkipLast(1).Select(n => n.position).ToArray(),
+                : nodes.SkipLast(model.skeletonPointCount).Select(n => n.position).ToArray(),
             Convexes = shape0.Convexes,
             Materials = staticNormModel.Convexes.Length == (shape0.Materials?.Length??0) ? shape0.Materials : null,
         };

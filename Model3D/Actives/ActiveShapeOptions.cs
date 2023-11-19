@@ -31,8 +31,7 @@ public class ActiveShapeOptions
     public Vector3 RotationSpeedAxis { get; set; }
     public Vector3? RotationSpeedCenter { get; set; }
     public bool UseSkeleton { get; set; }
-    public double SkeletonPower { get; set; }
-    public bool ShowSkeletonPoint { get; set; }
+    public SkeletonOptions Skeleton { get; set; }
     public double MaterialPower { get; set; }
     public double MaterialThickness { get; set; }
     public bool UseMaterialDamping { get; set; }
@@ -53,6 +52,21 @@ public class ActiveShapeOptions
         Bottom,
         Back,
         Front
+    }
+
+    public enum SkeletonType
+    {
+        CenterPoint,
+        ShapeSizeRatioRadius,
+        Radius
+    }
+
+    public class SkeletonOptions
+    {
+        public double Power { get; set; }
+        public SkeletonType Type { get; set; }
+        public double Radius { get; set; }
+        public bool ShowPoints { get; set; }
     }
 
     public class FixOptions

@@ -28,6 +28,18 @@ namespace ViewMotion;
 partial class SceneMotion
 {
 
+    public Task<Motion> TrySkeleton()
+    {
+        //var s = Shapes.Stone(4, 5).Perfecto();
+        var s = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
+        //var s = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
+        //var s = Surfaces.Torus(31, 10, 3, true).Perfecto();
+        //var s = Surfaces.Shamrock(120, 10, true).Perfecto();
+        //var s = Shapes.Cube.SplitPlanes(0.3).Perfecto();
+
+        return s.AddSkeleton().ToMetaShape3(0.3, 0.3, Color.Red, Color.Blue).ToMotion(1);
+    }
+
     public Task<Motion> CookieWorldMotion() => (20).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.6, 0.3 * z)).ToWorldMotion();
 
     public Task<Motion> WorldInteractionMotion()
@@ -40,7 +52,7 @@ partial class SceneMotion
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
-                    o.SkeletonPower = 0.02;
+                    o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
                 }),
@@ -51,7 +63,7 @@ partial class SceneMotion
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
-                    o.SkeletonPower = 0.02;
+                    o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
                     o.Speed = new Vector3(-0.003, 0, 0);
@@ -88,7 +100,7 @@ partial class SceneMotion
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
-                    o.SkeletonPower = 0.02;
+                    o.Skeleton.Power = 0.02;
                     o.UseBlow = true;
                     o.BlowPower = 2;
                     

@@ -513,9 +513,11 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape AddSkeleton(this Shape shape, double radius)
+        public static Shape AddSkeleton(this Shape shape, double radius = 0.3)
         {
-            return new SupperShape(shape).GetSkeleton(radius).skeletonShape;
+            var xyz = shape.Centered().RotateToTopY().Size.MinXyz();
+
+            return new SupperShape(shape).GetSkeleton(xyz * radius).skeletonShape;
         }
 
         public static Shape Mult(this Shape shape, double k)

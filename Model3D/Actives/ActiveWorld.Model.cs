@@ -22,6 +22,7 @@ public partial class ActiveWorld
         public Vector3 angleSpeed;
         public Net3<Node> net;
         public Vector3 colliderScale;
+        public int skeletonPointCount;
     }
 
     public class Node : INet3Item

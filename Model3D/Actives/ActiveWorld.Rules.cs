@@ -68,7 +68,7 @@ public partial class ActiveWorld // Rules
 
             var fc = e.type switch
             {
-                EdgeType.Skeleton => shapeOptions.SkeletonPower * options.MaterialForceMult,
+                EdgeType.Skeleton => shapeOptions.Skeleton.Power * options.MaterialForceMult,
                 _ => shapeOptions.MaterialPower * options.MaterialForceMult,
             };
 

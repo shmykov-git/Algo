@@ -55,39 +55,14 @@ partial class SceneMotion
 
     #endregion
 
-    public Task<Motion> GetSkeleton(Shape s, double radius)
-    {
-        // предельное расположение точек - shape (объединить точки)
-        // максимальная длина ребра скелетона - shape (объединить точки)
-        // сохранить связи точек и новыми объединенными - shape skeleton (2d shape)
-        // перейти из shape2d в shape1d (с учетом массы точек, усреднением)
-        // длина ребра скелетона
 
-        //IEnumerable<Shape> Animate()
-        //{
-        //    foreach(var ss in s.AddSkeleton(radius))
-        //    {
-        //        yield return s.ToMetaShape3(0.05, 0.05).ApplyColor(Color.Blue) + ss/*.ToNumSpots3()*/.ToMetaShape3(0.3, 0.3).ApplyColor(Color.Red);
-        //    }
-        //}
-
-        return s.AddSkeleton(radius).ToMetaShape3(0.3,0.3,Color.Red,Color.Blue).ToMotion(1);
-    }
 
     public Task<Motion> Scene()
     {
-        var s = Shapes.Stone(4, 5).Perfecto();
-        //var s = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
-        //var s = Surfaces.Torus(31, 10, 3, true).Perfecto();
-        //var s = Surfaces.Shamrock(120, 10, true).Perfecto();
-        //var s = Shapes.Cube.SplitPlanes(0.3).Perfecto();
+        return TrySkeleton();
 
-        var r = s.Size;
-        var max = Math.Max(r.x, Math.Max(r.y, r.z));
-        var min = Math.Min(r.x, Math.Min(r.y, r.z));
+        //return WorldInteractionMotion();
 
-        //return GetSkeleton(Shapes.Cube.SplitPlanes(0.3).Perfecto(), 0.2);
-        return GetSkeleton(s, 0.3 * min/max);
         //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
         //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5), 0.13);
         //return GetSkeleton(Surfaces.Shamrock(120, 10, true).Perfecto(), 0.03);
@@ -137,7 +112,7 @@ partial class SceneMotion
         var actives = (2).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(0, i*1.7, 0).ToActiveShape(o =>
         //var actives = (2).SelectRange(i=> Shapes.Cube.SplitPlanes(0.5)/*.Rotate(i*0.7, new Vector3(1,1,1).Normalize())*/.PutOn().Move(i*0.1, i*1.6, i*0.1).ToActiveShape(o =>
         {
-            o.SkeletonPower = 10;
+            o.Skeleton.Power = 10;
             //o.Speed = Math.Pow(-1, y) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
             //o.UseSkeleton = true;
             //o.UseSelfInteractions = true;
