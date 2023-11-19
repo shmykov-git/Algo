@@ -1,7 +1,9 @@
 ﻿using MathNet.Numerics;
+using Model.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Model.Tools;
 
@@ -22,6 +24,50 @@ public static class Minimizer
     private readonly static double betta = 1 - alfa;
     private readonly static double gamma = -alfa / (alfa * alfa - betta * betta);
     private readonly static double delta = -betta / (alfa * alfa - betta * betta);
+
+    public static IEnumerable<(double[] x, double[] fx)> Gradient(double[] x0, double[] dx0, double epsilon, Func<int, double, double> func, bool debug = false)
+    {
+        var n = x0.Length;
+
+        if (x0.Length != dx0.Length)
+            throw new ArgumentException("dx0 should be the same len as x0");
+
+        if (dx0.Any(v => v <= 0))
+            throw new ArgumentException("dx0 should be more then zero for each coordinate");
+
+        //if (maxDx != null && x0.Length != maxDx.Length)
+        //    throw new ArgumentException("maxDx should be the same len as x0 or null");
+
+        var x = x0.ToArray();
+        var dx = dx0.ToArray();
+        var fx = new double[n];
+
+        while ((n).SelectRange(i => dx[i].Abs()).Max() > epsilon)
+        {
+            for (var i = 0; i < n; i++)
+            {
+                var fx1 = func(i, x[i]);
+                var fx2 = func(i, x[i] + dx[i]);
+
+                if (fx1 > fx2)
+                {
+                    x[i] = x[i] + dx[i];
+                    fx[i] = fx2;
+                }
+                else // fx1 > fx3
+                {
+                    var fx3 = func(i, x[i] - dx[i]);                    
+
+                    x[i] = x[i] - dx[i];
+                    fx[i] = fx3;
+
+                    dx[i] = -0.5 * dx[i];
+                }
+            }
+
+            yield return (x, fx);
+        }
+    }
 
     public static IEnumerable<(double x, double fx)> Gold(double x0, double dx0, double epsilon, Func<double, double> func, double? maxDx = null, bool debug = false)
     {

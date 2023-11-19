@@ -69,7 +69,7 @@ namespace ViewMotion.Annotations
 
   /// <summary>
   /// Can be applied to symbols of types derived from IEnumerable as well as to symbols of Task
-  /// and Lazy classes to indicate that the value of a collection item, of the Task.Result property
+  /// and Lazy classes to indicate that the value of a collection Item, of the Task.Result property
   /// or of the Lazy.Value property can never be null.
   /// </summary>
   /// <example><code>
@@ -88,7 +88,7 @@ namespace ViewMotion.Annotations
 
   /// <summary>
   /// Can be applied to symbols of types derived from IEnumerable as well as to symbols of Task
-  /// and Lazy classes to indicate that the value of a collection item, of the Task.Result property
+  /// and Lazy classes to indicate that the value of a collection Item, of the Task.Result property
   /// or of the Lazy.Value property can be null.
   /// </summary>
   /// <example><code>
@@ -270,11 +270,11 @@ namespace ViewMotion.Annotations
   /// <remarks>
   /// The method should be non-static and conform to one of the supported signatures:
   /// <list>
-  /// <item><c>NotifyChanged(string)</c></item>
-  /// <item><c>NotifyChanged(params string[])</c></item>
-  /// <item><c>NotifyChanged{T}(Expression{Func{T}})</c></item>
-  /// <item><c>NotifyChanged{T,U}(Expression{Func{T,U}})</c></item>
-  /// <item><c>SetProperty{T}(ref T, T, string)</c></item>
+  /// <Item><c>NotifyChanged(string)</c></Item>
+  /// <Item><c>NotifyChanged(params string[])</c></Item>
+  /// <Item><c>NotifyChanged{T}(Expression{Func{T}})</c></Item>
+  /// <Item><c>NotifyChanged{T,U}(Expression{Func{T,U}})</c></Item>
+  /// <Item><c>SetProperty{T}(ref T, T, string)</c></Item>
   /// </list>
   /// </remarks>
   /// <example><code>
@@ -294,10 +294,10 @@ namespace ViewMotion.Annotations
   /// </code>
   /// Examples of generated notifications:
   /// <list>
-  /// <item><c>NotifyChanged("Property")</c></item>
-  /// <item><c>NotifyChanged(() =&gt; Property)</c></item>
-  /// <item><c>NotifyChanged((VM x) =&gt; x.Property)</c></item>
-  /// <item><c>SetProperty(ref myField, value, "Property")</c></item>
+  /// <Item><c>NotifyChanged("Property")</c></Item>
+  /// <Item><c>NotifyChanged(() =&gt; Property)</c></Item>
+  /// <Item><c>NotifyChanged((VM x) =&gt; x.Property)</c></Item>
+  /// <Item><c>SetProperty(ref myField, value, "Property")</c></Item>
   /// </list>
   /// </example>
   [AttributeUsage(AttributeTargets.Method)]
@@ -318,11 +318,11 @@ namespace ViewMotion.Annotations
   /// <syntax>
   /// <p>Function Definition Table syntax:</p>
   /// <list>
-  /// <item>FDT      ::= FDTRow [;FDTRow]*</item>
-  /// <item>FDTRow   ::= Input =&gt; Output | Output &lt;= Input</item>
-  /// <item>Input    ::= ParameterName: Value [, Input]*</item>
-  /// <item>Output   ::= [ParameterName: Value]* {halt|stop|void|nothing|Value}</item>
-  /// <item>Value    ::= true | false | null | notnull | canbenull</item>
+  /// <Item>FDT      ::= FDTRow [;FDTRow]*</Item>
+  /// <Item>FDTRow   ::= Input =&gt; Output | Output &lt;= Input</Item>
+  /// <Item>Input    ::= ParameterName: Value [, Input]*</Item>
+  /// <Item>Output   ::= [ParameterName: Value]* {halt|stop|void|nothing|Value}</Item>
+  /// <Item>Value    ::= true | false | null | notnull | canbenull</Item>
   /// </list>
   /// If the method has a single input parameter, its name could be omitted.<br/>
   /// Using <c>halt</c> (or <c>void</c>/<c>nothing</c>, which is the same) for the method output
@@ -333,28 +333,28 @@ namespace ViewMotion.Annotations
   /// for applicability and applied per each program state tracked by the analysis engine.<br/>
   /// </syntax>
   /// <examples><list>
-  /// <item><code>
+  /// <Item><code>
   /// [ContractAnnotation("=&gt; halt")]
   /// public void TerminationMethod()
-  /// </code></item>
-  /// <item><code>
+  /// </code></Item>
+  /// <Item><code>
   /// [ContractAnnotation("null &lt;= param:null")] // reverse condition syntax
   /// public string GetName(string surname)
-  /// </code></item>
-  /// <item><code>
+  /// </code></Item>
+  /// <Item><code>
   /// [ContractAnnotation("s:null =&gt; true")]
   /// public bool IsNullOrEmpty(string s) // string.IsNullOrEmpty()
-  /// </code></item>
-  /// <item><code>
+  /// </code></Item>
+  /// <Item><code>
   /// // A method that returns null if the parameter is null,
   /// // and not null if the parameter is not null
   /// [ContractAnnotation("null =&gt; null; notnull =&gt; notnull")]
   /// public object Transform(object data)
-  /// </code></item>
-  /// <item><code>
+  /// </code></Item>
+  /// <Item><code>
   /// [ContractAnnotation("=&gt; true, result: notnull; =&gt; false, result: null")]
   /// public bool TryParse(string s, out Person result)
-  /// </code></item>
+  /// </code></Item>
   /// </list></examples>
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
   public sealed class ContractAnnotationAttribute : Attribute
@@ -718,9 +718,9 @@ namespace ViewMotion.Annotations
   /// <example>
   /// Applying the attribute on a source template method:
   /// <code>
-  /// [SourceTemplate, Macro(Target = "item", Expression = "suggestVariableName()")]
+  /// [SourceTemplate, Macro(Target = "Item", Expression = "suggestVariableName()")]
   /// public static void forEach&lt;T&gt;(this IEnumerable&lt;T&gt; collection) {
-  ///   foreach (var item in collection) {
+  ///   foreach (var Item in collection) {
   ///     //$ $END$
   ///   }
   /// }
@@ -961,24 +961,24 @@ namespace ViewMotion.Annotations
   /// <para>
   /// Available placeholders:
   /// <list type="bullet">
-  /// <item>$this$ - expression of containing type</item>
-  /// <item>$thisType$ - containing type</item>
-  /// <item>$member$ - current member placeholder</item>
-  /// <item>$qualifier$ - this placeholder is available in the replace pattern and can be used to insert qualifier expression matched by the $member$ placeholder.
-  /// (Note that if $qualifier$ placeholder is used, then $member$ placeholder will match only qualified references)</item>
-  /// <item>$expression$ - expression of any type</item>
-  /// <item>$identifier$ - identifier placeholder</item>
-  /// <item>$args$ - any number of arguments</item>
-  /// <item>$arg$ - single argument</item>
-  /// <item>$arg1$ ... $arg10$ - single argument</item>
-  /// <item>$stmts$ - any number of statements</item>
-  /// <item>$stmt$ - single statement</item>
-  /// <item>$stmt1$ ... $stmt10$ - single statement</item>
-  /// <item>$name{Expression, 'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</item>
-  /// <item>$expression{'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</item>
-  /// <item>$name{Type, 'Namespace.FooType'}$ - 'Namespace.FooType' type</item>
-  /// <item>$type{'Namespace.FooType'}$ - 'Namespace.FooType' type</item>
-  /// <item>$statement{1,2}$ - 1 or 2 statements</item>
+  /// <Item>$this$ - expression of containing type</Item>
+  /// <Item>$thisType$ - containing type</Item>
+  /// <Item>$member$ - current member placeholder</Item>
+  /// <Item>$qualifier$ - this placeholder is available in the replace pattern and can be used to insert qualifier expression matched by the $member$ placeholder.
+  /// (Note that if $qualifier$ placeholder is used, then $member$ placeholder will match only qualified references)</Item>
+  /// <Item>$expression$ - expression of any type</Item>
+  /// <Item>$identifier$ - identifier placeholder</Item>
+  /// <Item>$args$ - any number of arguments</Item>
+  /// <Item>$arg$ - single argument</Item>
+  /// <Item>$arg1$ ... $arg10$ - single argument</Item>
+  /// <Item>$stmts$ - any number of statements</Item>
+  /// <Item>$stmt$ - single statement</Item>
+  /// <Item>$stmt1$ ... $stmt10$ - single statement</Item>
+  /// <Item>$name{Expression, 'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</Item>
+  /// <Item>$expression{'Namespace.FooType'}$ - expression with 'Namespace.FooType' type</Item>
+  /// <Item>$name{Type, 'Namespace.FooType'}$ - 'Namespace.FooType' type</Item>
+  /// <Item>$type{'Namespace.FooType'}$ - 'Namespace.FooType' type</Item>
+  /// <Item>$statement{1,2}$ - 1 or 2 statements</Item>
   /// </list>
   /// </para>
   /// <para>
@@ -988,92 +988,92 @@ namespace ViewMotion.Annotations
   /// 'arguments' - arguments list for your placeholder. Each placeholder type supports it's own arguments, check examples below for mode details.
   /// Placeholder type may be omitted and determined from the placeholder name, if name has one of the following prefixes:
   /// <list type="bullet">
-  /// <item>expr, expression - expression placeholder, e.g. $exprPlaceholder{}$, $expressionFoo{}$</item>
-  /// <item>arg, argument - argument placeholder, e.g. $argPlaceholder{}$, $argumentFoo{}$</item>
-  /// <item>ident, identifier - identifier placeholder, e.g. $identPlaceholder{}$, $identifierFoo{}$</item>
-  /// <item>stmt, statement - statement placeholder, e.g. $stmtPlaceholder{}$, $statementFoo{}$</item>
-  /// <item>type - type placeholder, e.g. $typePlaceholder{}$, $typeFoo{}$</item>
-  /// <item>member - member placeholder, e.g. $memberPlaceholder{}$, $memberFoo{}$</item>
+  /// <Item>expr, expression - expression placeholder, e.g. $exprPlaceholder{}$, $expressionFoo{}$</Item>
+  /// <Item>arg, argument - argument placeholder, e.g. $argPlaceholder{}$, $argumentFoo{}$</Item>
+  /// <Item>ident, identifier - identifier placeholder, e.g. $identPlaceholder{}$, $identifierFoo{}$</Item>
+  /// <Item>stmt, statement - statement placeholder, e.g. $stmtPlaceholder{}$, $statementFoo{}$</Item>
+  /// <Item>type - type placeholder, e.g. $typePlaceholder{}$, $typeFoo{}$</Item>
+  /// <Item>member - member placeholder, e.g. $memberPlaceholder{}$, $memberFoo{}$</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Expression placeholder arguments:
   /// <list type="bullet">
-  /// <item>expressionType - string value in single quotes, specifies full type name to match (empty string by default)</item>
-  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// <Item>expressionType - string value in single quotes, specifies full type name to match (empty string by default)</Item>
+  /// <Item>exactType - boolean value, specifies if expression should have exact type match (false by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myExpr{Expression, 'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</item>
-  /// <item>$myExpr{Expression, 'Namespace.FooType'}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type or expressions which can be implicitly converted to 'Namespace.FooType'.</item>
-  /// <item>$myExpr{Expression}$ - defines expression placeholder, matching expressions of any type.</item>
-  /// <item>$exprFoo{'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</item>
+  /// <Item>$myExpr{Expression, 'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</Item>
+  /// <Item>$myExpr{Expression, 'Namespace.FooType'}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type or expressions which can be implicitly converted to 'Namespace.FooType'.</Item>
+  /// <Item>$myExpr{Expression}$ - defines expression placeholder, matching expressions of any type.</Item>
+  /// <Item>$exprFoo{'Namespace.FooType', true}$ - defines expression placeholder, matching expressions of the 'Namespace.FooType' type with exact matching.</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Type placeholder arguments:
   /// <list type="bullet">
-  /// <item>type - string value in single quotes, specifies full type name to match (empty string by default)</item>
-  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// <Item>type - string value in single quotes, specifies full type name to match (empty string by default)</Item>
+  /// <Item>exactType - boolean value, specifies if expression should have exact type match (false by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myType{Type, 'Namespace.FooType', true}$ - defines type placeholder, matching 'Namespace.FooType' types with exact matching.</item>
-  /// <item>$myType{Type, 'Namespace.FooType'}$ - defines type placeholder, matching 'Namespace.FooType' types or types, which can be implicitly converted to 'Namespace.FooType'.</item>
-  /// <item>$myType{Type}$ - defines type placeholder, matching any type.</item>
-  /// <item>$typeFoo{'Namespace.FooType', true}$ - defines types placeholder, matching 'Namespace.FooType' types with exact matching.</item>
+  /// <Item>$myType{Type, 'Namespace.FooType', true}$ - defines type placeholder, matching 'Namespace.FooType' types with exact matching.</Item>
+  /// <Item>$myType{Type, 'Namespace.FooType'}$ - defines type placeholder, matching 'Namespace.FooType' types or types, which can be implicitly converted to 'Namespace.FooType'.</Item>
+  /// <Item>$myType{Type}$ - defines type placeholder, matching any type.</Item>
+  /// <Item>$typeFoo{'Namespace.FooType', true}$ - defines types placeholder, matching 'Namespace.FooType' types with exact matching.</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Identifier placeholder arguments:
   /// <list type="bullet">
-  /// <item>nameRegex - string value in single quotes, specifies regex to use for matching (empty string by default)</item>
-  /// <item>nameRegexCaseSensitive - boolean value, specifies if name regex is case sensitive (true by default)</item>
-  /// <item>type - string value in single quotes, specifies full type name to match (empty string by default)</item>
-  /// <item>exactType - boolean value, specifies if expression should have exact type match (false by default)</item>
+  /// <Item>nameRegex - string value in single quotes, specifies regex to use for matching (empty string by default)</Item>
+  /// <Item>nameRegexCaseSensitive - boolean value, specifies if name regex is case sensitive (true by default)</Item>
+  /// <Item>type - string value in single quotes, specifies full type name to match (empty string by default)</Item>
+  /// <Item>exactType - boolean value, specifies if expression should have exact type match (false by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myIdentifier{Identifier, 'my.*', false, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (ignoring case) starting with 'my' prefix with 'Namespace.FooType' type.</item>
-  /// <item>$myIdentifier{Identifier, 'my.*', true, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix with 'Namespace.FooType' type.</item>
-  /// <item>$identFoo{'my.*'}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix.</item>
+  /// <Item>$myIdentifier{Identifier, 'my.*', false, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (ignoring case) starting with 'my' prefix with 'Namespace.FooType' type.</Item>
+  /// <Item>$myIdentifier{Identifier, 'my.*', true, 'Namespace.FooType', true}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix with 'Namespace.FooType' type.</Item>
+  /// <Item>$identFoo{'my.*'}$ - defines identifier placeholder, matching identifiers (case sensitively) starting with 'my' prefix.</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Statement placeholder arguments:
   /// <list type="bullet">
-  /// <item>minimalOccurrences - minimal number of statements to match (-1 by default)</item>
-  /// <item>maximalOccurrences - maximal number of statements to match (-1 by default)</item>
+  /// <Item>minimalOccurrences - minimal number of statements to match (-1 by default)</Item>
+  /// <Item>maximalOccurrences - maximal number of statements to match (-1 by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myStmt{Statement, 1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</item>
-  /// <item>$myStmt{Statement}$ - defines statement placeholder, matching any number of statements.</item>
-  /// <item>$stmtFoo{1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</item>
+  /// <Item>$myStmt{Statement, 1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</Item>
+  /// <Item>$myStmt{Statement}$ - defines statement placeholder, matching any number of statements.</Item>
+  /// <Item>$stmtFoo{1, 2}$ - defines statement placeholder, matching 1 or 2 statements.</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Argument placeholder arguments:
   /// <list type="bullet">
-  /// <item>minimalOccurrences - minimal number of arguments to match (-1 by default)</item>
-  /// <item>maximalOccurrences - maximal number of arguments to match (-1 by default)</item>
+  /// <Item>minimalOccurrences - minimal number of arguments to match (-1 by default)</Item>
+  /// <Item>maximalOccurrences - maximal number of arguments to match (-1 by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myArg{Argument, 1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</item>
-  /// <item>$myArg{Argument}$ - defines argument placeholder, matching any number of arguments.</item>
-  /// <item>$argFoo{1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</item>
+  /// <Item>$myArg{Argument, 1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</Item>
+  /// <Item>$myArg{Argument}$ - defines argument placeholder, matching any number of arguments.</Item>
+  /// <Item>$argFoo{1, 2}$ - defines argument placeholder, matching 1 or 2 arguments.</Item>
   /// </list>
   /// </para>
   /// <para>
   /// Member placeholder arguments:
   /// <list type="bullet">
-  /// <item>docId - string value in single quotes, specifies XML documentation id of the member to match (empty by default)</item>
+  /// <Item>docId - string value in single quotes, specifies XML documentation id of the member to match (empty by default)</Item>
   /// </list>
   /// Examples:
   /// <list type="bullet">
-  /// <item>$myMember{Member, 'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</item>
-  /// <item>$memberFoo{'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</item>
+  /// <Item>$myMember{Member, 'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</Item>
+  /// <Item>$memberFoo{'M:System.String.IsNullOrEmpty(System.String)'}$ - defines member placeholder, matching 'IsNullOrEmpty' member of the 'System.String' type.</Item>
   /// </list>
   /// </para>
   /// <para>
@@ -1659,7 +1659,7 @@ namespace ViewMotion.Annotations
 
   /// <summary>
   /// XAML attribute. Indicates the property of some <c>BindingBase</c>-derived type, that
-  /// is used to bind some item of <c>ItemsControl</c>-derived type. This annotation will
+  /// is used to bind some Item of <c>ItemsControl</c>-derived type. This annotation will
   /// enable the <c>DataContext</c> type resolve for XAML bindings for such properties.
   /// </summary>
   /// <remarks>

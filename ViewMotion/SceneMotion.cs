@@ -55,7 +55,7 @@ partial class SceneMotion
 
     #endregion
 
-    public Task<Motion> GetSkeleton(Shape s)
+    public Task<Motion> GetSkeleton(Shape s, double radius)
     {
         // предельное расположение точек - shape (объединить точки)
         // максимальная длина ребра скелетона - shape (объединить точки)
@@ -63,24 +63,34 @@ partial class SceneMotion
         // перейти из shape2d в shape1d (с учетом массы точек, усреднением)
         // длина ребра скелетона
 
-        IEnumerable<Shape> Animate()
-        {
-            foreach(var ss in s.AddSkeleton(0.01))
-            {
-                yield return s.ToMetaShape3(0.05, 0.05).ApplyColor(Color.Blue) + ss/*.ToNumSpots3()*/.ToMetaShape3(0.3, 0.3).ApplyColor(Color.Red);
-            }
-        }
+        //IEnumerable<Shape> Animate()
+        //{
+        //    foreach(var ss in s.AddSkeleton(radius))
+        //    {
+        //        yield return s.ToMetaShape3(0.05, 0.05).ApplyColor(Color.Blue) + ss/*.ToNumSpots3()*/.ToMetaShape3(0.3, 0.3).ApplyColor(Color.Red);
+        //    }
+        //}
 
-        return Animate().ToMotion(1);
+        return s.AddSkeleton(radius).ToMetaShape3(0.3,0.3,Color.Red,Color.Blue).ToMotion(1);
     }
 
     public Task<Motion> Scene()
     {
-        //return (Shapes.Cube.ScaleX(0.5).ToNumSpots3() + Shapes.CoodsWithText).ToMotion();
-        return GetSkeleton(Shapes.Stone(4, 1).Perfecto());
-        //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
-        //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5));
+        var s = Shapes.Stone(4, 5).Perfecto();
+        //var s = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
+        //var s = Surfaces.Torus(31, 10, 3, true).Perfecto();
+        //var s = Surfaces.Shamrock(120, 10, true).Perfecto();
+        //var s = Shapes.Cube.SplitPlanes(0.3).Perfecto();
 
+        var r = s.Size;
+        var max = Math.Max(r.x, Math.Max(r.y, r.z));
+        var min = Math.Min(r.x, Math.Min(r.y, r.z));
+
+        //return GetSkeleton(Shapes.Cube.SplitPlanes(0.3).Perfecto(), 0.2);
+        return GetSkeleton(s, 0.3 * min/max);
+        //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
+        //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5), 0.13);
+        //return GetSkeleton(Surfaces.Shamrock(120, 10, true).Perfecto(), 0.03);
         //return Shapes.CubeT.ToMotion();
 
         //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();
@@ -122,7 +132,7 @@ partial class SceneMotion
 
 
 
-        var r = 1;
+        //var r = 1;
         //var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
         var actives = (2).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(0, i*1.7, 0).ToActiveShape(o =>
         //var actives = (2).SelectRange(i=> Shapes.Cube.SplitPlanes(0.5)/*.Rotate(i*0.7, new Vector3(1,1,1).Normalize())*/.PutOn().Move(i*0.1, i*1.6, i*0.1).ToActiveShape(o =>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.Hashes;
 
 namespace Model.Extensions
 {
@@ -45,6 +46,28 @@ namespace Model.Extensions
             var k = cc.IndexOf(value);
 
             return c.Index().Select(i => c[(i + k) % c.Length]).ToArray();
+        }
+
+        public static int[] NormalizeConvex(this int[] c)
+        {
+            var k = 0;
+            var min = c[0];
+
+            for (var j = 0; j < c.Length; j++)
+            {
+                if (c[j] < min)
+                {
+                    min = c[j];
+                    k = j;
+                }
+            }
+
+            return c.Index().Select(i => c[(i + k) % c.Length]).ToArray();
+        }
+
+        public static Hashed<int[]> HashedConvex(this int[] c)
+        {
+            return new Hashed<int[]>(c.NormalizeConvex(), Hash.Get, (a, b) => a.Length == b.Length && a.Index().All(i => a[i] == b[i]));
         }
 
         public static int[] Line2(this int[] c, int k)

@@ -513,52 +513,9 @@ namespace Model3D.Extensions
             };
         }
 
-        // normalized shape
-        public static IEnumerable<Shape> AddSkeleton(this Shape shape, double? radius = null)
+        public static Shape AddSkeleton(this Shape shape, double radius)
         {
-            var center = shape.PointCenter;
-            var ps = shape.Points3.Select(p => p - center).ToArray();
-
-            Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
-
-            var pData = shape.Convexes
-                .SelectMany(c => c.Select(i => (i, c)))
-                .GroupBy(v => v.i)
-                .Select(gv => (i: gv.Key, cs: gv.Select(v => v.c).ToArray()))
-                .Select(v => (v.i, v.cs, d: -v.cs.Select(GetN).Center().Normalize()))
-                .OrderBy(v => v.i)
-                .ToArray();
-
-            Vector3[] GetMovedPs(Vector3[] points, double move) => points.Select((p, i) => p + pData[i].d * move).ToArray();
-
-            double GetVolume(Vector3[] ps2) => shape.Convexes.Select(c => ps2[c[0]].GetVolume0(ps2[c[1]], ps2[c[2]])).Sum().Abs();
-
-            Vector3[] lastPs = ps;
-            double GetShapeVolumeAfterNormalShift(double d)
-            {
-                lastPs = GetMovedPs(ps, d);
-                var v = GetVolume(lastPs);
-
-                return v;
-            }
-            
-            // todo: объединить точки
-            var groups = new List<List<int>>();
-            // group center, join radius
-            // todo: SupperShape3 
-
-            var delta = pData.Select(v => (v.cs.SelectMany(c => c.Line2(v.i)).Distinct().Select(i => ps[i]).Center() - ps[v.i]).Length).Average();
-            var precession = 0.01;
-            var speed = 2;
-
-            foreach (var _ in Minimizer.Gold(0, delta, precession * delta, GetShapeVolumeAfterNormalShift, speed * delta, false))
-            {
-                yield return new Shape()
-                {
-                    Points3 = lastPs.Select(p => p + center).ToArray(),
-                    Convexes = shape.Convexes,
-                };
-            }
+            return new SupperShape(shape).GetSkeleton(radius).skeletonShape;
         }
 
         public static Shape Mult(this Shape shape, double k)
@@ -1075,9 +1032,18 @@ namespace Model3D.Extensions
             var r = shape.GetRadius();
             return shape.Mult(0.5 / r);
         }
+        
+        public static Shape ToLine2Shape(this Shape shape)
+        {
+            return new Shape
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.SelectMany(c => c.SelectCirclePair((a, b) => new[] { a, b }.HashedConvex())).Distinct().Select(v => v.Item).ToArray()
+            };
+        }
 
-        public static Shape NormalizeWith2D(this Shape shape) => Normalize(shape, true);
-        public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true)
+        public static Shape NormalizeWith2D(this Shape shape, bool allowConvexCollapses = false) => Normalize(shape, true, true, allowConvexCollapses);
+        public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true, bool allowConvexCollapses = false)
         {
             var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
                         
@@ -1097,6 +1063,11 @@ namespace Model3D.Extensions
                 
                 points = filtered.Select(i => points[i]).ToArray();
                 convexes = convexes.Transform(i => linkBi[i]);
+            }
+
+            if (allowConvexCollapses)
+            {
+                convexes = convexes.Select(c => c.NormalizeConvex().HashedConvex()).Distinct().Select(v=>v.Item).ToArray();
             }
 
             return new Shape()

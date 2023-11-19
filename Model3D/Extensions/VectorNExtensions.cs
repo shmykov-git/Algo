@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
+using Model.Libraries;
 
 namespace Model3D.Extensions
 {
@@ -102,6 +103,11 @@ namespace Model3D.Extensions
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
+        public static bool EqualsV(this Vector3 a, Vector3 b, double epsilon = Values.Epsilon9)
+        {
+            return (a.x - b.x).Abs() < epsilon && (a.y - b.y).Abs() < epsilon && (a.z - b.z).Abs() < epsilon;
+        }
+
         public static Vector4 ToV4(this Vector2 v)
         {
             return new Vector4(v.x, v.y, 0, 1);
@@ -127,7 +133,7 @@ namespace Model3D.Extensions
             return v * (len / v.Length);
         }
 
-        public static Vector3 ToLenWithCheck(this Vector3 v, double len, double epsilon = 0.000000001)
+        public static Vector3 ToLenWithCheck(this Vector3 v, double len, double epsilon = Values.Epsilon9)
         {
             var len0 = v.Length;
 
@@ -139,7 +145,7 @@ namespace Model3D.Extensions
             return v * (lenFn(v.Length) / v.Length);
         }
 
-        public static Vector3 ToLenWithCheck(this Vector3 v, Func<double, double> lenFn, double epsilon = 0.000000001)
+        public static Vector3 ToLenWithCheck(this Vector3 v, Func<double, double> lenFn, double epsilon = Values.Epsilon9)
         {
             var ln = v.Length;
 

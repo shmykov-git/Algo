@@ -149,10 +149,10 @@ partial class SceneMotion
             //items.ForEach(v => v.Acceleration = Vector3.Origin);
             //stone.Items.ForEach(SetStoneAccelerations);
 
-            //foreach (var item in items)
+            //foreach (var Item in items)
             //{
-            //    item.Speed += item.Acceleration;
-            //    item.Position += item.Speed;
+            //    Item.Speed += Item.Acceleration;
+            //    Item.Position += Item.Speed;
             //}
 
             stone.Rotation = stone.RotationSpeed * stone.Rotation;
