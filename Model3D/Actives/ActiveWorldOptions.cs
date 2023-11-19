@@ -17,15 +17,12 @@ public class ActiveWorldOptions
     public int OverCalculationMult { get; set; } // same world forces, but not material forces
     public double MaterialForceBorder { get; set; }
     public double MaterialForceMult { get; set; }
-    public double CollideForceMult { get; set; }
+    public double ParticleConst { get; set; }
+    public double PlaneConst { get; set; }
     public double PressurePower { get; set; }
     public double PressurePowerMult { get; set; }
     public double GroundFrictionForce { get; set; }
     public double GroundClingForce { get; set; }
-    public double MaterialFrictionForce { get; set; }
-    public double MaterialClingForce { get; set; }
-    //public double GroundClingForce { get; set; }
-    public double MaterialElasticForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
     public InteractionType InteractionType { get; set; }
     public InteractionOptions Interaction { get; set; }
@@ -42,9 +39,13 @@ public class ActiveWorldOptions
         public double EdgeSizeMult { get; set; }
         public double? EdgeSize { get; set; }
         public int SelfInteractionGraphDistance { get; set; }
-        public double InteractionForce { get; set; }
+        public double ParticleForce { get; set; }
         public Vector3 InteractionAreaScale { get; set; }
         public bool UseMass {  get; set; }
+        public double MaterialFrictionForce { get; set; }
+        public double MaterialClingForce { get; set; }
+        //public double GroundClingForce { get; set; }
+        public double PlaneForce { get; set; }
     }
 
     public class MassCenterOptions

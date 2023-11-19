@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model3D.Extensions;
 using static Model3D.Actives.ActiveWorld;
@@ -35,7 +36,10 @@ public partial class ActiveWorld
         public Plane[] planes;
         public Vector3 position0;
         public Vector3 position;
-        //public Vector3 colliderPosition => (position - model.center).MultC(model.colliderScale) + model.center;
+        public Vector3 nDir => planes.Select(p=>nodes[p.i].position.GetPlaneNormal(nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
+        public double collideDistance;
+        public Vector3 collidePosition => position + nDir * collideDistance;
+
         public Vector3 speed = Vector3.Origin;
         //public Vector3 materialSpeed = Vector3.Origin;
         public Vector3 rejectionSpeed = Vector3.Origin;

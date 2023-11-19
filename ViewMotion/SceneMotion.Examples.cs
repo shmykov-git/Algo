@@ -30,8 +30,8 @@ partial class SceneMotion
 
     public Task<Motion> TrySkeleton()
     {
-        //var s = Shapes.Stone(4, 5).Perfecto();
-        var s = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
+        var s = Shapes.Stone(4, 21).Perfecto();
+        //var s = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
         //var s = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
         //var s = Surfaces.Torus(31, 10, 3, true).Perfecto();
         //var s = Surfaces.Shamrock(120, 10, true).Perfecto();

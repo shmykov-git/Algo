@@ -59,14 +59,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return TrySkeleton();
-
+        //return TrySkeleton();
         //return WorldInteractionMotion();
-
-        //return GetSkeleton(Surfaces.Torus(20, 10, 3, true).Perfecto());
-        //return GetSkeleton(Shapes.IcosahedronSp2.Perfecto().ScaleX(0.5), 0.13);
-        //return GetSkeleton(Surfaces.Shamrock(120, 10, true).Perfecto(), 0.03);
-        //return Shapes.CubeT.ToMotion();
 
         //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();
         //return WorldInteractionMotion();
@@ -108,16 +102,17 @@ partial class SceneMotion
 
 
         //var r = 1;
-        //var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(r * x, 1, r * z).ToActiveShape(o =>
-        var actives = (2).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(0, i*1.7, 0).ToActiveShape(o =>
-        //var actives = (2).SelectRange(i=> Shapes.Cube.SplitPlanes(0.5)/*.Rotate(i*0.7, new Vector3(1,1,1).Normalize())*/.PutOn().Move(i*0.1, i*1.6, i*0.1).ToActiveShape(o =>
-        {
-            o.Skeleton.Power = 10;
-            //o.Speed = Math.Pow(-1, y) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
-            //o.UseSkeleton = true;
-            //o.UseSelfInteractions = true;
-            //o.Mass = i % 2 == 0 ? 2 : 1;
-        })).ToArray();
+        //var actives = (6).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2).RotateToTopY().PutOn().Move(r * x, 0.3, r * z).ToActiveShape(o =>
+        ////var actives = (2).SelectCirclePoints((i, x, z) => Shapes.Stone(4, i + 20).Perfecto(2)/*.RotateToMassY()*/.PutOn().Move(0, i * 1.7, 0).ToActiveShape(o =>
+        ////var actives = (2).SelectRange(i=> Shapes.Cube.SplitPlanes(0.5)/*.Rotate(i*0.7, new Vector3(1,1,1).Normalize())*/.PutOn().Move(i*0.1, i*1.6, i*0.1).ToActiveShape(o =>
+        ////var actives = (1).SelectCirclePoints((i, x, z) => Shapes.Stone(4, 21).Perfecto(2).RotateToTopY().PutOn().Move(0, 0.3, 0).ToActiveShape(o =>
+        //{
+        //    o.Skeleton.Power = 5;
+        //    //o.Speed = Math.Pow(-1, y) * 0.002 * new Vector3(x, 0, z).MultV(Vector3.YAxis);
+        //    //o.UseSkeleton = true;
+        //    //o.UseSelfInteractions = true;
+        //    //o.Mass = i % 2 == 0 ? 2 : 1;
+        //})).ToArray();
 
         //var actives = new[]
         //    {
@@ -140,16 +135,29 @@ partial class SceneMotion
                 //Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
             };
 
+        var actives = new[]
+        {
+            Shapes.Stone(4, 21).Perfecto(2).RotateToTopY().ToOy().ToOx().PutOn().MoveY(1),
+            Shapes.Stone(4, 25).Perfecto(2).RotateToTopY().ToOy().PutOn(),
+        }.Select(s => s.ToActiveShape(o =>
+        {
+            o.Skeleton.Power = 10;
+            o.MaterialPower = 10;
+            //o.MaterialThickness = 0.1;
+        })).ToArray();
+
         return (actives, statics).ToWorld(o =>
             {
                 o.UseGround = true;
-                o.MaterialClingForce = 0;
-                o.MaterialFrictionForce = 0;
+                o.Interaction.MaterialClingForce = 0;
+                o.Interaction.MaterialFrictionForce = 0;
+                o.Interaction.PlaneForce = 0.5;
+                
                 //o.Ground.GravityPower = 0.6;
                 //o.UseMassCenter = false;
                 //o.Interaction.EdgeSize = 0.2;
                 //o.Interaction.SelfInteractionGraphDistance = 10;
-                //o.Interaction.InteractionForce = 10;
+                //o.Interaction.ParticleForce = 10;
                 //o.UseInteractions = true;
                 //o.MassCenter.GravityConst = 0.00002;
                 //o.Interaction.EdgeSize = 0.4;

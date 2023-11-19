@@ -196,6 +196,8 @@ public class ActiveShape : INet3Item
                     a.selfInteractions = nodes.Where(b => map[b.i] <= distance).Select(n => n.i).ToHashSet();
                 });
             }
+
+            nodes.ForEach(n => n.collideDistance = options.JediMaterialThickness);
         }
         
         staticNormModel = staticModel.Normalize();
