@@ -57,8 +57,13 @@ partial class SceneMotion
 
 
 
+
     public Task<Motion> Scene()
     {
+        return BallToPyramidWorldMotion();
+
+
+        //return TwoCubesMotion();
         //return TrySkeleton();
         //return WorldInteractionMotion();
 
@@ -71,8 +76,8 @@ partial class SceneMotion
         //var a = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(-1, 1, 0).ApplyColorGradientX(Color.White, Color.Green);
         //var b = Shapes.Cube.Perfecto().SplitPlanes(0.4).PutOn().Move(1, 1, 0).ApplyColorGradientX(Color.Blue, Color.White);
 
-        var n = 50;
-        var fixZPos = 14;
+        //var n = 50;
+        //var fixZPos = 14;
 
         //var actives = new[]
         //{
@@ -130,37 +135,56 @@ partial class SceneMotion
         //        })
         //    };
 
-        var statics = new Shape[]
-            {
-                //Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
-            };
+        //var statics = new Shape[]
+        //    {
+        //        //Shapes.IcosahedronSp2.Perfecto().ApplyColor(Color.Red)
+        //    };
 
-        var actives = new[]
-        {
-            Shapes.Stone(4, 21).Perfecto(2).RotateToTopY().ToOy().ToOx().PutOn().MoveY(1),
-            Shapes.Stone(4, 25).Perfecto(2).RotateToTopY().ToOy().PutOn(),
-        }.Select(s => s.ToActiveShape(o =>
-        {
-            o.Skeleton.Power = 10;
-            o.MaterialPower = 10;
-            //o.MaterialThickness = 0.1;
-        })).ToArray();
 
-        return (actives, statics).ToWorld(o =>
-            {
-                o.UseGround = true;
-                o.Interaction.MaterialClingForce = 0;
-                o.Interaction.MaterialFrictionForce = 0;
-                o.Interaction.PlaneForce = 0.5;
-                
-                //o.Ground.GravityPower = 0.6;
-                //o.UseMassCenter = false;
-                //o.Interaction.EdgeSize = 0.2;
-                //o.Interaction.SelfInteractionGraphDistance = 10;
-                //o.Interaction.ParticleForce = 10;
-                //o.UseInteractions = true;
-                //o.MassCenter.GravityConst = 0.00002;
-                //o.Interaction.EdgeSize = 0.4;
-            }).ToMotion(10);
+
+        //var actives = new[]
+        //{
+        //    Shapes.Cube.SplitPlanes(1).PutOn().MoveY(1.3).ApplyColorGradientX(Color.White, Color.Blue).ToActiveShape(o =>
+        //    {
+        //        o.Skeleton.Power = 3;
+        //        o.MaterialPower = 3;
+        //        o.RotationSpeedAngle = 0.002;
+        //        //o.MaterialThickness = 0.1;
+        //    }),
+        //    Shapes.Cube.SplitPlanes(1).PutOn().ApplyColorGradientX(Color.White, Color.Red).ToActiveShape(o =>
+        //    {
+        //        o.Skeleton.Power = 3;
+        //        o.MaterialPower = 3;
+        //        //o.MaterialThickness = 0.1;
+        //    }),
+
+        //    //Shapes.Stone(4, 21).Perfecto(2).RotateToTopY().ToOy().ToOx().PutOn().MoveY(1),
+        //    //Shapes.Stone(4, 25).Perfecto(2).RotateToTopY().ToOy().PutOn(),
+        //}
+        ////.Select(s => s.ToActiveShape(o =>
+        ////{
+        ////    o.Skeleton.Power = 10;
+        ////    o.MaterialPower = 10;
+        ////    //o.MaterialThickness = 0.1;
+        ////}))
+        //.ToArray();
+
+        //// todo: проблема боковой поверхности материала
+        //return (actives, statics).ToWorld(o =>
+        //    {
+        //        o.UseGround = true;                
+        //        o.Interaction.MaterialClingForce = 0.1;
+        //        o.Interaction.MaterialFrictionForce = 0.1;
+        //        o.Interaction.PlaneForce = 4;
+
+        //        //o.Ground.GravityPower = 0.6;
+        //        //o.UseMassCenter = false;
+        //        //o.Interaction.EdgeSize = 0.2;
+        //        //o.Interaction.SelfInteractionGraphDistance = 10;
+        //        //o.Interaction.ParticleForce = 10;
+        //        //o.UseInteractions = true;
+        //        //o.MassCenter.GravityConst = 0.00002;
+        //        //o.Interaction.EdgeSize = 0.4;
+        //    }).ToMotion(10);
     }
 }

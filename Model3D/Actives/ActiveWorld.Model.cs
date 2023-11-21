@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Aspose.ThreeD.Utilities;
+using Model.Libraries;
 using Model3D.Extensions;
 using static Model3D.Actives.ActiveWorld;
 
@@ -9,7 +11,7 @@ namespace Model3D.Actives;
 
 public partial class ActiveWorld
 {
-    public const double Epsilon = 0.000001;
+    public const double Epsilon = Values.Epsilon6;
     public const double Epsilon2 = Epsilon * Epsilon;
 
     public class Model
@@ -40,12 +42,21 @@ public partial class ActiveWorld
         public double collideDistance;
         public Vector3 collidePosition => position + nDir * collideDistance;
 
-        public Vector3 speed = Vector3.Origin;
-        //public Vector3 materialSpeed = Vector3.Origin;
-        public Vector3 rejectionSpeed = Vector3.Origin;
+        private Vector3 _speed = Vector3.Origin;
+        public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x)) Debugger.Break(); } }
+
         public double speedY = 0;
         public double mass = 1;
         public bool locked;
+
+        // <plane>
+        public bool isColliding;
+        public int collideCount = 0;
+        public Vector3 collideForce = Vector3.Origin;
+        public Vector3 rejectionDirSum = Vector3.Origin;
+        public Vector3 nRejectionDir = Vector3.Origin;
+        public bool isInsideMaterial;
+        // </plane>
 
         public Func<Vector3> PositionFn => () => position - model.center;// ().MultC(model.colliderScale);
     }

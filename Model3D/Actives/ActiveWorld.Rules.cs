@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Aspose.ThreeD.Utilities;
@@ -123,6 +124,10 @@ public partial class ActiveWorld // Rules
         var rCenterOffset = angleV.Normalize().MultS(r);
         var rotationCenter = a.Model.center + angleV.ToLenWithCheck(rCenterOffset);
         var rotationRadiusV = rotationCenter - n.position;
+        
+        if (rotationRadiusV.Length2 < Epsilon2)
+            return Vector3.Origin;
+
         var rotationSpeed = angleV.MultV(rotationRadiusV);
         var materialSpeed = v - rotationSpeed;
         var rotationDamping = 0.02 * rotationSpeed.Length / rotationRadiusV.Length;
@@ -204,16 +209,20 @@ public partial class ActiveWorld // Rules
         //Debug.WriteLine(interactionCounter);
     }
 
-    Vector3 GetPointSpeed(Node[] ns, Plane plane, Vector3 p)
+    Vector3 GetPointK(Node[] ns, Plane plane, Vector3 p)
     {
         var a = (ns[plane.i].position - p).Length;
         var b = (ns[plane.j].position - p).Length;
         var c = (ns[plane.k].position - p).Length;
 
         var s = a * b + b * c + a * c;
-        var speed = (b * c / s) * ns[plane.i].speed + (a * c / s) * ns[plane.j].speed + (a * b / s) * ns[plane.k].speed;
 
-        return speed;
+        return new Vector3(b * c / s, a * c / s, a * b / s);
+    }
+
+    Vector3 GetPointSpeed(Node[] ns, Plane plane, Vector3 pK)
+    {
+        return pK.x * ns[plane.i].speed + pK.y * ns[plane.j].speed + pK.z * ns[plane.k].speed;
     }
 
     private void PlaneInteraction()
@@ -241,53 +250,47 @@ public partial class ActiveWorld // Rules
                     {
                         var interPoint = pProjFn(na.position);
                         var triangleDistance = pDistanceFn(na.position);
-                        var isCrossingTriangle = triangleDistance.Sgn() != pDistanceFn(na.position + nOne * a.Options.MaterialThickness).Sgn();
+                        //var isCrossingTriangle = triangleDistance.Sgn() != pDistanceFn(na.position + nOne * a.Options.MaterialThickness).Sgn();
                         var isAtCollideDistance = -a.Options.MaterialThickness <= triangleDistance && triangleDistance <= 0;
-                        //var isAtCollideDistance = triangleDistance.Abs() < a.Options.MaterialThickness;
                         var isInsideTriangle = isPointInsideFn(interPoint);
                         var isColliding = isAtCollideDistance && isInsideTriangle;
-                        //var isCrossingMaterial = isCrossingTriangle && isInsideTriangle;
 
-                        //if (isCrossingMaterial)
-                        //{
-                        //    var interPointSpeed = GetPointSpeed(b.Nodes, pb, interPoint);
-                        //    var interSpeed = na.speed - interPointSpeed;
-                        //    var interSpeedN = interSpeed.MultS(nOne);
-
-                        //    if (interSpeedN < 0)
-                        //    {
-                        //        var slidingSpeed = interSpeed - nOne * interSpeedN;
-                        //        var frictionForce = -slidingSpeed.ToLenWithCheck(Math.Max(slidingSpeed.Length, options.ParticleConst * options.MaterialFrictionForce), Epsilon);
-                        //        var clingForce = (-options.ParticleConst * options.MaterialClingForce) * nOne;
-                        //        var rSpeed = interSpeedN.Abs() * nOne + /*frictionForce + */clingForce;
-                        //        na.rejectionSpeed += rSpeed;
-                        //        b.Nodes[pb.i].rejectionSpeed += -rSpeed / 3;
-                        //        b.Nodes[pb.j].rejectionSpeed += -rSpeed / 3;
-                        //        b.Nodes[pb.k].rejectionSpeed += -rSpeed / 3;
-                        //    }
-                        //}
+                        na.isColliding = na.isColliding || isColliding;
 
                         if (isColliding)
                         {
                             var forceDistance = -triangleDistance / a.Options.MaterialThickness;
-
-                            var interPointSpeed = GetPointSpeed(b.Nodes, pb, interPoint);
+                            var pK = GetPointK(b.Nodes, pb, interPoint);
+                            var interPointSpeed = GetPointSpeed(b.Nodes, pb, pK);
                             var interSpeed = na.speed - interPointSpeed;
                             var interSpeedN = interSpeed.MultS(nOne);
                             var slidingSpeed = interSpeed - nOne * interSpeedN;
-                            
-                            var frictionForce = -slidingSpeed.ToLenWithCheck(Math.Min(slidingSpeed.Length, options.PlaneConst * options.Interaction.MaterialFrictionForce), Epsilon);
+                            var rejectionSpeed = interSpeed - 2 * interSpeedN * nOne;
+
+                            if (!na.isInsideMaterial)
+                                na.rejectionDirSum += nOne;
+
+                            var frictionForce = slidingSpeed.ToLenWithCheck(-Math.Min(slidingSpeed.Length, options.PlaneConst * options.Interaction.MaterialFrictionForce));
                             var clingForce = (-options.PlaneConst * options.Interaction.MaterialClingForce) * nOne;
 
-                            var elasticForce = (forceDistance * options.PlaneConst * options.Interaction.PlaneForce) * nOne;
+                            var dirFactor = na.nRejectionDir.MultS(nOne);
+
+                            var elasticForce = dirFactor > 0
+                                ? (dirFactor * forceDistance * options.PlaneConst * options.Interaction.PlaneForce) * na.nRejectionDir
+                                : Vector3.Origin;
+
                             var force = elasticForce + frictionForce + clingForce;
 
-                            var mass = (3 * na.mass + (nbi.mass + nbj.mass + nbk.mass)) / 6;
+                            var mass = 0.25 * (na.mass + pK.x * nbi.mass + pK.y * nbj.mass + pK.z * nbk.mass); // 0.5 (both side calculation) * middle interaction mass
 
-                            na.speed += (mass/na.mass) * force;
-                            nbi.speed -= (mass / (nbi.mass * 3)) * force;
-                            nbj.speed -= (mass / (nbj.mass * 3)) * force;
-                            nbk.speed -= (mass / (nbk.mass * 3)) * force;
+                            na.collideForce += (mass / na.mass) * force;
+                            na.collideCount++;
+                            nbi.collideForce -= (mass * pK.x / nbi.mass) * force;
+                            nbi.collideCount++;
+                            nbj.collideForce -= (mass * pK.y / nbj.mass) * force;
+                            nbj.collideCount++;
+                            nbk.collideForce -= (mass * pK.z / nbk.mass) * force;
+                            nbk.collideCount++;
                         }
 
                         interactionCounter++;
@@ -299,8 +302,25 @@ public partial class ActiveWorld // Rules
             .ForEach(a => a.Nodes
                 .ForEach(n =>
                 {
-                    n.speed += n.rejectionSpeed;
-                    n.rejectionSpeed = Vector3.Origin;
+                    if (n.isColliding)
+                    {
+                        if (!n.isInsideMaterial) // is crossing
+                        {
+                            n.nRejectionDir = n.rejectionDirSum.Normalize();
+                            n.rejectionDirSum = Vector3.Origin;
+                        }
+
+                        n.speed += n.collideForce / n.collideCount;
+                    }
+                    else
+                    {
+                        n.nRejectionDir = Vector3.Origin;
+                    }
+
+                    n.collideCount = 0;
+                    n.collideForce = Vector3.Origin;
+                    n.isInsideMaterial = n.isColliding;
+                    n.isColliding = false;
                 }));
 
         Debug.WriteLine(interactionCounter);

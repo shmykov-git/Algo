@@ -28,7 +28,7 @@ public class ActiveShape : INet3Item
 
     public ActiveShapeOptions Options => options;
     public ActiveWorld.Node[] Nodes => nodes;
-    public IEnumerable<ActiveWorld.Node> NoSkeletonNodes => nodes.Where(n => options.UseSkeleton ? n.i != nodes.Length - 1 : true);
+    public IEnumerable<ActiveWorld.Node> NoSkeletonNodes => nodes.Where(n => options.UseSkeleton ? n.i < shape0.PointsCount : true);
     public ActiveWorld.Plane[] Planes => planes;
     public ActiveWorld.Model Model => model;
     public Shape Shape => shape0;

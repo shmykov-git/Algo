@@ -27,6 +27,69 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> BallToPyramidWorldMotion()
+    {
+        var colors = new[] { Color.Red, Color.Blue, Color.Green, Color.Yellow };
+        var ballColor = Color.SaddleBrown;
+
+        var n = 5;
+        var shiftX = 1.8;
+        var shiftY = 1.03;
+
+        var cubes = Ranges.Pyramid2(n).Select(v => 
+            Shapes.Cube.SplitPlanes(1).PutOn()
+            .Move(shiftX * v.x, shiftY * v.y, -2)
+            .ApplyColorGradient(new Vector3(1, 1, 1), Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
+                        .ToActiveShape(o =>
+                        {
+                            o.Skeleton.Power = 10;
+                            o.MaterialPower = 10;
+                        }))
+            .ToArray();
+
+        var ball = Shapes.IcosahedronSp2.Perfecto(2).PutOn().MoveZ(4).ApplyColor(ballColor)
+            .ToActiveShape(o =>
+            {
+                o.Skeleton.Power = 3;
+                o.MaterialPower = 3;
+                o.Mass = 2;
+                o.Speed = new Vector3(0, 0, -0.005);
+            });
+
+        var actives = cubes.Concat(new[] { ball });
+
+        return actives.ToWorld(o =>
+        {
+            o.Interaction.MaterialClingForce = 0.1;
+            o.Interaction.MaterialFrictionForce = 0.1;
+            o.Interaction.PlaneForce = 5;
+        }).ToMotion(9);
+    }
+
+    public Task<Motion> TwoCubesWorldMotion()
+    {
+        var actives = new[]
+        {
+            Shapes.Cube.SplitPlanes(0.5).PutOn().MoveY(1.5).ApplyColorGradient(new Vector3(1, 1, 1), Color.White, Color.Blue).ToActiveShape(o =>
+            {
+                o.Skeleton.Power = 0.5;
+                o.MaterialPower = 0.5;
+                o.RotationSpeedAngle = 0.003;
+            }),
+            Shapes.Cube.SplitPlanes(0.5).PutOn().ApplyColorGradient(new Vector3(1, 1, 1), Color.White, Color.Red).ToActiveShape(o =>
+            {
+                o.Skeleton.Power = 0.5;
+                o.MaterialPower = 0.5;
+            }),
+        };
+
+        return actives.ToWorld(o =>
+        {
+            o.Interaction.MaterialClingForce = 0.1;
+            o.Interaction.MaterialFrictionForce = 0.1;
+            o.Interaction.PlaneForce = 2;
+        }).ToMotion(9);
+    }
 
     public Task<Motion> TrySkeleton()
     {
@@ -52,9 +115,12 @@ partial class SceneMotion
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
+                    o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
                     o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
+                    o.MaterialThickness = 1;
+                    o.JediMaterialThickness = 0.5;
                 }),
                 
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColorGradientX(Color.White, Color.LightGreen, Color.LightGreen, Color.LightGreen, Color.White)
@@ -63,9 +129,12 @@ partial class SceneMotion
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
+                    o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
                     o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
+                    o.MaterialThickness = 1;
+                    o.JediMaterialThickness = 0.5;
                     o.Speed = new Vector3(-0.003, 0, 0);
                 }),
             };
@@ -78,7 +147,8 @@ partial class SceneMotion
 
         return (actives, statics).ToWorld(o =>
         {
-            o.InteractionType = InteractionType.Particle;
+            o.InteractionType = InteractionType.Plane; // Point?
+            o.Interaction.PlaneForce = 1;
             o.PressurePowerMult = 0.0001;
             o.GroundClingForce = 0.1;
             o.GroundFrictionForce = 0.03;
