@@ -33,12 +33,17 @@ partial class SceneMotion
         var ballColor = Color.SaddleBrown;
 
         var n = 5;
-        var shiftX = 1.8;
+        var shiftX = 1.6;
         var shiftY = 1.03;
+
+        //var fn = Funcs.Line();
+        var fn = Funcs.Parabola(2.5 / n);
+        //var fn = Funcs.Circle(0.5 * n);
 
         var cubes = Ranges.Pyramid2(n).Select(v => 
             Shapes.Cube.SplitPlanes(1).PutOn()
-            .Move(shiftX * v.x, shiftY * v.y, -2)
+            .RotateOy(Math.Atan2(v.x, fn(v.x)))
+            .Move(shiftX * v.x, shiftY * v.y, -2 + fn(v.x))
             .ApplyColorGradient(new Vector3(1, 1, 1), Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
                         .ToActiveShape(o =>
                         {
@@ -52,7 +57,7 @@ partial class SceneMotion
             {
                 o.Skeleton.Power = 3;
                 o.MaterialPower = 3;
-                o.Mass = 2;
+                o.Mass = 5;
                 o.Speed = new Vector3(0, 0, -0.005);
             });
 

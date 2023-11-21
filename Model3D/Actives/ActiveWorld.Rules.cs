@@ -323,7 +323,7 @@ public partial class ActiveWorld // Rules
                     n.isColliding = false;
                 }));
 
-        Debug.WriteLine(interactionCounter);
+        //Debug.WriteLine(interactionCounter);
     }
 
 }
