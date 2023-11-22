@@ -13,9 +13,10 @@ using Model.Libraries;
 
 namespace Model3D.Extensions
 {
+
     public static class VectorNExtensions
     {
-        private static readonly Vector3 Zero3 = new Vector3(0, 0, 0);
+        private static readonly Vector3 Zero3 = Vector3.Origin;
         private static readonly Vector4 Zero4 = new Vector4(0, 0, 0, 0);
 
         public static Vector3 ToV3(this Vector4 v)

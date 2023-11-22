@@ -30,7 +30,7 @@ namespace View3D
         // var shape = Polygons.Square(1).PutInside(Polygons.Spiral(10, 800).Mult(1)).MakeShape().Transform(Multiplications.Cube);
         // var polygon = Polygons.Square.PutInside(Polygons.Sinus(1.7, 1.2, 3, 300));
         // var polygon = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Sinus(1.7, 1.2, 3, 300).Mult(0.8));
-        // var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.Plane);
+        // var shape = Polygons.Square(1).PutInside(Polygons.Elipse(1, 1, 50).Mult(0.7)).Fill().ToShape().Transform(Transformations.ParticleWithPlane);
         // var shape = Shapes.Chesss(25).Mult(2).AddZVolume(1.0 / 25).ApplyZ(Funcs3.Hyperboloid).Rotate(Rotates.Z_Y);
         // Spiral Sphere // var shape = Polygons.Elipse(1, 1, 50).PutInside(Polygons.Spiral(15, 1000).Mult(1.23)).MakeShape().Transform(Multiplications.Cube).ToSphere();
         // Sphere Heart //var shape = Polygons.Spiral(25, 4000).Mult(1.23).MakeShape().Transform(Multiplications.MoveY).Scale(1, 0.5, 1).Transform(TransformFuncs3.Heart()).Scale(0.7, 1, 1).AddVolume(0.001, 0, 0).Rotate(Rotates.Z_Y);
@@ -73,7 +73,7 @@ namespace View3D
         // Green tree // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10, true, Color.FromArgb(0, 10, 0), Color.FromArgb(0, 50, 0)).Rotate(Rotates.Z_Y);
         // Polynom // var shape = Surfaces.Cylinder(8, 61).MassCentered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
         // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines();
-        // Rainbow // var shape = Surfaces.Plane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
+        // Rainbow // var shape = Surfaces.ParticleWithPlane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
         // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
         // Mandelbrot // var s = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
         // Maze 5 5 5 // var shape = Mazes.CreateNet3Maze(5, 5, 5).ToCubeMetaShape3(10, 10, Color.Blue, Color.Red);
@@ -545,7 +545,7 @@ namespace View3D
             var tb = Surfaces.Plane(9, 9).ApplyColorChess(black, white).Perfecto(8*l).AddVolumeZ(tbTh*l).ApplyZ(chessFn).Mult(1/l).ToOy();
             var ns = tb.Normals;
             var ps = tb.Planes.Select(p => p.Center()).ToArray();
-            //tb = Surfaces.Plane(9, 9).ApplyColorChess(black, white)
+            //tb = Surfaces.ParticleWithPlane(9, 9).ApplyColorChess(black, white)
             //    .FilterConvexes((c,i) => i < 16 || i >= 48 || rnd.NextDouble()<0.8).Perfecto(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
 
             return new[]

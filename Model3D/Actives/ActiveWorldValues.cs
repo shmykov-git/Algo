@@ -36,7 +36,6 @@ public static class ActiveWorldValues
         Fix = new(),
         UseInteractions = true,
         UseSelfInteractions = false,
-        ColliderScale = 0.73 * new Vector3(1, 1, 1),
     };
 
     public static ActiveWorldOptions DefaultActiveWorldOptions => new ActiveWorldOptions
@@ -77,7 +76,7 @@ public static class ActiveWorldValues
             GravityPower = 1,
             GravityConst = 0.0000005
         },
-        InteractionType = InteractionType.Plane,
+        InteractionType = InteractionType.ParticleWithPlane,
         Interaction = new ActiveWorldOptions.InteractionOptions
         {
             EdgeSizeMult = 1.5,

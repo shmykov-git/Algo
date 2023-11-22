@@ -115,11 +115,11 @@ public partial class ActiveWorld
                     a.Model.net.Update();
             }
 
-            if (options.InteractionType.HasFlag(InteractionType.Particle))
-                ParticleInteraction();
+            if (options.InteractionType.HasFlag(InteractionType.ParticleWithParticle))
+                ParticleWithParticleInteraction();
 
-            if (options.InteractionType.HasFlag(InteractionType.Plane))
-                PlaneInteraction();
+            if (options.InteractionType.HasFlag(InteractionType.ParticleWithPlane))
+                ParticleWithPlaneInteraction();
         }
 
         foreach (var a in activeShapes)

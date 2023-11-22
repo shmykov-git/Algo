@@ -44,7 +44,7 @@ partial class SceneMotion
             Shapes.Cube.SplitPlanes(1).PutOn()
             .RotateOy(Math.Atan2(v.x, fn(v.x)))
             .Move(shiftX * v.x, shiftY * v.y, -2 + fn(v.x))
-            .ApplyColorGradient(new Vector3(1, 1, 1), Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
+            .ApplyColorGradient(ExVector3.XyzAxis, Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
                         .ToActiveShape(o =>
                         {
                             o.Skeleton.Power = 10;
@@ -75,13 +75,13 @@ partial class SceneMotion
     {
         var actives = new[]
         {
-            Shapes.Cube.SplitPlanes(0.5).PutOn().MoveY(1.5).ApplyColorGradient(new Vector3(1, 1, 1), Color.White, Color.Blue).ToActiveShape(o =>
+            Shapes.Cube.SplitPlanes(0.5).PutOn().MoveY(1.5).ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Blue).ToActiveShape(o =>
             {
                 o.Skeleton.Power = 0.5;
                 o.MaterialPower = 0.5;
                 o.RotationSpeedAngle = 0.003;
             }),
-            Shapes.Cube.SplitPlanes(0.5).PutOn().ApplyColorGradient(new Vector3(1, 1, 1), Color.White, Color.Red).ToActiveShape(o =>
+            Shapes.Cube.SplitPlanes(0.5).PutOn().ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Red).ToActiveShape(o =>
             {
                 o.Skeleton.Power = 0.5;
                 o.MaterialPower = 0.5;
@@ -152,7 +152,7 @@ partial class SceneMotion
 
         return (actives, statics).ToWorld(o =>
         {
-            o.InteractionType = InteractionType.Plane; // Point?
+            o.InteractionType = InteractionType.ParticleWithPlane; // Point?
             o.Interaction.PlaneForce = 1;
             o.PressurePowerMult = 0.0001;
             o.GroundClingForce = 0.1;

@@ -5,7 +5,6 @@ using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model.Libraries;
 using Model3D.Extensions;
-using static Model3D.Actives.ActiveWorld;
 
 namespace Model3D.Actives;
 
@@ -16,38 +15,60 @@ public partial class ActiveWorld
 
     public class Model
     {
-        public double forceInteractionRadius;
+        // <static>
         public (Vector3 min, Vector3 max) borders0;
+        public Net3<Node> net;      // dynamic values
+
+        //<material>
         public double volume0;
-        public double volume;
+        public int skeletonPointCount;
+        //</material>
+
+        // <interaction>
+        public double forceInteractionRadius;
+        public double jediMaterialThickness;
+        // </interaction>
+        // </static>
+
+        // <dynamic>
         public Vector3 center;
         public Vector3 speed;
+
+        // <material>
+        public double volume;
         public Vector3 angleSpeed;
-        public Net3<Node> net;
-        public Vector3 colliderScale;
-        public int skeletonPointCount;
+        // </material>
+        // </dynamic>
     }
 
     public class Node : INet3Item
     {
+        // <static>
         public int i;
-        public Model model;
-        public Node[] nodes;
-        public HashSet<int> selfInteractions;
+        public Model model;         // dynamic values
+        public Node[] nodes;        // dynamic values
         public Edge[] edges;
         public Plane[] planes;
         public Vector3 position0;
-        public Vector3 position;
-        public Vector3 nDir => planes.Select(p=>nodes[p.i].position.GetPlaneNormal(nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
-        public double collideDistance;
-        public Vector3 collidePosition => position + nDir * collideDistance;
-
-        private Vector3 _speed = Vector3.Origin;
-        public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x)) Debugger.Break(); } }
-
-        public double speedY = 0;
         public double mass = 1;
         public bool locked;
+        // </static>
+
+        // <dynamic>
+        public Vector3 position;
+        public Func<Vector3> PositionFn => () => position - model.center; 
+        
+        public Vector3 speed; //private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x)) Debugger.Break(); } }
+        // <ground>
+        public double speedY = 0;
+        // </ground>
+
+        // <interaction>
+        private Vector3 nDir => planes.Select(p => nodes[p.i].position.GetPlaneNormal(nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
+
+        // <self>
+        public HashSet<int> selfInteractions;
+        // </self>
 
         // <plane>
         public bool isColliding;
@@ -55,10 +76,11 @@ public partial class ActiveWorld
         public Vector3 collideForce = Vector3.Origin;
         public Vector3 rejectionDirSum = Vector3.Origin;
         public Vector3 nRejectionDir = Vector3.Origin;
+        public Vector3 collidePosition => position + nDir * model.jediMaterialThickness;
         public bool isInsideMaterial;
         // </plane>
-
-        public Func<Vector3> PositionFn => () => position - model.center;// ().MultC(model.colliderScale);
+        // </interaction>
+        // </dynamic>
     }
 
     public enum EdgeType

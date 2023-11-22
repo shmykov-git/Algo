@@ -9,6 +9,7 @@ using Model;
 using Model.Extensions;
 using Model.Graphs;
 using Model3D.Extensions;
+using Model3D.Libraries;
 using Material = Model.Material;
 
 namespace Model3D.Actives;
@@ -46,7 +47,7 @@ public class ActiveShape : INet3Item
         staticModel = shape0;
         model = new ActiveWorld.Model
         {
-            colliderScale = options.ColliderScale
+            jediMaterialThickness = options.JediMaterialThickness
         };
 
         Model.center = staticModel.PointCenter;
@@ -196,8 +197,6 @@ public class ActiveShape : INet3Item
                     a.selfInteractions = nodes.Where(b => map[b.i] <= distance).Select(n => n.i).ToHashSet();
                 });
             }
-
-            nodes.ForEach(n => n.collideDistance = options.JediMaterialThickness);
         }
         
         staticNormModel = staticModel.Normalize();
@@ -232,7 +231,7 @@ public class ActiveShape : INet3Item
                 else if (options.Color1.HasValue)
                 {
                     if (options.Color2.HasValue)
-                        shape = shape.ApplyColorGradientX(options.Color1.Value, options.Color2.Value);
+                        shape = shape.ApplyColorGradient(ExVector3.XyzAxis, options.Color1.Value, options.Color2.Value);
                     else
                         shape = shape.ApplyColor(options.Color1.Value);
                 }

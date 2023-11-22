@@ -76,8 +76,9 @@ public class ActiveWorldOptions
 public enum InteractionType
 {
     None = 0,
-    Particle = 1,
-    Plane = 2,
-    Any = Particle | Plane
+    ParticleWithParticle = 1,
+    ParticleWithPlane = 2,
+    EdgeWithPlane = 4,
+    Any = ParticleWithParticle | ParticleWithPlane | EdgeWithPlane
 }
 

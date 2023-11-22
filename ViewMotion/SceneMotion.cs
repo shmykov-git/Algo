@@ -60,15 +60,11 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        //return TwoCubesWorldMotion();
         return BallToPyramidWorldMotion();
-
-
-        //return TwoCubesMotion();
-        //return TrySkeleton();
         //return WorldInteractionMotion();
 
         //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();
-        //return WorldInteractionMotion();
         //return (10).SelectCirclePoints((y, x, z) => Shapes.IcosahedronSp2.Perfecto().ScaleY(0.5).PutOn().Move(0.3 * x, y * 0.8, 0.3 * z)).ToWorldMotion();
 
 
@@ -169,7 +165,6 @@ partial class SceneMotion
         ////}))
         //.ToArray();
 
-        //// todo: проблема боковой поверхности материала
         //return (actives, statics).ToWorld(o =>
         //    {
         //        o.UseGround = true;                
