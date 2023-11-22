@@ -49,6 +49,14 @@ namespace Model.Extensions
             return Enumerable.Range(0, range).Select(i => selectFn(i));
         }
 
+        public static IEnumerable<T> SelectSquarePoints<T>(this int range, Func<int, double, double, T> selectFn)
+        {
+            var size = (int)Math.Sqrt(range - 1) + 1;
+            double sizeD = size;
+
+            return Enumerable.Range(0, range).Select(i => selectFn(i, i % size + 0.5 - 0.5 * sizeD, size - i / size - 0.5 - 0.5 * sizeD));
+        }
+
         public static IEnumerable<T> SelectCircleAngle<T>(this int range, Func<int, double, T> selectFn)
         {
             return (range).SelectRange(i => selectFn(i, 2 * Math.PI * i / range));

@@ -36,21 +36,20 @@ partial class SceneMotion
         var shiftX = 1.6;
         var shiftY = 1.03;
 
-        //var fn = Funcs.Line();
-        var fn = Funcs.Parabola(2.5 / n);
+        var fn = Funcs.Line();
+        //var fn = Funcs.Parabola(2.5 / n);
         //var fn = Funcs.Circle(0.5 * n);
 
         var cubes = Ranges.Pyramid2(n).Select(v => 
-            Shapes.Cube.SplitPlanes(1).PutOn()
+            Shapes.Cube/*.SplitPlanes(1)*/.PutOn() // for funcs
             .RotateOy(Math.Atan2(v.x, fn(v.x)))
             .Move(shiftX * v.x, shiftY * v.y, -2 + fn(v.x))
             .ApplyColorGradient(ExVector3.XyzAxis, Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
-                        .ToActiveShape(o =>
-                        {
-                            o.Skeleton.Power = 10;
-                            o.MaterialPower = 10;
-                        }))
-            .ToArray();
+            .ToActiveShape(o =>
+            {
+                o.Skeleton.Power = 10;
+                o.MaterialPower = 10;
+            })).ToArray();
 
         var ball = Shapes.IcosahedronSp2.Perfecto(2).PutOn().MoveZ(4).ApplyColor(ballColor)
             .ToActiveShape(o =>

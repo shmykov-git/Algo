@@ -39,7 +39,7 @@ public class ActiveShape : INet3Item
     public ActiveShape(Shape shape, ActiveShapeOptions options)
     {
         this.options = options;
-        this.shape0 = shape;
+        this.shape0 = shape.TriangulateByFour();
     }
 
     public void Activate()
@@ -95,7 +95,7 @@ public class ActiveShape : INet3Item
 
         nodes.ForEach(n => n.nodes = nodes);
 
-        var skeletonI = nodes.Length - model.skeletonPointCount;
+        var skeletonI = shape0.PointsCount;
         nodes.ForEach(n => n.edges = staticModel.Links[n.i].Select(j => new ActiveWorld.Edge
         {
             i = n.i,
@@ -104,9 +104,20 @@ public class ActiveShape : INet3Item
             type = options.UseSkeleton && j >= skeletonI ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
         }).ToArray());
 
-        var plns = staticModel.Convexes.Where(c => c.Length >= 3).Select(c => (c:c.ToList(), p:new ActiveWorld.Plane() { i = c[0], j = c[1], k = c[2] })).ToArray();
-        planes = plns.Select(v => v.p).ToArray();
-        nodes.ForEach(n => n.planes = plns.Where(v => v.c.Contains(n.i)).Select(v => v.p).ToArray());
+        planes = shape0.Convexes
+            .Select(c => (c, p: new ActiveWorld.Plane()
+            {
+                model = model,
+                nodes = nodes,
+                c = c,
+                i = c[0],
+                j = c[1],
+                k = c[2]
+            }))
+            .Select(v => v.p)
+            .ToArray();
+
+        nodes.ForEach(n => n.planes = planes.Where(p => p.c.Contains(n.i)).ToArray());
 
         if (options.Speed.Length > 0)
             nodes.ForEach(n => n.speed += options.Speed / options.WorldOptions.OverCalculationMult);

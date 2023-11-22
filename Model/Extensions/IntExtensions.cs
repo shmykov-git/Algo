@@ -23,6 +23,47 @@ namespace Model.Extensions
             return lists.Select(list => list.Select(i => transformFn(i)).ToArray()).ToArray();
         }
 
+        //var from = 0;
+        //var n = 21;
+        //return (n-3).SelectSquarePoints((i, x, y) =>
+        //{
+        //    var ps = (i+3+from).SelectCirclePoints((i, x, y) => new Vector3(x, y, 0)).ToArray();
+        //    var s = new Shape
+        //    {
+        //        Points3 = ps,
+        //        Convexes = new[] { ps.Index().ToArray() }
+        //    };
+
+        //    //var s = new Shape { Points = ss.Points, Convexes = ss.Convexes.Take(1).ToArray() }.Normalize(false, false).Centered();
+        //    var ts = s.TriangulateByFour();
+
+        //    return (ts.ApplyColor(Color.Blue) + ts.ToMetaShape3(3, 3, Color.Red, Color.Green) + /*s.ToNumSpots3() + */vectorizer.GetTextLine(ts.Convexes.Length.ToString()).Centered().Mult(0.5).MoveY(1.6)).Centered().Move(4*x, 4*y, 0);
+        //}).ToArray().ToSingleShape().ToMotion();
+
+        public static IEnumerable<int[]> TriangulateByFour(this IEnumerable<int[]> lists) => lists.TriangulateByFourSplitted().SelectMany(v => v);
+        public static IEnumerable<int[][]> TriangulateByFourSplitted(this IEnumerable<int[]> lists)
+        {
+            int[][] Split(int[] c)
+            {
+                if (c.Length > 6)
+                    throw new NotImplementedException("Convex len > 6 is not implemented to triangulate");
+
+                return c.Length <= 3
+                    ? new[] { c }
+                    : ((c.Length - 2) / 3 + 1)
+                        .SelectRange(m => 3 * m)
+                        .Select(m => (m, i: c[m % c.Length], j: c[(m + 1) % c.Length], k: c[(m + 2) % c.Length], l: c[(m + 3) % c.Length]))
+                        .SelectMany(v => (c.Length - v.m - 1) switch
+                        {
+                            0 => new int[0][],
+                            1 => new[] { new[] { v.i, v.j, v.k } },
+                            _ => new[] { new[] { v.i, v.j, v.k }, new[] { v.k, v.l, v.i } }
+                        }).ToArray();
+            }
+
+            return lists.Select(Split);
+        }
+
         public static IEnumerable<int[]> ReverseConvexes(this IEnumerable<int[]> lists, bool needReverse = true)
         {
             return needReverse ? lists.Select(list => list.Reverse().ToArray()).ToArray() : lists;

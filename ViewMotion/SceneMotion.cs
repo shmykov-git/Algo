@@ -55,13 +55,28 @@ partial class SceneMotion
 
     #endregion
 
-
-
-
     public Task<Motion> Scene()
     {
-        //return TwoCubesWorldMotion();
+        //var from = 0;
+        //var n = 21;
+        //return (n-3).SelectSquarePoints((i, x, y) =>
+        //{
+        //    var ps = (i+3+from).SelectCirclePoints((i, x, y) => new Vector3(x, y, 0)).ToArray();
+        //    var s = new Shape
+        //    {
+        //        Points3 = ps,
+        //        Convexes = new[] { ps.Index().ToArray() }
+        //    };
+
+        //    //var s = new Shape { Points = ss.Points, Convexes = ss.Convexes.Take(1).ToArray() }.Normalize(false, false).Centered();
+        //    var ts = s.TriangulateByFour();
+
+        //    return (ts.ApplyColor(Color.Blue) + ts.ToMetaShape3(3, 3, Color.Red, Color.Green) + /*s.ToNumSpots3() + */vectorizer.GetTextLine(ts.Convexes.Length.ToString()).Centered().Mult(0.5).MoveY(1.6)).Centered().Move(4*x, 4*y, 0);
+        //}).ToArray().ToSingleShape().ToMotion();
+
         return BallToPyramidWorldMotion();
+
+        //return TwoCubesWorldMotion();
         //return WorldInteractionMotion();
 
         //return Shapes.Cube.Perfecto().PutOn(1).ToActiveShape(o => { o.RotationSpeedAngle = 0.01; }).ToWorld().ToMotion();

@@ -72,7 +72,6 @@ public partial class ActiveWorld // Interaction
                     {
                         var interPoint = pProjFn(na.position);
                         var triangleDistance = pDistanceFn(na.position);
-                        //var isCrossingTriangle = triangleDistance.Sgn() != pDistanceFn(na.position + nOne * a.Options.MaterialThickness).Sgn();
                         var isAtCollideDistance = -a.Options.MaterialThickness <= triangleDistance && triangleDistance <= 0;
                         var isInsideTriangle = isPointInsideFn(interPoint);
                         var isColliding = isAtCollideDistance && isInsideTriangle;
@@ -118,6 +117,11 @@ public partial class ActiveWorld // Interaction
                         interactionCounter++;
                     }
                 }
+
+            if (a.Options.UseSelfInteractions)
+            {
+                // todo
+            }    
         }
 
         activeShapes.Where(a => a.Options.UseInteractions)

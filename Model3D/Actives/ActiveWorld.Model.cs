@@ -99,6 +99,9 @@ public partial class ActiveWorld
 
     public class Plane
     {
+        public Model model;         // dynamic values
+        public Node[] nodes;        // dynamic values
+        public int[] c;
         public int i;
         public int j;
         public int k;

@@ -37,6 +37,18 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape TriangulateByFour(this Shape shape)
+        {
+            var cs = shape.Convexes.TriangulateByFourSplitted().ToArray();
+
+            return new Shape
+            {
+                Points = shape.Points,
+                Convexes = cs.SelectMany(v=>v).ToArray(),
+                Materials = shape.Materials?.SelectMany((m, i) => (cs[i].Length).SelectRange(_=>m)).ToArray()
+            };
+        }
+
         public static Shape Transform(this Shape shape, Multiplication transformation)
         {
             return new Shape
