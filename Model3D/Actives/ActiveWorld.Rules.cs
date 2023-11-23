@@ -38,7 +38,7 @@ public partial class ActiveWorld // Rules
     }
 
     Vector3 GetNormal(Vector3 a, Vector3 b, Vector3 c) => (a - c).MultV(b - c);
-
+    Vector3 GetNodeNormal(Node n) => n.planes.Select(p => p.ni.position.GetPlaneNormal(p.nj.position, p.nk.position)).Sum().Normalize();
     double GetVolume(Vector3 a, Vector3 b, Vector3 c) => c.MultS(GetNormal(a, b, c));
 
     double GetActiveShapeVolume(ActiveShape a) => a.Planes.Select(p => GetVolume(a.Nodes[p.i].position, a.Nodes[p.j].position, a.Nodes[p.k].position)).Sum();
@@ -173,19 +173,37 @@ public partial class ActiveWorld // Rules
     
     Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
 
-    Vector3 GetPointK(Node[] ns, Plane plane, Vector3 p)
+    Vector3 GetPlanePointK(Plane plane, Vector3 p)
     {
-        var a = (ns[plane.i].position - p).Length;
-        var b = (ns[plane.j].position - p).Length;
-        var c = (ns[plane.k].position - p).Length;
+        var a = (plane.positionI - p).Length;
+        var b = (plane.positionJ - p).Length;
+        var c = (plane.positionK - p).Length;
 
         var s = a * b + b * c + a * c;
 
         return new Vector3(b * c / s, a * c / s, a * b / s);
     }
 
-    Vector3 GetPointSpeed(Node[] ns, Plane plane, Vector3 pK)
+    Vector3 GetPointSpeed(Plane plane, Vector3 pK)
     {
-        return pK.x * ns[plane.i].speed + pK.y * ns[plane.j].speed + pK.z * ns[plane.k].speed;
+        return pK.x * plane.ni.speed + pK.y * plane.nj.speed + pK.z * plane.nk.speed;
     }
+
+
+    #region Plane interaction
+    double GetPlaneForceByDistance(double distance) => -distance / (options.MaterialThickness + options.JediMaterialThickness);
+    Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed) => slidingSpeed.ToLenWithCheck(-Math.Min(slidingSpeed.Length, options.PlaneConst * options.Interaction.MaterialFrictionForce));
+    Vector3 GetPlaneClingForce(Vector3 nOne) => (-options.PlaneConst * options.Interaction.MaterialClingForce) * nOne;
+    Vector3 GetPlaneElasticForce(Vector3 nRejectionDir, Vector3 nOne, double distance)
+    {
+        var distanceForce = GetPlaneForceByDistance(distance);
+        var dirFactor = nRejectionDir.MultS(nOne);
+
+        var elasticForce = dirFactor > 0
+            ? (dirFactor * distanceForce * options.PlaneConst * options.Interaction.PlaneForce) * nRejectionDir
+            : Vector3.Origin;
+
+        return elasticForce;
+    }
+    #endregion
 }

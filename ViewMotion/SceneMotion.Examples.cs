@@ -123,8 +123,6 @@ partial class SceneMotion
                     o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
-                    o.MaterialThickness = 1;
-                    o.JediMaterialThickness = 0.5;
                 }),
                 
                 Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColorGradientX(Color.White, Color.LightGreen, Color.LightGreen, Color.LightGreen, Color.White)
@@ -137,8 +135,6 @@ partial class SceneMotion
                     o.Skeleton.Power = 0.15;
                     o.UseBlow = true;
                     o.BlowPower = 2;
-                    o.MaterialThickness = 1;
-                    o.JediMaterialThickness = 0.5;
                     o.Speed = new Vector3(-0.003, 0, 0);
                 }),
             };
@@ -156,6 +152,8 @@ partial class SceneMotion
             o.PressurePowerMult = 0.0001;
             o.GroundClingForce = 0.1;
             o.GroundFrictionForce = 0.03;
+            o.MaterialThickness = 1;
+            o.JediMaterialThickness = 0.5;
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;

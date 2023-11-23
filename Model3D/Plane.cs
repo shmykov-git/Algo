@@ -5,6 +5,7 @@ using System.Linq;
 using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
+using Model.Libraries;
 using Model3;
 using Model3D.Extensions;
 using Model3D.Libraries;
@@ -95,7 +96,7 @@ namespace Model3D
                     var xx = x1 - x0;
                     var n_xx = n.MultS(xx);
 
-                    if (n_xx.Abs() < 0.000000001)
+                    if (n_xx.Abs() < Values.Epsilon9)
                         return null;
 
                     var xr = r0 - x0;
@@ -106,6 +107,7 @@ namespace Model3D
             }
         }
 
+        // works perfect too, don`t remember why it is
         public Func<Vector3, Vector3, Vector3?> IntersectionFn1
         {
             get
@@ -119,10 +121,10 @@ namespace Model3D
                     var l = x1 - x0;
                     var nl = n.MultS(l);
 
-                    if (nl.Abs() < 0.000000001)
+                    if (nl.Abs() < Values.Epsilon9)
                         return null;
 
-                    var t0 = -(n.MultS(x0) + -n.MultS(r0)) / nl;
+                    var t0 = -(n.MultS(x0) + -n.MultS(r0)) / nl; // d??
 
                     return x0 + t0 * l;
                 };

@@ -47,7 +47,6 @@ public class ActiveShape : INet3Item
         staticModel = shape0;
         model = new ActiveWorld.Model
         {
-            jediMaterialThickness = options.JediMaterialThickness
         };
 
         Model.center = staticModel.PointCenter;
@@ -96,8 +95,13 @@ public class ActiveShape : INet3Item
         nodes.ForEach(n => n.nodes = nodes);
 
         var skeletonI = shape0.PointsCount;
+
+        // todo: list of unique edges
+
         nodes.ForEach(n => n.edges = staticModel.Links[n.i].Select(j => new ActiveWorld.Edge
         {
+            model = model,
+            nodes = nodes,
             i = n.i,
             j = j,
             fA = (n.position - nodes[j].position).Length,

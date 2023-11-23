@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using Aspose.ThreeD.Utilities;
+using Model.Hashes;
 using Model.Libraries;
 using Model3D.Extensions;
+using Plane3 = Model3D.Plane;
 
 namespace Model3D.Actives;
 
@@ -26,7 +29,6 @@ public partial class ActiveWorld
 
         // <interaction>
         public double forceInteractionRadius;
-        public double jediMaterialThickness;
         // </interaction>
         // </static>
 
@@ -41,8 +43,50 @@ public partial class ActiveWorld
         // </dynamic>
     }
 
-    public class Node : INet3Item
+    public class Interactor
     {
+        public Func<Vector3, Pack> pointPackFn;
+        public Action<Pack, double, Vector3> applyCollideForce;
+
+        // <self>
+        public HashSet<int> selfInteractions;
+        // </self>
+
+        // <plane>
+        public bool isColliding;
+        public int collideCount = 0;
+        public Vector3 collideForce = Vector3.Origin;
+        public Vector3 rejectionDirSum = Vector3.Origin;
+        public Vector3 nRejectionDir = Vector3.Origin;
+        public Vector3 collidePosition;
+        public bool isInsideMaterial;
+        // </plane>
+
+        public struct Pack
+        {
+            public Vector3 k;
+            public double mass;
+            public Vector3 speed;
+        }
+    }
+
+    public class Node : Interactor, INet3Item
+    {
+        public Node()
+        {
+            pointPackFn = _ => new Pack
+            {
+                mass = mass,
+                speed = speed,
+            };
+
+            applyCollideForce = (pack, collideMass, collideForce) =>
+            {
+                base.collideForce += (collideMass / pack.mass) * collideForce;
+                collideCount++;
+            };
+        }
+
         // <static>
         public int i;
         public Model model;         // dynamic values
@@ -55,7 +99,7 @@ public partial class ActiveWorld
         // </static>
 
         // <dynamic>
-        public Vector3 position;
+        public Vector3 position { get; set; }
         public Func<Vector3> PositionFn => () => position - model.center; 
         
         public Vector3 speed; //private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x)) Debugger.Break(); } }
@@ -63,23 +107,6 @@ public partial class ActiveWorld
         public double speedY = 0;
         // </ground>
 
-        // <interaction>
-        private Vector3 nDir => planes.Select(p => nodes[p.i].position.GetPlaneNormal(nodes[p.j].position, nodes[p.k].position)).Sum().Normalize();
-
-        // <self>
-        public HashSet<int> selfInteractions;
-        // </self>
-
-        // <plane>
-        public bool isColliding;
-        public int collideCount = 0;
-        public Vector3 collideForce = Vector3.Origin;
-        public Vector3 rejectionDirSum = Vector3.Origin;
-        public Vector3 nRejectionDir = Vector3.Origin;
-        public Vector3 collidePosition => position + nDir * model.jediMaterialThickness;
-        public bool isInsideMaterial;
-        // </plane>
-        // </interaction>
         // </dynamic>
     }
 
@@ -89,22 +116,106 @@ public partial class ActiveWorld
         Skeleton
     }
 
-    public class Edge
+    public class Edge : Interactor
     {
+        public Edge()
+        {
+            pointPackFn = p =>
+            {
+                var k = GetPointK(p);
+
+                return new Pack
+                {
+                    k = k,
+                    mass = k.x * ni.mass + k.y * nj.mass,
+                    speed = k.x * ni.speed + k.y * nj.speed,
+                };
+            };
+
+            applyCollideForce = (pack, collideMass, collideForce) =>
+            {
+                ni.collideForce += (collideMass * pack.k.x / ni.mass) * collideForce;
+                ni.collideCount++;
+                nj.collideForce += (collideMass * pack.k.y / nj.mass) * collideForce;
+                nj.collideCount++;
+            };
+        }
+
+        public Model model;         // dynamic values
+        public Node[] nodes;        // dynamic values
+        public (int i, int j) key;
         public int i;
         public int j;
         public double fA;
         public EdgeType type = EdgeType.Material;
+        public Node ni => nodes[i];
+        public Node nj => nodes[j];
+        public Vector3 positionI => ni.position;
+        public Vector3 positionJ => nj.position;
+        public Vector3 positionCenter => 0.5 * (positionI + positionJ);
+
+        public Vector3 GetPointK(Vector3 p)
+        {
+            var a = (positionI - p).Length;
+            var b = (positionJ - p).Length;
+            var s = a + b;
+
+            return new Vector3(b / s, a / s, 0);
+        }
     }
 
-    public class Plane
+    public class Plane : Interactor
     {
+        public Plane()
+        {
+            pointPackFn = p =>
+            {
+                var k = GetPointK(p);
+
+                return new Pack
+                {
+                    k  = k,
+                    mass = k.x * ni.mass + k.y * nj.mass,
+                    speed = k.x * ni.speed + k.y * nj.speed + k.z * nk.speed
+                };
+            };
+
+            applyCollideForce = (pack, collideMass, collideForce) =>
+            {
+                ni.collideForce += (collideMass * pack.k.x / ni.mass) * collideForce;
+                ni.collideCount++;
+                nj.collideForce += (collideMass * pack.k.y / nj.mass) * collideForce;
+                nj.collideCount++;
+                nk.collideForce += (collideMass * pack.k.z / nk.mass) * collideForce;
+                nk.collideCount++;
+            };
+        }
+
         public Model model;         // dynamic values
         public Node[] nodes;        // dynamic values
         public int[] c;
         public int i;
         public int j;
         public int k;
+
+        public Node ni => nodes[i];
+        public Node nj => nodes[j];
+        public Node nk => nodes[k];
+        public Vector3 positionI => ni.position;
+        public Vector3 positionJ => nj.position;
+        public Vector3 positionK => nk.position;
+
+        public Vector3 GetPointK(Vector3 p)
+        {
+            var a = (positionI - p).Length;
+            var b = (positionJ - p).Length;
+            var c = (positionK - p).Length;
+            var s = a * b + b * c + a * c;
+
+            return new Vector3(b * c / s, a * c / s, a * b / s);
+        }
+
+        public Plane3 collidePlane => new Plane3(ni.collidePosition, nj.collidePosition, nk.collidePosition);
     }
 
 }

@@ -120,6 +120,9 @@ public partial class ActiveWorld
 
             if (options.InteractionType.HasFlag(InteractionType.ParticleWithPlane))
                 ParticleWithPlaneInteraction();
+
+            if (options.InteractionType.HasFlag(InteractionType.EdgeWithPlane))
+                EdgeWithPlaneInteraction();
         }
 
         foreach (var a in activeShapes)
