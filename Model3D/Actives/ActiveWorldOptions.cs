@@ -3,6 +3,7 @@ using System.Drawing;
 using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model;
+using Model3D.Extensions;
 
 namespace Model3D.Actives;
 
@@ -16,8 +17,11 @@ public class ActiveShapeOptions
 
     public ActiveWorldOptions WorldOptions { get; set; }
 
+    public Shape Docked { get; set; }
+    public ShapeType Type { get; set; }  
     public int StepNumber { get; set; }
     public bool ShowMeta { get; set; }
+    public bool AllowTriangulation0 { get; set; }
     public double MetaLineMult { get; set; }
     public double MetaPointMult { get; set; }
     public Color? Color1 { get; set; }
@@ -40,16 +44,25 @@ public class ActiveShapeOptions
     public FixOptions Fix { get; set; }
     public bool UseInteractions { get; set; }
     public bool UseSelfInteractions { get; set; }
+
+    public enum ShapeType
+    {
+        D1,
+        D2,
+        D3
+    }
+
+    [Flags]
     public enum FixDock
     {
         None = 0,
-        Point,
-        Left,
-        Top,
-        Right,
-        Bottom,
-        Back,
-        Front
+        Point = 1,
+        Left = 2,
+        Top = 4,
+        Right = 8,
+        Bottom = 16,
+        Back = 32,
+        Front = 64
     }
 
     public enum SkeletonType
@@ -117,7 +130,7 @@ public class ActiveWorldOptions
         public int SelfInteractionGraphDistance { get; set; }
         public double ParticleForce { get; set; }
         public Vector3 InteractionAreaScale { get; set; }
-        public bool UseMass {  get; set; }
+        public bool UseVolumeMass {  get; set; }
         public double MaterialFrictionForce { get; set; }
         public double MaterialClingForce { get; set; }
         //public double GroundClingForce { get; set; }

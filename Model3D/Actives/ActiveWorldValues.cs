@@ -8,6 +8,7 @@ public static class ActiveWorldValues
     public static ActiveShapeOptions DefaultActiveShapeOptions => new ActiveShapeOptions
     {
         ShowMeta = false,
+        AllowTriangulation0 = true,
         MetaPointMult = 2,
         MetaLineMult = 2,
         Color1 = Color.SaddleBrown,
@@ -18,6 +19,7 @@ public static class ActiveWorldValues
         RotationSpeedAxis = Vector3.YAxis,
         Speed = Vector3.Origin,
         Mass = 1,
+        Type = ActiveShapeOptions.ShapeType.D3,
         UseSkeleton = true,
         Skeleton = new ActiveShapeOptions.SkeletonOptions
         {
@@ -48,7 +50,7 @@ public static class ActiveWorldValues
         UsePowerLimit = true,
         PowerLimit = 0.01,
         ParticleConst = 0.00005,
-        PlaneConst = 0.0005,
+        PlaneConst = 0.00001,
         GroundFrictionForce = 1.2,
         GroundClingForce = 1.5,
         PressurePower = 1,
@@ -84,9 +86,9 @@ public static class ActiveWorldValues
             SelfInteractionGraphDistance = 3,
             ParticleForce = 1,
             InteractionAreaScale = new Vector3(2, 2, 2),
-            UseMass = true,
-            MaterialFrictionForce = 0.02,
-            MaterialClingForce = 0.02,
+            UseVolumeMass = true,
+            MaterialFrictionForce = 1,
+            MaterialClingForce = 1,
             PlaneForce = 1,
         },
     };

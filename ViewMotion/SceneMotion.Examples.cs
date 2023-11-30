@@ -33,11 +33,11 @@ partial class SceneMotion
         var ballColor = Color.SaddleBrown;
 
         var n = 5;
-        var shiftX = 1.6;
-        var shiftY = 1.03;
+        var shiftX = 1.2;
+        var shiftY = 1.028;
 
-        var fn = Funcs.Line();
-        //var fn = Funcs.Parabola(2.5 / n);
+        //var fn = Funcs.Line();
+        var fn = Funcs.Parabola(2.5 / n);
         //var fn = Funcs.Circle(0.5 * n);
 
         var cubes = Ranges.Pyramid2(n).Select(v => 
@@ -47,8 +47,9 @@ partial class SceneMotion
             .ApplyColorGradient(ExVector3.XyzAxis, Color.White, colors[(7 * v.i + 13 * v.j) % colors.Length])
             .ToActiveShape(o =>
             {
-                o.Skeleton.Power = 10;
-                o.MaterialPower = 10;
+                o.Skeleton.Power = 5;
+                o.MaterialPower = 5;
+                o.ShowMeta = true;
             })).ToArray();
 
         var ball = Shapes.IcosahedronSp2.Perfecto(2).PutOn().MoveZ(4).ApplyColor(ballColor)
@@ -57,16 +58,17 @@ partial class SceneMotion
                 o.Skeleton.Power = 3;
                 o.MaterialPower = 3;
                 o.Mass = 5;
-                o.Speed = new Vector3(0, 0, -0.005);
+                //o.Speed = new Vector3(0, 0, -0.005);
             });
 
         var actives = cubes.Concat(new[] { ball });
 
         return actives.ToWorld(o =>
         {
-            o.Interaction.MaterialClingForce = 0.1;
-            o.Interaction.MaterialFrictionForce = 0.1;
+            o.Interaction.MaterialClingForce = 0;// 0.1;
+            o.Interaction.MaterialFrictionForce = 0;// 0.1;
             o.Interaction.PlaneForce = 5;
+            o.InteractionType = InteractionType.EdgeWithPlane;
         }).ToMotion(9);
     }
 
@@ -92,6 +94,7 @@ partial class SceneMotion
             o.Interaction.MaterialClingForce = 0.1;
             o.Interaction.MaterialFrictionForce = 0.1;
             o.Interaction.PlaneForce = 2;
+            o.InteractionType = InteractionType.EdgeWithPlane;
         }).ToMotion(9);
     }
 

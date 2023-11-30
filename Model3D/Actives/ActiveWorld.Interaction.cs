@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using Aspose.ThreeD.Utilities;
+using MathNet.Numerics;
 using Model.Extensions;
 using Model3D.Extensions;
 using static Model3D.Actives.ActiveWorld;
@@ -18,7 +19,15 @@ public partial class ActiveWorld // Interaction
     {
         activeShapes.ForEach(a => a.Nodes.ForEach(n =>
         {
-            n.collidePosition = n.position + GetNodeNormal(n) * options.JediMaterialThickness;
+            if (n.hasnDir)
+            {
+                n.nDir = GetNodeNormal(n);
+                n.collidePosition = n.position + n.nDir * options.JediMaterialThickness;
+            }
+            else
+            {
+                n.collidePosition = n.position;
+            }
         }));
     }
 
@@ -57,7 +66,7 @@ public partial class ActiveWorld // Interaction
         //Debug.WriteLine(interactionCounter);
     }
 
-    bool IsAtCollideDistance(ActiveShapeOptions o, double distance) => -(options.MaterialThickness + options.JediMaterialThickness) < distance && distance <= 0; // check side planes
+    bool IsAtCollideDistance(double distance) => -(options.MaterialThickness + options.JediMaterialThickness) < distance && distance <= 0; // check side planes
 
     private void ParticleWithPlaneInteraction()
     {
@@ -80,17 +89,20 @@ public partial class ActiveWorld // Interaction
 
                     foreach (var na in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize))
                     {
-                        var collidePoint = pProjFn(na.position);
-                        var collideDistance = pDistanceFn(na.position);
-                        var isAtCollideDistance = IsAtCollideDistance(a.Options, collideDistance);
-                        var isInsideTriangle = isPointInsideFn(collidePoint);
-                        var isColliding = isAtCollideDistance && isInsideTriangle;
+                        var isStrikeDir = !na.hasnDir || na.nDir.MultS(nOne) < 0;
 
-                        na.isColliding = na.isColliding || isColliding;
-
-                        if (isColliding)
+                        if (isStrikeDir)
                         {
-                            CollideWithPlaneB(na, pb, nOne, collidePoint, collideDistance);
+                            var collidePoint = pProjFn(na.position);
+                            var collideDistance = pDistanceFn(na.position);
+                            var isAtCollideDistance = IsAtCollideDistance(collideDistance);
+                            var isInsideTriangle = isPointInsideFn(collidePoint);
+                            var isColliding = isAtCollideDistance && isInsideTriangle;
+
+                            if (isColliding)
+                            {
+                                CollideWithPlaneB(na, pb, nOne, collidePoint, collideDistance);
+                            }
                         }
 
                         interactionCounter++;
@@ -103,6 +115,13 @@ public partial class ActiveWorld // Interaction
             }    
         }
 
+        ApplyPointCollideValues();
+
+        //Debug.WriteLine(interactionCounter);
+    }
+
+    private void ApplyPointCollideValues()
+    {
         activeShapes.Where(a => a.Options.UseInteractions)
             .ForEach(a => a.Nodes
                 .ForEach(n =>
@@ -127,31 +146,43 @@ public partial class ActiveWorld // Interaction
                     n.isInsideMaterial = n.isColliding;
                     n.isColliding = false;
                 }));
-
-        //Debug.WriteLine(interactionCounter);
     }
 
-    private void CollideWithPlaneB(Interactor rra, Interactor rrb, Vector3 bnOne, Vector3 collidePoint, double collideDistance)
+    int cc;
+    decimal maxPercent = 0;
+    private void CollideWithPlaneB(Interactor rra, Interactor rrb, Vector3 bnOne, Vector3 collidePoint, double forceDistance)
     {
-        var aPack = rra.pointPackFn(collidePoint);
-        var bPack = rrb.pointPackFn(collidePoint);
-
-        var interSpeed = aPack.speed - bPack.speed;
-        var interSpeedN = interSpeed.MultS(bnOne);
-        var slidingSpeed = interSpeed - bnOne * interSpeedN;
+        rra.isColliding = true;
 
         if (!rra.isInsideMaterial)
             rra.rejectionDirSum += bnOne;
 
-        var frictionForce = GetPlaneFrictionForce(slidingSpeed);
-        var clingForce = GetPlaneClingForce(bnOne);
-        var elasticForce = GetPlaneElasticForce(rra.nRejectionDir, bnOne, collideDistance);
+        var bnDir = rra.nRejectionDir == Vector3.Origin ? bnOne : rra.nRejectionDir;
+        var elasticForce = GetPlaneElasticForce(bnDir, bnOne, forceDistance);
 
+        var aPack = rra.pointPackFn(collidePoint);
+        var planePack = rrb.pointPackFn(collidePoint);
+        var collideMass = 0.5 * (aPack.mass + planePack.mass);
+        var elasticSpeedUp = (collideMass / aPack.mass) * elasticForce;
+
+        var interSpeed = aPack.speed - planePack.speed + elasticSpeedUp;
+        var interSpeedN = interSpeed.MultS(bnDir);
+        var slidingSpeed = interSpeed - bnDir * interSpeedN;
+
+        var frictionForce = GetPlaneFrictionForce(slidingSpeed);
+        var clingForce = GetPlaneClingForce(interSpeedN, bnDir);
         var collideForce = elasticForce + frictionForce + clingForce;
-        var collideMass = 0.25 * (aPack.mass + bPack.mass); // half of collide collideMass (both side calculation) 
+
+        var percent = (decimal)(Math.Round(-20 * forceDistance / (options.JediMaterialThickness + options.MaterialThickness)) * 5);
+        if (percent > maxPercent)
+        {
+            maxPercent = percent;
+            Debug.WriteLine($"Plane material penetration: {percent}%");
+        }
+        //Debug.WriteLine($"{cc++} {-forceDistance / (options.JediMaterialThickness + options.MaterialThickness):P0}: {collideForce.Length} ({elasticForce.Length}, {frictionForce.Length}, {clingForce.Length}) ");
 
         rra.applyCollideForce(aPack, collideMass, collideForce);
-        rrb.applyCollideForce(bPack, collideMass, -collideForce);
+        rrb.applyCollideForce(planePack, collideMass, -collideForce);
     }
 
     private void EdgeWithPlaneInteraction()
@@ -173,88 +204,51 @@ public partial class ActiveWorld // Interaction
                     var pSize = plane.Size;
                     var pDistanceFn = plane.Fn;
                     var pProjFn = plane.ProjectionFn;
-                    var isPointInsideFn = plane.IsPointInsideFn;
-                    var lineCrossFn = plane.IntersectionFn;
+                    var pIsPointInsideFn = plane.IsPointInsideFn;
+                    var pLineCrossFn = plane.IntersectionFn;
 
                     foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
                     {
-                        var (hasCrossPoint, crossPoint) = lineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
+                        var isStrikeDirI = ea.ni.nDir.MultS(nOne) < 0;
+                        var isStrikeDirJ = ea.nj.nDir.MultS(nOne) < 0;
 
-                        if (hasCrossPoint)
+                        if (isStrikeDirI || isStrikeDirJ)
                         {
-                            var crossPointDistance = pDistanceFn(crossPoint);
-                            var crossPointIsAtCollideDistance = IsAtCollideDistance(a.Options, crossPointDistance);
-                            var crossPointIsInsideTriangle = isPointInsideFn(crossPoint);
-                            var crossPointIsColliding = crossPointIsAtCollideDistance && crossPointIsInsideTriangle;
+                            var distanceI = pDistanceFn(ea.positionI);
+                            var distanceJ = pDistanceFn(ea.positionJ);
+                            var isAtCollideDistanceI = IsAtCollideDistance(distanceI);
+                            var isAtCollideDistanceJ = IsAtCollideDistance(distanceJ);
+                            var isInsideTriangleI = pIsPointInsideFn(ea.positionI);
+                            var isInsideTriangleJ = pIsPointInsideFn(ea.positionI);
+                            var isCollidingI = isStrikeDirI && isAtCollideDistanceI && isInsideTriangleI;
+                            var isCollidingJ = isStrikeDirJ && isAtCollideDistanceJ && isInsideTriangleJ;
 
-                            if (crossPointIsColliding)
+                            if (isCollidingI || isCollidingJ)
                             {
-                                CollideWithPlaneB(ea, pb, nOne, crossPoint, crossPointDistance);
-                            }
-                            else
-                            {
-                                // тут - алгоритм
-                                var distanceI = pDistanceFn(ea.positionI);
-                                var distanceJ = pDistanceFn(ea.positionJ);
+                                var forceDistance = 0.25 * (Math.Min(distanceI, 0) + Math.Min(distanceJ, 0)); // double edge, double side
+                                var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
 
-                                if (distanceI < 0 && distanceJ < 0)
+                                if (hasCrossPoint)
                                 {
+                                    var crossPointIsInsideTriangle = pIsPointInsideFn(crossPoint);
 
+                                    if (crossPointIsInsideTriangle)
+                                    {
+                                        CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
+                                    }
+                                    else
+                                    {
+                                        var kI = distanceI / (distanceI + distanceJ);
+                                        var kJ = distanceJ / (distanceI + distanceJ);
+                                        CollideWithPlaneB(ea, pb, nOne, kI * ea.positionI + kJ * ea.positionJ, forceDistance);
+                                    }
                                 }
-                                else
+                                else // edge is parallel to plane
                                 {
-
+                                    CollideWithPlaneB(ea, pb, nOne, ea.positionCenter, forceDistance);
                                 }
                             }
                         }
-                        else // edge is parallel to plane
-                        {
-                            var ebPoint = ea.positionCenter;
-                        }
-
-                        //var crossPoint = pProjFn(ea.ni.position);
-                        //var collideDistance = pDistanceFn(rra.position);
-                        //var isAtCollideDistance = -a.Options.MaterialThickness <= collideDistance && collideDistance <= 0;
-                        //var isInsideTriangle = isPointInsideFn(crossPoint);
-                        //var isColliding = isAtCollideDistance && isInsideTriangle;
-
-                        //rra.isColliding = rra.isColliding || isColliding;
-
-                        //if (isColliding)
-                        //{
-                        //    var forceDistance = -collideDistance / a.Options.MaterialThickness;
-                        //    var pK = GetPlanePointK(b.Nodes, rrb, crossPoint);
-                        //    var interPointSpeed = GetPointSpeed(b.Nodes, rrb, pK);
-                        //    var interSpeed = rra.speed - interPointSpeed;
-                        //    var interSpeedN = interSpeed.MultS(bnOne);
-                        //    var slidingSpeed = interSpeed - bnOne * interSpeedN;
-                        //    var rejectionSpeed = interSpeed - 2 * interSpeedN * bnOne;
-
-                        //    if (!rra.isInsideMaterial)
-                        //        rra.rejectionDirSum += bnOne;
-
-                        //    var frictionForce = slidingSpeed.ToLenWithCheck(-Math.Min(slidingSpeed.Length, options.PlaneConst * options.Interaction.MaterialFrictionForce));
-                        //    var clingForce = (-options.PlaneConst * options.Interaction.MaterialClingForce) * bnOne;
-
-                        //    var dirFactor = rra.nRejectionDir.MultS(bnOne);
-
-                        //    var elasticForce = dirFactor > 0
-                        //        ? (dirFactor * forceDistance * options.PlaneConst * options.Interaction.PlaneForce) * rra.nRejectionDir
-                        //        : Vector3.Origin;
-
-                        //    var collideForce = elasticForce + frictionForce + clingForce;
-
-                        //    var collideMass = 0.25 * (rra.collideMass + pK.x * rrb.ni.collideMass + pK.y * rrb.nj.collideMass + pK.z * rrb.nk.collideMass); // 0.5 (both side calculation) * middle interaction collideMass
-
-                        //    rra.collideForce += (collideMass / rra.collideMass) * collideForce;
-                        //    rra.collideCount++;
-                        //    rrb.ni.collideForce -= (collideMass * pK.x / rrb.ni.collideMass) * collideForce;
-                        //    rrb.ni.collideCount++;
-                        //    rrb.nj.collideForce -= (collideMass * pK.y / rrb.nj.collideMass) * collideForce;
-                        //    rrb.nj.collideCount++;
-                        //    rrb.nk.collideForce -= (collideMass * pK.z / rrb.nk.collideMass) * collideForce;
-                        //    rrb.nk.collideCount++;
-                        //}
 
                         interactionCounter++;
                     }
@@ -266,32 +260,47 @@ public partial class ActiveWorld // Interaction
             }
         }
 
-        activeShapes.Where(a => a.Options.UseInteractions)
-            .ForEach(a => a.Nodes
-                .ForEach(n =>
-                {
-                    if (n.isColliding)
-                    {
-                        if (!n.isInsideMaterial) // is crossing
-                        {
-                            n.nRejectionDir = n.rejectionDirSum.Normalize();
-                            n.rejectionDirSum = Vector3.Origin;
-                        }
-
-                        n.speed += n.collideForce / n.collideCount;
-                    }
-                    else
-                    {
-                        n.nRejectionDir = Vector3.Origin;
-                    }
-
-                    n.collideCount = 0;
-                    n.collideForce = Vector3.Origin;
-                    n.isInsideMaterial = n.isColliding;
-                    n.isColliding = false;
-                }));
+        ApplyEdgeCollideValues();
 
         //Debug.WriteLine(interactionCounter);
     }
 
+    private void ApplyEdgeCollideValues()
+    {
+        activeShapes.Where(a => a.Options.UseInteractions)
+            .ForEach(a => a.Nodes
+                .ForEach(n =>
+                {
+                    var isColliding = false;
+
+                    n.edges.ForEach(e =>
+                    {
+                        isColliding = isColliding || e.isColliding;
+
+                        if (e.isColliding)
+                        {
+                            if (!e.isInsideMaterial) // is crossing
+                            {
+                                e.nRejectionDir = e.rejectionDirSum.Normalize();
+                                e.rejectionDirSum = Vector3.Origin;
+                            }
+                        }
+                        else
+                        {
+                            e.nRejectionDir = Vector3.Origin;
+                        }
+
+                        e.isInsideMaterial = n.isColliding;
+                        e.isColliding = false;
+                    });
+
+                    if (isColliding)
+                    {
+                        n.speed += n.collideForce / n.collideCount;
+                    }
+
+                    n.collideCount = 0;
+                    n.collideForce = Vector3.Origin;
+                }));
+    }
 }

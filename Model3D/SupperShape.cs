@@ -21,12 +21,13 @@ public class SupperShape
     }
 
     // normalized shape
-    public (Shape skeletonShape, int n)  GetSkeleton(double radius)
+    public (Shape skeletonShape, int n) GetSkeleton(double radius)
     {
         var center = shape.PointCenter;
         var ps = shape.Points3.Select(p => p - center).ToArray();
 
         Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
+
 
         var nodes = shape.Convexes
             .SelectMany(c => c.Select(i => (i, c)))
@@ -58,24 +59,6 @@ public class SupperShape
 
         // базовое общее приближение нодов по общему объему
         var (shift, _) = Minimizer.Gold(0, delta, precession * delta, GetShapeVolumeAfterNormalShift, speed * delta).Last(); // skip animate
-
-        // animate
-        //double shift = 0;
-        //foreach (var (sh, _) in Minimizer.Gold(0, delta, precession * delta, GetShapeVolumeAfterNormalShift, speed * delta))
-        //{
-        //    shift = sh;
-        //    yield return new Shape()
-        //    {
-        //        Points3 = nodes.Select(n => n.p + center).ToArray(),
-        //        Convexes = shape.Convexes,
-        //    };
-        //}
-
-        //yield return new Shape()
-        //{
-        //    Points3 = nodes.Select(n => n.p + center).ToArray(),
-        //    Convexes = shape.Convexes,
-        //};
 
         nodes.ForEach(n => n.shift = shift);
 
@@ -109,6 +92,8 @@ public class SupperShape
 
         nodes.ForEach(n => n.sI = skPs.Select((p, i) => (p, i)).First(v => n.p.EqualsV(v.p, Values.Epsilon5)).i);
 
+        var psCount = shape.PointsCount;
+
         var skeletonShape = new Shape()
         {
             Points3 = shape.Points3
@@ -116,8 +101,8 @@ public class SupperShape
                 .ToArray(),
 
             Convexes = shape.Convexes
-                .Concat(skeleton.Convexes.Transform(i => i + nodes.Length))
-                .Concat(nodes.Select(n => new[] { n.i, nodes.Length + n.sI }))
+                .Concat(skeleton.Convexes.Transform(i => i + psCount))
+                .Concat(nodes.Select(n => new[] { n.i, psCount + n.sI }))
                 .ToArray()
         };
 

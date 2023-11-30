@@ -126,6 +126,17 @@ namespace Model.Libraries
 
         public static Shape CoodsNet => CoodsWithText + Surfaces.Plane(11, 11).Perfecto().ToLines(0.3, Color.Khaki);
 
+        public static Shape Point => new Shape()
+        {
+            Points3 = new Vector3[]
+            {
+                new Vector3(0, 0, 0),
+            },
+            Convexes = new int[][]
+            {
+            }
+        };
+
         public static Shape Line => new Shape()
         {
             Points3 = new Vector3[]
@@ -138,6 +149,14 @@ namespace Model.Libraries
                 new int[] { 0, 1 },
             }
         };
+
+        public static Shape LineN(int n) =>
+            new Shape()
+            {
+                Points3 = (n).SelectRange(i => new Vector3(i, 0, 0)).ToArray(),
+                Convexes = (n).SelectRange(i=>i).SelectPair((i,j)=> new[] {i, j}).ToArray()
+            };
+            
 
         public static Shape Tetrahedron => new Shape
         {

@@ -37,6 +37,7 @@ using System.Drawing.Text;
 using System.Threading.Tasks.Sources;
 using Model.Graphs;
 using Model3D.Actives;
+using Aspose.ThreeD.Entities;
 
 namespace ViewMotion;
 
@@ -57,6 +58,95 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return TwoCubesWorldMotion();
+
+        // разные размеры плоскостей?
+        var s = new[] 
+        {
+            Surfaces.Cylinder(50, 2).Perfecto(2),
+            //Shapes.LineN(4).Perfecto(2)
+        }.ToSingleShape();
+
+        return new[] {
+            Shapes.Cube.PutOn(3).Move(1,0,1).ToActiveShape(o =>
+            {
+                o.ShowMeta = true;
+            }),
+            //Shapes.Point.PutOn(3).Move(1,0,1).ToActiveShape(o =>
+            //{
+            //    o.Type = ActiveShapeOptions.ShapeType.D1;
+            //    o.AllowTriangulation0 = false;
+            //    o.UseMaterialDamping = false;
+            //    o.UseSkeleton = false;
+            //    o.ShowMeta = true;
+            //    o.MetaPointMult = 10;
+            //    //o.Speed = new Vector3(0.003, 0, 0);
+            //    o.Mass = 1;
+            //}),
+            Surfaces.Plane(2,2).Perfecto(5).ToOy().RotateOz(Math.PI/4).PutOn(-1).ToActiveShape(o => // Math.PI/2
+            {
+                o.Type = ActiveShapeOptions.ShapeType.D2;
+                o.ShowMeta = true;
+                //o.AllowTriangulation0  =false;
+                o.UseSkeleton = false;
+                o.Mass = 1;
+                o.Fix = new ActiveShapeOptions.FixOptions
+                {
+                    Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right
+                };
+            }),            //Shapes.IcosahedronSp2.Perfecto(2).PutOn().MoveX(-2.5).ToActiveShape(o =>
+            //{
+            //    o.Skeleton.Type=ActiveShapeOptions.SkeletonType.CenterPoint;
+            //    o.ShowMeta = true;
+            //    o.Speed = new Vector3(0.003, 0, 0);
+            //    o.Mass = 1;
+            //}),
+            //Shapes.IcosahedronSp2.Perfecto(2).PutOn().MoveX(2.5).ToActiveShape(o =>
+            //{
+            //    o.Skeleton.Type=ActiveShapeOptions.SkeletonType.CenterPoint;
+            //    o.ShowMeta = true;
+            //    o.Speed = new Vector3(-0.003, 0, 0);
+            //    o.Mass = 5;
+            //}),
+            //s.PutOn(0).MoveX(-2.5).ToActiveShape(o =>
+            //{
+            //    o.ShowMeta = true;
+            //    //o.AllowTriangulation0 = false;
+            //    o.UseSkeleton = true;
+            //    o.Skeleton.Power = 1;
+            //    o.MaterialPower = 5;
+            //    o.Skeleton.ShowPoints = true;
+            //    o.Docked = new[]
+            //    {
+            //        Shapes.LineN(4).Centered().ToOx().PutOn(1),
+            //        Shapes.Cube.AddSkeleton().Perfecto(0.2).Move(0, 1, 1.5),
+            //        Shapes.Cube.AddSkeleton().Perfecto(0.2).Move(0, 1, -1.5),
+            //    }.DockSingle();
+            //}),
+            //Surfaces.Plane(10,10).Perfecto(0.5).ApplyZ(Funcs3Z.ParaboloidM).Perfecto(5).ToOy().RotateOz(Math.PI/2).PutOn().MoveX(2.5).ToActiveShape(o =>
+            //{
+            //    o.ShowMeta = true;
+            //    //o.AllowTriangulation0  =false;
+            //    o.UseSkeleton = true;
+            //    o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
+            //    o.MaterialPower = 5;
+            //    o.Skeleton.Power = 5;
+            //    o.Fix = new ActiveShapeOptions.FixOptions
+            //    {
+            //        //Dock = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left
+            //        Dock = ActiveShapeOptions.FixDock.Top | ActiveShapeOptions.FixDock.Bottom
+            //    };
+            //}),
+        }.ToWorld(o =>
+        {
+            //o.Ground.WindPower = 1;
+            o.GroundClingForce = 0.01;
+            o.InteractionType = InteractionType.ParticleWithPlane;
+            o.Interaction.PlaneForce = 1;
+            o.Interaction.MaterialClingForce = 10;
+            o.Interaction.MaterialFrictionForce = 10;
+        }).ToMotion();
+
         //var from = 0;
         //var n = 21;
         //return (n-3).SelectSquarePoints((i, x, y) =>
@@ -74,7 +164,7 @@ partial class SceneMotion
         //    return (ts.ApplyColor(Color.Blue) + ts.ToMetaShape3(3, 3, Color.Red, Color.Green) + /*s.ToNumSpots3() + */vectorizer.GetTextLine(ts.Convexes.Length.ToString()).Centered().Mult(0.5).MoveY(1.6)).Centered().Move(4*x, 4*y, 0);
         //}).ToArray().ToSingleShape().ToMotion();
 
-        return BallToPyramidWorldMotion();
+        //return BallToPyramidWorldMotion();
 
         //return TwoCubesWorldMotion();
         //return WorldInteractionMotion();

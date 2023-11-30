@@ -77,15 +77,21 @@ public partial class ActiveWorld
             var clusterSize = activeShapes.Select(a => (a.Model.borders0.max - a.Model.borders0.min).Length).Max();
             worldNet = new Net3<ActiveShape>(activeShapes.ToArray(), clusterSize, true, options.Interaction.InteractionAreaScale);
 
-            if (options.Interaction.UseMass)
+            if (options.Interaction.UseVolumeMass)
             {
-                var worldVolume = activeShapes.Select(a => a.Model.volume0).Sum();
-                var averageVolume = worldVolume / activeShapes.Count;
-                activeShapes.ForEach(a =>
+                var d3ActiveShapes = activeShapes.Where(a => a.Options.Type == ActiveShapeOptions.ShapeType.D3).ToArray();
+
+                if (d3ActiveShapes.Length > 0)
                 {
-                    var massCoef = a.Model.volume0 / averageVolume;
-                    a.Nodes.ForEach(n=>n.mass *= massCoef);
-                });
+                    var worldVolume = d3ActiveShapes.Select(a => a.Model.volume0).Sum();
+                    var averageVolume = worldVolume / d3ActiveShapes.Length;
+
+                    d3ActiveShapes.ForEach(a =>
+                    {
+                        var massCoef = a.Model.volume0 / averageVolume;
+                        a.Nodes.ForEach(n => n.mass *= massCoef);
+                    });
+                }
             }
         }
     }

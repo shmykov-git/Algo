@@ -25,6 +25,7 @@ public partial class ActiveWorld
         //<material>
         public double volume0;
         public int skeletonPointCount;
+        public int skeletonPointStart;
         //</material>
 
         // <interaction>
@@ -58,8 +59,8 @@ public partial class ActiveWorld
         public Vector3 collideForce = Vector3.Origin;
         public Vector3 rejectionDirSum = Vector3.Origin;
         public Vector3 nRejectionDir = Vector3.Origin;
-        public Vector3 collidePosition;
         public bool isInsideMaterial;
+        public Pack pack;
         // </plane>
 
         public struct Pack
@@ -76,12 +77,14 @@ public partial class ActiveWorld
         {
             pointPackFn = _ => new Pack
             {
+                k = new Vector3(1, 0, 0),
                 mass = mass,
                 speed = speed,
             };
 
             applyCollideForce = (pack, collideMass, collideForce) =>
             {
+                base.pack = pack;
                 base.collideForce += (collideMass / pack.mass) * collideForce;
                 collideCount++;
             };
@@ -94,15 +97,22 @@ public partial class ActiveWorld
         public Edge[] edges;
         public Plane[] planes;
         public Vector3 position0;
-        public double mass = 1;
+        //public double mass = 1;
+        private double _mass = 1; public double mass { get => _mass; set { _mass = value; if (_mass == 0) Debugger.Break(); } }
         public bool locked;
         // </static>
 
         // <dynamic>
         public Vector3 position { get; set; }
+        // <plane>
+        public bool hasnDir;
+        public Vector3 nDir;
+        public Vector3 collidePosition;
+        // </plane>
         public Func<Vector3> PositionFn => () => position - model.center; 
         
-        public Vector3 speed; //private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x)) Debugger.Break(); } }
+        //public Vector3 speed;
+        private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x) || double.IsInfinity(value.x)) Debugger.Break(); } }
         // <ground>
         public double speedY = 0;
         // </ground>
@@ -148,8 +158,11 @@ public partial class ActiveWorld
         public int j;
         public double fA;
         public EdgeType type = EdgeType.Material;
-        public Node ni => nodes[i];
-        public Node nj => nodes[j];
+
+        private Node _ni;
+        private Node _nj;
+        public Node ni => _ni ??= nodes[i];
+        public Node nj => _nj ??= nodes[j];
         public Vector3 positionI => ni.position;
         public Vector3 positionJ => nj.position;
         public Vector3 positionCenter => 0.5 * (positionI + positionJ);
@@ -174,8 +187,8 @@ public partial class ActiveWorld
 
                 return new Pack
                 {
-                    k  = k,
-                    mass = k.x * ni.mass + k.y * nj.mass,
+                    k = k,
+                    mass = k.x * ni.mass + k.y * nj.mass + k.z * nk.mass,
                     speed = k.x * ni.speed + k.y * nj.speed + k.z * nk.speed
                 };
             };
@@ -198,9 +211,12 @@ public partial class ActiveWorld
         public int j;
         public int k;
 
-        public Node ni => nodes[i];
-        public Node nj => nodes[j];
-        public Node nk => nodes[k];
+        private Node _ni;
+        private Node _nj;
+        private Node _nk;
+        public Node ni => _ni ??= nodes[i];
+        public Node nj => _nj ??= nodes[j];
+        public Node nk => _nk ??= nodes[k];
         public Vector3 positionI => ni.position;
         public Vector3 positionJ => nj.position;
         public Vector3 positionK => nk.position;

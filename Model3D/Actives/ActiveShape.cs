@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
 using Model;
@@ -11,6 +12,7 @@ using Model.Graphs;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Material = Model.Material;
+using Shape = Model.Shape;
 
 namespace Model3D.Actives;
 
@@ -39,8 +41,10 @@ public class ActiveShape : INet3Item
     public ActiveShape(Shape shape, ActiveShapeOptions options)
     {
         this.options = options;
-        this.shape0 = shape.TriangulateByFour();
+        this.shape0 = options.AllowTriangulation0 ? shape.TriangulateByFour() : shape;
     }
+    bool IsSkeletonPoint(int i) => model.skeletonPointStart <= i && i < model.skeletonPointStart + model.skeletonPointCount;
+    bool IsSkeletonEdge(int i, int j) => IsSkeletonPoint(i) || IsSkeletonPoint(j);
 
     public void Activate()
     {
@@ -56,6 +60,8 @@ public class ActiveShape : INet3Item
 
         if (options.UseSkeleton)
         {
+            model.skeletonPointStart = shape0.PointsCount;
+
             switch (options.Skeleton.Type)
             {
                 case ActiveShapeOptions.SkeletonType.CenterPoint:
@@ -75,6 +81,9 @@ public class ActiveShape : INet3Item
                     model.skeletonPointCount = skeletonPointCount;
                     break;
             }
+
+            if (options.Docked != null)
+                staticModel = staticModel.DockSingle(options.Docked);
         }
 
         if (options.RotationAngle.Abs() > 0)
@@ -94,19 +103,21 @@ public class ActiveShape : INet3Item
 
         nodes.ForEach(n => n.nodes = nodes);
 
-        var skeletonI = shape0.PointsCount;
+        //var skeletonI = shape0.PointsCount;
 
         // todo: list of unique edges
 
-        nodes.ForEach(n => n.edges = staticModel.Links[n.i].Select(j => new ActiveWorld.Edge
-        {
-            model = model,
-            nodes = nodes,
-            i = n.i,
-            j = j,
-            fA = (n.position - nodes[j].position).Length,
-            type = options.UseSkeleton && j >= skeletonI ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
-        }).ToArray());
+        nodes.ForEach(n => n.edges = staticModel.Links.TryGetValue(n.i, out var js) ?
+            js.Select(j => new ActiveWorld.Edge
+            {
+                model = model,
+                nodes = nodes,
+                i = n.i,
+                j = j,
+                fA = (n.position - nodes[j].position).Length,
+                type = options.UseSkeleton && IsSkeletonEdge(n.i, j) ? ActiveWorld.EdgeType.Skeleton : ActiveWorld.EdgeType.Material
+            }).ToArray()
+        : new ActiveWorld.Edge[0]);
 
         planes = shape0.Convexes
             .Select(c => (c, p: new ActiveWorld.Plane()
@@ -122,6 +133,7 @@ public class ActiveShape : INet3Item
             .ToArray();
 
         nodes.ForEach(n => n.planes = planes.Where(p => p.c.Contains(n.i)).ToArray());
+        nodes.ForEach(n => n.hasnDir = n.planes.Length > 0);
 
         if (options.Speed.Length > 0)
             nodes.ForEach(n => n.speed += options.Speed / options.WorldOptions.OverCalculationMult);
@@ -163,30 +175,26 @@ public class ActiveShape : INet3Item
             
             var b = Model.borders0;
 
-            switch (options.Fix.Dock)
-            {
-                case ActiveShapeOptions.FixDock.Point:
-                    Fix(options.Fix.Point, options.Fix.Direction, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Left:
-                    Fix(b.min, Vector3.XAxis, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Right:
-                    Fix(b.max, -Vector3.XAxis, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Bottom:
-                    Fix(b.min, Vector3.YAxis, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Top:
-                    Fix(b.max, -Vector3.YAxis, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Back:
-                    Fix(b.min, Vector3.ZAxis, options.Fix.Distance);
-                    break;
-                case ActiveShapeOptions.FixDock.Front:
-                    Fix(b.max, -Vector3.ZAxis, options.Fix.Distance);
-                    break;
-            }
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Point))
+                Fix(options.Fix.Point, options.Fix.Direction, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Left))
+                Fix(b.min, Vector3.XAxis, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Right))
+                Fix(b.max, -Vector3.XAxis, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Bottom))
+                Fix(b.min, Vector3.YAxis, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Top))
+                Fix(b.max, -Vector3.YAxis, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Back))
+                Fix(b.min, Vector3.ZAxis, options.Fix.Distance);
+
+            if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Front))
+                Fix(b.max, -Vector3.ZAxis, options.Fix.Distance);
         }
 
         this.nodes = nodes;
@@ -228,7 +236,7 @@ public class ActiveShape : INet3Item
         {
             Points3 = options.Skeleton.ShowPoints || !options.UseSkeleton
                 ? nodes.Select(n => n.position).ToArray()
-                : nodes.SkipLast(model.skeletonPointCount).Select(n => n.position).ToArray(),
+                : nodes.Where(n=>!IsSkeletonPoint(n.i)).Select(n => n.position).ToArray(),
             Convexes = shape0.Convexes,
             Materials = staticNormModel.Convexes.Length == (shape0.Materials?.Length??0) ? shape0.Materials : null,
         };

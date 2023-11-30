@@ -824,6 +824,7 @@ namespace Model3D.Extensions
         public static Shape Rotate(this Shape shape, Vector3 center, double alfa) => shape.Move(-center).Rotate(Quaternion.FromAngleAxis(alfa, Vector3.ZAxis)).Move(center);
         public static Shape RotateMassCenter(this Shape shape, double alfa) => shape.Rotate(shape.PointCenter, alfa);
         public static Shape RotateOx(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.XAxis));
+        public static Shape RotateOz(this Shape shape, double alfa) => Rotate(shape, Quaternion.FromAngleAxis(alfa, Vector3.ZAxis));
         public static Shape RotateOx(this Shape shape, double x, double y, double z) => Rotate(shape, Quaternion.FromRotation(Vector3.XAxis, new Vector3(x, y, z).Normalize()));
 
         public static Shape Rotate(this Shape shape, Vector3 zAxis, Vector3? yAxis = null)
@@ -1505,5 +1506,49 @@ namespace Model3D.Extensions
 
             return new ActiveShape(shape, options);
         }
+
+        public static Shape RoundPoints(this Shape shape, double epsilon, int from = 0, int? to = null)
+        {
+            Vector3 GetP(int i, Vector3 p)
+            {
+                if (i < from)
+                    return p;
+
+                if (to.HasValue && i > to.Value)
+                    return p;
+
+                return new Vector3(Math.Round(p.x / epsilon) * epsilon, Math.Round(p.y / epsilon) * epsilon, Math.Round(p.z / epsilon) * epsilon);
+            }
+
+            return new Shape
+            {
+                Points3 = shape.Points3.Select((p, i) => GetP(i, p)).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
+        public static Shape DockSingle(this Shape a, Shape b, double radius = 0.05)
+        {
+            var r2 = radius.Pow2();
+            var bPs = b.Points3;
+            var docks = a.Points3
+                .SelectMany((ap, i) => bPs.Select((bp, j) => (bp, j, r2: (ap - bp).Length2)).Where(v => v.r2 < r2).Select(v => (j:v.j, i, v.r2)))
+                .GroupBy(v=>v.j)
+                .Select(gv=>(j:gv.Key, i:gv.MinBy(v=>v.r2).i))
+                .ToDictionary(v=>v.j, v=>v.i);
+
+            var bi = bPs.Index().WhereBi(i => !docks.ContainsKey(i));
+            var materials = (a.Materials ?? new Material[0]).Concat(b.Materials ?? new Material[0]).ToArray();
+
+            return new Shape
+            {
+                Points3 = a.Points3.Concat(bi.items.Select(j => bPs[j])).ToArray(),
+                Convexes = a.Convexes.Concat(b.Convexes.Transform(i => bi.bi[i] < 0 ? docks[i] : bi.bi[i] + a.PointsCount)).ToArray(),
+                Materials = (a.Materials != null && b.Materials !=null) ? a.Materials.Concat(b.Materials).ToArray() : null,
+            };
+        }
+
+        public static Shape DockSingle(this IEnumerable<Shape> shapeList, double radius = 0.05) => shapeList.Aggregate((a, b) => a.DockSingle(b, radius));
     }
 }

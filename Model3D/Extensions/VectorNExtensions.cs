@@ -148,7 +148,7 @@ namespace Model3D.Extensions
         {
             var len0 = v.Length;
 
-            return len0.Abs() < epsilon ? new Vector3(0, 0, 0) : v * (len / len0);
+            return len0.Abs() < epsilon ? Vector3.Origin : v * (len / len0);
         }
 
         public static Vector3 ToLen(this Vector3 v, Func<double, double> lenFn)

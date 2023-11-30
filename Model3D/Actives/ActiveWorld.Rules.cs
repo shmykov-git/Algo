@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
+using Model.Libraries;
 using Model3D.Extensions;
 
 namespace Model3D.Actives;
@@ -16,6 +17,17 @@ public partial class ActiveWorld // Rules
     private double minInteractionMult = 3;
 
     double GetForceInteractionRadius(double edgeSize) => edgeSize * middleInteractionValue * minInteractionMult;
+
+
+    double MaterialRejectionAcceleration(double power, double a, double y)
+    {
+        var x = y / a;
+
+        if (x < materialInteractionForceBorder)
+            x = materialInteractionForceBorder;
+
+        return power * interactionCoef / x.Pow2();
+    }
 
     double MaterialInteractionAcceleration(double power, double a, double y)
     {
@@ -41,7 +53,9 @@ public partial class ActiveWorld // Rules
     Vector3 GetNodeNormal(Node n) => n.planes.Select(p => p.ni.position.GetPlaneNormal(p.nj.position, p.nk.position)).Sum().Normalize();
     double GetVolume(Vector3 a, Vector3 b, Vector3 c) => c.MultS(GetNormal(a, b, c));
 
-    double GetActiveShapeVolume(ActiveShape a) => a.Planes.Select(p => GetVolume(a.Nodes[p.i].position, a.Nodes[p.j].position, a.Nodes[p.k].position)).Sum();
+    double GetActiveShapeVolume(ActiveShape a) => a.Options.Type == ActiveShapeOptions.ShapeType.D3
+        ? a.Planes.Select(p => GetVolume(a.Nodes[p.i].position, a.Nodes[p.j].position, a.Nodes[p.k].position)).Sum()
+        : 0;
 
     Vector3 GetAngleSpeed(Vector3 rotationSpeed, Vector3 rotationPosition) => rotationSpeed.MultV(rotationPosition) / rotationPosition.Length2;
 
@@ -191,16 +205,28 @@ public partial class ActiveWorld // Rules
 
 
     #region Plane interaction
-    double GetPlaneForceByDistance(double distance) => -distance / (options.MaterialThickness + options.JediMaterialThickness);
-    Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed) => slidingSpeed.ToLenWithCheck(-Math.Min(slidingSpeed.Length, options.PlaneConst * options.Interaction.MaterialFrictionForce));
-    Vector3 GetPlaneClingForce(Vector3 nOne) => (-options.PlaneConst * options.Interaction.MaterialClingForce) * nOne;
+    // сила взаимодействия не должна быть линейной для эффекта отражения
+    double GetPlaneForceByDistance(double distance) => MaterialRejectionAcceleration(50000, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
+    Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed)
+    {
+        var force = options.PlaneConst * options.Interaction.MaterialFrictionForce;
+
+        if (slidingSpeed.Length2 < force* force)
+            return -slidingSpeed;
+
+        return slidingSpeed.ToLenWithCheck(-force, Values.Epsilon12);
+    }
+
+    Vector3 GetPlaneClingForce(double nSpeed, Vector3 nDir) => (-nSpeed.Sgn() * Math.Min(nSpeed.Abs(), options.PlaneConst * options.Interaction.MaterialClingForce)) * nDir; //(-0.005 * nSpeed * options.Interaction.MaterialClingForce) * nDir;
+
+    private const double elasticForceMult = 50;
     Vector3 GetPlaneElasticForce(Vector3 nRejectionDir, Vector3 nOne, double distance)
     {
         var distanceForce = GetPlaneForceByDistance(distance);
-        var dirFactor = nRejectionDir.MultS(nOne);
+        var rejectFactor = nRejectionDir.MultS(nOne);
 
-        var elasticForce = dirFactor > 0
-            ? (dirFactor * distanceForce * options.PlaneConst * options.Interaction.PlaneForce) * nRejectionDir
+        var elasticForce = rejectFactor > 0
+            ? (elasticForceMult * rejectFactor * distanceForce * options.PlaneConst * options.Interaction.PlaneForce) * nRejectionDir
             : Vector3.Origin;
 
         return elasticForce;
