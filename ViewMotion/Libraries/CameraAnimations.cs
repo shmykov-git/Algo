@@ -13,9 +13,11 @@ namespace ViewMotion.Libraries
 {
     internal static class CameraAnimations
     {
-        public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition, double centerDistance = 0)
+        public static CameraMotionOptions FlyAround(Vector3 cameraStartPosition, Vector3 lookDirection, double radiusMult = 0)
         {
-            var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition, -cameraStartPosition.ToLenWithCheck(centerDistance), Vector3.YAxis);
+            var radius = -lookDirection.MultS(cameraStartPosition);
+            var center = cameraStartPosition + lookDirection.ToLen(radius);
+            var cameraTrajectory = Trajectories.CircleTrajectory(cameraStartPosition - center, lookDirection.ToLenWithCheck(radiusMult * radius), Vector3.YAxis);
             var cameraAcceleration = Accelerations.PolyA2(0.25);
 
             (Vector3 pos, Vector3 look, Vector3 up) GetCamera(int step, int maxStep)
@@ -24,7 +26,7 @@ namespace ViewMotion.Libraries
                 var look = -pos.Normalize();
                 var up = Vector3.YAxis;
 
-                return (pos, look, up);
+                return (pos + center, look, up);
             }
 
             return new CameraMotionOptions()
@@ -32,7 +34,7 @@ namespace ViewMotion.Libraries
                 CameraStartOptions = new CameraOptions()
                 {
                     Position = cameraStartPosition,
-                    LookDirection = -cameraStartPosition.Normalize(),
+                    LookDirection = lookDirection,
                     UpDirection = Vector3.YAxis,
                     FieldOfView = 60,
                     RotateUpDirection = false,

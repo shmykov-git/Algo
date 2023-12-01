@@ -41,7 +41,7 @@ namespace ViewMotion
         private string frameInfo;
         private double light;
 
-        private CameraMotionOptions cameraMotionOptions;
+        private CameraMotionOptions? cameraMotionOptions;
 
         public ViewerModel(MotionSettings motionSettings, SceneMotion scene, StaticSceneRender staticRender, StaticSettings staticSettings)
         {
@@ -89,10 +89,11 @@ namespace ViewMotion
         {
             cameraMotionOptions = AnimationIndex switch
             {
-                1 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position),
-                2 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.Position.Length * 0.5),
-                3 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, -motionSettings.CameraOptions.Position.Length * 0.25),
-                _ => null
+                0 => null,
+                1 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection),
+                2 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection, 0.5),
+                3 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection, -0.25),
+                _ => throw new NotImplementedException()
             };
         }
 

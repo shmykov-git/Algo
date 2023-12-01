@@ -27,6 +27,48 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> TwoBallFallingToNetMotion()
+    {
+        var ball = Shapes.IcosahedronSp1.Perfecto();
+
+        return new[] {
+            ball.PutOn(3).Move(0.5,0,-1).ToActiveShape(o =>
+            {
+                //o.ShowMeta = true;
+                o.Mass = 3;
+                o.AllowTriangulation0  =false;
+            }),
+            ball.PutOn(2).Move(-0.2,0,1).ToActiveShape(o =>
+            {
+                o.Mass = 3;
+                //o.ShowMeta = true;
+                o.AllowTriangulation0  =false;
+            }),            
+            Surfaces.Plane(20,20).Perfecto(5).ToOy()/*.RotateOz(Math.PI/6)*/.PutOn().ToActiveShape(o => 
+            {
+                o.Type = ActiveShapeOptions.ShapeType.D2;
+                o.ShowMeta = true;
+                o.AllowTriangulation0  =false;
+                o.UseSkeleton = false;
+                o.Mass = 1;
+                o.MaterialPower = 5;
+                o.Fix = new ActiveShapeOptions.FixOptions
+                {
+                    Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right
+                };
+            }),                        
+        }.ToWorld(o =>
+        {
+            o.Ground.ShowGround = false;
+            o.Ground.Y = -10;
+            o.GroundClingForce = 0.01;
+            o.InteractionType = InteractionType.ParticleWithPlane;
+            o.Interaction.ElasticForce = 1;
+            o.Interaction.ClingForce = 2;
+            o.Interaction.FrictionForce = 2;
+        }).ToMotion(10);
+    }
+
     public Task<Motion> BallToPyramidWorldMotion()
     {
         var colors = new[] { Color.Red, Color.Blue, Color.Green, Color.Yellow };
@@ -107,11 +149,11 @@ partial class SceneMotion
     public Task<Motion> TrySkeleton()
     {
         var s = Shapes.Stone(4, 21).Perfecto();
-        //var s = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
-        //var s = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
-        //var s = Surfaces.Torus(31, 10, 3, true).Perfecto();
-        //var s = Surfaces.Shamrock(120, 10, true).Perfecto();
-        //var s = Shapes.Cube.SplitPlanes(0.3).Perfecto();
+        //var ball = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
+        //var ball = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
+        //var ball = Surfaces.Torus(31, 10, 3, true).Perfecto();
+        //var ball = Surfaces.Shamrock(120, 10, true).Perfecto();
+        //var ball = Shapes.Cube.SplitPlanes(0.3).Perfecto();
 
         return s.AddSkeleton().ToMetaShape3(0.3, 0.3, Color.Red, Color.Blue).ToMotion(1);
     }
@@ -198,7 +240,7 @@ partial class SceneMotion
                     {
                         // change any shape options on show
 
-                        return s; // s.ApplyColor(Color.LightBlue);
+                        return s; // ball.ApplyColor(Color.LightBlue);
                     };
                 })
             };

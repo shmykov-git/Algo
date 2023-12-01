@@ -58,6 +58,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
 
         // разные размеры плоскостей?
@@ -67,16 +68,16 @@ partial class SceneMotion
         //    //Shapes.LineN(4).Perfecto(2)
         //}.ToSingleShape();
 
-        var s = Shapes.Cube.Perfecto();
+        var s = Shapes.IcosahedronSp1.Perfecto();
 
         return new[] {
-            s.PutOn(4).Move(0.5,0,-1).ToActiveShape(o =>
+            s.PutOn(4.5).Move(0.5,0,-1).ToActiveShape(o =>
             {
                 //o.ShowMeta = true;
                 o.Mass = 3;
                 o.AllowTriangulation0  =false;
             }),
-            s.PutOn(4).Move(-0.2,0,1).ToActiveShape(o =>
+            s.PutOn(3.5).Move(-0.2,0,1).ToActiveShape(o =>
             {
                 o.Mass = 3;
                 //o.ShowMeta = true;
@@ -92,7 +93,7 @@ partial class SceneMotion
             //    //o.Speed = new Vector3(0.003, 0, 0);
             //    o.Mass = 1;
             //}),
-            Surfaces.Plane(10,10).Perfecto(5).ToOy()/*.RotateOz(Math.PI/6)*/.PutOn(1).ToActiveShape(o => // Math.PI/2
+            Surfaces.Plane(20,20).Perfecto(5).ToOy()/*.RotateOz(Math.PI/6)*/.PutOn(1.5).ToActiveShape(o => // Math.PI/2
             {
                 o.Type = ActiveShapeOptions.ShapeType.D2;
                 o.ShowMeta = true;
@@ -150,6 +151,7 @@ partial class SceneMotion
         }.ToWorld(o =>
         {
             //o.Ground.WindPower = 1;
+            o.Ground.ShowGround = false;
             o.GroundClingForce = 0.01;
             o.InteractionType = InteractionType.ParticleWithPlane;
             o.Interaction.ElasticForce = 1;
