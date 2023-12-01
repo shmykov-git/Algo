@@ -58,21 +58,30 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return TwoCubesWorldMotion();
+        //return TwoCubesWorldMotion();
 
         // разные размеры плоскостей?
-        var s = new[] 
-        {
-            Surfaces.Cylinder(50, 2).Perfecto(2),
-            //Shapes.LineN(4).Perfecto(2)
-        }.ToSingleShape();
+        //var s = new[] 
+        //{
+        //    Surfaces.Cylinder(50, 2).Perfecto(2),
+        //    //Shapes.LineN(4).Perfecto(2)
+        //}.ToSingleShape();
+
+        var s = Shapes.Cube.Perfecto();
 
         return new[] {
-            Shapes.Cube.PutOn(3).Move(1,0,1).ToActiveShape(o =>
+            s.PutOn(4).Move(0.5,0,-1).ToActiveShape(o =>
             {
-                o.ShowMeta = true;
+                //o.ShowMeta = true;
+                o.Mass = 3;
+                o.AllowTriangulation0  =false;
             }),
-            //Shapes.Point.PutOn(3).Move(1,0,1).ToActiveShape(o =>
+            s.PutOn(4).Move(-0.2,0,1).ToActiveShape(o =>
+            {
+                o.Mass = 3;
+                //o.ShowMeta = true;
+                o.AllowTriangulation0  =false;
+            }),            //Shapes.Point.PutOn(3).Move(1,0,1).ToActiveShape(o =>
             //{
             //    o.Type = ActiveShapeOptions.ShapeType.D1;
             //    o.AllowTriangulation0 = false;
@@ -83,13 +92,14 @@ partial class SceneMotion
             //    //o.Speed = new Vector3(0.003, 0, 0);
             //    o.Mass = 1;
             //}),
-            Surfaces.Plane(2,2).Perfecto(5).ToOy().RotateOz(Math.PI/4).PutOn(-1).ToActiveShape(o => // Math.PI/2
+            Surfaces.Plane(10,10).Perfecto(5).ToOy()/*.RotateOz(Math.PI/6)*/.PutOn(1).ToActiveShape(o => // Math.PI/2
             {
                 o.Type = ActiveShapeOptions.ShapeType.D2;
                 o.ShowMeta = true;
-                //o.AllowTriangulation0  =false;
+                o.AllowTriangulation0  =false;
                 o.UseSkeleton = false;
                 o.Mass = 1;
+                o.MaterialPower = 5;
                 o.Fix = new ActiveShapeOptions.FixOptions
                 {
                     Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right
@@ -142,9 +152,9 @@ partial class SceneMotion
             //o.Ground.WindPower = 1;
             o.GroundClingForce = 0.01;
             o.InteractionType = InteractionType.ParticleWithPlane;
-            o.Interaction.PlaneForce = 1;
-            o.Interaction.MaterialClingForce = 10;
-            o.Interaction.MaterialFrictionForce = 10;
+            o.Interaction.ElasticForce = 1;
+            o.Interaction.ClingForce = 2;
+            o.Interaction.FrictionForce = 2;
         }).ToMotion();
 
         //var from = 0;
@@ -273,9 +283,9 @@ partial class SceneMotion
         //return (actives, statics).ToWorld(o =>
         //    {
         //        o.UseGround = true;                
-        //        o.Interaction.MaterialClingForce = 0.1;
-        //        o.Interaction.MaterialFrictionForce = 0.1;
-        //        o.Interaction.PlaneForce = 4;
+        //        o.Interaction.ClingForce = 0.1;
+        //        o.Interaction.FrictionForce = 0.1;
+        //        o.Interaction.ElasticForce = 4;
 
         //        //o.Ground.GravityPower = 0.6;
         //        //o.UseMassCenter = false;

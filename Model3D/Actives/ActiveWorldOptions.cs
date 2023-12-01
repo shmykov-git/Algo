@@ -131,10 +131,10 @@ public class ActiveWorldOptions
         public double ParticleForce { get; set; }
         public Vector3 InteractionAreaScale { get; set; }
         public bool UseVolumeMass {  get; set; }
-        public double MaterialFrictionForce { get; set; }
-        public double MaterialClingForce { get; set; }
+        public double FrictionForce { get; set; }
+        public double ClingForce { get; set; }
         //public double GroundClingForce { get; set; }
-        public double PlaneForce { get; set; }
+        public double ElasticForce { get; set; }
     }
 
     public class MassCenterOptions

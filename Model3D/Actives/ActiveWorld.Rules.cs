@@ -12,7 +12,7 @@ namespace Model3D.Actives;
 public partial class ActiveWorld // Rules
 {
     private double materialInteractionForceBorder = 0.0001;
-    private double interactionCoef = 0.000001;
+    private double interactionCoef4 = 0.000001;
     private double middleInteractionValue = 0.5;
     private double minInteractionMult = 3;
 
@@ -26,7 +26,7 @@ public partial class ActiveWorld // Rules
         if (x < materialInteractionForceBorder)
             x = materialInteractionForceBorder;
 
-        return power * interactionCoef / x.Pow2();
+        return power / x.Pow2();
     }
 
     double MaterialInteractionAcceleration(double power, double a, double y)
@@ -36,7 +36,7 @@ public partial class ActiveWorld // Rules
         if (x < materialInteractionForceBorder)
             x = materialInteractionForceBorder;
 
-        return power * interactionCoef / x.Pow4();
+        return power * interactionCoef4 / x.Pow4();
     }
 
     double MaterialForceFn(double power, double border, double a, double y)
@@ -205,11 +205,12 @@ public partial class ActiveWorld // Rules
 
 
     #region Plane interaction
-    // сила взаимодействия не должна быть линейной для эффекта отражения
-    double GetPlaneForceByDistance(double distance) => MaterialRejectionAcceleration(50000, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
+    
+    double GetPlaneForceByDistance(double distance) => MaterialRejectionAcceleration(1, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
+
     Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed)
     {
-        var force = options.PlaneConst * options.Interaction.MaterialFrictionForce;
+        var force = options.PlaneConst * options.Interaction.FrictionForce;
 
         if (slidingSpeed.Length2 < force* force)
             return -slidingSpeed;
@@ -217,16 +218,15 @@ public partial class ActiveWorld // Rules
         return slidingSpeed.ToLenWithCheck(-force, Values.Epsilon12);
     }
 
-    Vector3 GetPlaneClingForce(double nSpeed, Vector3 nDir) => (-nSpeed.Sgn() * Math.Min(nSpeed.Abs(), options.PlaneConst * options.Interaction.MaterialClingForce)) * nDir; //(-0.005 * nSpeed * options.Interaction.MaterialClingForce) * nDir;
+    Vector3 GetPlaneClingForce(double nSpeed, Vector3 nDir) => (-nSpeed.Sgn() * Math.Min(nSpeed.Abs(), options.PlaneConst * options.Interaction.ClingForce)) * nDir;
 
-    private const double elasticForceMult = 50;
     Vector3 GetPlaneElasticForce(Vector3 nRejectionDir, Vector3 nOne, double distance)
     {
         var distanceForce = GetPlaneForceByDistance(distance);
         var rejectFactor = nRejectionDir.MultS(nOne);
 
         var elasticForce = rejectFactor > 0
-            ? (elasticForceMult * rejectFactor * distanceForce * options.PlaneConst * options.Interaction.PlaneForce) * nRejectionDir
+            ? (rejectFactor * distanceForce * options.PlaneConst * options.Interaction.ElasticForce) * nRejectionDir
             : Vector3.Origin;
 
         return elasticForce;

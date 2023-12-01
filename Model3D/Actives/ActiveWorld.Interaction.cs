@@ -85,7 +85,7 @@ public partial class ActiveWorld // Interaction
                     var pSize = plane.Size;
                     var pDistanceFn = plane.Fn;
                     var pProjFn = plane.ProjectionFn;
-                    var isPointInsideFn = plane.IsPointInsideFn;
+                    var isPointInsideFn = pb.IsInsideFn(nOne);
 
                     foreach (var na in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize))
                     {
@@ -174,7 +174,7 @@ public partial class ActiveWorld // Interaction
         var collideForce = elasticForce + frictionForce + clingForce;
 
         var percent = (decimal)(Math.Round(-20 * forceDistance / (options.JediMaterialThickness + options.MaterialThickness)) * 5);
-        if (percent > maxPercent)
+        if (percent > maxPercent && rra.nRejectionDir.MultS(bnOne) > 0.5)
         {
             maxPercent = percent;
             Debug.WriteLine($"Plane material penetration: {percent}%");

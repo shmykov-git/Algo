@@ -87,9 +87,9 @@ public static class ActiveWorldValues
             ParticleForce = 1,
             InteractionAreaScale = new Vector3(2, 2, 2),
             UseVolumeMass = true,
-            MaterialFrictionForce = 1,
-            MaterialClingForce = 1,
-            PlaneForce = 1,
+            FrictionForce = 1,
+            ClingForce = 1,
+            ElasticForce = 1,
         },
     };
 }

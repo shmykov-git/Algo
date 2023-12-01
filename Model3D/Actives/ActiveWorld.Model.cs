@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using Aspose.ThreeD.Utilities;
+using Model.Extensions;
 using Model.Hashes;
 using Model.Libraries;
 using Model3D.Extensions;
@@ -97,8 +98,7 @@ public partial class ActiveWorld
         public Edge[] edges;
         public Plane[] planes;
         public Vector3 position0;
-        //public double mass = 1;
-        private double _mass = 1; public double mass { get => _mass; set { _mass = value; if (_mass == 0) Debugger.Break(); } }
+        public double mass = 1; //private double _mass = 1; public double mass { get => _mass; set { _mass = value; if (_mass == 0) Debugger.Break(); } }
         public bool locked;
         // </static>
 
@@ -109,15 +109,34 @@ public partial class ActiveWorld
         public Vector3 nDir;
         public Vector3 collidePosition;
         // </plane>
-        public Func<Vector3> PositionFn => () => position - model.center; 
-        
-        //public Vector3 speed;
-        private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = value; if (double.IsNaN(value.x) || double.IsInfinity(value.x)) Debugger.Break(); } }
+        public Func<Vector3> PositionFn => () => position - model.center;
+        public Vector3 speed; //private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = debugSpeed(value); } }
         // <ground>
         public double speedY = 0;
         // </ground>
 
         // </dynamic>
+
+        #region debug
+        private static double __speedMax; 
+        Vector3 debugSpeed(Vector3 value)
+        {
+            if (double.IsNaN(value.x) || double.IsInfinity(value.x))
+                Debugger.Break();
+
+            if (value.Length > 0.05)
+                Debugger.Break();
+
+            var speed = Math.Round(value.Length * 100) * 0.01;
+            if (speed > __speedMax)
+            {
+                __speedMax = speed;
+                Debug.WriteLine($"Speed: {speed}");
+            }
+
+            return value;
+        }
+        #endregion
     }
 
     public enum EdgeType
@@ -232,6 +251,10 @@ public partial class ActiveWorld
         }
 
         public Plane3 collidePlane => new Plane3(ni.collidePosition, nj.collidePosition, nk.collidePosition);
+        public Func<Vector3, bool> IsInsideFn(Vector3 n)
+        {
+            return x => c.Select(i => nodes[i].collidePosition).SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == c.Length;
+        }
     }
 
 }

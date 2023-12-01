@@ -65,36 +65,42 @@ partial class SceneMotion
 
         return actives.ToWorld(o =>
         {
-            o.Interaction.MaterialClingForce = 0;// 0.1;
-            o.Interaction.MaterialFrictionForce = 0;// 0.1;
-            o.Interaction.PlaneForce = 5;
+            o.Interaction.ClingForce = 0;// 0.1;
+            o.Interaction.FrictionForce = 0;// 0.1;
+            o.Interaction.ElasticForce = 5;
             o.InteractionType = InteractionType.EdgeWithPlane;
         }).ToMotion(9);
     }
 
     public Task<Motion> TwoCubesWorldMotion()
     {
+        var edge = 0.5;
+        var cube = Shapes.Cube.SplitPlanes(edge);
+        var mass = cube.PointsCount;
+        var power = 2 / edge;
+        var force = mass;
+
         var actives = new[]
         {
-            Shapes.Cube.SplitPlanes(0.5).PutOn().MoveY(1.5).ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Blue).ToActiveShape(o =>
+            cube.PutOn().MoveY(1.5).ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Blue).ToActiveShape(o =>
             {
-                o.Skeleton.Power = 0.5;
-                o.MaterialPower = 0.5;
+                o.Skeleton.Power = power;
+                o.MaterialPower = power;
                 o.RotationSpeedAngle = 0.003;
             }),
-            Shapes.Cube.SplitPlanes(0.5).PutOn().ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Red).ToActiveShape(o =>
+            cube.Scale(3,1,3).PutOn().ApplyColorGradient(ExVector3.XyzAxis, Color.White, Color.Red).ToActiveShape(o =>
             {
-                o.Skeleton.Power = 0.5;
-                o.MaterialPower = 0.5;
+                o.Skeleton.Power = power;
+                o.MaterialPower = power;
             }),
         };
 
         return actives.ToWorld(o =>
         {
-            o.Interaction.MaterialClingForce = 0.1;
-            o.Interaction.MaterialFrictionForce = 0.1;
-            o.Interaction.PlaneForce = 2;
-            o.InteractionType = InteractionType.EdgeWithPlane;
+            //o.InteractionType = InteractionType.EdgeWithPlane;
+            o.Interaction.ElasticForce = force / 5;
+            o.Interaction.FrictionForce = force/2;
+            o.Interaction.ClingForce = force;
         }).ToMotion(9);
     }
 
@@ -151,7 +157,7 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
         {
             o.InteractionType = InteractionType.ParticleWithPlane; // Point?
-            o.Interaction.PlaneForce = 1;
+            o.Interaction.ElasticForce = 1;
             o.PressurePowerMult = 0.0001;
             o.GroundClingForce = 0.1;
             o.GroundFrictionForce = 0.03;
