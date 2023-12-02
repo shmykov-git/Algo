@@ -61,7 +61,7 @@ partial class SceneMotion
         {
             o.Ground.ShowGround = false;
             o.Ground.Y = -10;
-            o.GroundClingForce = 0.01;
+            o.Ground.ClingForce = 0.01;
             o.InteractionType = InteractionType.ParticleWithPlane;
             o.Interaction.ElasticForce = 1;
             o.Interaction.ClingForce = 2;
@@ -201,8 +201,8 @@ partial class SceneMotion
             o.InteractionType = InteractionType.ParticleWithPlane; // Point?
             o.Interaction.ElasticForce = 1;
             o.PressurePowerMult = 0.0001;
-            o.GroundClingForce = 0.1;
-            o.GroundFrictionForce = 0.03;
+            o.Ground.ClingForce = 0.1;
+            o.Ground.FrictionForce = 0.03;
             o.MaterialThickness = 1;
             o.JediMaterialThickness = 0.5;
             o.Ground.WindPower = 2; // try wind carefully
@@ -254,8 +254,8 @@ partial class SceneMotion
         return (actives, statics).ToWorld(o =>
         {
             o.PressurePowerMult = 0.0001;
-            o.GroundClingForce = 0.1;
-            o.GroundFrictionForce = 0.03;
+            o.Ground.ClingForce = 0.1;
+            o.Ground.FrictionForce = 0.03;
             o.Ground.WindPower = 2; // try wind carefully
             o.Ground.UseWaves = true;
             o.Ground.WavesSize = 2;

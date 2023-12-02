@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using Aspose.ThreeD.Utilities;
 using MathNet.Numerics;
+using Meta.Libraries;
 using Model.Extensions;
 using Model3D.Extensions;
 using static Model3D.Actives.ActiveWorld;
@@ -148,8 +149,7 @@ public partial class ActiveWorld // Interaction
                 }));
     }
 
-    int cc;
-    decimal maxPercent = 0;
+    //private static decimal maxPercent = 0;
     private void CollideWithPlaneB(Interactor rra, Interactor rrb, Vector3 bnOne, Vector3 collidePoint, double forceDistance)
     {
         rra.isColliding = true;
@@ -173,12 +173,9 @@ public partial class ActiveWorld // Interaction
         var clingForce = GetPlaneClingForce(interSpeedN, bnDir);
         var collideForce = elasticForce + frictionForce + clingForce;
 
-        var percent = (decimal)(Math.Round(-20 * forceDistance / (options.JediMaterialThickness + options.MaterialThickness)) * 5);
-        if (percent > maxPercent && rra.nRejectionDir.MultS(bnOne) > 0.5)
-        {
-            maxPercent = percent;
-            Debug.WriteLine($"Plane material penetration: {percent}%");
-        }
+        if (options.Debug.DebugPlaneMaterialPenetration)
+            Debugs.MaxPercent("Plane material penetration: {0}", forceDistance / (options.JediMaterialThickness + options.MaterialThickness));
+
         //Debug.WriteLine($"{cc++} {-forceDistance / (options.JediMaterialThickness + options.MaterialThickness):P0}: {collideForce.Length} ({elasticForce.Length}, {frictionForce.Length}, {clingForce.Length}) ");
 
         rra.applyCollideForce(aPack, collideMass, collideForce);
@@ -204,13 +201,13 @@ public partial class ActiveWorld // Interaction
                     var pSize = plane.Size;
                     var pDistanceFn = plane.Fn;
                     var pProjFn = plane.ProjectionFn;
-                    var pIsPointInsideFn = plane.IsPointInsideFn;
+                    var pIsPointInsideFn = pb.IsInsideFn(nOne);
                     var pLineCrossFn = plane.IntersectionFn;
 
                     foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
                     {
-                        var isStrikeDirI = ea.ni.nDir.MultS(nOne) < 0;
-                        var isStrikeDirJ = ea.nj.nDir.MultS(nOne) < 0;
+                        var isStrikeDirI = !ea.ni.hasnDir || ea.ni.speed.MultS(nOne) < 0;
+                        var isStrikeDirJ = !ea.nj.hasnDir || ea.nj.speed.MultS(nOne) < 0;
 
                         if (isStrikeDirI || isStrikeDirJ)
                         {
@@ -225,7 +222,7 @@ public partial class ActiveWorld // Interaction
 
                             if (isCollidingI || isCollidingJ)
                             {
-                                var forceDistance = 0.25 * (Math.Min(distanceI, 0) + Math.Min(distanceJ, 0)); // double edge, double side
+                                var forceDistance = 0.25 * (Math.Min(distanceI, 0) + Math.Min(distanceJ, 0));
                                 var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
 
                                 if (hasCrossPoint)

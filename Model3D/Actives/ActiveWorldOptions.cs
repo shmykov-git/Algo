@@ -86,6 +86,8 @@ public class ActiveShapeOptions
         public Vector3 Point { get; set; }
         public Vector3 Direction { get; set; } = Vector3.ZAxis;
         public double Distance { get; set; } = 0.1;
+
+        public static implicit operator FixOptions(FixDock dock) => new FixOptions { Dock = dock };
     }
 
     public void With(Action<ActiveShapeOptions> action) => action(this);
@@ -110,8 +112,6 @@ public class ActiveWorldOptions
     public double PlaneConst { get; set; }
     public double PressurePower { get; set; }
     public double PressurePowerMult { get; set; }
-    public double GroundFrictionForce { get; set; }
-    public double GroundClingForce { get; set; }
     public bool AllowModifyStatics {  get; set; }
     public InteractionType InteractionType { get; set; }
     public InteractionOptions Interaction { get; set; }
@@ -121,8 +121,11 @@ public class ActiveWorldOptions
     public double PowerLimit { get; set; }
     public bool UseMassCenter { get; set; }
     public MassCenterOptions MassCenter { get; set; }
-    
-    
+
+
+    public WorldDebugOptions Debug { get; set; }
+
+
     public class InteractionOptions
     {
         public double EdgeSizeMult { get; set; }
@@ -133,7 +136,7 @@ public class ActiveWorldOptions
         public bool UseVolumeMass {  get; set; }
         public double FrictionForce { get; set; }
         public double ClingForce { get; set; }
-        //public double GroundClingForce { get; set; }
+        //public double ClingForce { get; set; }
         public double ElasticForce { get; set; }
     }
 
@@ -148,6 +151,8 @@ public class ActiveWorldOptions
     {
         public Vector3 Gravity { get; set; }
         public double GravityPower { get; set; }
+        public double FrictionForce { get; set; }
+        public double ClingForce { get; set; }
         public Vector3 Wind { get; set; }
         public double WindPower { get; set; }
         public bool ShowGround { get; set; }
@@ -171,3 +176,7 @@ public enum InteractionType
     Any = ParticleWithParticle | ParticleWithPlane | EdgeWithPlane
 }
 
+public class WorldDebugOptions
+{
+    public bool DebugPlaneMaterialPenetration { get; set; }
+}

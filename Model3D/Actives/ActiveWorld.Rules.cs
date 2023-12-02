@@ -109,7 +109,7 @@ public partial class ActiveWorld // Rules
                 n.speedY += -speed.y;
                 speed = speed.SetY(0);
 
-                var fForce = -speed.ToLenWithCheck(options.ParticleConst * options.GroundFrictionForce);
+                var fForce = -speed.ToLenWithCheck(options.ParticleConst * options.Ground.FrictionForce);
                 speed = fForce.Length2 > speed.Length2
                     ? Vector3.Origin
                     : speed + fForce;
@@ -118,7 +118,7 @@ public partial class ActiveWorld // Rules
             {
                 n.speedY = 0;
 
-                var clForce = -Vector3.YAxis.ToLenWithCheck(options.ParticleConst * options.GroundClingForce);
+                var clForce = -Vector3.YAxis.ToLenWithCheck(options.ParticleConst * options.Ground.ClingForce);
                 speed = clForce.Length2 > speed.VectorY().Length2
                     ? Vector3.Origin
                     : speed + clForce;

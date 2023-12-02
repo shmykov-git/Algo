@@ -51,25 +51,25 @@ public static class ActiveWorldValues
         PowerLimit = 0.01,
         ParticleConst = 0.00005,
         PlaneConst = 0.00001,
-        GroundFrictionForce = 1.2,
-        GroundClingForce = 1.5,
         PressurePower = 1,
         PressurePowerMult = 0.0001,
         AllowModifyStatics = false,
         UseGround = true,
         Ground = new ActiveWorldOptions.GroundOptions
         {
-            GravityPower = 1,
-            WindPower = 0,
             Gravity = new Vector3(0, -0.0000005, 0),
+            GravityPower = 1,
+            FrictionForce = 1.2,
+            ClingForce = 1.5,
             Wind = new Vector3(0.0000002, 0, 0),
+            WindPower = 0,
             ShowGround = true,
             LineMult = 3,
             Mult = 10,
             Size = 11,
             Color = Color.Black,
             UseWaves = false,
-            WavesSize = 3,
+            WavesSize = 1,
         },
         UseMassCenter = false,
         MassCenter = new ActiveWorldOptions.MassCenterOptions
@@ -91,5 +91,12 @@ public static class ActiveWorldValues
             ClingForce = 1,
             ElasticForce = 1,
         },
+
+
+
+        Debug = new WorldDebugOptions
+        {
+            DebugPlaneMaterialPenetration = true,
+        }
     };
 }
