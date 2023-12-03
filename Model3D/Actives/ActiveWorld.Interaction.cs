@@ -134,16 +134,19 @@ public partial class ActiveWorld // Interaction
                             n.nRejectionDir = n.rejectionDirSum.Normalize();
                             n.rejectionDirSum = Vector3.Origin;
                         }
-
-                        n.speed += n.collideForce / n.collideCount;
                     }
                     else
                     {
                         n.nRejectionDir = Vector3.Origin;
                     }
 
-                    n.collideCount = 0;
-                    n.collideForce = Vector3.Origin;
+                    if (n.collideCount > 0)
+                    {
+                        n.speed += n.collideForce / n.collideCount;
+                        n.collideCount = 0;
+                        n.collideForce = Vector3.Origin;
+                    }
+
                     n.isInsideMaterial = n.isColliding;
                     n.isColliding = false;
                 }));
@@ -181,8 +184,75 @@ public partial class ActiveWorld // Interaction
         rra.applyCollideForce(aPack, collideMass, collideForce);
         rrb.applyCollideForce(planePack, collideMass, -collideForce);
     }
-
     private void EdgeWithPlaneInteraction()
+    {
+        UpdateCollidePositions();
+
+        var interactionCounter = 0;
+
+        foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+        {
+            foreach (var b in worldNet.SelectNeighbors(a))
+                foreach (var pb in b.Planes)
+                {
+                    var plane = pb.collidePlane;
+                    var nOne = plane.NOne;
+                    var pCenter = plane.Center;
+                    var pSize = plane.Size;
+                    var pDistanceFn = plane.Fn;
+                    var pProjFn = plane.ProjectionFn;
+                    var pIsPointInsideFn = pb.IsInsideFn(nOne);
+                    var pLineCrossFn = plane.IntersectionFn;
+
+                    var aNearNodes = a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize);
+                    
+                    foreach (var na in aNearNodes)
+                    {
+                        var isStrikeDir = !na.hasnDir || na.nDir.MultS(nOne) < 0;
+
+                        if (isStrikeDir)
+                        {
+                            var collidePoint = pProjFn(na.position);
+                            var collideDistance = pDistanceFn(na.position);
+                            var isAtCollideDistance = IsAtCollideDistance(collideDistance);
+                            var isInsideTriangle = pIsPointInsideFn(collidePoint);
+                            var isColliding = isAtCollideDistance && isInsideTriangle;
+
+                            if (isColliding)
+                            {
+                                CollideWithPlaneB(na, pb, nOne, collidePoint, collideDistance);
+                            }
+                        }
+
+                        interactionCounter++;
+                    }
+
+                    var aNoCollideNodes = aNearNodes.Where(na => na.collideCount == 0).ToHashSet();
+
+                    foreach(var ea in aNoCollideNodes.SelectMany(na=>na.edges.Where(ea=> aNoCollideNodes.Contains(ea.nj))))
+                    {
+                        var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
+                        
+                        if (!hasCrossPoint)
+                            continue;
+
+                        var isInsideTriangle = pIsPointInsideFn(crossPoint);
+                        // как глубоко?
+                    }
+                }
+
+            if (a.Options.UseSelfInteractions)
+            {
+                // todo
+            }
+        }
+
+        ApplyPointCollideValues();
+
+        //Debug.WriteLine(interactionCounter);
+    }
+
+    private void EdgeWithPlaneInteraction1()
     {
         UpdateCollidePositions();
 
@@ -206,8 +276,8 @@ public partial class ActiveWorld // Interaction
 
                     foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
                     {
-                        var isStrikeDirI = !ea.ni.hasnDir || ea.ni.speed.MultS(nOne) < 0;
-                        var isStrikeDirJ = !ea.nj.hasnDir || ea.nj.speed.MultS(nOne) < 0;
+                        var isStrikeDirI = /*!ea.ni.hasnDir || */ea.ni.speed.MultS(nOne) < 0;
+                        var isStrikeDirJ = /*!ea.nj.hasnDir || */ea.nj.speed.MultS(nOne) < 0;
 
                         if (isStrikeDirI || isStrikeDirJ)
                         {
@@ -222,7 +292,7 @@ public partial class ActiveWorld // Interaction
 
                             if (isCollidingI || isCollidingJ)
                             {
-                                var forceDistance = 0.25 * (Math.Min(distanceI, 0) + Math.Min(distanceJ, 0));
+                                var forceDistance = 0.25 * ((isCollidingI ? distanceI : 0) + (isCollidingJ ? distanceJ : 0));
                                 var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
 
                                 if (hasCrossPoint)
@@ -231,17 +301,21 @@ public partial class ActiveWorld // Interaction
 
                                     if (crossPointIsInsideTriangle)
                                     {
+                                        //Debug.WriteLine(1);
                                         CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
                                     }
                                     else
                                     {
-                                        var kI = distanceI / (distanceI + distanceJ);
-                                        var kJ = distanceJ / (distanceI + distanceJ);
-                                        CollideWithPlaneB(ea, pb, nOne, kI * ea.positionI + kJ * ea.positionJ, forceDistance);
+                                        //Debug.WriteLine(2);
+                                        CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
+                                        //var kI = distanceI / (distanceI + distanceJ);
+                                        //var kJ = distanceJ / (distanceI + distanceJ);
+                                        //CollideWithPlaneB(ea, pb, nOne, kI * ea.positionI + kJ * ea.positionJ, forceDistance);
                                     }
                                 }
                                 else // edge is parallel to plane
                                 {
+                                    Debug.WriteLine(3);
                                     CollideWithPlaneB(ea, pb, nOne, ea.positionCenter, forceDistance);
                                 }
                             }

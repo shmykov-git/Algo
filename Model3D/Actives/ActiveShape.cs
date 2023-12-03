@@ -119,7 +119,7 @@ public class ActiveShape : INet3Item
             }).ToArray()
         : new ActiveWorld.Edge[0]);
 
-        planes = shape0.Convexes
+        planes = shape0.Convexes.Where(c => c.Length > 2)
             .Select(c => (c, p: new ActiveWorld.Plane()
             {
                 model = model,

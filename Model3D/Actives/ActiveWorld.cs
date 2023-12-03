@@ -133,39 +133,39 @@ public partial class ActiveWorld
 
         foreach (var a in activeShapes)
         {
-            a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialForce(n, a.Options));
+            a.Nodes.Where(NoLock).ForEach(n => n.speed += CalcMaterialForce(n, a.Options));
 
             if (a.Options.UseBlow)
             {
                 a.Model.volume = GetActiveShapeVolume(a);
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcBlowForce(a, n));
+                a.Nodes.Where(NoLock).ForEach(n => n.speed += CalcBlowForce(a, n));
             }
 
             if (a.Options.UseMaterialDamping)
             {                
                 a.Model.speed = a.NoSkeletonNodes.Select(n => n.speed).Center();
                 a.Model.angleSpeed = GetActiveShapeAngleSpeed(a);
-                a.NoSkeletonNodes.Where(CanCalc).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));
+                a.NoSkeletonNodes.Where(NoLock).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));
             }
 
             if (options.UseMassCenter)
             {
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcSpaceForce(n));
+                a.Nodes.Where(NoLock).ForEach(n => n.speed += CalcSpaceForce(n));
             }
 
             if (options.UseGround)
             {
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed += CalcGroundForce());
-                a.Nodes.Where(CanCalc).ForEach(n => n.speed = CalcGroundSpeed(n, a.Options));
-                a.Nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
+                a.Nodes.Where(NoLock).ForEach(n => n.speed += CalcGroundForce());
+                a.Nodes.Where(NoLock).ForEach(n => n.speed = CalcGroundSpeed(n, a.Options));
+                a.Nodes.Where(NoLock).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
             }
 
             //if (a.Nodes.Any(n=>n.speed.Length > 0.1))
             //{
             //}
 
-            a.Nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
-            a.Nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
+            a.Nodes.Where(NoLock).ForEach(n => n.position += n.speed);
+            a.Nodes.Where(NoLock).ForEach(n => n.position = FixY(n.position));
         }
 
         nStep++;

@@ -64,7 +64,7 @@ partial class SceneMotion
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
 
-        var s = Shapes.Cube.Perfecto();
+        var s = Shapes.Line.Perfecto();
 
         return new[] {
             //s.PutOn(4.5).Move(0.5,0,-1).ToActiveShape(o =>
@@ -73,33 +73,47 @@ partial class SceneMotion
             //    o.Mass = 3;
             //    o.AllowTriangulation0  =false;
             //}),
-            s.PutOn(2).Move(0,0,0).ToActiveShape(o =>
+            s/*.RotateOz(0.5)*/.PutOn(2).Move(0,0,0).ToActiveShape(o =>
             {
+                o.Type = ActiveShapeOptions.ShapeType.D1;
+                o.UseSkeleton = false;
+                o.Skeleton.Power = 50;
+                o.AllowTriangulation0 = false;
                 o.Mass = 1;
                 o.ShowMeta = true;
                 o.AllowTriangulation0 = false;
             }),
-            Surfaces.Plane(2, 2).Perfecto(5).ToOy()/*.RotateOz(Math.PI/4)*/.PutOn().MoveX(-3).ToActiveShape(o =>
+            Shapes.Cube.Perfecto().Scale(5, 1, 5).PutOn(-1).MoveX(-2.4).ToActiveShape(o =>
             {
-                o.Type = ActiveShapeOptions.ShapeType.D2;
                 o.ShowMeta = true;
                 o.AllowTriangulation0 = false;
-                o.UseSkeleton = false;
+                o.UseSkeleton = true;
                 o.Mass = 1;
                 o.MaterialPower = 5;
-                o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
+                //o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
             }),
+            //Surfaces.Plane(2, 2).Perfecto(5).ToOy()/*.RotateOz(Math.PI/4)*/.PutOn().MoveX(-3).ToActiveShape(o =>
+            //{
+            //    o.Type = ActiveShapeOptions.ShapeType.D2;
+            //    o.ShowMeta = true;
+            //    o.AllowTriangulation0 = false;
+            //    o.UseSkeleton = false;
+            //    o.Mass = 1;
+            //    o.MaterialPower = 5;
+            //    o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
+            //}),
         }.ToWorld(o =>
         {
-            o.Ground.Y = -2;
+            o.Ground.Y = -1;
             o.Ground.ShowGround = true;
             o.Ground.LineMult = 1;
             o.Ground.Color = Color.Green;
             o.Ground.ClingForce = 1;
-            o.InteractionType = InteractionType.EdgeWithPlane;
+            o.InteractionType = InteractionType.ParticleWithPlane;
             o.Interaction.ElasticForce = 5;
             o.Interaction.ClingForce = 1;
             o.Interaction.FrictionForce = 1;
+            o.Interaction.UseVolumeMass = false;
         }).ToMotion(8);
     }
 }

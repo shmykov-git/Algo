@@ -66,7 +66,7 @@ public partial class ActiveWorld
 
         public struct Pack
         {
-            public Vector3 k;
+            public double[] k;
             public double mass;
             public Vector3 speed;
         }
@@ -78,7 +78,7 @@ public partial class ActiveWorld
         {
             pointPackFn = _ => new Pack
             {
-                k = new Vector3(1, 0, 0),
+                k = new[] {1.0},
                 mass = mass,
                 speed = speed,
             };
@@ -157,16 +157,16 @@ public partial class ActiveWorld
                 return new Pack
                 {
                     k = k,
-                    mass = k.x * ni.mass + k.y * nj.mass,
-                    speed = k.x * ni.speed + k.y * nj.speed,
+                    mass = k[0] * ni.mass + k[1] * nj.mass,
+                    speed = k[0] * ni.speed + k[1] * nj.speed,
                 };
             };
 
             applyCollideForce = (pack, collideMass, collideForce) =>
             {
-                ni.collideForce += (collideMass * pack.k.x / ni.mass) * collideForce;
+                ni.collideForce += (collideMass * pack.k[0] / ni.mass) * collideForce;
                 ni.collideCount++;
-                nj.collideForce += (collideMass * pack.k.y / nj.mass) * collideForce;
+                nj.collideForce += (collideMass * pack.k[1] / nj.mass) * collideForce;
                 nj.collideCount++;
             };
         }
@@ -187,13 +187,13 @@ public partial class ActiveWorld
         public Vector3 positionJ => nj.position;
         public Vector3 positionCenter => 0.5 * (positionI + positionJ);
 
-        public Vector3 GetPointK(Vector3 p)
+        public double[] GetPointK(Vector3 p)
         {
             var a = (positionI - p).Length;
             var b = (positionJ - p).Length;
             var s = a + b;
 
-            return new Vector3(b / s, a / s, 0);
+            return new[] { b / s, a / s };
         }
     }
 
@@ -208,19 +208,19 @@ public partial class ActiveWorld
                 return new Pack
                 {
                     k = k,
-                    mass = k.x * ni.mass + k.y * nj.mass + k.z * nk.mass,
-                    speed = k.x * ni.speed + k.y * nj.speed + k.z * nk.speed
+                    mass = c.Select((ci, i) => k[i] * nodes[ci].mass).Sum(),
+                    speed = c.Select((ci, i) => k[i] * nodes[ci].speed).Sum()
                 };
             };
 
             applyCollideForce = (pack, collideMass, collideForce) =>
             {
-                ni.collideForce += (collideMass * pack.k.x / ni.mass) * collideForce;
-                ni.collideCount++;
-                nj.collideForce += (collideMass * pack.k.y / nj.mass) * collideForce;
-                nj.collideCount++;
-                nk.collideForce += (collideMass * pack.k.z / nk.mass) * collideForce;
-                nk.collideCount++;
+                c.ForEach((ci, i) =>
+                {
+                    var n = nodes[ci];
+                    n.collideForce += (collideMass * pack.k[i] / n.mass) * collideForce;
+                    n.collideCount++;
+                });
             };
         }
 
@@ -241,14 +241,13 @@ public partial class ActiveWorld
         public Vector3 positionJ => nj.position;
         public Vector3 positionK => nk.position;
 
-        public Vector3 GetPointK(Vector3 p)
+        public double[] GetPointK(Vector3 p)
         {
-            var a = (positionI - p).Length;
-            var b = (positionJ - p).Length;
-            var c = (positionK - p).Length;
-            var s = a * b + b * c + a * c;
+            var lens = c.Select(i => (nodes[i].position - p).Length).ToArray();
+            var mLens = lens.Select((l, i) => lens.Where((_, j) => i != j).Aggregate((a, b) => a * b)).ToArray();
+            var s = mLens.Sum();
 
-            return new Vector3(b * c / s, a * c / s, a * b / s);
+            return mLens.Select(mL => mL / s).ToArray();
         }
 
         public Plane3 collidePlane => new Plane3(ni.collidePosition, nj.collidePosition, nk.collidePosition);

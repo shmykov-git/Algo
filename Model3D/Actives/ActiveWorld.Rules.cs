@@ -183,7 +183,7 @@ public partial class ActiveWorld // Rules
 
     bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
     
-    bool CanCalc(Node n) => !n.locked;
+    bool NoLock(Node n) => !n.locked;
     
     Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
 

@@ -219,8 +219,8 @@ namespace Model
             {
                 var ps = Points3;
                 var center = ps.Center();
-                var top = ps.Where(p => Vector3.YAxis.MultS(p - center) > 0).OrderByDescending(p => (p - center).Length2).First();
-                var bottom = ps.Where(p => Vector3.YAxis.MultS(p - center) < 0).OrderByDescending(p => (p - center).Length2).First();
+                var top = ps.Where(p => Vector3.YAxis.MultS(p - center) >= 0).OrderByDescending(p => (p - center).Length2).First();
+                var bottom = ps.Where(p => Vector3.YAxis.MultS(p - center) <= 0).OrderByDescending(p => (p - center).Length2).First();
 
                 return (top, bottom);
             }
