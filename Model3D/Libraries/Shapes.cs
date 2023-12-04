@@ -10,6 +10,7 @@ using Model3D.Systems;
 using Model3D.Tools;
 using Model3D.Tools.Model;
 using View3D.Libraries;
+using Model.Fourier;
 
 namespace Model.Libraries
 {
@@ -504,6 +505,67 @@ namespace Model.Libraries
             .ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray().ComposeObsolet(new[] { (1, 0), (3, 2) })
             .Select(p => p.ToShape(1)).ToSingleShape()
             .Scale(x, y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
-            
+
+        public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2)
+        {
+            var r1 = 8;
+            var r2 = r1* radiusRatio;
+
+            var n2 = 2 * n;
+
+            var frs = new Fr[] { (-1, r1), (n - 1, r1 - r2) }.RadiusPerfecto(); // new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }
+
+            Vector3 Zfn(Vector2 v, double z)
+            {
+                var vv = v * (1 - 0.7 * z).Pow2();
+
+                return vv.ToV3(z - 0.1 * (v.Len).Pow2());
+            }
+
+            Vector3[] ChristmasTree(int i, double z)
+            {
+                var polygon = frs.ToPolygon(n2);
+                //return polygon.Points.Select(p => p.ToV3(z)).ToArray();
+                var ps = polygon.Points.Select(p => Zfn(p, z)).ToArray();
+
+                var s = ps.ToShape();
+                if (i % 2 == 1)
+                {
+                    s = s.Rotate(i % 2 * Math.PI / n);
+                    s.Points = s.Points.CircleShift(1);
+                }
+
+                return s.Points3;
+            }
+
+            var levels = (m).SelectInterval(z => ChristmasTree(z.i, z.v)).ToArray();
+            var topP = Zfn((0, 0), 1);
+            var bottomP = new Vector3(0, 0, 0);
+            var psC = levels.Sum(l => l.Length);
+
+            var shape = new Shape
+            {
+                Points3 = levels.SelectMany(v => v).Concat(new[] { bottomP, topP }).ToArray(),
+                //new int[] { (j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1), j + n2 * i },
+                Convexes = (m - 1, n2).SelectRange((i, j) =>
+                (i + j) % 2 == 1
+                ? new int[][]
+                {
+                    new int[]{(j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1) },
+                    new int[]{j + n2 * (i + 1), j + n2 * i, (j + 1) % n2 + n2 * i },    
+                }
+                : new int[][]
+                {
+                    new int[]{(j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1), j + n2 * i },
+                    new int[]{j + n2 * i, (j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1) },
+                }
+                ).SelectMany(v => v)
+                .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { j, i, psC }))
+                .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { i + psC - n2, j + psC - n2, psC + 1 }))
+                .ToArray()
+            };
+
+            return shape.ScaleZ(height);
+        }
     }
 }

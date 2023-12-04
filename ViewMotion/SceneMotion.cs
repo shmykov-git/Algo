@@ -39,6 +39,7 @@ using Model.Graphs;
 using Model3D.Actives;
 using Aspose.ThreeD.Entities;
 using Shape = Model.Shape;
+using System.Windows.Shapes;
 
 namespace ViewMotion;
 
@@ -60,28 +61,12 @@ partial class SceneMotion
 
     #endregion
 
+
+   
+
     public Task<Motion> Scene()
     {
-        var n = 6;
-        var r1 = 8;
-        var r2 = 5;
-
-        var ss = new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }//new Fr[] { (-1, r1), (n - 1, r1 - r2) }
-            .RadiusPerfecto()
-            .ToSingleConvexShape(256/*2 * n*/)
-            .AddConvexPoint(0, new Vector3(0, 0, 0.6), true)
-            .AddConvexPoint(0, new Vector3(0, 0, 0), false, true);
-
-        return ss.ToOy().PutOn(1).ApplyColor(Color.Green).ToWorldMotion();
-
-        return ss.AddPerimeterVolume(1).ToMetaShape3().ToMotion();
-
-        return new[]
-        {
-            ss.Scale(1.5, 1.5, 2),
-            ss.Rotate(Math.PI/5).Scale(0.8, 0.8, 1.5).MoveZ(0.55),
-            ss.Scale(0.3, 0.3, 1).MoveZ(0.95)
-        }.ToSingleShape().ToOy().PutOn().ApplyColor(Color.Green).ToMotion();
+        return Shapes.ChristmasTree().ToOy().PutOn().ApplyColor(Color.Green).ToWorldMotion();
 
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();

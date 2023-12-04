@@ -49,6 +49,13 @@ namespace Model.Extensions
             return Enumerable.Range(0, range).Select(i => selectFn(i));
         }
 
+        public static IEnumerable<T> SelectInterval<T>(this int range, Func<(double v, int i), T> selectFn, bool isClosed = false)
+        {
+            var divider = isClosed ? range : (range - 1);
+
+            return Enumerable.Range(0, range).Select(i => selectFn((((double)i) / divider, i)));
+        }
+
         public static IEnumerable<T> SelectSquarePoints<T>(this int range, Func<int, double, double, T> selectFn)
         {
             var size = (int)Math.Sqrt(range - 1) + 1;

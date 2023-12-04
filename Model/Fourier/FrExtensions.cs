@@ -11,12 +11,9 @@ namespace Model.Fourier
     {
         public static Fr[] RadiusPerfecto(this IEnumerable<Fr> frs, double r = 1)
         {
-            var rr = frs.Where(fr=>fr.n == 1 || fr.n == -1).Select(fr => (double?)fr.r).FirstOrDefault();
+            var rr = frs.Sum(fr => fr.r.Abs());
             
-            if (!rr.HasValue)
-                return frs.ToArray();
-
-            return frs.Select(fr => fr * (r / rr.Value)).ToArray();
+            return frs.Select(fr => fr * (r / rr)).ToArray();
         }
 
         public static Fr[] GroupMembers(this IEnumerable<Fr> frs)

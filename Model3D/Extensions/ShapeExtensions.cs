@@ -153,23 +153,28 @@ namespace Model3D.Extensions
         public static Shape AddVolumeY(this Shape shape, double yVolume, bool hardFaces = true) => AddVolume(shape, yVolume, MoveY, true, hardFaces);
         public static Shape AddVolumeZ(this Shape shape, double zVolume, bool hardFaces = true) => AddVolume(shape, zVolume, MoveZ, true, hardFaces);
 
-        public static Shape AddPerimeterVolume(this Shape shape, double z)
+        public static Shape AddPerimeterVolume(this Shape shape, double zValue) => shape.AddPerimeterVolume((v, z) => v.ToV3((z - 0.5) * zValue), 1);
+        public static Shape AddPerimeterVolume(this Shape shape, Func<Vector2, double, Vector3> fnZ, int levelCount = 1)
         {
-            var halfVolume = new Vector4(0, 0, z, 0) * 0.5;
+            var ps = shape.Points2;
+            var ln = ps.Length;
             var perimeters = shape.GetPerimeters();
 
-            return new Shape
+            var s = new Shape
             {
-                Points = shape.Points.Select(p => p - halfVolume)
-                    .Concat(shape.Points.Select(p => p + halfVolume)).ToArray(),
-
+                Points3 = (levelCount + 1).SelectInterval(z => ps.Select(p => fnZ(p, z.v))).SelectMany(v => v).ToArray(),
                 Convexes = new IEnumerable<int[]>[]
                 {
                     shape.Convexes,
-                    shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+shape.Points.Length).ToArray()),
-                    perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { j, j + shape.Points.Length, i + shape.Points.Length, i })),
-                }.SelectMany(v=>v).ToArray()
+                    (levelCount).SelectRange(lvl => lvl + 1).Select(lvl => new IEnumerable<int[]>[]
+                    {
+                        lvl == levelCount ? shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
+                        perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { j + ln * (lvl-1), j + ln * lvl, i + ln * lvl, i + ln * (lvl-1) })),
+                    }.SelectMany(v=>v)).SelectMany(v=>v)
+                }.SelectMany(v => v).ToArray()
             };
+
+            return levelCount > 1 ? s.Normalize(false, false, false) : s;
         }
 
 
