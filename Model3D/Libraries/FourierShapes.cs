@@ -38,7 +38,7 @@ namespace Model.Libraries
         public static Shape[] Series(Fr[] members, double? volume = 0.05, bool triangulateOnly = false, int count = 256,
             double pointPrecision = 0.01, int[] indices = null)
         {
-            var polygon = Polygons.FourierSeries(count, members.Perfecto());
+            var polygon = Polygons.FourierSeries(count, members.GroupMembers());
             var polygons = Splitter.FindPerimeter(polygon, pointPrecision);
 
             if (indices != null)
@@ -60,7 +60,7 @@ namespace Model.Libraries
 
         public static Shape SingleSeries(Fr[] members, int count = 256)
         {
-            return Polygons.FourierSeries(count, members.Perfecto()).ToShape().Rotate(Math.PI / 2).Adjust();
+            return Polygons.FourierSeries(count, members.GroupMembers()).ToShape().Rotate(Math.PI / 2).Adjust();
         }
 
         public static Shape SearchSeries(Fr[] main, double a, double b, int fromI, int toI, int fromJ, int toJ, int count = 100,
@@ -155,7 +155,7 @@ namespace Model.Libraries
                 return sx;
             }
 
-            var koffs = fShape.Perfecto()
+            var koffs = fShape.GroupMembers()
                 .SelectWithIndex((k, ind) =>
                 vectorizer.GetTextObsolet($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) + 
                 e + 

@@ -7,6 +7,22 @@
         public double r;
         public double im;
 
+        public static Fr operator *(Fr fr, double a) => new Fr
+        {
+            n = fr.n,
+            dn = fr.dn,
+            r = fr.r * a,
+            im = fr.im * a
+        };
+
+        public static Fr operator /(Fr fr, double a) => new Fr
+        {
+            n = fr.n,
+            dn = fr.dn,
+            r = fr.r / a,
+            im = fr.im / a
+        };
+
         public static implicit operator Fr((int n, double r) v) => new Fr()
         {
             n = v.n,

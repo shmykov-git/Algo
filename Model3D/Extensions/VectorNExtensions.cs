@@ -104,6 +104,21 @@ namespace Model3D.Extensions
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
+        public static Vector3 Proj(this Vector3 a, Vector3 b)
+        {
+            return (a.MultS(b) / a.Length2) * a;
+        }
+
+        public static (bool hasValue, Vector3 value) ProjWithCheck(this Vector3 a, Vector3 b, double epsilon = Values.Epsilon9)
+        {
+            var ln2 = a.Length2;
+
+            if (ln2 < epsilon * epsilon)
+                return (false, Vector3.Origin);
+
+            return (true, (a.MultS(b) / ln2) * a);
+        }
+
         public static double MinXyz(this Vector3 a)
         {
             return Math.Min(a.x, Math.Min(a.y, a.z));

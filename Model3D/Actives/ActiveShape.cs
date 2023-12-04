@@ -42,6 +42,8 @@ public class ActiveShape : INet3Item
     {
         this.options = options;
         this.shape0 = options.AllowTriangulation0 ? shape.TriangulateByFour() : shape;
+        if (options.Type == ActiveShapeOptions.ShapeType.Unknown)
+            options.Type = shape0.IsD3 ? ActiveShapeOptions.ShapeType.D3 : ActiveShapeOptions.ShapeType.D2;
     }
     bool IsSkeletonPoint(int i) => model.skeletonPointStart <= i && i < model.skeletonPointStart + model.skeletonPointCount;
     bool IsSkeletonEdge(int i, int j) => IsSkeletonPoint(i) || IsSkeletonPoint(j);

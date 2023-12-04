@@ -97,7 +97,7 @@ public partial class ActiveWorld // Interaction
                             var collidePoint = pProjFn(na.position);
                             var collideDistance = pDistanceFn(na.position);
                             var isAtCollideDistance = IsAtCollideDistance(collideDistance);
-                            var isInsideTriangle = isPointInsideFn(collidePoint);
+                            var isInsideTriangle = isPointInsideFn(collidePoint, collideDistance);
                             var isColliding = isAtCollideDistance && isInsideTriangle;
 
                             if (isColliding)
@@ -203,6 +203,7 @@ public partial class ActiveWorld // Interaction
                     var pProjFn = plane.ProjectionFn;
                     var pIsPointInsideFn = pb.IsInsideFn(nOne);
                     var pLineCrossFn = plane.IntersectionFn;
+                    var pEdgeNearPointsFn = pb.EdgeNearPointsFn;
 
                     var aNearNodes = a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize);
                     
@@ -215,8 +216,8 @@ public partial class ActiveWorld // Interaction
                             var collidePoint = pProjFn(na.position);
                             var collideDistance = pDistanceFn(na.position);
                             var isAtCollideDistance = IsAtCollideDistance(collideDistance);
-                            var isInsideTriangle = pIsPointInsideFn(collidePoint);
-                            var isColliding = isAtCollideDistance && isInsideTriangle;
+                            var isInsideConvex = pIsPointInsideFn(collidePoint, collideDistance); // todo: collideDistance - катет
+                            var isColliding = isAtCollideDistance && isInsideConvex;
 
                             if (isColliding)
                             {
@@ -236,8 +237,29 @@ public partial class ActiveWorld // Interaction
                         if (!hasCrossPoint)
                             continue;
 
-                        var isInsideTriangle = pIsPointInsideFn(crossPoint);
-                        // как глубоко?
+                        var isInsideCollideConvex = pIsPointInsideFn(crossPoint, 0);
+                        
+                        if (isInsideCollideConvex)
+                        {
+                            var distanceI = pDistanceFn(ea.positionI);
+                            var distanceJ = pDistanceFn(ea.positionJ);
+                            var downPoint = distanceI < distanceJ ? ea.positionI : ea.positionJ;
+                            var edgePoint = pEdgeNearPointsFn(crossPoint).MinBy(p => p.Length2);
+                            
+                            var (hasV, vCollidePoint) = (downPoint - crossPoint).ProjWithCheck(edgePoint - crossPoint);
+
+                            if (hasV)
+                            {
+                                var collidePoint = crossPoint + vCollidePoint;
+                                var vProjPoint = (edgePoint - crossPoint).Proj(vCollidePoint);
+                                var collideDistance = -Math.Sqrt(vCollidePoint.Length2 - vProjPoint.Length2);
+
+                                var isInsideConvex = pIsPointInsideFn(crossPoint, collideDistance);
+
+                                if (isInsideConvex)
+                                    CollideWithPlaneB(ea, pb, nOne, collidePoint, collideDistance);
+                            }
+                        }
                     }
                 }
 
@@ -252,126 +274,126 @@ public partial class ActiveWorld // Interaction
         //Debug.WriteLine(interactionCounter);
     }
 
-    private void EdgeWithPlaneInteraction1()
-    {
-        UpdateCollidePositions();
+    //private void EdgeWithPlaneInteraction1()
+    //{
+    //    UpdateCollidePositions();
 
-        var interactionCounter = 0;
+    //    var interactionCounter = 0;
 
-        foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
-        {
-            var materialThickness = options.MaterialThickness + options.JediMaterialThickness;
+    //    foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
+    //    {
+    //        var materialThickness = options.MaterialThickness + options.JediMaterialThickness;
 
-            foreach (var b in worldNet.SelectNeighbors(a))
-                foreach (var pb in b.Planes)
-                {
-                    var plane = pb.collidePlane;
-                    var nOne = plane.NOne;
-                    var pCenter = plane.Center;
-                    var pSize = plane.Size;
-                    var pDistanceFn = plane.Fn;
-                    var pProjFn = plane.ProjectionFn;
-                    var pIsPointInsideFn = pb.IsInsideFn(nOne);
-                    var pLineCrossFn = plane.IntersectionFn;
+    //        foreach (var b in worldNet.SelectNeighbors(a))
+    //            foreach (var pb in b.Planes)
+    //            {
+    //                var plane = pb.collidePlane;
+    //                var nOne = plane.NOne;
+    //                var pCenter = plane.Center;
+    //                var pSize = plane.Size;
+    //                var pDistanceFn = plane.Fn;
+    //                var pProjFn = plane.ProjectionFn;
+    //                var pIsPointInsideFn = pb.IsInsideFn(nOne);
+    //                var pLineCrossFn = plane.IntersectionFn;
 
-                    foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
-                    {
-                        var isStrikeDirI = /*!ea.ni.hasnDir || */ea.ni.speed.MultS(nOne) < 0;
-                        var isStrikeDirJ = /*!ea.nj.hasnDir || */ea.nj.speed.MultS(nOne) < 0;
+    //                foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
+    //                {
+    //                    var isStrikeDirI = /*!ea.ni.hasnDir || */ea.ni.speed.MultS(nOne) < 0;
+    //                    var isStrikeDirJ = /*!ea.nj.hasnDir || */ea.nj.speed.MultS(nOne) < 0;
 
-                        if (isStrikeDirI || isStrikeDirJ)
-                        {
-                            var distanceI = pDistanceFn(ea.positionI);
-                            var distanceJ = pDistanceFn(ea.positionJ);
-                            var isAtCollideDistanceI = IsAtCollideDistance(distanceI);
-                            var isAtCollideDistanceJ = IsAtCollideDistance(distanceJ);
-                            var isInsideTriangleI = pIsPointInsideFn(ea.positionI);
-                            var isInsideTriangleJ = pIsPointInsideFn(ea.positionI);
-                            var isCollidingI = isStrikeDirI && isAtCollideDistanceI && isInsideTriangleI;
-                            var isCollidingJ = isStrikeDirJ && isAtCollideDistanceJ && isInsideTriangleJ;
+    //                    if (isStrikeDirI || isStrikeDirJ)
+    //                    {
+    //                        var distanceI = pDistanceFn(ea.positionI);
+    //                        var distanceJ = pDistanceFn(ea.positionJ);
+    //                        var isAtCollideDistanceI = IsAtCollideDistance(distanceI);
+    //                        var isAtCollideDistanceJ = IsAtCollideDistance(distanceJ);
+    //                        var isInsideTriangleI = pIsPointInsideFn(ea.positionI, distanceI);
+    //                        var isInsideTriangleJ = pIsPointInsideFn(ea.positionJ, distanceJ);
+    //                        var isCollidingI = isStrikeDirI && isAtCollideDistanceI && isInsideTriangleI;
+    //                        var isCollidingJ = isStrikeDirJ && isAtCollideDistanceJ && isInsideTriangleJ;
 
-                            if (isCollidingI || isCollidingJ)
-                            {
-                                var forceDistance = 0.25 * ((isCollidingI ? distanceI : 0) + (isCollidingJ ? distanceJ : 0));
-                                var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
+    //                        if (isCollidingI || isCollidingJ)
+    //                        {
+    //                            var forceDistance = 0.25 * ((isCollidingI ? distanceI : 0) + (isCollidingJ ? distanceJ : 0));
+    //                            var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
 
-                                if (hasCrossPoint)
-                                {
-                                    var crossPointIsInsideTriangle = pIsPointInsideFn(crossPoint);
+    //                            if (hasCrossPoint)
+    //                            {
+    //                                var crossPointIsInsideTriangle = pIsPointInsideFn(crossPoint, forceDistance);
 
-                                    if (crossPointIsInsideTriangle)
-                                    {
-                                        //Debug.WriteLine(1);
-                                        CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
-                                    }
-                                    else
-                                    {
-                                        //Debug.WriteLine(2);
-                                        CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
-                                        //var kI = distanceI / (distanceI + distanceJ);
-                                        //var kJ = distanceJ / (distanceI + distanceJ);
-                                        //CollideWithPlaneB(ea, pb, nOne, kI * ea.positionI + kJ * ea.positionJ, forceDistance);
-                                    }
-                                }
-                                else // edge is parallel to plane
-                                {
-                                    Debug.WriteLine(3);
-                                    CollideWithPlaneB(ea, pb, nOne, ea.positionCenter, forceDistance);
-                                }
-                            }
-                        }
+    //                                if (crossPointIsInsideTriangle)
+    //                                {
+    //                                    //Debug.WriteLine(1);
+    //                                    CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
+    //                                }
+    //                                else
+    //                                {
+    //                                    //Debug.WriteLine(2);
+    //                                    CollideWithPlaneB(ea, pb, nOne, crossPoint, forceDistance);
+    //                                    //var kI = distanceI / (distanceI + distanceJ);
+    //                                    //var kJ = distanceJ / (distanceI + distanceJ);
+    //                                    //CollideWithPlaneB(ea, pb, nOne, kI * ea.positionI + kJ * ea.positionJ, forceDistance);
+    //                                }
+    //                            }
+    //                            else // edge is parallel to plane
+    //                            {
+    //                                Debug.WriteLine(3);
+    //                                CollideWithPlaneB(ea, pb, nOne, ea.positionCenter, forceDistance);
+    //                            }
+    //                        }
+    //                    }
 
-                        interactionCounter++;
-                    }
-                }
+    //                    interactionCounter++;
+    //                }
+    //            }
 
-            if (a.Options.UseSelfInteractions)
-            {
-                // todo
-            }
-        }
+    //        if (a.Options.UseSelfInteractions)
+    //        {
+    //            // todo
+    //        }
+    //    }
 
-        ApplyEdgeCollideValues();
+    //    ApplyEdgeCollideValues();
 
-        //Debug.WriteLine(interactionCounter);
-    }
+    //    //Debug.WriteLine(interactionCounter);
+    //}
 
-    private void ApplyEdgeCollideValues()
-    {
-        activeShapes.Where(a => a.Options.UseInteractions)
-            .ForEach(a => a.Nodes
-                .ForEach(n =>
-                {
-                    var isColliding = false;
+    //private void ApplyEdgeCollideValues()
+    //{
+    //    activeShapes.Where(a => a.Options.UseInteractions)
+    //        .ForEach(a => a.Nodes
+    //            .ForEach(n =>
+    //            {
+    //                var isColliding = false;
 
-                    n.edges.ForEach(e =>
-                    {
-                        isColliding = isColliding || e.isColliding;
+    //                n.edges.ForEach(e =>
+    //                {
+    //                    isColliding = isColliding || e.isColliding;
 
-                        if (e.isColliding)
-                        {
-                            if (!e.isInsideMaterial) // is crossing
-                            {
-                                e.nRejectionDir = e.rejectionDirSum.Normalize();
-                                e.rejectionDirSum = Vector3.Origin;
-                            }
-                        }
-                        else
-                        {
-                            e.nRejectionDir = Vector3.Origin;
-                        }
+    //                    if (e.isColliding)
+    //                    {
+    //                        if (!e.isInsideMaterial) // is crossing
+    //                        {
+    //                            e.nRejectionDir = e.rejectionDirSum.Normalize();
+    //                            e.rejectionDirSum = Vector3.Origin;
+    //                        }
+    //                    }
+    //                    else
+    //                    {
+    //                        e.nRejectionDir = Vector3.Origin;
+    //                    }
 
-                        e.isInsideMaterial = n.isColliding;
-                        e.isColliding = false;
-                    });
+    //                    e.isInsideMaterial = n.isColliding;
+    //                    e.isColliding = false;
+    //                });
 
-                    if (isColliding)
-                    {
-                        n.speed += n.collideForce / n.collideCount;
-                    }
+    //                if (isColliding)
+    //                {
+    //                    n.speed += n.collideForce / n.collideCount;
+    //                }
 
-                    n.collideCount = 0;
-                    n.collideForce = Vector3.Origin;
-                }));
-    }
+    //                n.collideCount = 0;
+    //                n.collideForce = Vector3.Origin;
+    //            }));
+    //}
 }

@@ -32,13 +32,13 @@ partial class SceneMotion
         var ball = Shapes.IcosahedronSp1.Perfecto();
 
         return new[] {
-            ball.PutOn(3).Move(0.5,0,-1).ToActiveShape(o =>
+            ball.PutOn(3).Move(0.5,0,-0.5).ToActiveShape(o =>
             {
                 //o.ShowMeta = true;
                 o.Mass = 3;
                 o.AllowTriangulation0  =false;
             }),
-            ball.PutOn(2).Move(-0.2,0,1).ToActiveShape(o =>
+            ball.PutOn(2).Move(-0.2,0,0.5).ToActiveShape(o =>
             {
                 o.Mass = 3;
                 //o.ShowMeta = true;
@@ -149,11 +149,11 @@ partial class SceneMotion
     public Task<Motion> TrySkeleton()
     {
         var s = Shapes.Stone(4, 21).Perfecto();
-        //var ball = Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).Perfecto();
-        //var ball = Shapes.IcosahedronSp2.Perfecto().ScaleX(0.4);
-        //var ball = Surfaces.Torus(31, 10, 3, true).Perfecto();
-        //var ball = Surfaces.Shamrock(120, 10, true).Perfecto();
-        //var ball = Shapes.Cube.SplitPlanes(0.3).Perfecto();
+        //var ball = Shapes.Cube.Scale(60, 10, 40).GroupMembers(2).SplitPlanes(0.3).GroupMembers();
+        //var ball = Shapes.IcosahedronSp2.GroupMembers().ScaleX(0.4);
+        //var ball = Surfaces.Torus(31, 10, 3, true).GroupMembers();
+        //var ball = Surfaces.Shamrock(120, 10, true).GroupMembers();
+        //var ball = Shapes.Cube.SplitPlanes(0.3).GroupMembers();
 
         return s.AddSkeleton().ToMetaShape3(0.3, 0.3, Color.Red, Color.Blue).ToMotion(1);
     }

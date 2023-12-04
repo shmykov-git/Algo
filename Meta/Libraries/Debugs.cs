@@ -39,11 +39,10 @@ public static class Debugs
         actions.AddOrUpdate(key, v => (a, t), (k, v) => (a, t));
     }
 
-    public static void MaxPercent(string str, double value, TimeSpan? timeout = null, Func<bool> filterFn = null, double step = 5, bool useShowInterval = true)
+    public static void MaxPercent(string str, double value, TimeSpan? timeout = null, Func<bool> filterFn = null, double step = 5, bool useDelay = true)
     {
         var now = DateTime.UtcNow;
-        var interval = timeout ?? TimeSpan.FromDays(365);
-        var showInterval = timeout ?? TimeSpan.FromSeconds(1);
+        var interval = timeout ?? TimeSpan.FromSeconds(1);
         var fFn = filterFn ?? (() => true);
 
         var percent = (decimal)(Math.Round(100 * Math.Abs(value) / step) * step);
@@ -63,8 +62,8 @@ public static class Debugs
             
             var debugValue = $"{string.Format(str, $"{percent} %")} ({count})";
             
-            if (useShowInterval)
-                DoInTime(str, () => Debug.WriteLine(debugValue), now + showInterval);
+            if (useDelay)
+                DoInTime(str, () => Debug.WriteLine(debugValue), now + interval);
             else
                 Debug.WriteLine(debugValue);
 

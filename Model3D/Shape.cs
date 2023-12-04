@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Model3D;
+using static Model.SuperShape2;
+using Model3D.Libraries;
+using Model.Libraries;
 
 namespace Model
 {
@@ -21,8 +24,8 @@ namespace Model
         public IEnumerable<int> PointIndices => Points.Index();
         public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? new (int, int)[0][] : Convexes.Select(convex => convex.Length == 2 ? new[] { (convex[0], convex[1]) } : convex.SelectCirclePair((i, j) => (i, j)));
         public (int i, int j)[] Edges => ConvexesIndices.SelectMany(edges => edges).ToArray();
-        public (int i, int j)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e=>e.OrderedEdge())).Distinct().ToArray();
-        public Dictionary<int, int[]> Links => _links ??= ConvexesIndices.SelectMany(vs => vs.SelectMany(v => new[] { v, v.ReversedEdge() })).Distinct().GroupBy(v=>v.Item1).ToDictionary(vv => vv.Key, vv => vv.Select(v=>v.Item2).ToArray());
+        public (int i, int j)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e => e.OrderedEdge())).Distinct().ToArray();
+        public Dictionary<int, int[]> Links => _links ??= ConvexesIndices.SelectMany(vs => vs.SelectMany(v => new[] { v, v.ReversedEdge() })).Distinct().GroupBy(v => v.Item1).ToDictionary(vv => vv.Key, vv => vv.Select(v => v.Item2).ToArray());
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
 
@@ -207,7 +210,7 @@ namespace Model
             {
                 var ps = Points3;
                 var center = ps.Center();
-                var bottom = ps.Select(p=>(p,proj: Vector3.YAxis.MultS(p - center))).Where(v => v.proj < 0).OrderBy(v => v.proj).First().p;
+                var bottom = ps.Select(p => (p, proj: Vector3.YAxis.MultS(p - center))).Where(v => v.proj < 0).OrderBy(v => v.proj).First().p;
 
                 return bottom;
             }
@@ -225,6 +228,17 @@ namespace Model
                 return (top, bottom);
             }
         }
+
+        public double Volume0
+        {
+            get
+            {
+                var ps = Points3;
+                return Convexes.SelectMany(c => c.SelectCircleTriple((i, j, k) => ps[i].GetVolume0(ps[j], ps[k]))).Sum();
+            }
+        }
+
+        public bool IsD3 => (Volume0 - this.Move(ExVector3.XyzAxis).Volume0).Abs() < Values.Epsilon9;
 
         public static Shape operator +(Shape a, Shape b)
         {

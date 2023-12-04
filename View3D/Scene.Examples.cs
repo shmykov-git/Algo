@@ -121,7 +121,7 @@ namespace View3D
         // bh&h
         //return BlackHole(new BlachHoleOptions()
         //{
-        //    Shape = Surfaces.Heart(200, 100).Perfecto(3.5),
+        //    Shape = Surfaces.Heart(200, 100).GroupMembers(3.5),
         //    NoRotation = false,
         //    BlowFactor = 0,
         //    BlowRadius = 0,
@@ -546,7 +546,7 @@ namespace View3D
             var ns = tb.Normals;
             var ps = tb.Planes.Select(p => p.Center()).ToArray();
             //tb = Surfaces.ParticleWithPlane(9, 9).ApplyColorChess(black, white)
-            //    .FilterConvexes((c,i) => i < 16 || i >= 48 || rnd.NextDouble()<0.8).Perfecto(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
+            //    .FilterConvexes((c,i) => i < 16 || i >= 48 || rnd.NextDouble()<0.8).GroupMembers(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
 
             return new[]
             {

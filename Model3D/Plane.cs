@@ -141,6 +141,9 @@ namespace Model3D
             }
         }
 
+        public Func<Vector3, double[]> EdgeDistancesFn => x => points.SelectCirclePair((a, b) => Math.Sqrt((x - a).Length2 - (b - a).MultS(x - a).Pow2())).ToArray();
+        public Func<Vector3, Vector3[]> EdgeNearPointsFn => x => points.SelectCirclePair((a, b) => a + (b - a).Proj(x - a)).ToArray();
+
         public Plane(Vector3 a, Vector3 b, Vector3 c)
         {
             this.a = a;

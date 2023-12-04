@@ -53,6 +53,13 @@ namespace Model3D.Extensions
             return shape.AddVolumeZ(options.ZVolume.Value, options.ZHardFaces);
         }
 
+        public static Shape ToSingleConvexShape(this Polygon polygon) =>
+            new Shape
+            {
+                Points2 = polygon.Points,
+                Convexes = new[] { polygon.Points.Index().ToArray() }
+            };
+
         public static Shape ToShape(this Polygon polygon, double? volume = null, bool triangulate = false)
         {
             var options = new SolidOptions()

@@ -1550,5 +1550,35 @@ namespace Model3D.Extensions
         }
 
         public static Shape DockSingle(this IEnumerable<Shape> shapeList, double radius = 0.05) => shapeList.Aggregate((a, b) => a.DockSingle(b, radius));
+
+        public static Shape AddConvexPoint(this Shape shape, int convexNum, Vector3 p, bool keepSelectedConvexes = false, bool reverseDir = false) => 
+            shape.AddConvexPoint((c, i) => i == convexNum, p, keepSelectedConvexes, reverseDir);
+
+        public static Shape AddConvexPoint(this Shape shape, Func<int[], int, bool> selectorFn, Vector3 p, bool keepSelectedConvexes = false, bool reverseDir = false)
+        {
+            var k = shape.PointsCount;
+
+            var convexes = shape.Convexes.SelectMany((c, m) =>
+            {
+                if (selectorFn(c, m))
+                {
+                    var newConvexes = c.SelectCirclePair((i, j) => reverseDir ? new[] { j, i, k } : new[] { i, j, k });
+
+                    return keepSelectedConvexes
+                        ? new[] { c }.Concat(newConvexes)
+                        : newConvexes;
+                }
+                else
+                {
+                    return new[] { c };
+                }
+            }).ToArray();
+
+            return new Shape
+            {
+                Points3 = shape.Points3.Concat(new[] { p }).ToArray(),
+                Convexes = convexes
+            };
+        }
     }
 }

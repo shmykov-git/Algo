@@ -8,7 +8,7 @@ public static class ActiveWorldValues
     public static ActiveShapeOptions DefaultActiveShapeOptions => new ActiveShapeOptions
     {
         ShowMeta = false,
-        AllowTriangulation0 = true,
+        AllowTriangulation0 = false,
         MetaPointMult = 2,
         MetaLineMult = 2,
         Color1 = Color.SaddleBrown,
@@ -19,7 +19,7 @@ public static class ActiveWorldValues
         RotationSpeedAxis = Vector3.YAxis,
         Speed = Vector3.Origin,
         Mass = 1,
-        Type = ActiveShapeOptions.ShapeType.D3,
+        Type = ActiveShapeOptions.ShapeType.Unknown,
         UseSkeleton = true,
         Skeleton = new ActiveShapeOptions.SkeletonOptions
         {

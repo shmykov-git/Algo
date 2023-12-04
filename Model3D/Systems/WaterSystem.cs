@@ -297,10 +297,10 @@ namespace Model3D.Systems
             //var particleRadius = options.ParticleRadius;
 
 
-            //var mebius = Surfaces.MobiusStrip(120, 20, bothFaces:true).Perfecto(3).ToOy()
+            //var mebius = Surfaces.MobiusStrip(120, 20, bothFaces:true).GroupMembers(3).ToOy()
             //    .MoveY(-cubeSize.y / 2 + 3).ApplyColor(Color.Black);
 
-            //var dini = Surfaces.DiniSurface(60, 30, bothFaces: true).Perfecto(5).ToOy().ScaleY(0.5).AlignY(0).MoveY(-cubeSize.y / 2)
+            //var dini = Surfaces.DiniSurface(60, 30, bothFaces: true).GroupMembers(5).ToOy().ScaleY(0.5).AlignY(0).MoveY(-cubeSize.y / 2)
             //    .Multiplicate(new Func<Shape,Shape>[]
             //    {
             //        s => s.Move(cubeSize.x / 2, 0, cubeSize.z / 2),
@@ -341,7 +341,7 @@ namespace Model3D.Systems
 
             var box = logicBox.AddNormalVolume(-0.15).Normalize().ApplyColor(Color.Black);
 
-            //Shape TransformSphere(Shape s) => s.Where(v=>v.y < 0.2).Perfecto(5).FilterConvexes(c => (c[0] + c[2]) % 2 == 0)
+            //Shape TransformSphere(Shape s) => s.Where(v=>v.y < 0.2).GroupMembers(5).FilterConvexes(c => (c[0] + c[2]) % 2 == 0)
             //    .Move(0, -cubeSize.y / 2 + 2.5, 3);
 
             //var ball = Shapes.GolfBall4;

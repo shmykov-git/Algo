@@ -251,10 +251,9 @@ public partial class ActiveWorld
         }
 
         public Plane3 collidePlane => new Plane3(ni.collidePosition, nj.collidePosition, nk.collidePosition);
-        public Func<Vector3, bool> IsInsideFn(Vector3 n)
-        {
-            return x => c.Select(i => nodes[i].collidePosition).SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == c.Length;
-        }
+        
+        public Func<Vector3, double, bool> IsInsideFn(Vector3 n) => (x, d) => c.Select(i => nodes[i].collidePosition + nodes[i].nDir * d).SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == c.Length;
+        public Func<Vector3, Vector3[]> EdgeNearPointsFn => x => c.Select(i => nodes[i].collidePosition).SelectCirclePair((a, b) => a + (b - a) * ((b - a).MultS(x - a) / (b - a).Length2)).ToArray();
     }
 
 }

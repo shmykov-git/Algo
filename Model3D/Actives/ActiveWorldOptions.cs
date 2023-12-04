@@ -47,6 +47,7 @@ public class ActiveShapeOptions
 
     public enum ShapeType
     {
+        Unknown,
         D1,
         D2,
         D3

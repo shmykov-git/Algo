@@ -9,7 +9,17 @@ namespace Model.Fourier
 {
     public static class FrExtensions
     {
-        public static Fr[] Perfecto(this IEnumerable<Fr> frs)
+        public static Fr[] RadiusPerfecto(this IEnumerable<Fr> frs, double r = 1)
+        {
+            var rr = frs.Where(fr=>fr.n == 1 || fr.n == -1).Select(fr => (double?)fr.r).FirstOrDefault();
+            
+            if (!rr.HasValue)
+                return frs.ToArray();
+
+            return frs.Select(fr => fr * (r / rr.Value)).ToArray();
+        }
+
+        public static Fr[] GroupMembers(this IEnumerable<Fr> frs)
         {
             return frs
                 .GroupBy(k => k.n + k.dn)
