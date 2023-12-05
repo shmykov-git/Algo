@@ -506,7 +506,7 @@ namespace Model.Libraries
             .Select(p => p.ToShape(1)).ToSingleShape()
             .Scale(x, y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
-        public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2, double power = 1.7)
+        public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2, double power = 1.7, double downPower = 1)
         {
             var r1 = 8;
             var r2 = r1* radiusRatio;
@@ -519,7 +519,7 @@ namespace Model.Libraries
             {
                 var vv = v * (1 - 0.7 * z).Pow(power);
 
-                return vv.ToV3(z - 0.1 * (v.Len).Pow2());
+                return vv.ToV3(z - 0.1 * downPower * (v.Len).Pow2());
             }
 
             Vector3[] ChristmasTree(int i, double z)
