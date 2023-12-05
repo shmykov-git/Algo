@@ -19,6 +19,7 @@ using MathNet.Numerics;
 using View3D.Libraries;
 using Model3D;
 using Model3D.Actives;
+using Model.Fourier;
 
 namespace ViewMotion;
 
@@ -27,6 +28,45 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> ChristmasTreeMotion()
+    {
+        return (new[]
+        {
+            Shapes.ChristmasTree(height:1.5).ToOy().PutOn().ApplyColor(Color.Blue).ToActiveShape(o =>
+            {
+                o.MaterialPower = 1;
+            }),
+            //Parquets.Triangles(8, 13).ToShape3().Perfecto(8).ToOyM().PutOn(3).ToActiveShape(o =>
+            Surfaces.Plane(15, 15).Perfecto(7).ToOyM().PutOn(3).ToActiveShape(o =>
+            {
+                o.ShowMeta = true;
+                o.UseSkeleton = false;
+                o.Color1 = Color.Yellow;
+                o.Color2 = Color.Red;
+                o.MetaLineMult = 1;
+                o.MetaPointMult = 1;
+                o.Mass = 1;
+                o.MaterialPower = 15;
+            }),
+        }, new Shape[]
+        {
+            new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }.ToShape().Perfecto(0.7).PutOn().Move(-0.5, 0, 0.5).ApplyColor(Color.Red)
+        }).ToWorld(o =>
+        {
+            o.Interaction.ElasticForce = 15;
+            o.Interaction.ClingForce = 0;
+            o.Interaction.FrictionForce = 0;
+            //o.Ground.WindPower = 0.2;
+            o.Ground.UseWaves = true;
+            o.Ground.WavesSize = 2;
+            o.Ground.ShowGround = true;
+            //o.Ground.ClingForce = 0;
+            //o.Ground.FrictionForce = 0.1;
+            //o.Ground.LineMult = 1;
+            o.Ground.Color = Color.Blue;
+        }).ToMotion(8);
+    }
+
     public Task<Motion> TwoBallFallingToNetMotion()
     {
         var ball = Shapes.IcosahedronSp1.Perfecto();

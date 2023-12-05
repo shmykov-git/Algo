@@ -506,18 +506,18 @@ namespace Model.Libraries
             .Select(p => p.ToShape(1)).ToSingleShape()
             .Scale(x, y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
-        public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2)
+        public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2, double power = 1.7)
         {
             var r1 = 8;
             var r2 = r1* radiusRatio;
 
             var n2 = 2 * n;
 
-            var frs = new Fr[] { (-1, r1), (n - 1, r1 - r2) }.RadiusPerfecto(); // new Fr[] { (-3, 1), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }
+            var frs = new Fr[] { (-1, r1), (n - 1, r1 - r2) }.RadiusPerfecto();
 
             Vector3 Zfn(Vector2 v, double z)
             {
-                var vv = v * (1 - 0.7 * z).Pow2();
+                var vv = v * (1 - 0.7 * z).Pow(power);
 
                 return vv.ToV3(z - 0.1 * (v.Len).Pow2());
             }
@@ -525,7 +525,6 @@ namespace Model.Libraries
             Vector3[] ChristmasTree(int i, double z)
             {
                 var polygon = frs.ToPolygon(n2);
-                //return polygon.Points.Select(p => p.ToV3(z)).ToArray();
                 var ps = polygon.Points.Select(p => Zfn(p, z)).ToArray();
 
                 var s = ps.ToShape();
@@ -546,7 +545,6 @@ namespace Model.Libraries
             var shape = new Shape
             {
                 Points3 = levels.SelectMany(v => v).Concat(new[] { bottomP, topP }).ToArray(),
-                //new int[] { (j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1), j + n2 * i },
                 Convexes = (m - 1, n2).SelectRange((i, j) =>
                 (i + j) % 2 == 1
                 ? new int[][]
@@ -565,7 +563,7 @@ namespace Model.Libraries
                 .ToArray()
             };
 
-            return shape.ScaleZ(height);
+            return shape.ScaleZ(height).ApplyColor(Color.Green);
         }
     }
 }

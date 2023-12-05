@@ -62,12 +62,12 @@ partial class SceneMotion
     #endregion
 
 
-   
+
 
     public Task<Motion> Scene()
     {
-        return Shapes.ChristmasTree().ToOy().PutOn().ApplyColor(Color.Green).ToWorldMotion();
-
+        return Shapes.ChristmasTree(power:1.7).ToOy().ToMotion();
+        return ChristmasTreeMotion();
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
 

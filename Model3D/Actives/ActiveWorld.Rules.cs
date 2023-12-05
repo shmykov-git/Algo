@@ -11,7 +11,7 @@ using Model3D.Extensions;
 namespace Model3D.Actives;
 public partial class ActiveWorld // Rules
 {
-    private double materialInteractionForceBorder = 0.0001;
+    private double materialInteractionForceBorder = 0.2;
     private double interactionCoef4 = 0.000001;
     private double middleInteractionValue = 0.5;
     private double minInteractionMult = 3;
@@ -19,7 +19,7 @@ public partial class ActiveWorld // Rules
     double GetForceInteractionRadius(double edgeSize) => edgeSize * middleInteractionValue * minInteractionMult;
 
 
-    double MaterialRejectionAcceleration(double power, double a, double y)
+    double PlaneInteractionAcceleration(double power, double a, double y)
     {
         var x = y / a;
 
@@ -29,7 +29,7 @@ public partial class ActiveWorld // Rules
         return power / x.Pow2();
     }
 
-    double MaterialInteractionAcceleration(double power, double a, double y)
+    double ParticleInteractionAcceleration(double power, double a, double y)
     {
         var x = y / a;
 
@@ -206,7 +206,7 @@ public partial class ActiveWorld // Rules
 
     #region Plane interaction
     
-    double GetPlaneForceByDistance(double distance) => MaterialRejectionAcceleration(1, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
+    double GetPlaneForceByDistance(double distance) => PlaneInteractionAcceleration(1, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
 
     Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed)
     {

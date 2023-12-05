@@ -42,7 +42,7 @@ public partial class ActiveWorld // Interaction
                 foreach (var nb in b.Nodes)
                     foreach (var na in a.Model.net.SelectItemsByRadius(nb.position - a.Model.center, options.ForceInteractionRadius))
                     {
-                        var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.ParticleForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
+                        var ma = ParticleInteractionAcceleration(nb.mass * options.Interaction.ParticleForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
 
                         if (options.UsePowerLimit)
                             if (ma * na.mass > options.PowerLimit)
@@ -57,7 +57,7 @@ public partial class ActiveWorld // Interaction
                 foreach (var na in a.Nodes)
                     foreach (var nb in a.Model.net.SelectItemsByRadius(na.position - a.Model.center, options.ForceInteractionRadius).Where(n => !na.selfInteractions.Contains(n.i)))
                     {
-                        var ma = MaterialInteractionAcceleration(nb.mass * options.Interaction.ParticleForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
+                        var ma = ParticleInteractionAcceleration(nb.mass * options.Interaction.ParticleForce, options.Interaction.EdgeSize.Value, (na.position - nb.position).Length);
                         na.speed += (na.position - nb.position).ToLenWithCheck(ma);
                         interactionCounter++;
                     }
