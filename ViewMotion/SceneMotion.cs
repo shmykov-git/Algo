@@ -66,7 +66,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.ChristmasTree(power:1.7, downPower:2).ToOy().ToMotion();
+        return Shapes.ChristmasTree(20, 40).ToOy().ToMotion();
         return ChristmasTreeMotion();
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
