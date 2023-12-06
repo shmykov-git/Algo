@@ -66,12 +66,52 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.ChristmasTree(20, 40).ToOy().ToMotion();
-        return ChristmasTreeMotion();
+
+        return new[]
+        {
+            Shapes.Surface2PIx(10, 62, null, Convexes.SpotSquares0).ApplyColor(Color.Blue),// .ToLines(1, Color.Blue),
+            Shapes.Surface2PIx(10, 62, TransformFuncs3.Cylinder, Convexes.SpotSquares0).AddNormalVolume(-0.1).ApplyColor(Color.Red), //.ToLines(1, Color.Red),
+        }.ToSingleShape().ToMotion();
+
+        //return .ToLines(1, Color.Red).ToMotion();
+
+        var m = 6;
+        var n = 21;
+        var ccc = 0;
+        var s = Surfaces.Cylinder(n, m);
+        var ps = s.Points3;
+
+        //var s0 = new Shape
+        //{
+        //    Points = s.Points,
+        //    Convexes = Convexes.SquaresBoth(m, n),
+        //};
+
+        var ss = (4).SelectRange(i => new Shape
+        {
+            Points = s.Points,
+            Convexes = Convexes.SpotSquares(m, n-1, false, true, i) //??
+        }.MoveY(i).ToLines()).ToSingleShape();
+
+        //var sss = new Shape
+        //{
+        //    Points = s.Points,
+        //    Convexes = Convexes.Squares(m, n)
+        //};
+
+        return new[]
+        {
+            //s0/*.MoveZ(-1.5)*//*.ToLines()*/.ApplyColor(Color.Blue),
+            ss.ApplyColor(Color.Red),
+            s/*.MoveZ(1.5).ToLines()*/.ApplyColor(Color.Green)
+        }.ToSingleShape().Centered().ToMotion();
+
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
 
-        var s = Shapes.Line.Perfecto();
+        //var s = Shapes.Line.Perfecto();
+
+        
 
         return (new[] {
             //s.PutOn(4.5).Move(0.5,0,-1).ToActiveShape(o =>

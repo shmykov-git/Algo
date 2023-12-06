@@ -1,6 +1,7 @@
 ﻿using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model3D.Libraries;
+using System;
 using System.Drawing;
 using System.Linq;
 
@@ -8,13 +9,15 @@ namespace Model
 {
     public class SurfaceFuncInfo
     {
+        public SurfaceFunc Fn;
+        public Func<int, int, Vector3, Vector3>? ConvexTransformFn;
+
         public double UFrom;
         public double UTo;
         public int UN;
         public double VFrom;
         public double VTo;
         public int VN;
-        public SurfaceFunc Fn;
         public bool UClosed;
         public bool VClosed;
 
@@ -25,8 +28,11 @@ namespace Model
 
             double vn = (VClosed ? VN : (VN - 1));
             var vstep = (VTo - VFrom) / vn;
-
-            return (VN, UN).SelectRange((v, u) => Fn(UFrom + ustep * u, VFrom + vstep * v)).ToArray();
+            
+            if (ConvexTransformFn == null)
+                return (VN, UN).SelectRange((v, u) => Fn(UFrom + ustep * u, VFrom + vstep * v)).ToArray();
+            else
+                return (VN, UN).SelectRange((v, u) => ConvexTransformFn(u, v, Fn(UFrom + ustep * u, VFrom + vstep * v))).ToArray();
         }
     }
 }

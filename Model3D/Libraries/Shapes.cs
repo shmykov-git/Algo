@@ -545,25 +545,34 @@ namespace Model.Libraries
             var shape = new Shape
             {
                 Points3 = levels.SelectMany(v => v).Concat(new[] { bottomP, topP }).ToArray(),
-                Convexes = (m - 1, n2).SelectRange((i, j) =>
-                (i + j) % 2 == 1
-                ? new int[][]
-                {
-                    new int[]{(j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1) },
-                    new int[]{j + n2 * (i + 1), j + n2 * i, (j + 1) % n2 + n2 * i },    
-                }
-                : new int[][]
-                {
-                    new int[]{(j + 1) % n2 + n2 * (i + 1), j + n2 * (i + 1), j + n2 * i },
-                    new int[]{j + n2 * i, (j + 1) % n2 + n2 * i, (j + 1) % n2 + n2 * (i + 1) },
-                }
-                ).SelectMany(v => v)
-                .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { j, i, psC }))
-                .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { i + psC - n2, j + psC - n2, psC + 1 }))
-                .ToArray()
+                Convexes = Convexes.Hedgehog1(m, n2, false, true)
+                    .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { j, i, psC }))
+                    .Concat((n2).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { i + psC - n2, j + psC - n2, psC + 1 }))
+                    .ToArray()
             };
 
             return shape.ScaleZ(height).ApplyColor(Color.Green);
         }
+
+        public static Shape Plane(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, Func<int, int, Vector3, Vector3>? convexTransformFn = null, bool mClosed = false, bool nClosed = false) => new Shape
+        {
+            Points3 = new SurfaceFuncInfo
+            {
+                Fn = (x, y) => new Vector3(x, y, 0),
+                ConvexTransformFn = convexTransformFn,
+                UFrom = 0,
+                UTo = n,
+                UN = n,
+                UClosed = nClosed,
+                VFrom = 0,
+                VTo = m,
+                VN = m,
+                VClosed = mClosed,
+            }.GetPoints(),
+            Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
+        };
+
+        public static Shape Surface2PIx(int m, int n, TransformFunc3 transformFn = null, Func<int, int, bool, bool, int[][]>? convexesFn = null, Func<int, int, Vector3, Vector3> ? convexTransformFn = null) =>
+            Plane(m, n, convexesFn, convexTransformFn, false, true).Mult(2 * Math.PI / n).Transform(transformFn);
     }
 }

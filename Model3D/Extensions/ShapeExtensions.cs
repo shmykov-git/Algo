@@ -61,12 +61,14 @@ namespace Model3D.Extensions
 
         public static Shape Transform(this Shape shape, Func<Shape, Shape> trFn) => trFn(shape);
 
-        public static Shape Transform(this Shape shape, TransformFunc3 fn) => new Shape
-        {
-            Points3 = shape.Points3.Select(p => fn(p)).ToArray(),
-            Convexes = shape.Convexes,
-            Materials = shape.Materials
-        };
+        public static Shape Transform(this Shape shape, TransformFunc3? fn) => fn == null
+            ? shape
+            : new Shape
+            {
+                Points3 = shape.Points3.Select(p => fn(p)).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
 
         public static Shape ApplyZ(this Shape shape, Func<Vector2, double> func) =>
             ApplyZ(shape, (x, y) => func((x, y)));
@@ -1585,5 +1587,11 @@ namespace Model3D.Extensions
                 Convexes = convexes
             };
         }
+
+        public static Shape ApplyConvexes(this Shape shape, int[][] convexes) => new Shape
+        {
+            Points = shape.Points,
+            Convexes = convexes
+        };
     }
 }

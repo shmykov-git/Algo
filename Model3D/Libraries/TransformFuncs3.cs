@@ -88,6 +88,7 @@ namespace Model3D.Libraries
         public static TransformFunc3 SphereWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 CylinderWrap => WrapSphere(Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 CylinderWrapZ => WrapCylinderZObsolet(Funcs2.Circle(), Funcs2.VerticalLine());
+        public static TransformFunc3 Cylinder => CylinderWrapZR(1);
         public static TransformFunc3 CylinderWrapZR(double r) => WrapCylinderZ(r, Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 CylinderWrapZR(Func1 rF) => WrapCylinderZ(rF, Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 Flower(double a, double b, int n) => WrapSphereZ(Funcs2.Flower(n, b), Funcs2.Torus(a));

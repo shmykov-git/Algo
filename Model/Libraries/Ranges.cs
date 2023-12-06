@@ -16,4 +16,9 @@ public static class Ranges
     public static IEnumerable<(int i, int j)> Range(int m, int n) => Range(m).SelectMany(i => Range(n).Select(j => (i, j)));
 
     public static IEnumerable<int> Range(int n) => Enumerable.Range(0, n);
+
+    public static IEnumerable<(int num, int i, int j, bool top)> Hedgehog(int m, int n, byte shift = 0)
+    {
+        return (m, n).SelectRange((i, j) => (i * n + j, i, j, (i + j) % 2 == shift));
+    }
 }

@@ -53,7 +53,7 @@ namespace Model3D.Libraries
                 VTo = vn,
                 VN = vn,
             }.GetPoints(),
-            Convexes = Squares(vn, un)
+            Convexes = Convexes.Squares(vn, un)// Squares(vn, un)
         };
 
         public static Shape Plane(Plane plane, int un, int vn, double mult = 1) => new Shape
@@ -448,53 +448,36 @@ namespace Model3D.Libraries
             Convexes = Squares(vn, un)
         };
 
-        private static int[][] Squares(int un, int vn, bool bothFaces = false)
-        {
-            int GetNum(int u, int v) => vn * u + v;
-            if (bothFaces)
-                return (un - 1, vn - 1).SelectRange((u, v) => new[]
-                {
-                    new[] {GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v)},
-                    new[] {GetNum(u + 1, v), GetNum(u + 1, v + 1), GetNum(u, v + 1), GetNum(u, v)}
-                }).SelectMany(v => v).ToArray();
-            else
-                return (un - 1, vn - 1).SelectRange((u, v) => new int[]
-                {
-                    GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v)
-                }).ToArray();
-        }
+        private static int[][] Squares(int un, int vn, bool bothFaces = false) => bothFaces ? Convexes.SquaresBoth(un, vn) : Convexes.Squares(un, vn);
 
-        private static int[][] ChessSquares(int un, int vn)
-        {
-            int GetNum(int u, int v) => vn * u + v;
+        private static int[][] ChessSquares(int un, int vn) => Convexes.ChessSquares(un, vn);
+        //{
+        //    int GetNum(int u, int v) => vn * u + v;
+        //    return (un - 1, vn - 1).SelectRange((u, v) => (u, v)).Where(x=>(x.u+x.v).IsEven()).Select(x => new int[]
+        //    {
+        //        GetNum(x.u, x.v), GetNum(x.u, x.v + 1), GetNum(x.u + 1, x.v + 1), GetNum(x.u + 1, x.v)
+        //    }).ToArray();
+        //}
 
-            return (un - 1, vn - 1).SelectRange((u, v) => (u, v)).Where(x=>(x.u+x.v).IsEven()).Select(x => new int[]
-            {
-                GetNum(x.u, x.v), GetNum(x.u, x.v + 1), GetNum(x.u + 1, x.v + 1), GetNum(x.u + 1, x.v)
-            }).ToArray();
-        }
+        private static int[][] Triangles(int un, int vn) => Convexes.Triangles(un, vn);
+        //{
+        //    int GetNum(int u, int v) => vn * u + v;
+        //    return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
+        //    {
+        //        new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v) },
+        //        new int[] { GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) }
+        //    }).SelectMany(v => v).ToArray();
+        //}
 
-        private static int[][] Triangles(int un, int vn)
-        {
-            int GetNum(int u, int v) => vn * u + v;
-
-            return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
-            {
-                new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v) },
-                new int[] { GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) }
-            }).SelectMany(v => v).ToArray();
-        }
-
-        private static int[][] Diagonals(int un, int vn)
-        {
-            int GetNum(int u, int v) => vn * u + v;
-
-            return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
-            {
-                new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) },
-                new int[] { GetNum(u, v), GetNum(u + 1, v + 1)},
-                new int[] { GetNum(u, v+1), GetNum(u + 1, v)}
-            }).SelectMany(v => v).ToArray();
-        }
+        private static int[][] Diagonals(int un, int vn) => Convexes.DiagonalSquares2D(un, vn);
+        //{
+        //    int GetNum(int u, int v) => vn * u + v;
+        //    return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
+        //    {
+        //        new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) },
+        //        new int[] { GetNum(u, v), GetNum(u + 1, v + 1)},
+        //        new int[] { GetNum(u, v+1), GetNum(u + 1, v)}
+        //    }).SelectMany(v => v).ToArray();
+        //}
     }
 }
