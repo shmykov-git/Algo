@@ -554,7 +554,7 @@ namespace Model.Libraries
             return shape.ScaleZ(height).ApplyColor(Color.Green);
         }
 
-        public static Shape Plane(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, Func<int, int, Vector3, Vector3>? convexTransformFn = null, bool mClosed = false, bool nClosed = false) => new Shape
+        public static Shape Plane(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, bool mClosed = false, bool nClosed = false, ConvexTransformFunc? convexTransformFn = null) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -572,7 +572,7 @@ namespace Model.Libraries
             Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
         };
 
-        public static Shape Surface2PIx(int m, int n, TransformFunc3 transformFn = null, Func<int, int, bool, bool, int[][]>? convexesFn = null, Func<int, int, Vector3, Vector3> ? convexTransformFn = null) =>
-            Plane(m, n, convexesFn, convexTransformFn, false, true).Mult(2 * Math.PI / n).Transform(transformFn);
+        public static Shape Plane2PI(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, bool mClosed = false, ConvexTransformFunc? convexTransformFn = null) =>
+            Plane(m, n, convexesFn, mClosed, true, convexTransformFn).Scale(2 * Math.PI / n, 1.0 / m, 1);
     }
 }

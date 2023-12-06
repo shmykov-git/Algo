@@ -66,11 +66,10 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-
         return new[]
         {
-            Shapes.Surface2PIx(10, 62, null, Convexes.SpotSquares0).ApplyColor(Color.Blue),// .ToLines(1, Color.Blue),
-            Shapes.Surface2PIx(10, 62, TransformFuncs3.Cylinder, Convexes.SpotSquares0).AddNormalVolume(-0.1).ApplyColor(Color.Red), //.ToLines(1, Color.Red),
+            //Shapes.Plane2PI(20, 20, Convexes.Hedgehog, true, ConvexTransforms.Hedgehog(p=>p.SetZ(1))).ScaleY(Math.PI * 2)/*.ReversePlanes()*/.ToLines(1, Color.Blue),//.ApplyColor(Color.Blue),,
+            Shapes.Plane2PI(20, 20, Convexes.ChessSquares, true).ScaleY(Math.PI * 2).ReversePlanes().Transform(TransformFuncs3.Torus(2))/*.AddNormalVolume(-0.1)*/.ApplyColor(Color.Red),//.ToLines(1, Color.Red),
         }.ToSingleShape().ToMotion();
 
         //return .ToLines(1, Color.Red).ToMotion();

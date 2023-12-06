@@ -10,7 +10,7 @@ namespace Model
     public class SurfaceFuncInfo
     {
         public SurfaceFunc Fn;
-        public Func<int, int, Vector3, Vector3>? ConvexTransformFn;
+        public ConvexTransformFunc? ConvexTransformFn;
 
         public double UFrom;
         public double UTo;
