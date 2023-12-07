@@ -12,6 +12,8 @@ public static class Convexes
     /// </summary>
     public static int[][] Hedgehog(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (i, j) => (i + j) % 2);
+    public static int[][] ChessHedgehog(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2*(i%2) + j%2);
 
     public static int[][] Hedgehog1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (i, j) => (i + j + 1) % 2);
@@ -21,6 +23,16 @@ public static class Convexes
 
     public static int[][] Squares(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps);
+
+    public static int[][] LineSquaresY(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, _) => i % 2 - 1);
+    public static int[][] LineSquaresY1(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, _) => (i + 1) % 2 - 1);
+
+    public static int[][] LineSquaresX(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (_, j) => j % 2 - 1);
+    public static int[][] LineSquaresX1(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (_, j) => (j + 1) % 2 - 1);
 
     public static int[][] SquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) => 
         GetConvexes(m, n, mClosed, nClosed, squareBothSideMaps);
@@ -36,6 +48,9 @@ public static class Convexes
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => (i + j + 1) % 2 - 1);
 
     public static int[][] SpotSquares0(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 0);
+    public static int[][] SpotSquares1(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 1);
+    public static int[][] SpotSquares2(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 2);
+    public static int[][] SpotSquares3(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 3);
 
     public static int[][] SpotSquares(int m, int n, bool mClosed = false, bool nClosed = false, int shift = 0) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => ((j + 1 + shift / 2) % 2) * ((i + 1 + shift % 2) % 2) - 1);
@@ -52,6 +67,13 @@ public static class Convexes
                 new[] { (1, 1), (1, 0), (0, 0) },
                 new[] { (0, 0), (0, 1), (1, 1) },
             },
+        };
+
+    private static (int i, int j)[][][] hedgehogTriangleMaps = new[] {
+            new[] { new[] { (0, 1), (1, 1), (1, 0) } },
+            new[] { new[] { (0, 0), (1, 1), (1, 0) } },
+            new[] { new[] { (0, 0), (0, 1), (1, 1) } },
+            new[] { new[] { (0, 0), (0, 1), (1, 0) } },
         };
 
     private static (int i, int j)[][][] squareDiagonalD2Maps = new[] {

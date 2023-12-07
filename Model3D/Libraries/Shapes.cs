@@ -561,18 +561,15 @@ namespace Model.Libraries
                 Fn = (x, y) => new Vector3(x, y, 0),
                 ConvexTransformFn = convexTransformFn,
                 UFrom = 0,
-                UTo = n,
+                UTo = 1,
                 UN = n,
                 UClosed = nClosed,
                 VFrom = 0,
-                VTo = m,
+                VTo = 1,
                 VN = m,
                 VClosed = mClosed,
             }.GetPoints(),
             Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
         };
-
-        public static Shape Plane2PI(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, bool mClosed = false, ConvexTransformFunc? convexTransformFn = null) =>
-            Plane(m, n, convexesFn, mClosed, true, convexTransformFn).Scale(2 * Math.PI / n, 1.0 / m, 1);
     }
 }

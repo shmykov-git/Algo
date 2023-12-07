@@ -954,7 +954,7 @@ namespace Model3D.Extensions
 
         public static Shape WithCenterPoint(this Shape shape)
         {
-            var c = shape.MassCenter;
+            var c = shape.PointCenter;
             var n = shape.PointsCount;
 
             return new Shape

@@ -40,6 +40,7 @@ using Model3D.Actives;
 using Aspose.ThreeD.Entities;
 using Shape = Model.Shape;
 using System.Windows.Shapes;
+using System.Windows;
 
 namespace ViewMotion;
 
@@ -69,8 +70,8 @@ partial class SceneMotion
         return new[]
         {
             //Shapes.Plane2PI(20, 20, Convexes.Hedgehog, true, ConvexTransforms.Hedgehog(p=>p.SetZ(1))).ScaleY(Math.PI * 2)/*.ReversePlanes()*/.ToLines(1, Color.Blue),//.ApplyColor(Color.Blue),,
-            Shapes.Plane2PI(20, 20, Convexes.ChessSquares, true).ScaleY(Math.PI * 2).ReversePlanes().Transform(TransformFuncs3.Torus(2))/*.AddNormalVolume(-0.1)*/.ApplyColor(Color.Red),//.ToLines(1, Color.Red),
-        }.ToSingleShape().ToMotion();
+            Shapes.Plane(19, 27, Convexes.ChessHedgehog, false, false).Scale(2*Math.PI, -2*Math.PI, 1).Transform(TransformFuncs3.Torus(2))/*.AddNormalVolume(-0.1)*//*.ToDirectLines()*/.Perfecto(),//.ToLines(1, Color.Red),
+        }.ToSingleShape().Normalize().RotateOx(0.6).PutOn(1).ApplyColor(Color.Red).ToActiveShape(o=> { o.UseSkeleton = true; o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint; }).ToWorldMotion();
 
         //return .ToLines(1, Color.Red).ToMotion();
 
