@@ -67,19 +67,30 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return new[]
-        {
-            //Shapes.Plane2PI(20, 20, Convexes.Hedgehog, true, ConvexTransforms.Hedgehog(p=>p.SetZ(1))).ScaleY(Math.PI * 2)/*.ReversePlanes()*/.ToLines(1, Color.Blue),//.ApplyColor(Color.Blue),,
-            Shapes.Plane(20, 30, Convexes.ChessSquares, true, true).Scale(2*Math.PI, -2*Math.PI, 1).Transform(TransformFuncs3.Torus(2))/*.AddNormalVolume(-0.1)*//*.ToDirectLines()*/.Perfecto(),//.ToLines(1, Color.Red),
-        }.ToSingleShape().Normalize().RotateOx(0.6).PutOn(1).ApplyColor(Color.Red).ToActiveShape(o=> { o.UseSkeleton = true; o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint; }).ToWorldMotion();
+        var ss = Shapes.Plane(19, 30, Convexes.ChessHedgehog, false, true)
+            .Scale(2*Math.PI, Math.PI, 0).MoveY(-Math.PI/2)
+            .Transform(TransformFuncs3.Sphere)
+            .Perfecto().Normalize()
+            .ApplyColor(Color.Red);
+
+        //return ss.ToMotion();
+
+        return ss.PutOn(1).ToActiveShape(o => { o.UseSkeleton = true; o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint; }).ToWorldMotion();
+
+
+        //return new[]
+        //{
+        //    //Shapes.Plane2PI(20, 20, Convexes.Hedgehog, true, ConvexTransforms.Hedgehog(p=>p.SetZ(1))).ScaleY(Math.PI * 2)/*.ReversePlanes()*/.ToLines(1, Color.Blue),//.ApplyColor(Color.Blue),,
+        //    Shapes.Plane(20, 30, Convexes.ChessSquares, true, true).Scale(2*Math.PI, -Math.PI, 1).Transform(TransformFuncs3.PullOnSphere)/*.AddNormalVolume(-0.1)*//*.ToDirectLines()*/.Perfecto(),//.ToLines(1, Color.Red),
+        //}.ToSingleShape().RotateOx(0.6);
 
         //return .ToLines(1, Color.Red).ToMotion();
 
-        var m = 6;
-        var n = 21;
-        var ccc = 0;
-        var s = Surfaces.Cylinder(n, m);
-        var ps = s.Points3;
+        //var m = 6;
+        //var n = 21;
+        //var ccc = 0;
+        //var s = Surfaces.Cylinder(n, m);
+        //var ps = s.Points3;
 
         //var s0 = new Shape
         //{
@@ -87,11 +98,11 @@ partial class SceneMotion
         //    Convexes = Convexes.SquaresBoth(m, n),
         //};
 
-        var ss = (4).SelectRange(i => new Shape
-        {
-            Points = s.Points,
-            Convexes = Convexes.SpotSquares(m, n-1, false, true, i) //??
-        }.MoveY(i).ToLines()).ToSingleShape();
+        //var ss = (4).SelectRange(i => new Shape
+        //{
+        //    Points = s.Points,
+        //    Convexes = Convexes.SpotSquares(m, n-1, false, true, i) //??
+        //}.MoveY(i).ToLines()).ToSingleShape();
 
         //var sss = new Shape
         //{
@@ -99,12 +110,12 @@ partial class SceneMotion
         //    Convexes = Convexes.Squares(m, n)
         //};
 
-        return new[]
-        {
-            //s0/*.MoveZ(-1.5)*//*.ToLines()*/.ApplyColor(Color.Blue),
-            ss.ApplyColor(Color.Red),
-            s/*.MoveZ(1.5).ToLines()*/.ApplyColor(Color.Green)
-        }.ToSingleShape().Centered().ToMotion();
+        //return new[]
+        //{
+        //    //s0/*.MoveZ(-1.5)*//*.ToLines()*/.ApplyColor(Color.Blue),
+        //    ss.ApplyColor(Color.Red),
+        //    s/*.MoveZ(1.5).ToLines()*/.ApplyColor(Color.Green)
+        //}.ToSingleShape().Centered().ToMotion();
 
         //return TwoBallFallingToNetMotion();
         //return TwoCubesWorldMotion();
@@ -113,58 +124,58 @@ partial class SceneMotion
 
         
 
-        return (new[] {
-            //s.PutOn(4.5).Move(0.5,0,-1).ToActiveShape(o =>
-            //{
-            //    //o.ShowMeta = true;
-            //    o.Mass = 3;
-            //    o.AllowTriangulation0  =false;
-            //}),
-            s/*.RotateOz(0.5)*/.PutOn(2).Move(0,0,0).ToActiveShape(o =>
-            {
-                o.UseSkeleton = false;
-                o.Skeleton.Power = 50;
-                o.AllowTriangulation0 = false;
-                o.Mass = 1;
-                o.ShowMeta = true;
-                o.AllowTriangulation0 = false;
-            }),
-            Shapes.Cube.Perfecto().Scale(5, 1, 5).PutOn(-1).MoveX(-1.95).ToActiveShape(o =>
-            {
-                o.ShowMeta = true;
-                o.AllowTriangulation0 = false;
-                o.UseSkeleton = true;
-                o.Mass = 1;
-                o.MaterialPower = 5;
-                //o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
-            }),
-            //Surfaces.Plane(2, 2).GroupMembers(5).ToOy()/*.RotateOz(Math.PI/4)*/.PutOn().MoveX(-3).ToActiveShape(o =>
-            //{
-            //    o.Type = ActiveShapeOptions.ShapeType.D2;
-            //    o.ShowMeta = true;
-            //    o.AllowTriangulation0 = false;
-            //    o.UseSkeleton = false;
-            //    o.Mass = 1;
-            //    o.MaterialPower = 5;
-            //    o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
-            //}),
-        },
-        new Shape[]
-        {
-            //Shapes.CoodsWithText,
-            //Shapes.Cube.GroupMembers().Scale(5, 1, 5).PutOn(-1).MoveX(-2.4).ToNumSpots3(),
-        }).ToWorld(o =>
-        {
-            o.Ground.Y = -1;
-            o.Ground.ShowGround = true;
-            o.Ground.LineMult = 1;
-            o.Ground.Color = Color.Green;
-            o.Ground.ClingForce = 1;
-            o.InteractionType = InteractionType.ParticleWithPlane;
-            o.Interaction.ElasticForce = 5;
-            o.Interaction.ClingForce = 1;
-            o.Interaction.FrictionForce = 1;
-            o.Interaction.UseVolumeMass = false;
-        }).ToMotion(8);
+        //return (new[] {
+        //    //s.PutOn(4.5).Move(0.5,0,-1).ToActiveShape(o =>
+        //    //{
+        //    //    //o.ShowMeta = true;
+        //    //    o.Mass = 3;
+        //    //    o.AllowTriangulation0  =false;
+        //    //}),
+        //    s/*.RotateOz(0.5)*/.PutOn(2).Move(0,0,0).ToActiveShape(o =>
+        //    {
+        //        o.UseSkeleton = false;
+        //        o.Skeleton.Power = 50;
+        //        o.AllowTriangulation0 = false;
+        //        o.Mass = 1;
+        //        o.ShowMeta = true;
+        //        o.AllowTriangulation0 = false;
+        //    }),
+        //    Shapes.Cube.Perfecto().Scale(5, 1, 5).PutOn(-1).MoveX(-1.95).ToActiveShape(o =>
+        //    {
+        //        o.ShowMeta = true;
+        //        o.AllowTriangulation0 = false;
+        //        o.UseSkeleton = true;
+        //        o.Mass = 1;
+        //        o.MaterialPower = 5;
+        //        //o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
+        //    }),
+        //    //Surfaces.Plane(2, 2).GroupMembers(5).ToOy()/*.RotateOz(Math.PI/4)*/.PutOn().MoveX(-3).ToActiveShape(o =>
+        //    //{
+        //    //    o.Type = ActiveShapeOptions.ShapeType.D2;
+        //    //    o.ShowMeta = true;
+        //    //    o.AllowTriangulation0 = false;
+        //    //    o.UseSkeleton = false;
+        //    //    o.Mass = 1;
+        //    //    o.MaterialPower = 5;
+        //    //    o.Fix = ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Left;
+        //    //}),
+        //},
+        //new Shape[]
+        //{
+        //    //Shapes.CoodsWithText,
+        //    //Shapes.Cube.GroupMembers().Scale(5, 1, 5).PutOn(-1).MoveX(-2.4).ToNumSpots3(),
+        //}).ToWorld(o =>
+        //{
+        //    o.Ground.Y = -1;
+        //    o.Ground.ShowGround = true;
+        //    o.Ground.LineMult = 1;
+        //    o.Ground.Color = Color.Green;
+        //    o.Ground.ClingForce = 1;
+        //    o.InteractionType = InteractionType.ParticleWithPlane;
+        //    o.Interaction.ElasticForce = 5;
+        //    o.Interaction.ClingForce = 1;
+        //    o.Interaction.FrictionForce = 1;
+        //    o.Interaction.UseVolumeMass = false;
+        //}).ToMotion(8);
     }
 }

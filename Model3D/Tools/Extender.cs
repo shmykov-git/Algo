@@ -132,7 +132,7 @@ namespace Model3D.Tools
                 Convexes = newConvexes
             };
 
-            var transformed = ShapeExtensions.Transform(newShape, TransformFuncs3.Sphere);
+            var transformed = ShapeExtensions.Transform(newShape, TransformFuncs3.PullOnSphere);
             var ps = transformed.Points3;
             var joinedConvexes = transformed.Convexes.GroupBy(convex => new Plane(ps[convex[0]], ps[convex[1]], ps[convex[2]]).NOne).ToArray();
             var agrConvexes = joinedConvexes.Where(g => g.Count() > 1 && g.First().Intersect(g.Last()).Count() > 1).ToArray();

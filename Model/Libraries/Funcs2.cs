@@ -10,6 +10,7 @@ namespace Model.Libraries
         public static Func2 HorizontalLine() => t => (t, 1);
         public static Func2 VerticalLine() => t => (1, t);
         public static Func2 Circle() => t => (Math.Sin(t), Math.Cos(t));
+        public static Func2 CircleX() => t => (Math.Cos(t), Math.Sin(t));
         public static Func2 Torus(double a) => t => new Vector2(a + Math.Cos(t), Math.Sin(t));
 
         public static Func2 Heart()
