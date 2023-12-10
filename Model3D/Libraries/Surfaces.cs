@@ -209,7 +209,7 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
-        public static Shape Shamrock(int un, int vn, bool triangulate = false) => new Shape
+        public static Shape Shamrock(int un, int vn, bool triangulate = false, bool normalize = true) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -222,7 +222,7 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
-        }.Normalize();
+        }.ModifyIf(normalize, s => s.Normalize());
 
         public static Shape ShamrockDynamic(int un, int vn, int ui, bool triangulate = false) => new Shape
         {
@@ -239,7 +239,7 @@ namespace Model3D.Libraries
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
         }.Normalize();
 
-        public static Shape Shell(int un, int vn, int nToSpins = 2, bool triangulate = false) => new Shape
+        public static Shape Shell(int un, int vn, int nToSpins = 2, bool triangulate = false, bool normalize = true) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -252,7 +252,7 @@ namespace Model3D.Libraries
                 VN = vn,
             }.GetPoints(),
             Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
-        }.Normalize();
+        }.ModifyIf(normalize, s=>s.Normalize());
 
         public static Shape Shell2(int un, int vn, double vFromSpin = -0.5, double vToSpin = 0.5, double uFromSpins = 0, double uToSpins = 2, bool triangulate = false) => new Shape
         {

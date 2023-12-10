@@ -62,20 +62,21 @@ partial class SceneMotion
 
     #endregion
 
-
-
-
     public Task<Motion> Scene()
     {
-        var ss = Shapes.Plane(19, 30, Convexes.ChessHedgehog, false, true)
-            .Scale(2*Math.PI, Math.PI, 0).MoveY(-Math.PI/2)
-            .Transform(TransformFuncs3.Sphere)
-            .Perfecto().Normalize()
+        return Ranges.Pyramid3(10).Select(v => Shapes.Cube.Move(1.01*v.x, 1.01*v.y, v.z).ApplyColor(Color.Red)).ToSingleShape().ToOy().ToMotion();
+
+        var ss = Shapes.Plane(2,2).Centered().FlipX().AddConvexPoint(0, new Vector3(0, 0, 1), true, true).SplitPlanes(0.1).FilterGraphConvexes((pointD, convexD) => pointD % 2 == 0, 4)
             .ApplyColor(Color.Red);
 
-        //return ss.ToMotion();
+        //var ss = Surfaces.Shamrock(120, 20, false, false).ApplyConvexes(Convexes.ChessHedgehogBoth(20, 120)).Perfecto()
+        //    //.Scale(2 * Math.PI, -2*Math.PI, 0)//.MoveY(-Math.PI / 2)
+        //    //.Transform(TransformFuncs3.Flower(2, 3, 4))
+        //    .ApplyColor(Color.Red);
 
-        return ss.PutOn(1).ToActiveShape(o => { o.UseSkeleton = true; o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint; }).ToWorldMotion();
+        return ss.Centered().ToMotion();
+
+        return ss.ToOy().Centered().Rotate(new Vector3(1,2,3)).PutOn(1).ToActiveShape(o => { o.UseSkeleton = true; /*o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;*/ }).ToWorldMotion();
 
 
         //return new[]

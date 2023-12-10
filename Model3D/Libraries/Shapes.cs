@@ -554,7 +554,7 @@ namespace Model.Libraries
             return shape.ScaleZ(height).ApplyColor(Color.Green);
         }
 
-        public static Shape Plane(int m, int n, Func<int, int, bool, bool, int[][]>? convexesFn = null, bool mClosed = false, bool nClosed = false, ConvexTransformFunc? convexTransformFn = null) => new Shape
+        public static Shape Plane(int m, int n, ConvexFunc? convexesFn = null, bool mClosed = false, bool nClosed = false, ConvexTransformFunc? convexTransformFn = null) => new Shape
         {
             Points3 = new SurfaceFuncInfo
             {
@@ -571,5 +571,34 @@ namespace Model.Libraries
             }.GetPoints(),
             Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
         };
+
+        public static Shape PlaneSphere(int m, int n, ConvexFunc? convexesFn = null) => 
+            Shapes.Plane(m, n, convexesFn, false, true)
+                .Scale(2 * Math.PI, Math.PI, 0).MoveY(-Math.PI / 2)
+                .Transform(TransformFuncs3.Sphere)
+                .Normalize();
+
+        public static Shape PlaneTorus(int m, int n, double centerRadius, ConvexFunc? convexesFn = null) =>
+            Shapes.Plane(m, n, convexesFn, true, true)
+                .Scale(2 * Math.PI, 2 * Math.PI, 0)
+                .Transform(TransformFuncs3.Torus(centerRadius));
+
+        public static Shape PlaneHeart(int m, int n, ConvexFunc? convexesFn = null) =>
+            Shapes.Plane(m, n, convexesFn, false, true)
+                .Scale(-2 * Math.PI, Math.PI, 0)
+                .Transform(TransformFuncs3.Heart)
+                .Normalize();
+
+        public static Shape PlaneCylinder(int m, int n, ConvexFunc? convexesFn = null) =>
+            Shapes.Plane(m, n, convexesFn, false, true)
+                .Scale(-2 * Math.PI, 1, 0)
+                .Transform(TransformFuncs3.Cylinder);
+
+        public static Shape PlaneParaboloid(int m, int n, double height = 1, ConvexFunc? convexesFn = null) =>
+            Shapes.Plane(m, n, convexesFn, false, true)
+                .Scale(2 * Math.PI, height, 0)
+                .Transform(TransformFuncs3.Paraboloid)
+                .Normalize()
+                .Mult(1 / height.Pow2());
     }
 }

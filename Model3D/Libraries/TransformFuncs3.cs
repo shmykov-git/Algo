@@ -2,6 +2,7 @@
 using System;
 using Model.Extensions;
 using Model.Libraries;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Libraries
 {
@@ -10,10 +11,10 @@ namespace Model3D.Libraries
     public static class TransformFuncs3
     {
         public static TransformFunc3 Sphere => WrapSphereZ(Funcs2.CircleX(), Funcs2.CircleX());
-        public static TransformFunc3 Torus(double a) => WrapSphereZ(Funcs2.CircleX(), Funcs2.Torus(a));
-
-
-
+        public static TransformFunc3 Torus(double centerRadius) => WrapSphereZ(Funcs2.CircleX(), Funcs2.Torus(centerRadius));
+        public static TransformFunc3 Heart => WrapSphereZ(Funcs2.CircleX(), Funcs2.Heart());
+        public static TransformFunc3 Cylinder => CylinderWrapZR(1);
+        public static TransformFunc3 Paraboloid => WrapSphereZ(Funcs2.CircleX(), Funcs2.Parabola());
 
 
 
@@ -88,7 +89,6 @@ namespace Model3D.Libraries
             };
         }
 
-        public static TransformFunc3 Heart => PullOnSphereZ(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 PullOnSphere => PullOnSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 HeartWrap => WrapSphere(Funcs2.Circle(), Funcs2.Heart());
         public static TransformFunc3 HeartWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Heart());
@@ -96,7 +96,6 @@ namespace Model3D.Libraries
         public static TransformFunc3 SphereWrapZ => WrapSphereZ(Funcs2.Circle(), Funcs2.Circle());
         public static TransformFunc3 CylinderWrap => WrapSphere(Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 CylinderWrapZ => WrapCylinderZObsolet(Funcs2.Circle(), Funcs2.VerticalLine());
-        public static TransformFunc3 Cylinder => CylinderWrapZR(1);
         public static TransformFunc3 CylinderWrapZR(double r) => WrapCylinderZ(r, Funcs2.CircleX(), Funcs2.VerticalLine());
         public static TransformFunc3 CylinderWrapZR(Func1 rF) => WrapCylinderZ(rF, Funcs2.CircleX(), Funcs2.VerticalLine());
         public static TransformFunc3 Flower(double a, double b, int n) => WrapSphereZ(Funcs2.Flower(n, b), Funcs2.Torus(a));

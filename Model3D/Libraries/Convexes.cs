@@ -4,6 +4,9 @@ using Model.Extensions;
 
 namespace Model3D.Libraries;
 
+// Func<int, int, bool, bool, int[][]>
+public delegate int[][] ConvexFunc(int m, int n, bool mClosed, bool nClosed);
+
 public static class Convexes
 {
     /// <summary>
@@ -15,14 +18,14 @@ public static class Convexes
     public static int[][] ChessHedgehog(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2*(i%2) + j%2);
 
+    public static int[][] ChessHedgehogBoth(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2 * (i % 2) + j % 2, true);
+
     public static int[][] Hedgehog1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (i, j) => (i + j + 1) % 2);
 
     public static int[][] DiagonalSquares2D(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareDiagonalD2Maps);
-
-    public static int[][] Squares(int m, int n, bool mClosed = false, bool nClosed = false) =>
-        GetConvexes(m, n, mClosed, nClosed, squareMaps);
 
     public static int[][] LineSquaresY(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, _) => i % 2 - 1);
@@ -34,8 +37,10 @@ public static class Convexes
     public static int[][] LineSquaresX1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (_, j) => (j + 1) % 2 - 1);
 
+    public static int[][] Squares(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps);
     public static int[][] SquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) => 
-        GetConvexes(m, n, mClosed, nClosed, squareBothSideMaps);
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, null, true);
 
     public static int[][] Triangles(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (_, _) => 0);
@@ -44,6 +49,8 @@ public static class Convexes
 
     public static int[][] ChessSquares(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => (i + j) % 2 - 1);
+    public static int[][] ChessSquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => (i + j) % 2 - 1, true);
     public static int[][] ChessSquares1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => (i + j + 1) % 2 - 1);
 
@@ -77,7 +84,7 @@ public static class Convexes
         };
 
     private static (int i, int j)[][][] squareDiagonalD2Maps = new[] {
-        new[] // square
+        new[]
         {
             new[] { (0, 0), (0, 1) },
             new[] { (0, 1), (1, 1) },
@@ -89,29 +96,33 @@ public static class Convexes
     };
 
     private static (int i, int j)[][][] squareMaps = new[] {
-        new[] // square
+        new[]
         {
             new[] { (0, 0), (0, 1), (1, 1), (1, 0) }
         }
     };
 
-    private static (int i, int j)[][][] squareBothSideMaps = new[] {
-        new[] // both sides square
-        {
-            new[] { (0, 0), (0, 1), (1, 1), (1, 0) },
-            new[] { (1, 0), (1, 1), (0, 1), (0, 0) },
-        }
-    };
+    //private static (int i, int j)[][][] squareBothSideMaps = new[] {
+    //    new[] // both sides square
+    //    {
+    //        new[] { (0, 0), (0, 1), (1, 1), (1, 0) },
+    //        new[] { (1, 0), (1, 1), (0, 1), (0, 0) },
+    //    }
+    //};
 
-    private static int[][] GetConvexes(int m, int n, bool mClosed, bool nClosed, (int i, int j)[][][] maps, Func<int, int, int>? mapFn = null)
+    private static int[][] GetConvexes(int m, int n, bool mClosed, bool nClosed, (int i, int j)[][][] maps, Func<int, int, int>? mapFn = null, bool both = false)
     {
         var fn = mapFn ?? ((_, _) => 0);
         int num(int i, int j) => n * (i % m) + j % n;
         var mm = mClosed ? m : m - 1;
         var nn = nClosed ? n : n - 1;
 
-        return (mm, nn).SelectRange((i, j) => fn(i, j) >= 0 
+        var convexes = (mm, nn).SelectRange((i, j) => fn(i, j) >= 0 
             ? maps[fn(i, j)].Select(line => line.Select(v => num(i + v.i, j + v.j)).ToArray())
             : new int[0][]).ManyToArray();
+
+        return both 
+            ? convexes.Concat(convexes.ReverseConvexes()).ToArray()
+            : convexes;
     }
 }

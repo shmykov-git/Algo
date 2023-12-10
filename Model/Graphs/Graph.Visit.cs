@@ -8,7 +8,7 @@ namespace Model.Graphs
 {
     public partial class Graph
     {
-        public int[] DistanceMap(int i) => DistanceMap(nodes[i]);
+        public int[] DistanceMap(int i = 0) => DistanceMap(nodes[i]);
         public int[] DistanceMap(Node node)
         {
             var map = new int[nodes.Count];

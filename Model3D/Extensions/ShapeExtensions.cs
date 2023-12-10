@@ -1276,6 +1276,21 @@ namespace Model3D.Extensions
             }.CleanPoints();
         }
 
+        public static Shape FilterGraphConvexes(this Shape shape, Func<int, int, bool> distanceFilterFn, int iNode = 0)
+        {
+            var g = new Graph(shape.OrderedEdges);
+            var d = g.DistanceMap(iNode);            
+
+            var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => distanceFilterFn(d[v.c.Min()], v.c.Min(i => d[i]))).Select(v => v.i).ToHashSet();
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes.Where((_, i) => inds.Contains(i)).ToArray(),
+                Materials = shape.Materials?.Where((_, i) => inds.Contains(i)).ToArray(),
+            }.CleanPoints();
+        }
+
         public static Shape FilterConvexes(this Shape shape, Func<int[], int, bool> filterFn)
         {
             var inds = shape.Convexes.Select((c,i)=>(c,i)).Where(v=>filterFn(v.c, v.i)).Select(v=>v.i).ToHashSet();
