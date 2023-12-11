@@ -25,7 +25,8 @@ namespace Model.Fourier
                     n = gk.Select(kk => kk.n).First(),
                     dn = gk.Select(kk => kk.dn).First(),
                     im = gk.Sum(kk => kk.im),
-                    r = gk.Sum(kk => kk.r)
+                    r = gk.Sum(kk => kk.r),
+                    dis = gk.Max(kk => kk.dis)
                 })
                 .Where(k => k.r != 0 || k.im != 0)
                 .Where(k => k.n + k.dn != 0)

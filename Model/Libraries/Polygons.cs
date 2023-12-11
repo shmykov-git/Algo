@@ -7,8 +7,8 @@ namespace Model.Libraries
 {
     public static class Polygons
     {
-        public static Polygon FourierSeries(int count, params Fr[] members) =>
-            FourierSeries(count, members.Select(m => ((m.r, m.im), m.n + m.dn)).ToArray());
+        //public static Polygon FourierSeries(int count, params Fr[] members) =>
+        //    FourierSeries(count, members.Select(m => ((m.r, m.im), m.n + m.dn)).ToArray());
 
         public static Polygon FourierSeries3(int an, int bn, double a, double b, int count, double da, double db) =>
             FourierSeries(count, (an + da, a), (bn + db, b), (-1, 1));
@@ -20,11 +20,23 @@ namespace Model.Libraries
         //public static Polygon FourierSeries(int count, params (double r, double k)[] args) =>
         //    FourierSeries(count, args.Select(a => ((a.r, 0d), a.k)).ToArray());
 
-        public static Polygon FourierSeries(int count, params ((double, double) c, double k)[] args) => new Polygon
+        //public static Polygon FourierSeries(int count, params ((double, double) c, double k)[] args) => new Polygon
+        //{
+        //    Points = new Func2Info
+        //    {
+        //        Fn = t => Fourier.Exp(t, args),
+        //        From = 0,
+        //        To = 1,
+        //        N = count,
+        //        Closed = true
+        //    }.GetPoints().Reverse().ToArray()
+        //};
+
+        public static Polygon FourierSeries(int count, params Fr[] members) => new Polygon
         {
             Points = new Func2Info
             {
-                Fn = t => Fourier.Exp(t, args),
+                Fn = t => Fourier.Exp(t, members),
                 From = 0,
                 To = 1,
                 N = count,

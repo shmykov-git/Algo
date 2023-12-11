@@ -41,6 +41,7 @@ using Aspose.ThreeD.Entities;
 using Shape = Model.Shape;
 using System.Windows.Shapes;
 using System.Windows;
+using System.Diagnostics.Metrics;
 
 namespace ViewMotion;
 
@@ -64,6 +65,12 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        //return new Fr[] { (1, 1), (2, -2), (-11, 1, 0, 0.25), (-6, 2), (-9, 1), (4, 3), (-1, 12) }.ToSingleConvexShape().Perfecto().ToLines(1, Color.Blue).ToMotion();
+
+        //return Polygons.FourierSeries(256, new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }).ToShape().Perfecto().ToLines().ApplyColor(Color.Red).ToMotion();
+
+        return new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3, 5), (-1, 12) }.ToShape().ApplyColor(Color.Red).ToMotion();
+
         return Ranges.Pyramid3(10).Select(v => Shapes.Cube.Move(1.01*v.x, 1.01*v.y, v.z).ApplyColor(Color.Red)).ToSingleShape().ToOy().ToMotion();
 
         var ss = Shapes.Plane(2,2).Centered().FlipX().AddConvexPoint(0, new Vector3(0, 0, 1), true, true).SplitPlanes(0.1).FilterGraphConvexes((pointD, convexD) => pointD % 2 == 0, 4)
