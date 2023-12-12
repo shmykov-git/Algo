@@ -65,11 +65,17 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        //return new Fr[] { (1, 1) }.ToSingleConvexShape(50, dis: 1m / 4).Perfecto(4).ToNumSpots3()/*.ToLines(1, Color.Red)*/.ToMotion();
+
+        return (100).SelectInterval(v => new Fr[] { (-1, 10), (v.i, 5) }.ToShape(256, dis: 1m/6).Perfecto().ApplyColor(Color.Red)).ToMotion();
+
+        //.ToSingleConvexShape(256, true, (decimal)(v.v)).RotateOz(Math.PI / 2).ToLines(1, Color.Red)) ; ;.ToMotion();
+
         //return new Fr[] { (1, 1), (2, -2), (-11, 1, 0, 0.25), (-6, 2), (-9, 1), (4, 3), (-1, 12) }.ToSingleConvexShape().Perfecto().ToLines(1, Color.Blue).ToMotion();
 
         //return Polygons.FourierSeries(256, new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3), (-1, 12) }).ToShape().Perfecto().ToLines().ApplyColor(Color.Red).ToMotion();
 
-        return new Fr[] { (1, 1), (2, -2), (-11, 1), (-6, 2), (-9, 1), (4, 3, 5), (-1, 12) }.ToShape().ApplyColor(Color.Red).ToMotion();
+        return new Fr[] { (-1, 5), (4, 1) }.ToShape(dis:1m/6).ApplyColor(Color.Red).ToMotion();
 
         return Ranges.Pyramid3(10).Select(v => Shapes.Cube.Move(1.01*v.x, 1.01*v.y, v.z).ApplyColor(Color.Red)).ToSingleShape().ToOy().ToMotion();
 

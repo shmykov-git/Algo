@@ -34,6 +34,17 @@ namespace Model.Fourier
                 .ToArray();
         }
 
+        public static Fr[] ApplyDiscrete(this IEnumerable<Fr> frs, decimal? dis)
+        {
+            if (dis == null)
+                return frs.ToArray();
+
+            var frsCopy = frs.Adapt<Fr[]>();
+            frsCopy.ForEach(fr => fr.dis = (double)dis.Value);
+            
+            return frsCopy.ToArray();
+        }
+
         public static Fr[] ModifyLast(this Fr[] frs, Action<Fr> action)
         {
             action(frs[^1]);

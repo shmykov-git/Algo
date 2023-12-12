@@ -15,12 +15,13 @@ namespace Model.Libraries
 
         private static Vector2 Exp(double t, Fr m)
         {
-            if (m.dis == 0)
+            if (m.dis.Abs() < Values.Epsilon12)
                 return ExpC(m.c, t * m.k);
 
+            var sgn = m.k.Sgn();
             var k = t * m.k;
-            var k1 = k.Sgn() * Math.Truncate(k.Abs() / m.dis) * m.dis;
-            var k2 = k1 + m.dis * k.Sgn();
+            var k1 = sgn * (Math.Truncate(k.Abs() / m.dis + 0.5) - 0.5) * m.dis;
+            var k2 = k1 + sgn * m.dis;
 
             var a = ExpC(m.c, k1);
             var b = ExpC(m.c, k2);

@@ -48,19 +48,11 @@
             r = v.r
         };
 
-        public static implicit operator Fr((int n, double r, double dn, double dis) v) => new Fr()
-        {
-            n = v.n,
-            dn = v.dn,
-            r = v.r,
-            dis = v.dis
-        };
-
-        public static implicit operator Fr((int n, double r, byte nDis) v) => new Fr()
+        public static implicit operator Fr((int n, double r, decimal dis) v) => new Fr()
         {
             n = v.n,
             r = v.r,
-            dis = 1.0/v.nDis
+            dis = (double)v.dis
         };
 
         public static implicit operator Fr((int n, (double r, double im) rm) v) => new Fr()
