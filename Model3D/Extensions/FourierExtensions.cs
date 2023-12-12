@@ -12,8 +12,8 @@ namespace Model3D.Extensions
     public static class FourierExtensions
     {
         public static Shape ToSingleConvexShape(this IEnumerable<Fr> frs, int count = 256, bool radiusPerfecto = false, decimal? dis = null) => radiusPerfecto 
-            ? frs.ApplyDiscrete(dis).RadiusPerfecto().ToPolygon(count).ToSingleConvexShape() 
-            : frs.ApplyDiscrete(dis).ToPolygon(count).ToSingleConvexShape();
+            ? frs.DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)).RadiusPerfecto().ToPolygon(count).ToSingleConvexShape() 
+            : frs.DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)).ToPolygon(count).ToSingleConvexShape();
 
         public static Polygon ToPolygon(this IEnumerable<Fr> frs, int count = 256) => Polygons.FourierSeries(count, frs.GroupMembers());
 
@@ -21,7 +21,7 @@ namespace Model3D.Extensions
             FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, indices);
 
         public static Shape ToShape(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, int[] indices = null, bool triangulateOnly = false, decimal? dis = null) =>
-            FourierShapes.Series(frs.ApplyDiscrete(dis), volume, triangulateOnly, count, pointPrecision, indices).ToSingleShape();
+            FourierShapes.Series(frs.DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)), volume, triangulateOnly, count, pointPrecision, indices).ToSingleShape();
 
         public static Shape ToLineShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);

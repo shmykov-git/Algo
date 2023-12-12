@@ -16,17 +16,19 @@ namespace Model.Fourier
             return frs.Select(fr => fr * (r / rr)).ToArray();
         }
 
+        public static Fr[] DoIf(this IEnumerable<Fr> frs, bool canDo, Func<IEnumerable<Fr>, Fr[]> doFn) => canDo ? doFn(frs) : frs.ToArray();
+
         public static Fr[] GroupMembers(this IEnumerable<Fr> frs)
         {
             return frs
-                .GroupBy(k => k.n + k.dn)
+                .GroupBy(k => (k.n + k.dn, k.dis))
                 .Select(gk => new Fr()
                 {
                     n = gk.Select(kk => kk.n).First(),
                     dn = gk.Select(kk => kk.dn).First(),
                     im = gk.Sum(kk => kk.im),
                     r = gk.Sum(kk => kk.r),
-                    dis = gk.Max(kk => kk.dis)
+                    dis = gk.Key.dis
                 })
                 .Where(k => k.r != 0 || k.im != 0)
                 .Where(k => k.n + k.dn != 0)
@@ -34,13 +36,10 @@ namespace Model.Fourier
                 .ToArray();
         }
 
-        public static Fr[] ApplyDiscrete(this IEnumerable<Fr> frs, decimal? dis)
+        public static Fr[] ApplyDiscrete(this IEnumerable<Fr> frs, decimal dis)
         {
-            if (dis == null)
-                return frs.ToArray();
-
             var frsCopy = frs.Adapt<Fr[]>();
-            frsCopy.ForEach(fr => fr.dis = (double)dis.Value);
+            frsCopy.ForEach(fr => fr.dis = (double)dis);
             
             return frsCopy.ToArray();
         }

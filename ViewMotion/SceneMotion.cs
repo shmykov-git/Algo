@@ -65,7 +65,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        //return new Fr[] { (1, 1) }.ToSingleConvexShape(50, dis: 1m / 4).Perfecto(4).ToNumSpots3()/*.ToLines(1, Color.Red)*/.ToMotion();
+        return new Fr[] { (1, 10), (1, -9, 1m/3) }.ToSingleConvexShape(/*dis: 1m / 4*/).Perfecto().ToLines(1, Color.Red).ToMotion();
 
         return (100).SelectInterval(v => new Fr[] { (-1, 10), (v.i, 5) }.ToShape(256, dis: 1m/6).Perfecto().ApplyColor(Color.Red)).ToMotion();
 
