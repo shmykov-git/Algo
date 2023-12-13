@@ -62,6 +62,15 @@
             im = v.rm.im
         };
 
+        public static implicit operator Fr((double n, (double r, double im) rm, decimal dis) v) => new Fr()
+        {
+            n = (int)v.n,
+            dn = v.n - (int)v.n,
+            r = v.rm.r,
+            im = v.rm.im,
+            dis = (double)v.dis
+        };
+
         public static implicit operator Fr((int n, (double r, double im) rm, double dn) v) => new Fr()
         {
             n = v.n,

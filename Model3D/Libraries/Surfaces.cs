@@ -5,6 +5,8 @@ using Model3D.Extensions;
 using System;
 using System.Linq;
 using MathNet.Numerics;
+using Model.Fourier;
+using Model.Libraries;
 
 namespace Model3D.Libraries
 {
@@ -447,6 +449,24 @@ namespace Model3D.Libraries
             }.GetPoints(),
             Convexes = Squares(vn, un)
         };
+
+        public static Shape FourierTower(int un, int vn, Fr[] frs, double alfa = 1, double heightPower = 0.7, ConvexFunc? convexFunc = null)
+        {
+            return new Shape
+            {
+                Points3 = new SurfaceFuncInfo
+                {
+                    Fn = (u, v) => (Fourier.Exp(u, frs) * (1 - heightPower * v)).ToV3(v).RotateOz(alfa * v),
+                    UFrom = 0,
+                    UTo = 1,
+                    UN = un,
+                    VFrom = 0,
+                    VTo = 1,
+                    VN = vn
+                }.GetPoints(),
+                Convexes = (convexFunc ?? Convexes.Squares).Invoke(vn, un, false, false)
+            };
+        }
 
         private static int[][] Squares(int un, int vn, bool bothFaces = false) => bothFaces ? Convexes.SquaresBoth(un, vn) : Convexes.Squares(un, vn);
 

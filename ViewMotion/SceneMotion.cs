@@ -65,6 +65,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return Surfaces.FourierTower(50, 25, new Fr[] { (1, 10, 1m/4), (3, -4) }, convexFunc:Convexes.ChessSquares).Normalize().ScaleZ(50).ToOy().AddNormalVolume(-0.01).Perfecto().ApplyColor(Color.Red)/*.ToLines(1, Color.Red)*/.ToMotion();
+
         return new Fr[] { (1, 10), (1, -9, 1m/3) }.ToSingleConvexShape(/*dis: 1m / 4*/).Perfecto().ToLines(1, Color.Red).ToMotion();
 
         return (100).SelectInterval(v => new Fr[] { (-1, 10), (v.i, 5) }.ToShape(256, dis: 1m/6).Perfecto().ApplyColor(Color.Red)).ToMotion();

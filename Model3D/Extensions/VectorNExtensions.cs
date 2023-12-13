@@ -248,6 +248,13 @@ namespace Model3D.Extensions
             return q * v;
         }
 
+        public static Vector3 RotateOz(this Vector3 v, double alfa)
+        {
+            var q = Quaternion.FromAngleAxis(alfa, Vector3.ZAxis);
+
+            return q * v;
+        }
+
         public static Vector3 ToV3(this Vector v)
         {
             return new Vector3(v[0], v[1], v[2]);

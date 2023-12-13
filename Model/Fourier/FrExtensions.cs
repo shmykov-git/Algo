@@ -44,6 +44,13 @@ namespace Model.Fourier
             return frsCopy.ToArray();
         }
 
+        public static Fr[] Modify(this Fr[] frs, Action<Fr> action)
+        {
+            frs.ForEach(fr => action(fr));
+
+            return frs;
+        }
+
         public static Fr[] ModifyLast(this Fr[] frs, Action<Fr> action)
         {
             action(frs[^1]);
