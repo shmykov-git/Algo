@@ -70,7 +70,10 @@ partial class SceneMotion
         // (1,1)
         // (-5, 2)
 
-        //return (100).SelectRange(k => new Fr[] { (1, 10, 1m / 3), (0, k / 10 - 5, 1m/3), (0, k % 10 - 5) }.SearchShape(100, (-5, 10), (-5, 10))).ToMotion();
+        //return Shapes.ChristmasTree(15, 50, 0.7, 3, 1.2, 1, 0.9).ToOy().ToMotion();
+
+
+        return (100).SelectRange(k => new Fr[] { (1, 10, 1m / 3), (0, k / 10 - 5, 1m / 3), (0, k % 10 - 5) }.SearchShape(100, (-5, 10), (-5, 10))).ToMotion();
 
         var frs = new Fr[] { (1, 10, 1m / 3), (-4, -5, 1m / 3), (4, 1) };
 
