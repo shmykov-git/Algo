@@ -42,6 +42,7 @@ using Shape = Model.Shape;
 using System.Windows.Shapes;
 using System.Windows;
 using System.Diagnostics.Metrics;
+using Aspose.ThreeD;
 
 namespace ViewMotion;
 
@@ -65,7 +66,25 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Surfaces.FourierTower(50, 25, new Fr[] { (1, 10, 1m/4), (3, -4) }, convexFunc:Convexes.ChessSquares).Normalize().ScaleZ(50).ToOy().AddNormalVolume(-0.01).Perfecto().ApplyColor(Color.Red)/*.ToLines(1, Color.Red)*/.ToMotion();
+        // пропеллер tower: (1, 10, 1m/3), (4, -2, 1m/3)
+        // (1,1)
+        // (-5, 2)
+
+        //return (100).SelectRange(k => new Fr[] { (1, 10, 1m / 3), (0, k / 10 - 5, 1m/3), (0, k % 10 - 5) }.SearchShape(100, (-5, 10), (-5, 10))).ToMotion();
+
+        var frs = new Fr[] { (1, 10, 1m / 3), (-4, -5, 1m / 3), (4, 1) };
+        var vv = frs.ToPolygon(1000).ToPerimeter(0.01).Select(p => (s:p.Square.Abs(), l:p.Len)).Aggregate((a,b)=>(a.s+b.s, a.l+b.l));
+        var perfect = 4 * Math.PI * vv.s / vv.l.Pow2();
+
+        Debug.WriteLine($"Perfect of build: {perfect:F4}");
+
+        return Surfaces.FourierRotateTower(100, 100, frs.RadiusPerfecto(), 1.1, 0.7, convexFunc: Convexes.ChessSquares, addTop: true, addBottom: false)
+            .ScaleZ(7).ToOy().Perfecto().PutOn(-0.2)
+            .AddNormalVolume(-0.001)
+            .ApplyColor(Color.Red)
+            //.PutOn().ToActiveShape(o => { o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint; })/*.ToLines(1, Color.Red)*/
+            //.ToWorldMotion();
+            .ToMotion(1);
 
         return new Fr[] { (1, 10), (1, -9, 1m/3) }.ToSingleConvexShape(/*dis: 1m / 4*/).Perfecto().ToLines(1, Color.Red).ToMotion();
 
@@ -117,7 +136,7 @@ partial class SceneMotion
         //var ss = (4).SelectRange(i => new Shape
         //{
         //    Points = s.Points,
-        //    Convexes = Convexes.SpotSquares(m, n-1, false, true, i) //??
+        //    Convexes = Convexes.SpotSquaresInternal(m, n-1, false, true, i) //??
         //}.MoveY(i).ToLines()).ToSingleShape();
 
         //var sss = new Shape

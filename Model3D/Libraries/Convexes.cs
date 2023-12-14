@@ -56,12 +56,12 @@ public static class Convexes
     public static int[][] ChessSquares1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => (i + j + 1) % 2 - 1);
 
-    public static int[][] SpotSquares0(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 0);
-    public static int[][] SpotSquares1(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 1);
-    public static int[][] SpotSquares2(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 2);
-    public static int[][] SpotSquares3(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquares(m, n, mClosed, nClosed, 3);
+    public static int[][] SpotSquares(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquaresInternal(m, n, mClosed, nClosed, 0);
+    public static int[][] SpotSquares1(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquaresInternal(m, n, mClosed, nClosed, 1);
+    public static int[][] SpotSquares2(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquaresInternal(m, n, mClosed, nClosed, 2);
+    public static int[][] SpotSquares3(int m, int n, bool mClosed = false, bool nClosed = false) => SpotSquaresInternal(m, n, mClosed, nClosed, 3);
 
-    public static int[][] SpotSquares(int m, int n, bool mClosed = false, bool nClosed = false, int shift = 0) =>
+    private static int[][] SpotSquaresInternal(int m, int n, bool mClosed = false, bool nClosed = false, int shift = 0) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => ((j + 1 + shift / 2) % 2) * ((i + 1 + shift % 2) % 2) - 1);
 
     // both sides?

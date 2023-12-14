@@ -14,7 +14,12 @@ using Vector2 = Model.Vector2;
 namespace Model3D.Extensions
 {
     public static class PolygonExtensions
-    {
+    {        
+        public static Polygon[] ToPerimeter(this Polygon polygon, double pointPrecession = 0.01)
+        {
+            return Splitter.FindPerimeter(polygon, pointPrecession);
+        }
+
         public static Shape MakeShape(this Polygon polygon, bool triangulate = false)
         {
             return polygon.Fill(triangulate).ToShape3();

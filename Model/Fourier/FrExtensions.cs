@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Mapster;
+using MathNet.Numerics;
 using Model.Extensions;
 
 namespace Model.Fourier
@@ -16,7 +17,7 @@ namespace Model.Fourier
             return frs.Select(fr => fr * (r / rr)).ToArray();
         }
 
-        public static Fr[] DoIf(this IEnumerable<Fr> frs, bool canDo, Func<IEnumerable<Fr>, Fr[]> doFn) => canDo ? doFn(frs) : frs.ToArray();
+        public static Fr[] DoIf(this Fr[] frs, bool canDo, Func<Fr[], Fr[]> doFn) => canDo ? doFn(frs) : frs.ToArray();
 
         public static Fr[] GroupMembers(this IEnumerable<Fr> frs)
         {
@@ -36,7 +37,7 @@ namespace Model.Fourier
                 .ToArray();
         }
 
-        public static Fr[] ApplyDiscrete(this IEnumerable<Fr> frs, decimal dis)
+        public static Fr[] ApplyDiscrete(this Fr[] frs, decimal dis)
         {
             var frsCopy = frs.Adapt<Fr[]>();
             frsCopy.ForEach(fr => fr.dis = (double)dis);
@@ -60,6 +61,9 @@ namespace Model.Fourier
         public static Fr[] ModifyTwoLasts(this Fr[] frs, Action<Fr, Fr> action)
         {
             var frsCopy = frs.Adapt<Fr[]>();
+
+            if (frsCopy.Length == 0)
+                Debugger.Break();
 
             action(frsCopy[^2], frsCopy[^1]);
             return frsCopy;

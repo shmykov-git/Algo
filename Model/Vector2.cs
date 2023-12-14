@@ -120,6 +120,11 @@ namespace Model
             return a.x * b.x + a.y * b.y;
         }
 
+        public double Square(Vector2 b)
+        {
+            return x * b.y - y * b.x;
+        }
+
         public static Vector2 operator -(Vector2 a)
         {
             return new Vector2
