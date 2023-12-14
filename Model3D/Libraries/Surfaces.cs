@@ -8,6 +8,7 @@ using MathNet.Numerics;
 using Model.Fourier;
 using Model.Libraries;
 using Vector2 = Model.Vector2;
+using System.Diagnostics;
 
 namespace Model3D.Libraries;
 
@@ -455,6 +456,8 @@ public static class Surfaces
 
     public static Shape FourierTower(int un, int vn, Fr[] frs, Func<Vector2, double, Vector3> upFn, ConvexFunc? convexFunc = null, bool addTop = false, bool addBottom = false, bool uClosed = true)
     {
+        Debug.WriteLine($"Tower build perfect: {frs.FormPerfect(un):P0}");
+
         var ps = new SurfaceFuncInfo
         {
             Fn = (u, v) => upFn(Fourier.Exp(u, frs), v),

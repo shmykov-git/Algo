@@ -8,6 +8,11 @@ namespace Model.Extensions
 {
     public static class PolygonExtensions
     {
+        public static Polygon[] ToPerimeter(this Polygon polygon, double pointPrecession = 0.01)
+        {
+            return Splitter.FindPerimeter(polygon, pointPrecession);
+        }
+
         public static Polygon Join(this Polygon polygon, Polygon nextPolygon) => polygon.PutInside(nextPolygon, true);
 
         public static Polygon PutInside(this Polygon polygon, Polygon insidePolygon, bool skipReverse = false)

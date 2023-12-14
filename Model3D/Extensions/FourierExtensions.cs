@@ -17,6 +17,8 @@ namespace Model3D.Extensions
 
         public static Polygon ToPolygon(this IEnumerable<Fr> frs, int count = 256) => Polygons.FourierSeries(count, frs.GroupMembers());
 
+        public static double FormPerfect(this IEnumerable<Fr> frs, int count = 1024, double pointPrecession = 0.01) => frs.ToPolygon(count).FormPerfect(pointPrecession);
+
         public static Shape[] ToShapes(this IEnumerable<Fr> frs, int count = 256, double? volume = 0.05, double pointPrecision = 0.01, int[] indices = null, bool triangulateOnly = false) =>
             FourierShapes.Series(frs.ToArray(), volume, triangulateOnly, count, pointPrecision, indices);
 

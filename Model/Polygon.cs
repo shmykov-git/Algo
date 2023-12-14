@@ -3,6 +3,7 @@ using Model.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using Model.Fourier;
 
 namespace Model
 {
@@ -25,7 +26,16 @@ namespace Model
             }
         }
 
-        public double FormPerfect => 4 * Math.PI * Square.Abs() / Len.Pow2();
+        public double FormPerfect(double pointPrecession = 0.01)
+        {
+            var perimeters = this.ToPerimeter(pointPrecession);
+            var len = perimeters.Sum(p => p.Len);
+            var square = perimeters.Sum(p => p.Square.Abs());
+            
+            var perfect = 4 * Math.PI * square / len.Pow2();
+
+            return perfect;
+        }
 
         public double MaxLinesLen => Points.Length > 1 ? Lines.Max(l => l.Len) : 0;
         public double MinLinesLen => Points.Length > 1 ? Lines.Min(l => l.Len) : 0;

@@ -73,10 +73,6 @@ partial class SceneMotion
         //return (100).SelectRange(k => new Fr[] { (1, 10, 1m / 3), (0, k / 10 - 5, 1m/3), (0, k % 10 - 5) }.SearchShape(100, (-5, 10), (-5, 10))).ToMotion();
 
         var frs = new Fr[] { (1, 10, 1m / 3), (-4, -5, 1m / 3), (4, 1) };
-        var vv = frs.ToPolygon(1000).ToPerimeter(0.01).Select(p => (s:p.Square.Abs(), l:p.Len)).Aggregate((a,b)=>(a.s+b.s, a.l+b.l));
-        var perfect = 4 * Math.PI * vv.s / vv.l.Pow2();
-
-        Debug.WriteLine($"Perfect of build: {perfect:F4}");
 
         return Surfaces.FourierRotateTower(100, 100, frs.RadiusPerfecto(), 1.1, 0.7, convexFunc: Convexes.ChessSquares, addTop: true, addBottom: false)
             .ScaleZ(7).ToOy().Perfecto().PutOn(-0.2)
