@@ -1276,19 +1276,33 @@ namespace Model3D.Extensions
             }.CleanPoints();
         }
 
-        public static Shape FilterGraphConvexes(this Shape shape, Func<int, int, bool> distanceFilterFn, int iNode = 0)
+        public static Shape FilterGraphConvexes(this Shape shape, Func<int, int, bool> distanceFilterFn, int iConvex = 0)
         {
-            var g = new Graph(shape.OrderedEdges);
-            var d = g.DistanceMap(iNode);            
+            var g = shape.ConvexGraph;
+            var d = g.DistanceMap(iConvex);            
 
-            var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => distanceFilterFn(d[v.c.Min()], v.c.Min(i => d[i]))).Select(v => v.i).ToHashSet();
+            var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => distanceFilterFn(v.i, d[v.i])).Select(v => v.i).ToHashSet();
 
             return new Shape()
             {
                 Points = shape.Points,
                 Convexes = shape.Convexes.Where((_, i) => inds.Contains(i)).ToArray(),
                 Materials = shape.Materials?.Where((_, i) => inds.Contains(i)).ToArray(),
-            }.CleanPoints();
+            };
+        }
+
+        public static Shape ApplyColorConvexDistance(this Shape shape, params Color[] colors) => shape.ApplyColorConvexDistance(0, colors);
+        public static Shape ApplyColorConvexDistance(this Shape shape, int iConvex, params Color[] colors)
+        {
+            var g = shape.ConvexGraph;
+            var d = g.DistanceMap(iConvex);
+
+            return new Shape()
+            {
+                Points = shape.Points,
+                Convexes = shape.Convexes,
+                Materials = shape.Convexes.Select((c, i) => Materials.GetByColor(colors[d[i] % colors.Length])).ToArray(),
+            };
         }
 
         public static Shape FilterConvexes(this Shape shape, Func<int[], int, bool> filterFn)

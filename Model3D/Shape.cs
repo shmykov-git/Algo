@@ -8,6 +8,7 @@ using Model3D;
 using static Model.SuperShape2;
 using Model3D.Libraries;
 using Model.Libraries;
+using Model.Graphs;
 
 namespace Model
 {
@@ -28,6 +29,21 @@ namespace Model
         public Dictionary<int, int[]> Links => _links ??= ConvexesIndices.SelectMany(vs => vs.SelectMany(v => new[] { v, v.ReversedEdge() })).Distinct().GroupBy(v => v.Item1).ToDictionary(vv => vv.Key, vv => vv.Select(v => v.Item2).ToArray());
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
+
+        public Graph EdgeGraph => new Graph(OrderedEdges);
+        public Graph DirectEdgeGraph => new Graph(Edges);
+
+        public Graph ConvexGraph
+        {
+            get
+            {
+                var nodes = Convexes.Select((c, i) => new ConvexNode { i = i, edges = c.SelectCirclePair((i,j)=>(i,j).OrderedEdge()).ToArray() }).ToArray();
+                nodes.ForEach(a => a.ns = nodes.Where(b => a != b && a.edges.Intersect(b.edges).Any()).ToArray());
+                var edges = nodes.SelectMany(a => a.ns.Select(b => (a.i, b.i).OrderedEdge())).Distinct().ToArray();
+
+                return new Graph(edges);
+            }
+        }
 
         public double AverageEdgeLength { get { var ps = Points3; var oEdges = OrderedEdges; return oEdges.Length > 0 ? OrderedEdges.Select(e => (ps[e.i] - ps[e.j]).Length).Average() : 0; } }
 
@@ -243,6 +259,13 @@ namespace Model
         public static Shape operator +(Shape a, Shape b)
         {
             return a.Join(b);
+        }
+
+        private class ConvexNode
+        {
+            public int i;
+            public (int,int)[] edges;
+            public ConvexNode[] ns;
         }
     }
 }
