@@ -9,6 +9,7 @@ using static Model.SuperShape2;
 using Model3D.Libraries;
 using Model.Libraries;
 using Model.Graphs;
+using System.Diagnostics;
 
 namespace Model
 {
@@ -38,7 +39,16 @@ namespace Model
             get
             {
                 var nodes = Convexes.Select((c, i) => new ConvexNode { i = i, edges = c.SelectCirclePair((i,j)=>(i,j).OrderedEdge()).ToArray() }).ToArray();
-                nodes.ForEach(a => a.ns = nodes.Where(b => a != b && a.edges.Intersect(b.edges).Any()).ToArray());
+
+                void SetNodes(ConvexNode[] ns)
+                {
+                    ns.ForEach(a => ns.Where(b => a != b).ForEach(b=>a.ns.Add(b)));
+                }
+
+                nodes.SelectMany(n => n.edges.Select(e => (n, e)))
+                    .GroupBy(v => v.e)
+                    .ForEach(vg => SetNodes(vg.Select(v => v.n).Distinct().ToArray()));
+
                 var edges = nodes.SelectMany(a => a.ns.Select(b => (a.i, b.i).OrderedEdge())).Distinct().ToArray();
 
                 return new Graph(edges);
@@ -265,7 +275,7 @@ namespace Model
         {
             public int i;
             public (int,int)[] edges;
-            public ConvexNode[] ns;
+            public HashSet<ConvexNode> ns = new HashSet<ConvexNode>();
         }
     }
 }

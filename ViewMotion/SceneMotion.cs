@@ -67,10 +67,11 @@ partial class SceneMotion
    
     public Task<Motion> Scene()
     {
-        var s = Surfaces.MobiusStrip(91, 30, bothFaces:true);
+        //var s = Surfaces.Circle(91, 30);
 
-        //s = Shapes.Icosahedron;
-        s = s.ApplyColorConvexDistance(0, Color.Blue, Color.Red);
+        var s = Surfaces.Shamrock(120, 10);
+        s = s.ApplyColorConvexDistance(Color.Blue, Color.Red, Color.Yellow, Color.Green);
+
 
         return s.Perfecto().ToMotion();
     }
