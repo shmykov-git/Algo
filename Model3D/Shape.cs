@@ -51,7 +51,7 @@ namespace Model
 
                 var edges = nodes.SelectMany(a => a.ns.Select(b => (a.i, b.i).OrderedEdge())).Distinct().ToArray();
 
-                return new Graph(edges);
+                return new Graph(Convexes.Length, edges);
             }
         }
 
@@ -269,6 +269,39 @@ namespace Model
         public static Shape operator +(Shape a, Shape b)
         {
             return a.Join(b);
+        }
+
+        public Vector3[] ConvexPoints(int iConvex) => Convexes[iConvex].Select(i => Points[i].ToV3()).ToArray();
+
+        public Vector3 ConvexNormal(int iConvex)
+        {
+            var ps = ConvexPoints(iConvex);
+
+            return (ps[0] - ps[2]).MultV(ps[1] - ps[2]);
+        }
+
+        public Func<Vector3, Vector3> ProjectionFn(int iConvex)
+        {
+            var ps = ConvexPoints(iConvex);
+            var n = ConvexNormal(iConvex);
+
+            return x => x - n * (n.MultS(x - ps[2])/n.Length2);
+        }
+
+        public Func<Vector3, bool> IsInsideConvexFn(int iConvex)
+        {
+            var ps = ConvexPoints(iConvex);
+            var n = ConvexNormal(iConvex);
+
+            return x => ps.SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == ps.Length;
+        }
+
+        public Func<Vector3, double> ConvexDistanceFn(int iConvex)
+        {
+            var ps = ConvexPoints(iConvex);
+            var n = ConvexNormal(iConvex).Normalize();
+
+            return x => n.MultS(x - ps[2]);
         }
 
         private class ConvexNode

@@ -392,5 +392,39 @@ namespace Model.Extensions
 
             return newItems;
         }
+
+        public static TItem MinOrDefault<TItem>(this IEnumerable<TItem> values, TItem defaultValue = default) where TItem : IComparable<TItem>
+        {
+            var enumerator = values.GetEnumerator();
+            TItem min;
+
+            if (enumerator.MoveNext())
+                min = enumerator.Current;
+            else
+                return defaultValue;
+
+            while (enumerator.MoveNext())
+                if (min.CompareTo(enumerator.Current) > 0)
+                    min = enumerator.Current;
+
+            return min;
+        }
+
+        public static TItem MaxOrDefault<TItem>(this IEnumerable<TItem> values, TItem defaultValue = default) where TItem : IComparable<TItem>
+        {
+            var enumerator = values.GetEnumerator();
+            TItem max;
+
+            if (enumerator.MoveNext())
+                max = enumerator.Current;
+            else
+                return defaultValue;
+
+            while (enumerator.MoveNext())
+                if (max.CompareTo(enumerator.Current) < 0)
+                    max = enumerator.Current;
+
+            return max;
+        }
     }
 }

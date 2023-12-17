@@ -67,12 +67,62 @@ partial class SceneMotion
    
     public Task<Motion> Scene()
     {
-        //var s = Surfaces.Circle(91, 30);
+        var model = Shapes.PlaneCylinder(10, 10).Perfecto(2)/*.SplitPlanes(0.1)*/;
+        var modelRotateAxis = new Vector3(1, 3, -2).Normalize();
+        var useLine = true;
+        var showModel = false;
+        var lineSplitNum = 6;
 
-        var s = Surfaces.Shamrock(120, 10);
-        s = s.ApplyColorConvexDistance(Color.Blue, Color.Red, Color.Yellow, Color.Green);
+        var planeN = 50;
+        var planeSize = 3.0;
+        var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize)/*.ApplyColor(Color.White)*/;
+        var ps = plane.Points3;
+        var ccs = plane.Planes.Select(p => p.Center()).ToArray();
+        var fns = plane.Convexes.Index().Select(DistanceFn).ToArray();
+        
+        Vector3[] modelPoints = GetShapePoints(model);
+        var net = new Net3<Net3Item<int>>(modelPoints.Select((p, i)=> new Net3Item<int>(i, () => modelPoints[i].SetZ(0))), 0.6 * planeSize / (planeN - 1));
 
+        Vector3[] GetShapePoints(Shape s) => useLine
+            ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x.v * l.ab)).ToArray()
+            : s.Planes.Select(v=>v.Center()).Concat(s.Points3).ToArray();
 
-        return s.Perfecto().ToMotion();
+        Func<Vector3, double> DistanceFn(int i)             
+        {
+            var prFn = plane.ProjectionFn(i);
+            var insFn = plane.IsInsideConvexFn(i);
+            var disFn = plane.ConvexDistanceFn(i);
+
+            return p => insFn(prFn(p)) ? Math.Min(0, disFn(p)) : 0;
+        };
+
+        Shape GetShape(double v)
+        {
+            var dynPlane = plane.Copy();
+            var shape = model.Rotate(2 * Math.PI * v, modelRotateAxis);
+
+            modelPoints = GetShapePoints(shape);
+            net.Update();
+
+            dynPlane.Convexes.ForEach((c, iC) =>
+            {
+                var inds = net.SelectNeighbors(ccs[iC]).ToArray();
+
+                if (inds.Length > 0)
+                {
+                    var z = inds.Select(v => modelPoints[v.Item]).Min(p => fns[iC](p));
+                    c.ForEach(i => dynPlane.Points[i] = ps[i].SetZ(z).ToV4());
+                }
+            });
+
+            return new[]
+            {
+                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z<0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Black),
+                dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z<0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Red),
+                showModel ? shape/*.Move(0, 0, 1.1)*/.ToLines(5, Color.Yellow) : Shape.Empty
+            }.ToSingleShape();
+        }
+
+        return (1000).SelectInterval(v => GetShape(v.v)).ToMotion();
     }
 }

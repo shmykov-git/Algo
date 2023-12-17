@@ -679,6 +679,16 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Copy(this Shape shape)
+        {
+            return new Shape
+            {
+                Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z, p.w)).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape SplitLines(this Shape shape, int count)
         {
             var newPoints = shape
@@ -1301,7 +1311,7 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points,
                 Convexes = shape.Convexes,
-                Materials = shape.Convexes.Select((c, i) => Materials.GetByColor(colors[d[i] % colors.Length])).ToArray(),
+                Materials = shape.Convexes.Select((c, i) => d[i] >= 0 ? Materials.GetByColor(colors[d[i] % colors.Length]) : Materials.GetByColor(Color.Black)).ToArray(),
             };
         }
 

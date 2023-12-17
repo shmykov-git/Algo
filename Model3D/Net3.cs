@@ -14,6 +14,18 @@ namespace Model3D
         public Func<Vector3> PositionFn { get; }
     }
 
+    public class Net3Item<TItem> : INet3Item
+    {
+        public readonly TItem Item;
+        public Func<Vector3> PositionFn { get; }
+
+        public Net3Item(TItem item, Func<Vector3> positionFn)
+        {
+            Item = item;
+            PositionFn = positionFn;
+        }
+    }
+
     /// <summary>
     /// 3D local collisions complexity optimization from O(n^2) to O(n)
     /// </summary>

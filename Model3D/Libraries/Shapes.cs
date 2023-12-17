@@ -11,6 +11,7 @@ using Model3D.Tools;
 using Model3D.Tools.Model;
 using View3D.Libraries;
 using Model.Fourier;
+using System.Diagnostics;
 
 namespace Model.Libraries
 {
@@ -20,14 +21,6 @@ namespace Model.Libraries
 
         private static readonly double hTet2 = 3.0.Sqrt() / 2;
         private static readonly double hTet3 = 6.0.Sqrt() / 3;
-
-        public static Shape Chesss(int n) => new Shape
-        {
-            Points = Ranges.Range(n, n).SelectMany(pair => Polygons.Square.Points.Select(p => (p / 2 + new Vector2(pair)) / (n - 1) - new Vector2(0.5, 0.5))
-                .Select(v => new Vector4(v.x, v.y, 0, 1))).ToArray(),
-
-            Convexes = Ranges.Range(n, n).Select(pair => 4 * n * pair.Item1 + 4 * pair.Item2).Select(i => new int[] { i, i + 1, i + 2, i + 3 }).ToArray()
-        };
 
         public static Shape Arrow => ArrowR(30, 1, 0.01, 0.05, 0.02);
 
@@ -600,5 +593,52 @@ namespace Model.Libraries
                 .Transform(TransformFuncs3.Paraboloid)
                 .Normalize()
                 .Mult(1 / height.Pow2());
+
+        public static Shape FourierRotateTower(int un, int vn, Fr[] frs, double alfa = 1, double heightPower = 0.7, ConvexFunc? convexFunc = null, bool addTop = false, bool addBottom = false) =>
+            FourierTower(un, vn, frs, (v, z) => (v * (1 - heightPower * z)).ToV3(z).RotateOz(alfa * z), convexFunc, addTop, addBottom);
+
+        public static Shape FourierTower(int un, int vn, Fr[] frs, Func<Vector2, double, Vector3> upFn, ConvexFunc? convexFunc = null, bool addTop = false, bool addBottom = false, bool uClosed = true)
+        {
+            Debug.WriteLine($"Tower build perfect: {frs.FormPerfect(un):P0}");
+
+            var ps = new SurfaceFuncInfo
+            {
+                Fn = (u, v) => upFn(Fourier.Exp(u, frs), v),
+                UFrom = 0,
+                UTo = 1,
+                UN = un,
+                UClosed = uClosed,
+                VFrom = 0,
+                VTo = 1,
+                VN = vn
+            }.GetPoints();
+
+            var pc = ps.Length;
+
+            var convexFn = convexFunc ?? Convexes.Squares;
+            var convexes = convexFn(vn, un, false, uClosed);
+
+            var topCs = convexFn(vn, 2, false, uClosed);
+
+            if (addBottom)
+            {
+                ps = ps.Concat(new[] { new Vector3(0, 0, 0) }).ToArray();
+                convexes = convexes.Concat((un).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { j, i, pc })).ToArray();
+            }
+
+            if (addTop)
+            {
+                var pcTop = addBottom ? pc + 1 : pc;
+                ps = ps.Concat(new[] { new Vector3(0, 0, 1) }).ToArray();
+                convexes = convexes.Concat((un).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { i + pc - un, j + pc - un, pcTop })).ToArray();
+            }
+
+            return new Shape
+            {
+                Points3 = ps,
+                Convexes = convexes
+            };
+        }
+
     }
 }

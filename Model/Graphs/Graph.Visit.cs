@@ -11,7 +11,7 @@ namespace Model.Graphs
         public int[] DistanceMap(int i = 0) => DistanceMap(nodes[i]);
         public int[] DistanceMap(Node node)
         {
-            var map = new int[nodes.Count];
+            var map = (nodes.Count).SelectRange(_=>-1).ToArray();
 
             var visited = new bool[nodes.Count];
             var queue = new Queue<(Node n, int d)>(nodes.Count);

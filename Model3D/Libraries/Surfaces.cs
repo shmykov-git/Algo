@@ -451,52 +451,6 @@ public static class Surfaces
         Convexes = Squares(vn, un)
     };
 
-    public static Shape FourierRotateTower(int un, int vn, Fr[] frs, double alfa = 1, double heightPower = 0.7, ConvexFunc? convexFunc = null, bool addTop = false, bool addBottom = false) => 
-        FourierTower(un, vn, frs, (v, z) => (v * (1 - heightPower * z)).ToV3(z).RotateOz(alfa * z), convexFunc, addTop, addBottom);
-
-    public static Shape FourierTower(int un, int vn, Fr[] frs, Func<Vector2, double, Vector3> upFn, ConvexFunc? convexFunc = null, bool addTop = false, bool addBottom = false, bool uClosed = true)
-    {
-        Debug.WriteLine($"Tower build perfect: {frs.FormPerfect(un):P0}");
-
-        var ps = new SurfaceFuncInfo
-        {
-            Fn = (u, v) => upFn(Fourier.Exp(u, frs), v),
-            UFrom = 0,
-            UTo = 1,
-            UN = un,
-            UClosed = uClosed,
-            VFrom = 0,
-            VTo = 1,
-            VN = vn
-        }.GetPoints();
-        
-        var pc = ps.Length;
-
-        var convexFn = convexFunc ?? Convexes.Squares;
-        var convexes = convexFn(vn, un, false, uClosed);
-
-        var topCs = convexFn(vn, 2, false, uClosed);
-
-        if (addBottom)
-        {
-            ps = ps.Concat(new[] { new Vector3(0, 0, 0) }).ToArray();
-            convexes = convexes.Concat((un).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { j, i, pc })).ToArray();
-        }
-
-        if (addTop)
-        {
-            var pcTop = addBottom ? pc + 1 : pc;
-            ps = ps.Concat(new[] { new Vector3(0, 0, 1) }).ToArray();
-            convexes = convexes.Concat((un).SelectRange(v => v).SelectCirclePair((i, j) => new int[] { i + pc - un, j + pc - un, pcTop })).ToArray();
-        }
-
-        return new Shape
-        {
-            Points3 = ps,
-            Convexes = convexes
-        };
-    }
-
     private static int[][] Squares(int un, int vn, bool bothFaces = false) => bothFaces ? Convexes.SquaresBoth(un, vn) : Convexes.Squares(un, vn);
 
     private static int[][] ChessSquares(int un, int vn) => Convexes.ChessSquares(un, vn);

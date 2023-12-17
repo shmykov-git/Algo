@@ -24,9 +24,12 @@ namespace Model.Graphs
             edges = new List<Edge>();
         }
 
-        public Graph(IEnumerable<(int i, int j)> edges)
+        public Graph(IEnumerable<(int i, int j)> edges) : this(edges.Select(v => Math.Max(v.i, v.j)).MaxOrDefault() + 1, edges)
         {
-            var n = edges.Select(v => Math.Max(v.i, v.j)).Max() + 1;
+        }
+
+        public Graph(int n, IEnumerable<(int i, int j)> edges)
+        {
             nodes = Enumerable.Range(0, n).Select(i => new Node { i = i, edges = new List<Edge>() }).ToList();
 
             this.edges = edges.Select(e =>
