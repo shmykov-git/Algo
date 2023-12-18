@@ -30,14 +30,14 @@ partial class SceneMotion
 {
     public Task<Motion> WallMotion()
     {
-        var model = Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
+        var model = vectorizer.GetText("Outside", 300, "Tahoma").Perfecto(2).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
         var modelRotateAxis = new Vector3(1, 3, -2).Normalize();
-        var stepCount = 1000;
-        var useLine = true;
+        var stepCount = 800;
+        var useLine = false;
         var showModel = false;
         var lineSplitNum = 6;
 
-        var planeN = 50;
+        var planeN = 100;
         var planeSize = 3.0;
         var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize);
         var ps = plane.Points3;
@@ -45,7 +45,7 @@ partial class SceneMotion
         var fns = plane.Convexes.Index().Select(DistanceFn).ToArray();
 
         Vector3[] modelPoints = GetShapePoints(model);
-        var net = new Net3<Net3Item<int>>(modelPoints.Select((p, i) => new Net3Item<int>(i, () => modelPoints[i].SetZ(0))), 0.6 * planeSize / (planeN - 1));
+        var net = new Net3<Net3Item<int>>(modelPoints.Select((p, i) => new Net3Item<int>(i, () => modelPoints[i].SetZ(0))).ToArray(), 0.6 * planeSize / (planeN - 1), true);
 
         Vector3[] GetShapePoints(Shape s) => useLine
             ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x.v * l.ab)).ToArray()
@@ -57,7 +57,7 @@ partial class SceneMotion
             var insFn = plane.IsInsideConvexFn(i);
             var disFn = plane.ConvexDistanceFn(i);
 
-            return p => insFn(prFn(p)) ? Math.Min(0, disFn(p)) : 0;
+            return p => insFn(prFn(p)) ? Math.Max(0, disFn(p)) : 0;
         };
 
         Shape GetShape(double v)
@@ -74,20 +74,20 @@ partial class SceneMotion
 
                 if (inds.Length > 0)
                 {
-                    var z = inds.Select(v => modelPoints[v.Item]).Min(p => fns[iC](p));
+                    var z = inds.Select(v => modelPoints[v.Item]).Max(p => fns[iC](p));
                     c.ForEach(i => dynPlane.Points[i] = ps[i].SetZ(z).ToV4());
                 }
             });
 
             return new[]
             {
-                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z<0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Black),
-                dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z<0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Red),
+                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterVolume(-planeSize/(planeN-1)).ApplyColor(Color.Black),
+                dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z>0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Red),
                 showModel ? shape.ToLines(5, Color.Yellow) : Shape.Empty
             }.ToSingleShape();
         }
 
-        return (stepCount).SelectInterval(v => GetShape(v.v)).ToMotion(-5);
+        return (stepCount).SelectInterval(v => GetShape(v.v)).ToMotion(5);
     }
 
     public Task<Motion> TrySkeleton()
