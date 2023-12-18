@@ -45,7 +45,7 @@ partial class SceneMotion
         var fns = plane.Convexes.Index().Select(DistanceFn).ToArray();
 
         Vector3[] modelPoints = GetShapePoints(model);
-        var net = new Net3<Net3Item<int>>(modelPoints.Select((p, i) => new Net3Item<int>(i, () => modelPoints[i].SetZ(0))).ToArray(), 0.6 * planeSize / (planeN - 1), true);
+        var net = new NetV3(modelPoints.Length, i => modelPoints[i].SetZ(0), 0.6 * planeSize / (planeN - 1), true);
 
         Vector3[] GetShapePoints(Shape s) => useLine
             ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x.v * l.ab)).ToArray()
@@ -65,6 +65,7 @@ partial class SceneMotion
             var dynPlane = plane.Copy();
             var shape = model.Rotate(2 * Math.PI * v, modelRotateAxis);
 
+            //GetShapePoints(shape).ForEach((p, i) => modelPoints[i] = p);
             modelPoints = GetShapePoints(shape);
             net.Update();
 

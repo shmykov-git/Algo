@@ -26,6 +26,13 @@ namespace Model3D
         }
     }
 
+    public class NetV3 : Net3<Net3Item<int>>
+    {
+        public NetV3(int pointCount, Func<int, Vector3> fn, double clusterSize, bool asCube = false, Vector3? areaScale = null) :
+            base((pointCount).SelectRange(i => new Net3Item<int>(i, () => fn(i))).ToArray(), clusterSize, asCube, areaScale)
+        { }
+    }
+
     /// <summary>
     /// 3D local collisions complexity optimization from O(n^2) to O(n)
     /// </summary>
