@@ -75,6 +75,7 @@ namespace ViewMotion
             if (motion.CameraDistance.HasValue)
             {
                 motionSettings.CameraOptions.Position = motionSettings.CameraOptions.Position.ToLen(motion.CameraDistance.Value);
+                motionSettings.CameraOptions.LookDirection = -motionSettings.CameraOptions.Position.Normalize();
                 RefreshCamera();
             }
 
