@@ -65,17 +65,16 @@ partial class SceneMotion
             var dynPlane = plane.Copy();
             var shape = model.Rotate(2 * Math.PI * v, modelRotateAxis);
 
-            //GetShapePoints(shape).ForEach((p, i) => modelPoints[i] = p);
             modelPoints = GetShapePoints(shape);
             net.Update();
 
             dynPlane.Convexes.ForEach((c, iC) =>
             {
-                var inds = net.SelectNeighbors(ccs[iC]).ToArray();
+                var iMps = net.SelectNeighborVs(ccs[iC]).ToArray();
 
-                if (inds.Length > 0)
+                if (iMps.Length > 0)
                 {
-                    var z = inds.Select(v => modelPoints[v.Item]).Max(p => fns[iC](p));
+                    var z = iMps.Select(iMp => modelPoints[iMp]).Max(p => fns[iC](p));
                     c.ForEach(i => dynPlane.Points[i] = ps[i].SetZ(z).ToV4());
                 }
             });
@@ -153,7 +152,7 @@ partial class SceneMotion
                 radius = 1,
             };
 
-            //var aim = (5, 5, 5).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered().MoveZ(50);
+            //var aim = (5, 5, 5).SelectRange((iMp, j, k) => Shapes.NativeCubeWithCenterPoint.Move(iMp, j, k)).ToSingleShape().NormalizeWith2D().Centered().MoveZ(50);
             var block = (n, n, 1).SelectRange((i, j, k) => Shapes.NativeCubeWithCenterPoint.Move(i, j, k)).ToSingleShape().NormalizeWith2D().Centered()
                 .Mult(0.05)
                 .PullOnSurface(SurfaceFuncs.Paraboloid)
@@ -429,7 +428,7 @@ partial class SceneMotion
 
     public Task<Motion> SliderMotion()
     {
-        // see result here: https://www.youtube.com/watch?v=RkE_z8ilk8g&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
+        // see result here: https://www.youtube.com/watch?iMp=RkE_z8ilk8g&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
 
         var sceneColor = Color.FromArgb(50, 60, 70);
 
@@ -504,7 +503,7 @@ partial class SceneMotion
 
     public Task<Motion> CubeGalaxiesIntersection()
     {
-        // see result: https://www.youtube.com/watch?v=l9XWBsMDY9w&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
+        // see result: https://www.youtube.com/watch?iMp=l9XWBsMDY9w&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
 
         int n = 300;
 

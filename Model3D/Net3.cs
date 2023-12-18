@@ -31,6 +31,8 @@ namespace Model3D
         public NetV3(int pointCount, Func<int, Vector3> fn, double clusterSize, bool asCube = false, Vector3? areaScale = null) :
             base((pointCount).SelectRange(i => new Net3Item<int>(i, () => fn(i))).ToArray(), clusterSize, asCube, areaScale)
         { }
+
+        public IEnumerable<int> SelectNeighborVs(Vector3 item) => SelectNeighbors(item).Select(v => v.Item);
     }
 
     /// <summary>
