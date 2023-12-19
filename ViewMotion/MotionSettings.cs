@@ -5,6 +5,7 @@ using Aspose.ThreeD.Utilities;
 using Model.Extensions;
 using Model.Interfaces;
 using Model3D.Extensions;
+using ViewMotion.Annotations;
 using ViewMotion.Models;
 
 namespace ViewMotion;

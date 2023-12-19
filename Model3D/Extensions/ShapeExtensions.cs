@@ -85,15 +85,17 @@ namespace Model3D.Extensions
         public static Shape WhereEllipse4(this Shape shape, double a, double b) =>
             shape.Where(v => (v.x / a).Pow2().Pow2() + (v.y / b).Pow2().Pow2() < 1);
 
-        public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc)
+        public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc, bool cleanPoints = true)
         {
             var pBi = shape.Points3.WhereBi(whereFunc);
 
-            return new Shape
+            var s = new Shape
             {
                 Points3 = pBi.items.ToArray(),
                 Convexes = shape.Convexes.Transform(i => pBi.bi[i]).CleanBi()
-            }.CleanPoints();
+            };
+
+            return cleanPoints ? s.CleanPoints() : s;
         }
 
         private static Shape CleanPoints(this Shape shape)

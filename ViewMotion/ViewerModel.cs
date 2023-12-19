@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +14,9 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Utilities;
+using ColorPicker;
+using ColorPicker.Models;
+using meta.Extensions;
 using Meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
@@ -36,18 +41,24 @@ namespace ViewMotion
         private bool isPlaying = false;
         private List<Action> buttonRefreshes = new();
         private ViewState lastViewState = null;
+        private Color _bc;
+        private ColorState? _bcs = null;
+        private PersistState persistState;
 
         private List<ViewState> viewStates = new();
         private string frameInfo;
         private double light;
 
         private CameraMotionOptions? cameraMotionOptions;
-
+        
         public ViewerModel(MotionSettings motionSettings, SceneMotion scene, StaticSceneRender staticRender, StaticSettings staticSettings)
         {
             this.motionSettings = motionSettings;
             this.staticRender = staticRender;
             this.staticSettings = staticSettings;
+
+            persistState = GetPersistState();
+            BackgroundColorState = persistState.BackgroundColorState;
 
             var motion = scene.Scene().Result;
             cameraMotionOptions = motion.CameraMotionOptions;
@@ -82,7 +93,7 @@ namespace ViewMotion
             CalculateFrames(motion);
         }
 
-        public string[] Animations => new[] {"No animation", "Fly around", "Fly far around", "Fly near around"};
+        public string[] Animations => new[] {"No animation", "Fly around", "Fly far around", "Fly near around", "Fly around before"};
 
         public int AnimationIndex { get; set; }
 
@@ -94,6 +105,7 @@ namespace ViewMotion
                 1 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection),
                 2 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection, 0.5),
                 3 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection, -0.25),
+                4 => CameraAnimations.FlyAround(motionSettings.CameraOptions.Position, motionSettings.CameraOptions.LookDirection, -0.7),
                 _ => throw new NotImplementedException()
             };
         }
@@ -169,8 +181,40 @@ namespace ViewMotion
         }
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
-        
+
         public ICommand ReplayCommand => new Command(DoReplay, () => !isCalculating, SaveRefresh);
+
+        public Brush BackgroundColorBrush { get => new SolidColorBrush(BackgroundColor); }
+        public ColorState BackgroundColorState 
+        { 
+            get => _bcs??_bc.ToState(); 
+            set 
+            { 
+                _bcs = value;
+                persistState.BackgroundColorState = value;
+                SavePersistState(persistState);
+                BackgroundColor = value.FromState(); 
+            } 
+        }
+
+        public Color BackgroundColor 
+        { 
+            get => _bc; set 
+            { 
+                _bc = value;
+                OnPropertyChanged(nameof(BackgroundColorBrush)); 
+            } 
+        }
+
+        public string ChangeBcName => "Background color";
+
+        public ICommand ChangeBcCommand => new Command(() => 
+        { 
+            IsColorPickerVisible = !IsColorPickerVisible; 
+            OnPropertyChanged(nameof(IsColorPickerVisible)); 
+        }, () => !isCalculating, SaveRefresh);
+
+        public bool IsColorPickerVisible { get; set; }
 
         private void DoReplay()
         {
@@ -457,6 +501,27 @@ namespace ViewMotion
             public PointCollection TextureCoordinates;
             public Material Material;
             public Model.Material ModelMaterial;
+        }
+
+        private string persistFileName = "persist.json";
+        PersistState GetPersistState()
+        {
+            var str = File.Exists(persistFileName) ? File.ReadAllText("persist.json") : null;
+
+            return str?.FromJson<PersistState>() ?? new PersistState() 
+            { 
+                BackgroundColorState = Colors.White.ToState()
+            };
+        }
+        
+        private void SavePersistState(PersistState persistState)
+        {
+            File.WriteAllText(persistFileName, persistState.ToJson());
+        }
+
+        class PersistState
+        {
+            public ColorState BackgroundColorState { get; set; }
         }
     }
 }

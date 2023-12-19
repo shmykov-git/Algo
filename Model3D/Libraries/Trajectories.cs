@@ -1,5 +1,7 @@
 ﻿using System;
 using Aspose.ThreeD.Utilities;
+using Model.Extensions;
+using Model3D.Extensions;
 
 namespace Model3D.Libraries;
 
@@ -16,5 +18,16 @@ public static class Trajectories
             var q = Quaternion.FromAngleAxis(alfa, normal);
 
             return center + q * (a - center);
+        };
+
+    public static Trajectory EllipseTrajectory(Vector3 a, double ratio, Vector3 center, Vector3 normal) =>
+        x =>
+        {
+            var alfa = 2 * Math.PI * x;
+            var q = Quaternion.FromAngleAxis(alfa, normal);
+            var v = q * (a - center);
+            var k = (a - center).MultS(v).Abs() / v.Length2;
+
+            return center + (k + ratio * (1 - k)) * v;
         };
 }

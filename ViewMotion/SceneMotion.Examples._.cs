@@ -31,17 +31,17 @@ partial class SceneMotion
 {
     public Task<Motion> WallMotion()
     {
-        var model0 = vectorizer.GetText("parquet", 300, "Tahoma").Perfecto(2).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
+        var model0 = vectorizer.GetText("parquet", 300, "Times New Roman").Perfecto(3).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
         var modelRotateAxis = new Vector3(1, 3, -2).Normalize();
         var stepCount = 800;
         var useLine = false;
         var showModel = false;
         var lineSplitNum = 6;
 
-        var planeN = 64;
+        var planeN = 48;
         var planeSize = 3.0;
         var itemSize = planeSize / (planeN - 1);
-        var plane = Parquets.PentagonalKershner8(planeN / 4, planeN / 4, 1.7, false).ToShape3().Perfecto(planeSize);
+        var plane = Parquets.PentagonalKershner8(planeN / 4, planeN / 4, 1.7, false).ToShape3().Perfecto(planeSize).RotateOz(Math.PI/4);
         //var plane = Parquets.Hexagons(planeN, planeN, 1, false).ToShape3().Perfecto(planeSize);
         //var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize);
         var ps = plane.Points3;
@@ -85,7 +85,8 @@ partial class SceneMotion
             
             var s = new[]
             {
-                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterZVolume(-itemSize).ApplyColor(Color.Black),
+                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().ToLines(1, Color.Blue),
+                //dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterZVolume(-itemSize).ApplyColor(Color.Black),
                 dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z>0)).AddNormalVolume(-itemSize).ApplyColor(Color.Red),
                 showModel ? model.ToLines(5, Color.Yellow) : Shape.Empty
             }.ToSingleShape();
