@@ -46,6 +46,8 @@ public static class Convexes
 
     public static int[][] Triangles(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (_, _) => 0);
+    public static int[][] CenteredTriangles(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, triangleMaps, (i, j) => ((i >= m / 2).Bit() + (j >= n / 2).Bit()) % 2);
     public static int[][] Triangles1(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (_, _) => 1);
 

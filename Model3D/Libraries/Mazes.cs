@@ -13,7 +13,7 @@ namespace Model3D
     {
         public static Shape CrateKershner8Maze(double tileLen, double angleD, double rotationAngle, int seed = 0, MazeType type = MazeType.SimpleRandom)
         {
-            return Parquets.PentagonalKershner8(tileLen, angleD).Rotate(rotationAngle).ToShape3().ToMaze(seed, type, new[] { (6, 7), (-6, -5) });
+            return Parquets.PentagonalKershner8Native(tileLen, angleD).Rotate(rotationAngle).ToShape3().ToMaze(seed, type, new[] { (6, 7), (-6, -5) });
         }
 
         public static Shape CreateNet3Maze(int m, int n, int l)

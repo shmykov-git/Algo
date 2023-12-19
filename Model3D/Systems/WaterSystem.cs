@@ -233,15 +233,15 @@ namespace Model3D.Systems
                 .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ApplyColor(Color.DarkRed).WithBackPlanes(Color.DarkRed);
 
             var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
-                .Perfecto(8).AddPerimeterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
+                .Perfecto(8).AddPerimeterZCenterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
                 .MoveY(-sceneSize.y / 2 + 0.5);
 
             var level2 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
-                .Perfecto(5).AddPerimeterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
+                .Perfecto(5).AddPerimeterZCenterVolume(0.6).MoveZ(-1.3).ApplyZ(Funcs3Z.SphereMR(7)).MoveZ(8.3).ToOy()
                 .MoveY(-sceneSize.y / 2 + 3.5);
 
             var level3 = Surfaces.CircleAngle(20, 10, 0, Math.PI / 2).Normalize()
-                .Perfecto(3).AddPerimeterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
+                .Perfecto(3).AddPerimeterZCenterVolume(0.6).MoveZ(-1).ApplyZ(Funcs3Z.SphereMR(4)).MoveZ(5).ToOy()
                 .MoveY(-sceneSize.y / 2 + 5.5);
 
             var fountainCollider = (level1 + level2 + level3)
@@ -465,7 +465,7 @@ namespace Model3D.Systems
             var sphere = Shapes.Ball.Perfecto(options.SphereRadius).Where(v => v.y > -0.4).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset).ApplyColor(options.SphereColor);
             var logicSphere = Shapes.IcosahedronSp2.Perfecto().Perfecto(options.SphereRadius).Where(v => v.y > -0.1).MoveY(-cubeSize.y / 2).MoveZ(4).Move(options.SphereOffset).MovePlanes(-particleRadius);
 
-            var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(4, 50, 1).AddPerimeterVolume(.6);
+            var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(4, 50, 1).AddPerimeterZCenterVolume(.6);
             gutterTmp = options.GutterCurvature.Abs() < 0.001
                 ? gutterTmp.MoveZ(-2.5)
                 : gutterTmp.MoveZ(-2 / options.GutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / options.GutterCurvature))

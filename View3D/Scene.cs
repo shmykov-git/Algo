@@ -68,8 +68,8 @@ namespace View3D
                 }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
             }.ToSingleShape();
 
-            //return Parquets.PentagonalKershner8(0.07, 1.5).ToShape3().GroupMembers().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
-            //return Parquets.PentagonalKershner8(0.05, 1.5).ToShape3().GroupMembers(3).ApplyZ(Funcs3Z.Atan).ToMetaShape3().Rotate(Rotates.Z_Y);
+            //return Parquets.PentagonalKershner8Native(0.07, 1.5).ToShape3().GroupMembers().ToCubeMetaShape3(0.8, 0.8, Color.Blue, Color.Red);
+            //return Parquets.PentagonalKershner8Native(0.05, 1.5).ToShape3().GroupMembers(3).ApplyZ(Funcs3Z.Atan).ToMetaShape3().Rotate(Rotates.Z_Y);
 
             var contentName = "vs";
 

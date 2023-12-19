@@ -139,7 +139,7 @@ partial class SceneMotion // WaterSystem
 
         Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move, double gutterCurvature = 0.4)
         {
-            var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(scale).AddPerimeterVolume(.6);
+            var gutterTmp = Surfaces.Plane(20, 2).Perfecto().FlipY().Scale(scale).AddPerimeterZCenterVolume(.6);
             gutterTmp = gutterCurvature.Abs() < 0.001
                 ? gutterTmp.MoveZ(-2.5)
                 : gutterTmp.MoveZ(-2 / gutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / gutterCurvature))

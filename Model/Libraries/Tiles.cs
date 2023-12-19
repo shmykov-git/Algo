@@ -99,7 +99,7 @@ namespace Model.Libraries
             return l.Fn((0, 0)).Abs();
         }
 
-        public static Tile PentagonalKershner8(double angleD)
+        public static Tile PentagonalKershner8(double angleD, bool normalize = true)
         {
             var angleB = Minimizer.MinimizeSimple(2, 0.1, 0.0000000001, x => PentagonalKershner8MinimizeFn(x, angleD));
             //var angleB = Minimizer.Minimize(x => PentagonalKershner8MinimizeFn(x, angleD), 2, 0.01);
@@ -143,14 +143,14 @@ namespace Model.Libraries
             var shiftX = bigRightUp[1] - bigLeftUp[1];
             var shiftY = bigLeftUp[12] - bigLeftBottom[1];
 
-            var normalizedShape = shape.Normalize();
+            var tileShape = normalize ? shape.Normalize() : shape;
 
             return new Tile
             {
                 ShiftX = new Vector2[] { shiftX },
                 ShiftY = new Vector2[] { shiftY },
-                Points = normalizedShape.Points,
-                Convexes = normalizedShape.Convexes
+                Points = tileShape.Points,
+                Convexes = tileShape.Convexes
             };
         }
          

@@ -70,7 +70,7 @@ namespace Model.Extensions
         public static Shape2 Reverse(this Shape2 shape)
         {
             var points = shape.Points.Reverse().ToArray();
-            var convexes = shape.Convexes.Transform(i => points.Length - 1 - i);
+            var convexes = shape.Convexes.Reverse().ToArray();
 
             return new Shape2
             {

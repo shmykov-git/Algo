@@ -9,7 +9,6 @@ namespace Model.Extensions
     {
         public static int Abs(this int a) => Math.Abs(a);
         public static int Sgn(this int x) => x < 0 ? -1 : 1;
-
         public static bool Even(this int a) => a.Abs() % 2 == 0;
         public static bool Odd(this int a) => a.Abs() % 2 == 1;
 

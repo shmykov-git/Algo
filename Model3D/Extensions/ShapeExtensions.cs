@@ -155,8 +155,9 @@ namespace Model3D.Extensions
         public static Shape AddVolumeY(this Shape shape, double yVolume, bool hardFaces = true) => AddVolume(shape, yVolume, MoveY, true, hardFaces);
         public static Shape AddVolumeZ(this Shape shape, double zVolume, bool hardFaces = true) => AddVolume(shape, zVolume, MoveZ, true, hardFaces);
 
-        public static Shape AddPerimeterVolume(this Shape shape, double zValue) => shape.AddPerimeterVolume((v, z) => v.ToV3((z - 0.5) * zValue), 1);
-        public static Shape AddPerimeterVolume(this Shape shape, Func<Vector2, double, Vector3> fnZ, int levelCount = 1)
+        public static Shape AddPerimeterZVolume(this Shape shape, double zValue, int levelCount = 1) => shape.AddPerimeterZVolume((v, z) => v.ToV3(z * zValue), levelCount, true);
+        public static Shape AddPerimeterZCenterVolume(this Shape shape, double zValue) => shape.AddPerimeterZVolume((v, z) => v.ToV3((z - 0.5) * zValue), 1);
+        public static Shape AddPerimeterZVolume(this Shape shape, Func<Vector2, double, Vector3> fnZ, int levelCount = 1, bool reverseBorder = false)
         {
             var ps = shape.Points2;
             var ln = ps.Length;
@@ -170,8 +171,12 @@ namespace Model3D.Extensions
                     shape.Convexes,
                     (levelCount).SelectRange(lvl => lvl + 1).Select(lvl => new IEnumerable<int[]>[]
                     {
-                        lvl == levelCount ? shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
-                        perimeters.SelectMany(p=>p.SelectCirclePair((i,j)=>new int[] { j + ln * (lvl-1), j + ln * lvl, i + ln * lvl, i + ln * (lvl-1) })),
+                        (lvl == levelCount) ? shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
+                        perimeters.SelectMany(p=> p.SelectCirclePair((i,j)=> 
+                        { 
+                            var pc = new int[] { j + ln * (lvl-1), j + ln * lvl, i + ln * lvl, i + ln * (lvl-1) };
+                            return reverseBorder ? pc.Reverse().ToArray() : pc;
+                        })),
                     }.SelectMany(v=>v)).SelectMany(v=>v)
                 }.SelectMany(v => v).ToArray()
             };

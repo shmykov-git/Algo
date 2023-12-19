@@ -20,6 +20,8 @@ using View3D.Libraries;
 using Model3D;
 using Model3D.Actives;
 using Model.Fourier;
+using System.Diagnostics;
+using System.CodeDom;
 
 namespace ViewMotion;
 /// <summary>
@@ -29,22 +31,25 @@ partial class SceneMotion
 {
     public Task<Motion> WallMotion()
     {
-        var model = vectorizer.GetText("Outside", 300, "Tahoma").Perfecto(2).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
+        var model0 = vectorizer.GetText("parquet", 300, "Tahoma").Perfecto(2).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;
         var modelRotateAxis = new Vector3(1, 3, -2).Normalize();
         var stepCount = 800;
         var useLine = false;
         var showModel = false;
         var lineSplitNum = 6;
 
-        var planeN = 100;
+        var planeN = 64;
         var planeSize = 3.0;
-        var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize);
+        var itemSize = planeSize / (planeN - 1);
+        var plane = Parquets.PentagonalKershner8(planeN / 4, planeN / 4, 1.7, false).ToShape3().Perfecto(planeSize);
+        //var plane = Parquets.Hexagons(planeN, planeN, 1, false).ToShape3().Perfecto(planeSize);
+        //var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize);
         var ps = plane.Points3;
         var ccs = plane.Planes.Select(p => p.Center()).ToArray();
         var fns = plane.Convexes.Index().Select(DistanceFn).ToArray();
 
-        Vector3[] modelPoints = GetShapePoints(model);
-        var net = new NetV3(modelPoints.Length, i => modelPoints[i].SetZ(0), 0.6 * planeSize / (planeN - 1), true);
+        Vector3[] modelPoints = GetShapePoints(model0);
+        var net = new NetV3(modelPoints.Length, i => modelPoints[i].SetZ(0), 0.6 * itemSize, true);
 
         Vector3[] GetShapePoints(Shape s) => useLine
             ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x.v * l.ab)).ToArray()
@@ -62,9 +67,9 @@ partial class SceneMotion
         Shape GetShape(double v)
         {
             var dynPlane = plane.Copy();
-            var shape = model.Rotate(2 * Math.PI * v, modelRotateAxis);
+            var model = model0.Rotate(2 * Math.PI * v, modelRotateAxis);
 
-            modelPoints = GetShapePoints(shape);
+            modelPoints = GetShapePoints(model);
             net.Update();
 
             dynPlane.Convexes.ForEach((c, iC) =>
@@ -75,15 +80,17 @@ partial class SceneMotion
                 {
                     var z = iMps.Select(iMp => modelPoints[iMp]).Max(p => fns[iC](p));
                     c.ForEach(i => dynPlane.Points[i] = ps[i].SetZ(z).ToV4());
-                }
+                }                
             });
-
-            return new[]
+            
+            var s = new[]
             {
-                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterVolume(-planeSize/(planeN-1)).ApplyColor(Color.Black),
-                dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z>0)).AddNormalVolume(-planeSize/(planeN-1)).ApplyColor(Color.Red),
-                showModel ? shape.ToLines(5, Color.Yellow) : Shape.Empty
+                dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterZVolume(-itemSize).ApplyColor(Color.Black),
+                dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z>0)).AddNormalVolume(-itemSize).ApplyColor(Color.Red),
+                showModel ? model.ToLines(5, Color.Yellow) : Shape.Empty
             }.ToSingleShape();
+
+            return s;
         }
 
         return (stepCount).SelectInterval(v => GetShape(v.v)).ToMotion(5);

@@ -64,5 +64,6 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         return WallMotion();
+        //return Parquets.Hexagons(10, 10, 1)
     }
 }
