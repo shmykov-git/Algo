@@ -88,7 +88,7 @@
             <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="5 50 0 0"/>
         </DockPanel>
         <Grid>
-            <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>
+            <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}" Background="{Binding BackgroundColorBrush}"></CheckBox>
             <Viewbox Name="DrawArea">
                 <Canvas Name="Canvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Viewport3D Name="AnimatedObject"
