@@ -12,6 +12,13 @@
         <Style TargetType="DockPanel" x:Key="Control">
             <Setter Property="Width" Value="200" />
         </Style>
+        <Style TargetType="Border" x:Key="Color">
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="Margin" Value="3 0 0 0" />
+        </Style>
         <Style TargetType="Button">
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Top" />
@@ -51,7 +58,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <converters:BooleanToVisibilityInverseConverter x:Key="BoolToVisRev"/>
     </Window.Resources>
-    <DockPanel Background="{Binding BackgroundColorBrush}">
+    <DockPanel Background="{Binding BackgroundColorBrush}" MouseDown="DockPanel_MouseDown">
         <DockPanel Name="ControlPanel" Style="{StaticResource Control}" DockPanel.Dock="Left" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}">
             <CheckBox DockPanel.Dock="Top" HorizontalAlignment="Center" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVis}}"></CheckBox>
             <Label DockPanel.Dock="Top" Content="{Binding FrameInfo}" />
@@ -70,7 +77,15 @@
                 <Slider DockPanel.Dock="Left" Value="{Binding Light, Mode=TwoWay}"></Slider>
             </DockPanel>
             <Button DockPanel.Dock="Top" Command="{Binding ChangeBcCommand}" Content="{Binding ChangeBcName}"/>
-            <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="0 50 0 0"/>
+            <DockPanel DockPanel.Dock="Top" Margin="3 5 0 5">
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[0]}" MouseDown="Border_MouseDown" x:Name="b0"/>
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[1]}" MouseDown="Border_MouseDown" x:Name="b1" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[2]}" MouseDown="Border_MouseDown" x:Name="b2" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[3]}" MouseDown="Border_MouseDown" x:Name="b3" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[4]}" MouseDown="Border_MouseDown" x:Name="b4" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" />
+            </DockPanel>
+            <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="5 50 0 0"/>
         </DockPanel>
         <Grid>
             <CheckBox HorizontalAlignment="Left" DockPanel.Dock="Top" IsChecked="{Binding Path=IsControlPanelVisible, Mode=TwoWay}" Visibility="{Binding IsControlPanelVisible, Converter={StaticResource BoolToVisRev}}"></CheckBox>
@@ -84,7 +99,10 @@
                     </Viewport3D>
                 </Canvas>
             </Viewbox>
-            <colorpicker:StandardColorPicker Width="271" Height="416" 
+            <colorpicker:StandardColorPicker 
+                Width="271" Height="416" 
+                MouseDown="StandardColorPicker_MouseDown"
+                MouseMove="StandardColorPicker_MouseMove"
                 ColorState="{Binding Path=BackgroundColorState, Mode=TwoWay}" 
                 Visibility="{Binding IsColorPickerVisible, Converter={StaticResource BoolToVis}}" />
         </Grid>

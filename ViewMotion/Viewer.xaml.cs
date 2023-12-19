@@ -99,6 +99,29 @@ namespace ViewMotion
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             viewerModel.KeyDown(e.Key);
+            e.Handled = true;
+        }
+
+        private void StandardColorPicker_MouseMove(object sender, MouseEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void StandardColorPicker_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void DockPanel_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            viewerModel.MouseClick();
+            e.Handled = true;
+        }
+
+        private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var index = int.Parse(((Border)sender).Name.Substring(1));
+            viewerModel.ColorClick(index);
+            e.Handled = true;
         }
     }
 }

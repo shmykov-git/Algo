@@ -43,6 +43,7 @@ namespace ViewMotion
         private ViewState lastViewState = null;
         private Color _bc;
         private ColorState? _bcs = null;
+        private bool _cpv = false;
         private PersistState persistState;
 
         private List<ViewState> viewStates = new();
@@ -206,15 +207,16 @@ namespace ViewMotion
             } 
         }
 
+        public Brush[] SavedColorBrushes => persistState.SavedColorStates.Select(c => new SolidColorBrush(c.FromState())).ToArray();
+
         public string ChangeBcName => "Background color";
 
         public ICommand ChangeBcCommand => new Command(() => 
         { 
             IsColorPickerVisible = !IsColorPickerVisible; 
-            OnPropertyChanged(nameof(IsColorPickerVisible)); 
         }, () => !isCalculating, SaveRefresh);
 
-        public bool IsColorPickerVisible { get; set; }
+        public bool IsColorPickerVisible { get => _cpv; set { _cpv = value; OnPropertyChanged(); } }
 
         private void DoReplay()
         {
@@ -510,7 +512,15 @@ namespace ViewMotion
 
             return str?.FromJson<PersistState>() ?? new PersistState() 
             { 
-                BackgroundColorState = Colors.White.ToState()
+                BackgroundColorState = Colors.White.ToState(),
+                SavedColorStates = new[]
+                {
+                    Colors.White.ToState(),
+                    Colors.White.ToState(),
+                    Colors.White.ToState(),
+                    Colors.White.ToState(),
+                    Colors.White.ToState(),
+                }
             };
         }
         
@@ -521,7 +531,8 @@ namespace ViewMotion
 
         class PersistState
         {
-            public ColorState BackgroundColorState { get; set; }
+            public required ColorState BackgroundColorState { get; set; }
+            public required ColorState[] SavedColorStates { get; set; }
         }
     }
 }

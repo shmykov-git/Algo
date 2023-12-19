@@ -63,7 +63,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return WallMotion();
-        //return (100).SelectRange(_=>Parquets.PentagonalKershner8(5, 5).ToShape3().Perfecto().ToLines()).ToMotion();
+        //return WallMotion();
+        return (10).SelectRange(_ => Parquets.PentagonalKershner8(5, 5).ToShape3().Perfecto().ToLines()).ToMotion();
     }
 }

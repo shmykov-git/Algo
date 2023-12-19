@@ -18,6 +18,25 @@ partial class ViewerModel
         }
     }
 
+    public void ColorClick(int index)
+    {
+        if (IsColorPickerVisible)
+        {
+            persistState.SavedColorStates[index] = BackgroundColorState;
+            SavePersistState(persistState);
+            OnPropertyChanged(nameof(SavedColorBrushes));
+        }
+        else
+        {
+            BackgroundColorState = persistState.SavedColorStates[index];
+        }
+    }
+
+    public void MouseClick()
+    {
+        IsColorPickerVisible = false;
+    }
+
     public void Wheel(int delta)
     {
         const double power = 0.9;
