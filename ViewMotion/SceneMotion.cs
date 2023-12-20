@@ -63,6 +63,6 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.Cube.ApplyColor(Color.Blue).ToMotion();
+        return vectorizer.GetContentShape("nbs", 230, smoothOutScalar:-1).ApplyColor(Color.Red).ToMotion();
     }
 }
