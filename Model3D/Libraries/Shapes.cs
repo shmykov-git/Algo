@@ -372,7 +372,7 @@ namespace Model.Libraries
                 new int[]{0, 1, 9},
                 new int[]{1, 0, 8},
             }
-        }.Normed();
+        }.RadiusNormed();
 
         public static Shape Dodecahedron => new Shape
         {
@@ -414,7 +414,7 @@ namespace Model.Libraries
                 new[] {13, 11, 1, 3, 0},
                 new[] {1, 11, 14, 5, 4}
             }
-        }.Normed();
+        }.RadiusNormed();
 
         public static Shape Stone(int n, int seed = 0, double power = 1, int quality = 2, Vector3? scale = null)
         {

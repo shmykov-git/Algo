@@ -1060,10 +1060,10 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape Normed(this Shape shape)
+        public static Shape RadiusNormed(this Shape shape, double radius = 1)
         {
             var r = shape.GetRadius();
-            return shape.Mult(1 / r);
+            return shape.Mult(radius / r);
         }
 
         public static Shape NormedHalf(this Shape shape)

@@ -59,7 +59,7 @@ namespace View3D
         // Kershner8 shamrock // var shape = Parquets.PentagonalKershner8(5, 75+5, 1.6).Scale((1, 0.4/3)).Move(0, -Math.PI/12).PullOnSurface90(SurfaceFuncs.Shamrock).ToLines(4).Rotate(Rotates.Z_Y);
         // Shell // var shape = Parquets.PentagonalKershner8(10, 75, 1.6).Scale((1, 0.8/3)).PullOnSurface90(SurfaceFuncs.Shell).ToLines(8).Rotate(Rotates.Z_Y);
         // See Shell // var shape = Parquets.PentagonalKershner8(10, 75, 1.6).Scale((1, 1.6/3)).PullOnSurface90(SurfaceFuncs.SeeShell).ToLines(20).Rotate(Rotates.Z_Y);
-        // Dini surface // var shape = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().Normed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
+        // Dini surface // var shape = Surfaces.DiniSurface(100, 50).ToLines(2).Rotate(Rotates.Z_Y); // var shape = Surfaces.DiniSurface(120, 30).MassCentered().RadiusNormed().Move(0, 0, 1).ToLines(0.2, Color.Blue)
         // Mobius Strip // var shape = Surfaces.MobiusStrip(62, 10).ToLines(2).Rotate(Rotates.Z_Y);
         // Kershner try Mobius Strip // var shape = Parquets.PentagonalKershner8(31, 10, 1.6).Scale(0.98, 1).Move(Math.PI, -1 + 0.1).PullOnSurface(SurfaceFuncs.MobiusStrip).ToLines(1).Rotate(Rotates.Z_Y);
         // Mobius is so ...ing spectial // var shape = Surfaces.MobiusStrip(124, 20).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).Rotate(Rotates.Z_Y).ApplyZ(Funcs3Z.Hyperboloid).ToLines(2);

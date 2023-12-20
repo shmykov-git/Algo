@@ -13,8 +13,8 @@
             <Setter Property="Width" Value="200" />
         </Style>
         <Style TargetType="Border" x:Key="Color">
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="Width" Value="21"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="Black"/>
             <Setter Property="Margin" Value="3 0 0 0" />
@@ -83,6 +83,9 @@
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[2]}" MouseDown="Border_MouseDown" x:Name="b2" />
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[3]}" MouseDown="Border_MouseDown" x:Name="b3" />
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[4]}" MouseDown="Border_MouseDown" x:Name="b4" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[5]}" MouseDown="Border_MouseDown" x:Name="b5" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[6]}" MouseDown="Border_MouseDown" x:Name="b6" />
+                <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[7]}" MouseDown="Border_MouseDown" x:Name="b7" />
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" />
             </DockPanel>
             <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="5 50 0 0"/>
@@ -100,9 +103,10 @@
                 </Canvas>
             </Viewbox>
             <colorpicker:StandardColorPicker 
-                Width="271" Height="416" 
+                Width="271" Height="416"                 
                 MouseDown="StandardColorPicker_MouseDown"
                 MouseMove="StandardColorPicker_MouseMove"
+                SecondColorState="{Binding Path=BackgroundSecondColorState, Mode=TwoWay}"
                 ColorState="{Binding Path=BackgroundColorState, Mode=TwoWay}" 
                 Visibility="{Binding IsColorPickerVisible, Converter={StaticResource BoolToVis}}" />
         </Grid>
