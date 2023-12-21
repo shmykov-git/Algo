@@ -63,6 +63,11 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return vectorizer.GetContentShape("nbs", 230, smoothOutScalar:-1).ApplyColor(Color.Red).ToMotion();
+        return vectorizer.GetContentShape("nbs", new ShapeOptions 
+        {
+            ZVolume = 0.02,
+            SmoothAngleScalar = -1,
+            SmoothOutLevel = 2,
+        }).ApplyColor(Color.Red).ToMotion();
     }
 }

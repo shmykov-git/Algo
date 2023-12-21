@@ -703,15 +703,15 @@ namespace Model3D.Tools
 
             sw.Restart();
 
-            if (options.SpliteAllPolygonsDistance.HasValue)
-                shapes = shapes.Select((s, i) => s.MoveZ(i * options.SpliteAllPolygonsDistance.Value)).ToArray();
+            if (options.SplitAllPolygonsDistance.HasValue)
+                shapes = shapes.Select((s, i) => s.MoveZ(i * options.SplitAllPolygonsDistance.Value)).ToArray();
 
-            if (options.ToLinesSize.HasValue && options.SpliteLineLevelsDistance.HasValue && !options.ComposePolygons)
+            if (options.ToLinesSize.HasValue && options.SplitLineLevelsDistance.HasValue && !options.ComposePolygons)
             {
                 var getLevel = map.GetMapLevelFn();
                 
                 var shapeOdd = shapes.Where((_, i) => getLevel(i).Odd()).ToSingleShape();
-                var shapeEven = shapes.Where((_, i) => getLevel(i).Even()).ToSingleShape().MoveZ(options.SpliteLineLevelsDistance.Value);
+                var shapeEven = shapes.Where((_, i) => getLevel(i).Even()).ToSingleShape().MoveZ(options.SplitLineLevelsDistance.Value);
 
                 var lineShapeOdd = shapeOdd.ToLines(options.ToLinesSize.Value, direct: options.UseLineDirection).ApplyColor(options.LineColors.odd);
                 var lineShapeEven = shapeEven.ToLines(options.ToLinesSize.Value, direct: options.UseLineDirection).ApplyColor(options.LineColors.even);
@@ -725,7 +725,7 @@ namespace Model3D.Tools
                     var numShapeEven = shapes.Where((_, i) => getLevel(i).Even())
                         .Select(s =>
                             s.ToNumSpots3(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.even))
-                        .ToSingleShape().MoveZ(options.SpliteLineLevelsDistance.Value);
+                        .ToSingleShape().MoveZ(options.SplitLineLevelsDistance.Value);
 
                     shape = lineShapeEven + lineShapeOdd + numShapeOdd + numShapeEven;
                 }
