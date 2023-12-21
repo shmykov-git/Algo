@@ -48,26 +48,8 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
-    #region ctor
-
-    private readonly Vectorizer vectorizer;
-    private readonly Random rnd;
-
-    public SceneMotion(Vectorizer vectorizer)
-    {
-        this.vectorizer = vectorizer;
-        this.rnd = new Random(0);
-    }
-
-    #endregion
-
     public Task<Motion> Scene()
     {
-        return vectorizer.GetContentShape("nbs", new ShapeOptions 
-        {
-            ZVolume = 0.02,
-            SmoothAngleScalar = -1,
-            SmoothOutLevel = 2,
-        }).ApplyColor(Color.Red).ToMotion();
+        return BulletThrowMotion();
     }
 }

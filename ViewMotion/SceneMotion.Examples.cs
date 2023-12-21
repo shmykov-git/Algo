@@ -109,8 +109,122 @@ partial class SceneMotion
         return s.AddSkeleton().ToMetaShape3(0.3, 0.3, Color.Red, Color.Blue).ToMotion(1);
     }
 
+    public Task<Motion> BulletCatchMotion() => new BulletCatchMotionExample().Scene();
+    public Task<Motion> BulletThrowMotion() => new BulletThrowMotionExample().Scene();
+
+    public Task<Motion> VariatorServiceMotion()
+    {
+        var c1 = Color.DarkOrange;
+        var c2 = Color.Black;
+        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol", multY:1.1).Centered().Mult(3);
+        var n = 200;
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var i = 0; i < n; i++)
+                yield return new[]
+                {
+                    vectorizer.GetTextLine("#").Perfecto(0.2).Rotate(2*Math.PI * i/n).Rotate(1,1,1).Move(-0.6, 0.6, 0).ApplyColor(c1),
+                    vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
+                    new Shape[]
+                    {
+                        new Shape[]
+                        {
+                            txt.MoveX(Math.PI*-1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
+                            txt.MoveX(Math.PI*3/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
+                        }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
+                        Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
+                    }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
+                }.ToSingleShape();
+        }
+
+        return Animate().ToMotion(2);
+    }
+
+    public Task<Motion> CubeGalaxiesIntersection()
+    {
+        // see result: https://www.youtube.com/watch?iMp=l9XWBsMDY9w&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
+
+        int n = 300;
+
+        double? netSize = 0.5;
+        double gravityPower = 0.0000008;
+        double pSize = 0.1;
+        double cubeStretch = 5;
+        double sceneSize = 10;
+
+        int netSide = 6;
+
+        var particleShape = Shapes.Cube.Perfecto(pSize);
+
+        var k = 0.2;
+
+        var data = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Func<Shape, Shape> modifyFn, Color color)[]
+        {
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch),
+                    new Vector3(-2.5, 0, 0),
+                    s => k * 0.5 * s.PointCenter.MultV(Vector3.YAxis),
+                    s=>s,
+                    Color.Black),
+
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1),
+                    new Vector3(2.5, 0, 0),
+                    s => k*0.5 * s.PointCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)),
+                    s=>s.Rotate(1,1,1),
+                    Color.Black),
+        };
+
+        var particles = data
+            .SelectMany(s => s.s.SplitByConvexes()
+                .Select(ss => new Particle()
+                {
+                    Position = ss.PointCenter + s.shift,
+                    Speed = s.speed(ss),
+                    Color = s.color,
+                    ModifyFn = s.modifyFn
+                }))
+            .Select((p, i) =>
+            {
+                p.i = i;
+                return p;
+            }).ToArray();
+
+        var animator = new Animator(new AnimatorOptions()
+        {
+            UseParticleGravityAttraction = true,
+            GravityAttractionPower = gravityPower,
+            NetSize = netSize,
+            NetFrom = new Vector3(-netSide, -netSide, -netSide),
+            NetTo = new Vector3(netSide, netSide, netSide)
+        });
+
+        animator.AddItems(particles);
+
+        IEnumerable<Shape> Animate() => (n).SelectRange(_ =>
+        {
+            animator.Animate(1);
+
+            return particles.Where(p => p.Position.Length < sceneSize)
+                .Select(p => p.ModifyFn(particleShape).Move(p.Position).ApplyColor(p.Color))
+                .ToSingleShape()
+                .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
+        });
+
+        return Animate().ToMotion(10);
+    }
+
+    class Particle : IAnimatorParticleItem
+    {
+        public int i;
+        public Vector3 Position { get; set; }
+        public Vector3 Speed { get; set; }
+        public Color Color;
+        public Func<Shape, Shape> ModifyFn;
+    }
+
     #region Bullet
-    public class BulletMotionExample2
+    public class BulletThrowMotionExample // todo: ActiveWorld
     {
         class Node : INet3Item
         {
@@ -165,7 +279,7 @@ partial class SceneMotion
                 .PullOnSurface(SurfaceFuncs.Paraboloid)
                 .Mult(20)
                 .Where(v => v.z < fixZPos + 1.5)
-                //+ aim
+            //+ aim
             ;
 
             var ps = block.Points3;
@@ -265,7 +379,7 @@ partial class SceneMotion
         }
     }
 
-    public class BulletMotionExample
+    public class BulletCatchMotionExample
     {
         class Node : INet3Item
         {
@@ -402,115 +516,4 @@ partial class SceneMotion
         }
     }
     #endregion
-
-    public Task<Motion> VariatorServiceMotion()
-    {
-        var c1 = Color.DarkOrange;
-        var c2 = Color.Black;
-        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol", multY:1.1).Centered().Mult(3);
-        var n = 200;
-
-        IEnumerable<Shape> Animate()
-        {
-            for (var i = 0; i < n; i++)
-                yield return new[]
-                {
-                    vectorizer.GetTextLine("#").Perfecto(0.2).Rotate(2*Math.PI * i/n).Rotate(1,1,1).Move(-0.6, 0.6, 0).ApplyColor(c1),
-                    vectorizer.GetContentShape("vs").Perfecto().AlignY(0).ApplyColorGradientY(c1, c1, c2),
-                    new Shape[]
-                    {
-                        new Shape[]
-                        {
-                            txt.MoveX(Math.PI*-1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-                            txt.MoveX(Math.PI*1/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1)),
-                            txt.MoveX(Math.PI*3/3-2*Math.PI * i/n).PullOnSurface(SurfaceFuncs.CylinderABYm(0.5,1))
-                        }.ToSingleShape().AlignY(0.5).MoveY(0.02).ApplyColorGradientY(c2, c1),
-                        Shapes.CylinderR(50, 0.01, 1).ScaleX(0.5).ToOy().AlignY(1).ApplyColor(c1)
-                    }.ToSingleShape().Rotate(2,1,0, Vector3.YAxis),
-                }.ToSingleShape();
-        }
-
-        return Animate().ToMotion(2);
-    }
-
-    public Task<Motion> CubeGalaxiesIntersection()
-    {
-        // see result: https://www.youtube.com/watch?iMp=l9XWBsMDY9w&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
-
-        int n = 300;
-
-        double? netSize = 0.5;
-        double gravityPower = 0.0000008;
-        double pSize = 0.1;
-        double cubeStretch = 5;
-        double sceneSize = 10;
-
-        int netSide = 6;
-
-        var particleShape = Shapes.Cube.Perfecto(pSize);
-
-        var k = 0.2;
-
-        var data = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Func<Shape, Shape> modifyFn, Color color)[]
-        {
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch),
-                    new Vector3(-2.5, 0, 0),
-                    s => k * 0.5 * s.PointCenter.MultV(Vector3.YAxis),
-                    s=>s,
-                    Color.Black),
-
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1),
-                    new Vector3(2.5, 0, 0),
-                    s => k*0.5 * s.PointCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)),
-                    s=>s.Rotate(1,1,1),
-                    Color.Black),
-        };
-
-        var particles = data
-            .SelectMany(s => s.s.SplitByConvexes()
-                .Select(ss => new Particle()
-                {
-                    Position = ss.PointCenter + s.shift,
-                    Speed = s.speed(ss),
-                    Color = s.color,
-                    ModifyFn = s.modifyFn
-                }))
-            .Select((p, i) =>
-            {
-                p.i = i;
-                return p;
-            }).ToArray();
-
-        var animator = new Animator(new AnimatorOptions()
-        {
-            UseParticleGravityAttraction = true,
-            GravityAttractionPower = gravityPower,
-            NetSize = netSize,
-            NetFrom = new Vector3(-netSide, -netSide, -netSide),
-            NetTo = new Vector3(netSide, netSide, netSide)
-        });
-
-        animator.AddItems(particles);
-
-        IEnumerable<Shape> Animate() => (n).SelectRange(_ =>
-        {
-            animator.Animate(1);
-
-            return particles.Where(p => p.Position.Length < sceneSize)
-                .Select(p => p.ModifyFn(particleShape).Move(p.Position).ApplyColor(p.Color))
-                .ToSingleShape()
-                .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
-        });
-
-        return Animate().ToMotion(10);
-    }
-
-    class Particle : IAnimatorParticleItem
-    {
-        public int i;
-        public Vector3 Position { get; set; }
-        public Vector3 Speed { get; set; }
-        public Color Color;
-        public Func<Shape, Shape> ModifyFn;
-    }
 }
