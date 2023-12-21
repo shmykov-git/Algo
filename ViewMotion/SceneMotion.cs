@@ -50,6 +50,40 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return BulletThrowMotion();
+        var s = vectorizer.GetText("?", new TextShapeOptions 
+        {
+            FontSize = 100,            
+            SmoothPointCount = 5,
+            //ZVolume = null,
+            //TriangulationStrategy = TriangulationStrategy.None,
+        }).Normalize().Perfecto(2);
+
+        //return s.AddSkeleton(1).ToLines(0.3, Color.Red).ToMotion();
+
+        return (new[]
+        {
+            s.Rotate(1, new Vector3(1,3, 2).Normalize()).Move(1, 4, 3).ApplyColor(Color.Blue).ToActiveShape(o =>
+            {
+                o.RotationSpeedAngle = 0.001;
+                o.Speed = 0.00035 * Vector3.YAxis.MultV(new Vector3(1, -4, 3));
+                o.MaterialPower = 0.2;
+                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
+            }),
+            s.Rotate(2, new Vector3(1,-2, 3).Normalize()).Move(1, 2, -3).ApplyColor(Color.Red).ToActiveShape(o =>
+            {
+                o.RotationSpeedAngle = -0.0005;
+                o.Speed = 0.00045 * Vector3.YAxis.MultV(new Vector3(1, 2, -3));
+                o.MaterialPower = 0.2;
+                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
+            })
+        }, new[]
+        {
+            Shapes.IcosahedronSp2.ApplyColor(Color.Black).Perfecto(0.3)
+        }).ToWorld(o =>
+        {
+            o.UseMassCenter = true;
+            o.MassCenter.GravityPower = 10;
+            o.UseGround = false;
+        }).ToMotion(10);
     }
 }
