@@ -4,6 +4,8 @@ using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
 using System;
+using System.Diagnostics;
+using Vector2 = Model.Vector2;
 
 namespace Model3D.Libraries
 {
@@ -13,6 +15,12 @@ namespace Model3D.Libraries
     public static class Funcs3
     {
         private static Func2 heartFn = Funcs2.Heart();
+
+        public static Func3 SphereSpiral(double a = 1, double alfa = 0) => t =>
+        {
+            return new Vector3(Math.Cos(alfa + a * t) * Math.Sin(t/2), Math.Sin(alfa + a * t) * Math.Sin(t/2), Math.Cos(t/2));
+        };
+
 
         public static Func3 RootPolinomY(double mult, double[] coefs) => t => new Vector3(0, mult * Polinom.RootFn(t, coefs), t);
         public static Func3 ParabolaY = t => new Vector3(0, t * t, t);

@@ -50,40 +50,19 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var s = vectorizer.GetText("?", new TextShapeOptions 
-        {
-            FontSize = 100,            
-            SmoothPointCount = 5,
-            //ZVolume = null,
-            //TriangulationStrategy = TriangulationStrategy.None,
-        }).Normalize().Perfecto(2);
+        var ar = Math.PI / 15;
+        var n = 10;
+        var l = 300;
 
-        //return s.AddSkeleton(1).ToLines(0.3, Color.Red).ToMotion();
-
-        return (new[]
-        {
-            s.Rotate(1, new Vector3(1,3, 2).Normalize()).Move(1, 4, 3).ApplyColor(Color.Blue).ToActiveShape(o =>
+        return new[]{
+            (n).SelectClosedInterval(2*Math.PI, a => new[]
             {
-                o.RotationSpeedAngle = 0.001;
-                o.Speed = 0.00035 * Vector3.YAxis.MultV(new Vector3(1, -4, 3));
-                o.MaterialPower = 0.2;
-                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
-            }),
-            s.Rotate(2, new Vector3(1,-2, 3).Normalize()).Move(1, 2, -3).ApplyColor(Color.Red).ToActiveShape(o =>
-            {
-                o.RotationSpeedAngle = -0.0005;
-                o.Speed = 0.00045 * Vector3.YAxis.MultV(new Vector3(1, 2, -3));
-                o.MaterialPower = 0.2;
-                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
-            })
-        }, new[]
-        {
-            Shapes.IcosahedronSp2.ApplyColor(Color.Black).Perfecto(0.3)
-        }).ToWorld(o =>
-        {
-            o.UseMassCenter = true;
-            o.MassCenter.GravityPower = 10;
-            o.UseGround = false;
-        }).ToMotion(10);
+                (l).SelectInterval(ar, Math.PI, t => Funcs3.SphereSpiral(2, a+ar)(t)).ToShape(false).ToLines(0.5, Color.Blue),
+                (l).SelectInterval(ar, Math.PI, t => Funcs3.SphereSpiral(-2, a-ar)(t)).ToShape(false).ToLines(0.5, Color.Green),
+            }.ToSingleShape())
+            .ToSingleShape(),
+            //Shapes.PlaneSphere(20,20).ToLines(0.3, Color.Yellow),
+            //Shapes.Coods
+        }.ToSingleShape().ToMotion();
     }
 }

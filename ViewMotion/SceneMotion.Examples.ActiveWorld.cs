@@ -20,6 +20,7 @@ using View3D.Libraries;
 using Model3D;
 using Model3D.Actives;
 using Model.Fourier;
+using Model3D.Tools.Model;
 
 namespace ViewMotion;
 
@@ -28,6 +29,41 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion //ActiveWorld
 {
+    public Task<Motion> SpaceMotion()
+    {
+        var s = vectorizer.GetText("?", new TextShapeOptions
+        {
+            FontSize = 100,
+            SmoothPointCount = 5,
+        }).Normalize().AddSkeleton(1).Perfecto(2);
+
+        return (new[]
+        {
+            s.Rotate(1, new Vector3(1,3, 2).Normalize()).Move(1, -4, 3).ApplyColor(Color.Blue).ToActiveShape(o =>
+            {
+                o.RotationSpeedAngle = 0.002;
+                o.Speed = 0.00033 * Vector3.YAxis.MultV(new Vector3(1, -4, 3));
+                o.MaterialPower = 0.2;
+                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
+            }),
+            s.Rotate(2, new Vector3(1,-2, 3).Normalize()).Move(1, 2, -3).ApplyColor(Color.Red).ToActiveShape(o =>
+            {
+                o.RotationSpeedAngle = -0.001;
+                o.Speed = 0.00043 * Vector3.YAxis.MultV(new Vector3(1, 2, -3));
+                o.MaterialPower = 0.2;
+                o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
+            })
+        }, new[]
+        {
+            Shapes.IcosahedronSp2.ApplyColor(Color.Black).Perfecto(0.3)
+        }).ToWorld(o =>
+        {
+            o.UseMassCenter = true;
+            o.MassCenter.GravityPower = 10;
+            o.UseGround = false;
+        }).ToMotion(10);
+    }
+
     public Task<Motion> ChristmasTreeMotion()
     {
         return (new[]

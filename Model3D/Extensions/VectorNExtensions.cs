@@ -221,12 +221,14 @@ namespace Model3D.Extensions
             return vectors.Select(v => v - center).ToArray();
         }
 
-        public static Shape ToShape(this IEnumerable<Vector3> vectors)
+        public static Shape ToShape(this IEnumerable<Vector3> vectors, bool isClosed = true)
         {
             return new Shape
             {
                 Points3 = vectors.ToArray(),
-                Convexes = vectors.Index().SelectCirclePair((i, j) => new[] {i,j}).ToArray()
+                Convexes = isClosed 
+                    ? vectors.Index().SelectCirclePair((i, j) => new[] {i,j}).ToArray()
+                    : vectors.Index().SelectPair((i, j) => new[] { i, j }).ToArray()
             };
         }
 

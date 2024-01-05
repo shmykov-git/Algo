@@ -160,12 +160,12 @@ public partial class ActiveWorld
                 a.Nodes.Where(NoLock).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceForce(n));
             }
 
-            //if (a.Nodes.Any(n=>n.speed.Length > 0.1))
-            //{
-            //}
-
             a.Nodes.Where(NoLock).ForEach(n => n.position += n.speed);
-            a.Nodes.Where(NoLock).ForEach(n => n.position = FixY(n.position));
+
+            if (options.UseGround)
+            {
+                a.Nodes.Where(NoLock).ForEach(n => n.position = FixY(n.position));
+            }
         }
 
         nStep++;
