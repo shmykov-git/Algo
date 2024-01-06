@@ -12,6 +12,8 @@ using Model3D.Tools.Model;
 using View3D.Libraries;
 using Model.Fourier;
 using System.Diagnostics;
+using Aspose.ThreeD.Entities;
+using System.Security.Cryptography;
 
 namespace Model.Libraries
 {
@@ -565,7 +567,27 @@ namespace Model.Libraries
             Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
         };
 
-        public static Shape PlaneSphere(int m, int n, ConvexFunc? convexesFn = null) => 
+        public static Shape PitterSphere(int m, int n, double? from = null, double? to = null, ConvexFunc? convexesFn = null)
+        {
+            var aFrom = from ?? 0;
+            var aTo = to ?? 2 * Math.PI;
+            var curve = (m - 1) * Math.PI / (n * (aTo - aFrom));
+
+            var ps = (n).SelectClosedInterval(2 * Math.PI, a => 
+            {
+                var fn = Funcs3.SphereSpiral(curve, a - aFrom * curve);
+                
+                return (m).SelectInterval(aFrom, aTo, t => fn(t)); 
+            }).ManyToArray(); // todo: CircleMatrixShift
+
+            return new Shape
+            {
+                Points3 = ps,
+                Convexes = (convexesFn ?? Convexes.ShiftedSquares).Invoke(n, m, true, false)
+            };
+        }
+
+        public static Shape PlaneSphere(int m, int n, ConvexFunc? convexesFn = null) =>
             Shapes.Plane(m, n, convexesFn, false, true)
                 .Scale(2 * Math.PI, Math.PI, 0).MoveY(-Math.PI / 2)
                 .Transform(TransformFuncs3.Sphere)

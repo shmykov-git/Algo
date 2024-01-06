@@ -39,6 +39,8 @@ public static class Convexes
 
     public static int[][] Squares(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps);
+    public static int[][] ShiftedSquares(int m, int n, bool mClosed = false, bool nClosed = false) =>
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => j<n-2 ? 1 : -1);
     public static int[][] SquaresReverse(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, null, false, true);
     public static int[][] SquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) => 
@@ -100,19 +102,15 @@ public static class Convexes
     };
 
     private static (int i, int j)[][][] squareMaps = new[] {
-        new[]
+        new[] // square
         {
             new[] { (0, 0), (0, 1), (1, 1), (1, 0) }
-        }
+        },
+        new[] // shifted square
+        {
+            new[] { (0, 1), (0, 2), (1, 1), (1, 0) }
+        },
     };
-
-    //private static (int i, int j)[][][] squareBothSideMaps = new[] {
-    //    new[] // both sides square
-    //    {
-    //        new[] { (0, 0), (0, 1), (1, 1), (1, 0) },
-    //        new[] { (1, 0), (1, 1), (0, 1), (0, 0) },
-    //    }
-    //};
 
     private static int[][] GetConvexes(int m, int n, bool mClosed, bool nClosed, (int i, int j)[][][] maps, Func<int, int, int>? mapFn = null, bool both = false, bool reverse = false)
     {
@@ -122,7 +120,7 @@ public static class Convexes
         var nn = nClosed ? n : n - 1;
 
         var convexes = (mm, nn).SelectRange((i, j) => fn(i, j) >= 0 
-            ? maps[fn(i, j)].Select(line => line.Select(v => num(i + v.i, j + v.j)).ToArray())
+            ? maps[fn(i, j)].Select(line => line.Select(mp => num(i + mp.i, j + mp.j)).ToArray())
             : new int[0][]).ManyToArray();
 
         convexes = both 

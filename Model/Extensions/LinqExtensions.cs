@@ -387,11 +387,24 @@ namespace Model.Extensions
 
             for (var i = 0; i < items.Length; i++)
             {
-                newItems[i] = items[(i - shift + n) % n];
+                newItems[i] = items[(i - shift + n + n) % n];
             }
 
             return newItems;
         }
+
+        //public static TItem[] CircleMatrixShift<TItem>(this TItem[] items, int m, int shift)
+        //{
+        //    var newItems = new TItem[items.Length];
+        //    var n = items.Length;
+
+        //    for (var i = 0; i < items.Length; i++)
+        //    {
+        //        newItems[i] = items[(i - shift + n + n) % n];
+        //    }
+
+        //    return newItems;
+        //}
 
         public static TItem MinOrDefault<TItem>(this IEnumerable<TItem> values, TItem defaultValue = default) where TItem : IComparable<TItem>
         {
