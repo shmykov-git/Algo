@@ -50,6 +50,6 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return PetersburgLamps();
+        return Shapes.PeterSphere(12, 10,convexesFn:Convexes.SpotSquares2).Normalno().ToMeta().ToMotion();
     }
 }

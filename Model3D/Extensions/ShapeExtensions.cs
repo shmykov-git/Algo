@@ -1090,6 +1090,7 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape Normalno(this Shape shape) => shape.Normalize(false, false, false);
         public static Shape NormalizeWith2D(this Shape shape, bool allowConvexCollapses = false) => Normalize(shape, true, true, allowConvexCollapses);
         public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true, bool allowConvexCollapses = false)
         {
