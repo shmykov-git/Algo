@@ -567,7 +567,7 @@ namespace Model.Libraries
             Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
         };
 
-        public static Shape PitterSphere(int m, int n, double? from = null, double? to = null, ConvexFunc? convexesFn = null)
+        public static Shape PeterSphere(int m, int n, double? from = null, double? to = null, ConvexFunc? convexesFn = null)
         {
             var aFrom = from ?? 0;
             var aTo = to ?? 2 * Math.PI;

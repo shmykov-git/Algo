@@ -29,6 +29,31 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+
+    public Task<Motion> PetersburgLamps()
+    {
+        var n = 8;
+        var m = 8;
+        var aFrom = Math.PI / 10;
+        var aTo = Math.PI;
+
+        var pC = Color.Red;
+        var c1 = Color.Blue;
+        var c2 = Color.Green;
+
+        var l = 100;
+        var lTh = 1;
+        var pTh = 0.6;
+        var curve = (m - 1) * Math.PI / (n * (aTo - aFrom));
+
+        return (n).SelectClosedInterval(2 * Math.PI, a => new[]
+        {
+            (m).SelectInterval(aFrom, aTo, t =>Shapes.IcosahedronSp1.Perfecto(0.05 * pTh).Move(Funcs3.SphereSpiral(curve, a - aFrom * curve)(t))).ToSingleShape().ApplyColor(pC),
+            (l).SelectInterval(aFrom, aTo, t => Funcs3.SphereSpiral(curve, a - aFrom * curve)(t)).ToShape(false).ToLines(lTh, c1),
+            (l).SelectInterval(aFrom, aTo, t => Funcs3.SphereSpiral(-curve, a + aFrom * curve)(t)).ToShape(false).ToLines(lTh, c2),
+        }.ToSingleShape()).ToSingleShape().ToMotion();
+    }
+
     public Task<Motion> WallMotion()
     {
         var model0 = vectorizer.GetText("parquet", 300, "Times New Roman").Perfecto(3).ScaleZ(0.2).SplitPlanes(0.05); // Shapes.PlaneTorus(10, 10, 3).Perfecto(2)/*.SplitPlanes(0.1)*/;

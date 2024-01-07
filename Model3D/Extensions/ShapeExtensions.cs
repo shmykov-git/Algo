@@ -299,6 +299,11 @@ namespace Model3D.Extensions
             return shape.ToSpots(multPoint, pointMaterial).Join(shape.ToPlaneLines(multLines, linesMaterial));
         }
 
+        public static Shape ToMeta(this Shape shape, Color? pointColor = null, Color? linesColor = null, double multPoint = 1, double multLines = 1, Shape spotShape = null)
+        {
+            return shape.ToLines(multLines, linesColor ?? Color.Blue) + shape.ToSpots3(multPoint, pointColor ?? Color.Red, spotShape);
+        }
+
         public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null, Shape spotShape = null)
         {
             return shape.ToLines(multLines, linesColor)
@@ -392,6 +397,8 @@ namespace Model3D.Extensions
             return shapes.Aggregate((a, b) => a + b) + spots;
         }
 
+        public static Shape ToPoints(this Shape shape, Color? color = null, double mult = 1, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToShapedSpots3(this Shape shape, Shape pointShape, Color? color = null) =>
@@ -414,6 +421,8 @@ namespace Model3D.Extensions
                 Convexes = shape.PointIndices.SelectMany(i => pointShape.Convexes.Select(convex => convex.Select(j => pointShape.PointsCount * i + j).ToArray())).ToArray()
             }.ApplyMaterial(material);
         }
+
+        public static Shape ToLines(this Shape shape, Color color, double mult = 1, bool direct = false) => shape.ToLines(mult, color, direct);
 
         public static Shape ToLines(this Shape shape, double mult = 1, Color? color = null, bool direct = false) =>
             direct
