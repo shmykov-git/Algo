@@ -69,6 +69,13 @@ namespace Model.Extensions
             return polygon.Transform(p => p + size);
         }
 
+        public static Polygon Centered(this Polygon polygon)
+        {
+            var center = polygon.Center;
+
+            return polygon.Transform(p => p - center);
+        }
+
         public static Polygon Scale(this Polygon polygon, Vector2 bSize)
         {
             return polygon.Scale((1,1), bSize);

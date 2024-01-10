@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Model.Extensions;
 
-namespace Model.Tools
+namespace Model.Tools.Triangulate
 {
     public static class EarTriangulator
     {
@@ -25,7 +25,7 @@ namespace Model.Tools
             public Node next;
             public Net<Vector2, Node> net;
 
-            public int[] Triangle => new[] {prev.i, i, next.i};
+            public int[] Triangle => new[] { prev.i, i, next.i };
             public bool IsEmpty => next == prev;
             public bool IsExcepted => prev == null || next == null;
             public bool IsOuterLeft => next.p.IsLeft(prev.p, p, true);
@@ -33,7 +33,7 @@ namespace Model.Tools
             public bool IsInside(Node n) => n.p.IsInside(prev.p, p, next.p);
             public bool IsNotMe(Node n) => n.ui != ui && n.ui != prev.ui && n.ui != next.ui;
             public bool IsNotExcepted(Node n) => !n.IsExcepted;
-            public bool IsMyCircle(Node n) => this.Iterate().Any(m => m == n);
+            public bool IsMyCircle(Node n) => Iterate().Any(m => m == n);
             public Node[] InsideNodes => net.SelectCloseNeighbors(prev.p, p, next.p)
                 .Where(IsNotMe)
                 .Where(IsNotExcepted)
@@ -58,15 +58,15 @@ namespace Model.Tools
             {
                 var a = this;
 
-                var aa = new Node() {isClone = true, ui = a.ui, i = a.i, p = a.p, prev = b, next = a.next, net = net};
-                var bb = new Node() {isClone = true, ui = b.ui, i = b.i, p = b.p, prev = a, next = b.next, net = net};
+                var aa = new Node() { isClone = true, ui = a.ui, i = a.i, p = a.p, prev = b, next = a.next, net = net };
+                var bb = new Node() { isClone = true, ui = b.ui, i = b.i, p = b.p, prev = a, next = b.next, net = net };
 
                 a.next.prev = aa;
                 b.next.prev = bb;
-                
+
                 a.next = bb;
                 b.next = aa;
-                
+
                 return aa;
             }
 
@@ -77,20 +77,21 @@ namespace Model.Tools
                 {
                     yield return n;
                     n = n.next;
-                } while (n!=this);
+                } while (n != this);
             }
 
             public override string ToString() => IsNotExcepted(this)
                 ? $"{(isClone ? "[c]" : "")}({prev.i}-{i}-{next.i}): {(p - prev.p).Normal * (next.p - prev.p)}, {p}"
                 : $"{(isClone ? "[c]" : "")}(null-{i}-null): {p}";
         }
+
         public static int[][] Triangulate(Polygon polygon, Options options = null)
         {
             options ??= new Options();
 
             if (polygon.Points.Length < 3)
                 return Array.Empty<int[]>();
-            
+
             var bi = polygon.Points.DistinctBi();
             var nodes = polygon.Points.Select((p, i) => new Node() { ui = bi.bi[i], i = i, p = p }).ToArray();
 
@@ -117,7 +118,7 @@ namespace Model.Tools
                 while (stack.Count > 0)
                 {
                     var n = stack.Pop();
-                    
+
                     if (n.IsExcepted)
                         Debugger.Break();
 
@@ -151,13 +152,13 @@ namespace Model.Tools
                             else
                             {
                                 res.Add(n.Triangle);
-                                
+
                                 if (options.DebugTriangulation)
                                     Debug.WriteLine($"+: {n}");
-                                
+
                                 if (stack.Contains(n))
                                     Debugger.Break();
-                                
+
                                 n = n.Except();
                                 n0 = n.prev;
                             }
@@ -226,7 +227,7 @@ namespace Model.Tools
         private static void DebugNode(Node n)
         {
             Debug.WriteLine("Debug Node");
-            n.Iterate().ForEach(m=>Debug.WriteLine(m));
+            n.Iterate().ForEach(m => Debug.WriteLine(m));
         }
     }
 }

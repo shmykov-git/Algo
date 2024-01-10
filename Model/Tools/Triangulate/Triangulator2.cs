@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Model.Extensions;
 
-namespace Model.Tools
+namespace Model.Tools.Triangulate
 {
     public static class Triangulator2
     {
@@ -14,8 +14,8 @@ namespace Model.Tools
             if (a == b || b == c)
                 return 0;
 
-            var ab = (b - a)/*.Normed*/;
-            var bc = (c - b)/*.Normed*/;
+            var ab = b - a/*.Normed*/;
+            var bc = c - b/*.Normed*/;
 
             var scalar = ab.NormalM * bc;
             var isOuter = scalar < double.Epsilon;
@@ -51,7 +51,7 @@ namespace Model.Tools
             options ??= new Options();
 
             var nodes = polygon.Points.Select((p, i) => new Node() { i = i, p = p, fixFactor = options.TriangulationFixFactor }).ToArray();
-            
+
             nodes.ForEach(n =>
             {
                 n.prev = nodes[(n.i - 1 + nodes.Length) % nodes.Length];

@@ -8,6 +8,7 @@ using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
+using Model.Tools.Triangulate;
 using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
 

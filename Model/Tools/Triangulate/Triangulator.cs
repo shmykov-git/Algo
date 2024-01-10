@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Model.Extensions;
 using Model.Libraries;
 
-namespace Model.Tools
+namespace Model.Tools.Triangulate
 {
     public static class Triangulator
     {
@@ -49,7 +49,7 @@ namespace Model.Tools
             var maxLen = polygon.MaxLinesLen;
             var brokenPolygonCoff = incorrectFix * maxLen;
 
-            var nodes = polygon.Points.SelectWithIndex((p, i) => new Node() {i = i, p = p}).ToArray();
+            var nodes = polygon.Points.SelectWithIndex((p, i) => new Node() { i = i, p = p }).ToArray();
 
             nodes.ForEach(n =>
             {
@@ -79,9 +79,9 @@ namespace Model.Tools
             });
 
             var net = new Net<Vector2, Node>(nodes.Select(n => (n.p, n)), maxLen);
-            
+
             var sortedStack = new SortedStack<Node>(nodes.Length);
-            nodes.ForEach(n=>sortedStack.Push(n, n.ang));
+            nodes.ForEach(n => sortedStack.Push(n, n.ang));
 
             bool IsInside(Node n, Vector2 p) => n.insideFns.All(isLeft => isLeft(p));
 
@@ -112,7 +112,7 @@ namespace Model.Tools
                 return n;
             }
 
-            int[] GetTriangle(Node n) => new[] {n.prev.i, n.i, n.next.i};
+            int[] GetTriangle(Node n) => new[] { n.prev.i, n.i, n.next.i };
 
             var triangles = new List<int[]>(nodes.Length - 2);
 

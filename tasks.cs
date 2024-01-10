@@ -88,3 +88,24 @@ return new[]
 
 #endregion
 
+#region триангул€ци€ с доп. точками дл€ деформаций
+public Task<Motion> Scene()
+{
+    //var mb = Polygons.Polygon5;
+
+    var mb = MandelbrotFractalSystem.GetPoints(2, 0.003, 1000, 0.99).ToPolygon().Centered();
+    var net = Parquets.Triangles(20, 40).ToShape3().Perfecto(2.1).ToShape2();
+    var sIn = net.CutInside(mb).Points.ToPolygon();
+    var prs = sIn.ToPerimeter();
+    var newMb = prs.Aggregate(mb, (a, b) => a.Join(b));
+    //var sOut = net.CutOutside(mb).ToShape3().ToLines(0.5).ApplyColor(Color.Blue);
+
+    return new[]
+    {
+            newMb.ToShape(/*triangulate:true*/).ToLines(0.5, Color.Red),
+            sIn.ToShape2().ToShape3().ToLines(0.5).ApplyColor(Color.Blue),
+            //sOut.MoveZ(-0.1).ToMeta()
+        }.ToSingleShape().ToMotion();
+}
+#endregion
+

@@ -47,9 +47,10 @@ using Aspose.ThreeD;
 namespace ViewMotion;
 
 partial class SceneMotion
-{
+{    
+
     public Task<Motion> Scene()
     {
-        return Shapes.PeterSphere(12, 10,convexesFn:Convexes.SpotSquares2).Normalno().ToMeta().ToMotion();
+        return Shapes.IcosahedronSp3.Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p=>p.SetY(p.y.Pow(1.25))).MoveY(-1).ToMeta().ToMotion();
     }
 }
