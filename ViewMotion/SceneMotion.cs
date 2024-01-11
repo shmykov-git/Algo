@@ -51,6 +51,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.IcosahedronSp3.Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p=>p.SetY(p.y.Pow(1.25))).MoveY(-1).ToMeta().ToMotion();
+        var e = Shapes.PlaneSphere(50, 50, Convexes.ChessSquares).ToOy().Perfecto(2).Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p => p.SetY(p.y.Pow(1.2))).Perfecto();
+
+        return Ranges.Pyramid2(4).Select(v=>e.Move(v.x, 0, v.y)).ToSingleShape().Centered().ApplyColor(Color.Blue).ToMotion();
     }
 }
