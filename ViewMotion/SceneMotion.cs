@@ -50,6 +50,6 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return Shapes.Cube.ToMotion();
+        return EggsStrikeMotion();
     }
 }
