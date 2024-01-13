@@ -29,6 +29,45 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion //ActiveWorld
 {
+    public Task<Motion> EggsStrikeMotion()
+    {
+        //var metaEgg = Shapes.PlaneSphere(20, 20).ToOy();
+        var metaEgg = Shapes.IcosahedronSp2;
+        var metaBall = Shapes.IcosahedronSp2;
+
+        var egg = metaEgg.Perfecto(2).Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p => p.SetY(p.y.Pow(1.2))).Normalize().Perfecto()
+            .ApplyColorGradient(new Vector3(1, 1, 1).Normalize(), Color.Yellow, Color.Yellow, Color.Red);
+
+        var eggs = Ranges.Pyramid2(4, ExMath.Sq3_2).Select(v => egg.PutOn().Move(v.x, 0, v.y - 3)).Select(e => e.ToActiveShape(o =>
+        {
+            o.MaterialPower = 2;
+            o.Skeleton.Power = 2;
+        }));
+
+        var ball = metaBall
+            .ApplyColorGradient(Vector3.YAxis, Color.Green, Color.Yellow, Color.Blue)
+            .Perfecto(0.8).PutOn().MoveZ(4).ToActiveShape(o =>
+            {
+                o.Speed = new Vector3(0.002, 0, -0.003);
+                o.RotationSpeedAngle = -0.01;
+                o.RotationSpeedAxis = new Vector3(0, 0, 1).Normalize();
+                o.MaterialPower = 2;
+                o.Skeleton.Power = 2;
+                o.Mass = 50;
+            });
+
+        var actives = eggs.Concat(new[] { ball }).ToArray();
+
+        return actives.ToWorld(o =>
+        {
+            o.Ground.ClingForce = 0.1;
+            o.Ground.FrictionForce = 10;
+            o.Interaction.ClingForce = 0.1;
+            o.Interaction.FrictionForce = 1;
+            o.Interaction.ElasticForce = 10;
+        }).ToMotion();
+    }
+
     public Task<Motion> SpaceMotion()
     {
         var s = vectorizer.GetText("?", new TextShapeOptions

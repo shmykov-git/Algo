@@ -8,11 +8,11 @@ public static class Ranges
 {
     private static double PyramidFn(int n, int i, int h) => i + (h / 2 + 0.5 * (h % 2)) - 0.5 * (n - 1);
 
-    public static IEnumerable<(int i, int j, double x, double y)> Pyramid2(int n)
+    public static IEnumerable<(int i, int j, double x, double y)> Pyramid2(int n, double a = 1)
     {
         return (n, n).SelectRange((j, i) => (i, j))
             .Where(v => v.j < n - v.i)
-            .Select(v => (v.i, v.j, PyramidFn(n, v.j, v.i), (double)v.i));
+            .Select(v => (v.i, v.j, PyramidFn(n, v.j, v.i), a * v.i));
     }
 
     public static IEnumerable<(int i, int j, int k, double x, double y, double z)> Pyramid3(int n)
