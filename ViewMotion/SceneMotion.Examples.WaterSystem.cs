@@ -29,7 +29,7 @@ partial class SceneMotion // WaterSystem
 {
     public Task<Motion> SliderMotion()
     {
-        // see result here: https://youtu.be/9ihPnYHRaz0
+        // video result: https://youtu.be/9ihPnYHRaz0
 
         var sceneColor = Color.FromArgb(50, 60, 70);
 
@@ -104,6 +104,8 @@ partial class SceneMotion // WaterSystem
 
     public Task<Motion> Waterfall2()
     {
+        // video result: https://youtu.be/RRlG2n7Zd2s
+
         var options = new WaterCubeOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
@@ -216,7 +218,7 @@ partial class SceneMotion // WaterSystem
 
     public Task<Motion> IllBeBack()
     {
-        var s0 = vectorizer.GetText("I'll be back", 300).Perfecto(10).ApplyColor(Color.Blue);
+        // video result: https://youtu.be/IcT2Kt970Xc
 
         var frames = WaterSystem.IllBeBackMotion(new WaterCubeOptions()
         {
@@ -226,13 +228,13 @@ partial class SceneMotion // WaterSystem
             WaterDir = new Vector3(-0.06, 1, 0.06),
             WaterSpeed = 0.16,
 
-            SceneMotionSteps = 300,
+            SceneMotionSteps = 999,
             ParticlePerEmissionCount = 2,
             EmissionAnimations = 1,
-            StepAnimations = 10,
+            StepAnimations = 2,
         });
 
-        return frames.ToMotion(null, s0);
+        return frames.ToMotion();
     }
 
     public Task<Motion> Fountain()

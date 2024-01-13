@@ -201,6 +201,12 @@ namespace Model3D.Systems
 
         public static IEnumerable<Shape> IllBeBackMotion(WaterCubeOptions options = null)
         {
+            var shamrockColor = Color.FromArgb(0, 32, 0);
+            var fountainColor = Color.SaddleBrown;
+            var platformColor = Color.FromArgb(0, 16, 0);
+            var ballColor = Color.Red;
+            var darkColor = Color.DarkRed;
+
             var vectorizer = DI.Get<Vectorizer>();
 
             options ??= new WaterCubeOptions()
@@ -214,15 +220,17 @@ namespace Model3D.Systems
                 WaterSpeed = 0.16
             };
 
+            options.PlatformColor = platformColor;
+
             var sceneSize = options.SceneSize;
 
             var shamrock = Surfaces.Shamrock(480, 40, true).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2)
-                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 6.5).ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 6.5).ApplyColor(shamrockColor).WithBackPlanes(darkColor);
 
             var shamrockCollider = Surfaces.Shamrock(96, 12).Perfecto(20).ToOy().MoveY(-sceneSize.y / 2 + 2)
                 .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 6.5);
 
-            var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(Color.Red);
+            var ball = Shapes.Ball.Perfecto(9).Move(-3, -5, 3).ToLines(2).ApplyColor(ballColor);
             var ballCollider = Shapes.IcosahedronSp3.Perfecto(9).Move(-3, -5, 3).ResizeByNormals(0.3);
 
             var text = vectorizer.GetText("I'll be back", new TextShapeOptions()
@@ -230,7 +238,7 @@ namespace Model3D.Systems
                     FontSize = 300, FontName = "Royal Inferno", SmoothAngleScalar = 0.71, SmoothOutLevel = 2
                 }).Perfecto(10).ScaleZ(0.3)
                 .ToOxM().Move(-3, 0, 0)
-                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ApplyColor(Color.DarkRed).WithBackPlanes(Color.DarkRed);
+                .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ApplyColor(darkColor).WithBackPlanes(darkColor);
 
             var level1 = Surfaces.CircleAngle(40, 10, 0, Math.PI / 2).Normalize()
                 .Perfecto(8).AddPerimeterZCenterVolume(0.6).MoveZ(-2).ApplyZ(Funcs3Z.SphereMR(10)).MoveZ(12).ToOy()
@@ -247,7 +255,7 @@ namespace Model3D.Systems
             var fountainCollider = (level1 + level2 + level3)
                 .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8);
 
-            var fountain = fountainCollider.ApplyColor(Color.Black).WithBackPlanes(Color.DarkRed);
+            var fountain = fountainCollider.ApplyColor(fountainColor).WithBackPlanes(darkColor);
 
             //bool AnnihilateWaterFromThisWorld(IAnimatorParticleItem x) =>
             //    (x.Position - new Vector3(-3, -5, 3)).Length >= 4.8;
@@ -255,10 +263,10 @@ namespace Model3D.Systems
             var frameShapes = WaterSystemPlatform.CubeMotion(
                 new WaterCubeModel()
                 {
-                    RunCalculations = true,
-                    DebugColliders = false,
-                    DebugCollidersAsLines = true,
-                    DebugCollidersSkipShift = false,
+                    //RunCalculations = true,
+                    //DebugColliders = false,
+                    //DebugCollidersAsLines = true,
+                    //DebugCollidersSkipShift = false,
 
                     PlaneModels = new List<WaterCubePlaneModel>()
                     {
