@@ -29,19 +29,19 @@ partial class SceneMotion // WaterSystem
 {
     public Task<Motion> SliderMotion()
     {
-        // see result here: https://www.youtube.com/watch?iMp=RkE_z8ilk8g&ab_channel=%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9%D0%A8%D0%BC%D1%8B%D0%BA%D0%BE%D0%B2
+        // see result here: https://youtu.be/9ihPnYHRaz0
 
         var sceneColor = Color.FromArgb(50, 60, 70);
 
         var options = new WaterCubeOptions()
         {
             SceneSize = new Vector3(16, 16, 16),
-            StepAnimations = 5,
-            SceneMotionSteps = 500,
+            StepAnimations = 2,
+            SceneMotionSteps = 999,
             WaterSpeed = 0.07,
             FrictionFactor = 0.6,
             ParticlePerEmissionCount = 2,
-            ParticleCount = 10000,
+            ParticleCount = 1500,
             ParticlePlaneBackwardThikness = 2,
             PlatformColor = sceneColor
         };
@@ -108,8 +108,8 @@ partial class SceneMotion // WaterSystem
         {
             SceneSize = new Vector3(12, 15, 12),
             ParticleInitCount = 1000,
-            SceneMotionSteps = 150,
-            StepAnimations = 10,
+            SceneMotionSteps = 999,
+            StepAnimations = 1,
             PlatformColor = Color.FromArgb(60, 100, 140),
             PlatformType = PlatformType.Square
         };
@@ -163,7 +163,7 @@ partial class SceneMotion // WaterSystem
 
         var models = new List<WaterCubePlaneModel>
         {
-            new WaterCubePlaneModel { VisibleShape = Shapes.CoodsWithText.Mult(5) }
+            //new WaterCubePlaneModel { VisibleShape = Shapes.CoodsWithText.Mult(5) }
         };
 
         models.AddRange(gutters.Select(g => new WaterCubePlaneModel() { VisibleShape = g, ColliderShape = g, ColliderShift = -particleRadius }));
