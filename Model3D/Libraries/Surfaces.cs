@@ -14,6 +14,7 @@ namespace Model3D.Libraries;
 
 public static class Surfaces
 {
+
     public static Shape APowerB(int un, int vn, double from, double to) => new Shape
     {
         Points3 = new SurfaceFuncInfo
@@ -450,6 +451,21 @@ public static class Surfaces
         }.GetPoints(),
         Convexes = Squares(vn, un)
     };
+
+    public static Shape MagicWand(int un, int vn, int l = 3, double w = 0.3, double a = 1.3, double b = 1.3, double c = 2, ConvexFunc convexFunc = null) => new Shape
+    {
+        Points3 = new SurfaceFuncInfo
+        {
+            Fn = SurfaceFuncs.MagicWand(w, a, b, c),
+            UFrom = 0,
+            UTo = 2 * Math.PI,
+            UN = un,
+            VFrom = (Math.PI).Pow(1/a),
+            VTo = ((2*l+1.5) * Math.PI).Pow(1/a),
+            VN = vn,
+        }.GetPoints(),
+        Convexes = (convexFunc ?? Convexes.Squares).Invoke(vn, un, false, true)
+    }.Centered();
 
     private static int[][] Squares(int un, int vn, bool bothFaces = false) => bothFaces ? Convexes.SquaresBoth(un, vn) : Convexes.Squares(un, vn);
 

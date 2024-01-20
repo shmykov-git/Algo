@@ -16,6 +16,12 @@ namespace Model.Libraries
             return x => fi((x - mu) / sigma) / sigma; 
         }
 
+        public static Func1 MagicWand(double w = 0.3, double a = 1.3, double b = 1.3, double c = 2) => t =>
+        {
+            return c * Math.Sin(t.Pow(a)) / t.Pow(b) + w;
+        };
+
+
         public static Func1 BackParabola(double a) => x => x.Abs() < 0.00001 ? 0 : a / (x * x);
 
         public static Func1 Line(double a = 0, double b = 0) => x => a * x + b;

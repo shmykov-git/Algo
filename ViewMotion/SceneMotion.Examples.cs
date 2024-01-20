@@ -29,29 +29,41 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
-
-    public Task<Motion> PetersburgLamps()
+    public Task<Motion> SaintPetersburgLamps()
     {
-        var n = 8;
-        var m = 8;
+        var n = 15;
+        var m = 15;
         var aFrom = Math.PI / 10;
         var aTo = Math.PI;
 
         var pC = Color.Red;
-        var c1 = Color.Blue;
-        var c2 = Color.Green;
+        var c1 = Color.Yellow;
+        var c2 = Color.Yellow;
 
         var l = 100;
+        var motionCount = 500;
         var lTh = 1;
         var pTh = 0.6;
-        var curve = (m - 1) * Math.PI / (n * (aTo - aFrom));
+        var maxCurve = (m - 1) * Math.PI / (n * (aTo - aFrom));
+        var point = Shapes.IcosahedronSp1.Perfecto(0.05 * pTh);
 
-        return (n).SelectClosedInterval(2 * Math.PI, a => new[]
-        {
-            (m).SelectInterval(aFrom, aTo, t =>Shapes.IcosahedronSp1.Perfecto(0.05 * pTh).Move(Funcs3.SphereSpiral(curve, a - aFrom * curve)(t))).ToSingleShape().ApplyColor(pC),
-            (l).SelectInterval(aFrom, aTo, t => Funcs3.SphereSpiral(curve, a - aFrom * curve)(t)).ToShape(false).ToLines(lTh, c1),
-            (l).SelectInterval(aFrom, aTo, t => Funcs3.SphereSpiral(-curve, a + aFrom * curve)(t)).ToShape(false).ToLines(lTh, c2),
-        }.ToSingleShape()).ToSingleShape().ToMotion();
+        return (motionCount).SelectInterval(maxCurve,
+                curve => (n).SelectClosedInterval(2 * Math.PI, a =>
+                {
+                    var fL = Funcs3.SphereSpiral(curve, a - aFrom * curve);
+                    var fR = Funcs3.SphereSpiral(-curve, a + aFrom * curve);
+                    var mCurve = (m - 1) * curve / maxCurve;
+                    var pointN = (int)mCurve + 1;
+                    var aPointTo = aFrom + (aTo - aFrom) * ((int)mCurve) / mCurve;
+
+                    return new[]
+                    {
+                        (pointN).SelectInterval(aFrom, aPointTo, t =>point.Move(fL(t))).ToSingleShape().ApplyColor(pC),
+
+                        (l).SelectInterval(aFrom, aTo, t => fL(t)).ToShape(false).ToLines(lTh, c1),
+                        (l).SelectInterval(aFrom, aTo, t => fR(t)).ToShape(false).ToLines(lTh, c2),
+                    }.ToSingleShape();
+                }).ToSingleShape()).ToMotion();
     }
 
     public Task<Motion> WallMotion()

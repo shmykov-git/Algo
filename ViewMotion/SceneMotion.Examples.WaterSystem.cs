@@ -191,8 +191,8 @@ partial class SceneMotion // WaterSystem
         {
             SceneSize = new Vector3(16, 16, 16),
             ParticleInitCount = 5000,
-            SceneMotionSteps = 200,
-            StepAnimations = 10,
+            SceneMotionSteps = 999,
+            StepAnimations = 2,
             GravityPower = 0.001,
             LiquidPower = 0.0002,
             FrictionFactor = 0.8,

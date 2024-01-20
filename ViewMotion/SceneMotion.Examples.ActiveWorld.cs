@@ -38,7 +38,7 @@ partial class SceneMotion //ActiveWorld
         var egg = metaEgg.Perfecto(2).Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p => p.SetY(p.y.Pow(1.2))).Normalize().Perfecto()
             .ApplyColorGradient(new Vector3(1, 1, 1).Normalize(), Color.Yellow, Color.Yellow, Color.Red);
 
-        var eggs = Ranges.Pyramid2(4, ExMath.Sq3_2).Select(v => egg.PutOn().Move(v.x, 0, v.y - 3)).Select(e => e.ToActiveShape(o =>
+        var eggs = Ranges.Pyramid2(4, MathEx.Sq3_2).Select(v => egg.PutOn().Move(v.x, 0, v.y - 3)).Select(e => e.ToActiveShape(o =>
         {
             o.MaterialPower = 2;
             o.Skeleton.Power = 2;

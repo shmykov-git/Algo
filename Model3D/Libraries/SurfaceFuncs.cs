@@ -24,6 +24,18 @@ namespace Model3D.Libraries
             };
         }
 
+        public static SurfaceFunc MagicWand(double w = 0.5, double a = 1.3, double b = 1.3, double c = 2)
+        {
+            var fn = Funcs.MagicWand(w, a, b, c);
+
+            return (double u, double v) =>
+            {
+                var fV = fn(v);
+
+                return new Vector3(Math.Cos(u) * fV, Math.Sin(u) * fV, v);
+            };
+        }
+
         public static SurfaceFunc CylinderShapeFuncY(Shape shape) => ShapeFuncY(shape, Funcs2.Circle());
 
         public static SurfaceFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);

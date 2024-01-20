@@ -18,7 +18,7 @@ namespace Model3D.Libraries
 
         public static Func3 SphereSpiral(double a = 1, double alfa = 0) => t =>
         {
-            return new Vector3(Math.Cos(alfa + a * t) * Math.Sin(t/2), Math.Sin(alfa + a * t) * Math.Sin(t/2), Math.Cos(t/2));
+            return new Vector3(Math.Cos(alfa + a * t) * Math.Sin(t / 2), Math.Sin(alfa + a * t) * Math.Sin(t / 2), Math.Cos(t / 2));
         };
 
 

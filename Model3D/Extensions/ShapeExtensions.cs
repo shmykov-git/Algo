@@ -37,6 +37,16 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Shape TransformPoints(this Shape shape, Func<Vector3, int, Vector3> changePointFn)
+        {
+            return new Shape
+            {
+                Points3 = shape.Points3.Select(changePointFn).ToArray(),
+                Convexes = shape.Convexes,
+                Materials = shape.Materials
+            };
+        }
+
         public static Shape TriangulateByFour(this Shape shape)
         {
             var cs = shape.Convexes.TriangulateByFourSplitted().ToArray();

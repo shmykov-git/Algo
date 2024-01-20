@@ -2,7 +2,7 @@
 
 namespace Model.Libraries;
 
-public static class ExMath
+public static class MathEx
 {
     public static readonly double PI2 = 2 * Math.PI;
     public static readonly double Sq2 = Math.Sqrt(2);

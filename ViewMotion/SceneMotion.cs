@@ -50,6 +50,6 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return IllBeBack();
+        return Surfaces.MagicWand(20, 100, 5, 0.27, 1.3, 1.3, 2, convexFunc:Convexes.ChessHedgehog).ApplyColor(Color.Yellow).ToMotion();
     }
 }
