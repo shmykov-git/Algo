@@ -532,7 +532,7 @@ namespace Model.Libraries
                 return s.Points3;
             }
 
-            var levels = (m).SelectInterval(z => ChristmasTree(z.i, z.v)).ToArray();
+            var levels = (m).SelectInterval((z, i) => ChristmasTree(i, z)).ToArray();
             var topP = Zfn((0, 0), 1);
             var bottomP = new Vector3(0, 0, 0);
             var psC = levels.Sum(l => l.Length);

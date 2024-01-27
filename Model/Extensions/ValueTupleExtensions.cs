@@ -49,11 +49,18 @@ namespace Model.Extensions
             return Enumerable.Range(0, range).Select(i => selectFn(i));
         }
 
-        public static IEnumerable<T> SelectInterval<T>(this int range, Func<(double v, int i), T> selectFn, bool isClosed = false)
+        public static IEnumerable<T> SelectInterval<T>(this int range, Func<double, T> selectFn, bool isClosed = false)
         {
             var divider = isClosed ? range : (range == 1 ? 1 : (range - 1));
 
-            return Enumerable.Range(0, range).Select(i => selectFn((((double)i) / divider, i)));
+            return Enumerable.Range(0, range).Select(i => selectFn(((double)i) / divider));
+        }
+
+        public static IEnumerable<T> SelectInterval<T>(this int range, Func<double, int, T> selectFn, bool isClosed = false)
+        {
+            var divider = isClosed ? range : (range == 1 ? 1 : (range - 1));
+
+            return Enumerable.Range(0, range).Select(i => selectFn(((double)i) / divider, i));
         }
 
         public static IEnumerable<T> SelectClosedInterval<T>(this int range, double to, Func<double, T> selectFn) => SelectInterval(range, 0, to, selectFn, true);

@@ -177,7 +177,7 @@ namespace Model3D.Extensions
 
             var s = new Shape
             {
-                Points3 = (levelCount + 1).SelectInterval(z => ps.Select(p => fnZ(p, z.v))).SelectMany(v => v).ToArray(),
+                Points3 = (levelCount + 1).SelectInterval(z => ps.Select(p => fnZ(p, z))).SelectMany(v => v).ToArray(),
                 Convexes = new IEnumerable<int[]>[]
                 {
                     shape.Convexes,

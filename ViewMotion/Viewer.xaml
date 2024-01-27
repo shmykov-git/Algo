@@ -7,7 +7,7 @@
         xmlns:converters="clr-namespace:ViewMotion.Converters" xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="Viewer" Height="800" Width="1000" KeyDown="Window_KeyDown">
+        Title="Viewer" Height="1100" Width="1300" KeyDown="Window_KeyDown">
     <Window.Resources>
         <Style TargetType="DockPanel" x:Key="Control">
             <Setter Property="Width" Value="200" />

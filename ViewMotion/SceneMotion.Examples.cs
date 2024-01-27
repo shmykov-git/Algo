@@ -89,7 +89,7 @@ partial class SceneMotion
         var net = new NetV3(modelPoints.Length, i => modelPoints[i].SetZ(0), 0.6 * itemSize, true);
 
         Vector3[] GetShapePoints(Shape s) => useLine
-            ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x.v * l.ab)).ToArray()
+            ? s.Lines3.SelectMany(l => (lineSplitNum).SelectInterval(x => l.a + x * l.ab)).ToArray()
             : s.Planes.Select(v => v.Center()).Concat(s.Points3).ToArray();
 
         Func<Vector3, double> DistanceFn(int i)
@@ -131,7 +131,7 @@ partial class SceneMotion
             return s;
         }
 
-        return (stepCount).SelectInterval(v => GetShape(v.v)).ToMotion(5);
+        return (stepCount).SelectInterval(v => GetShape(v)).ToMotion(5);
     }
 
     public Task<Motion> TrySkeleton()

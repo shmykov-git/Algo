@@ -50,6 +50,37 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return Surfaces.MagicWand(20, 100, 5, 0.27, 1.3, 1.3, 2, convexFunc:Convexes.ChessHedgehog).ApplyColor(Color.Yellow).ToMotion();
+        return Shapes.Ball.Perfecto(3).ToMeta().ToMotion();
+
+
+        Vector3 GetP(Vector3 p, double k)
+        {
+            var q = Quaternion.Identity;
+            var u = p.x;
+            var v = p.y;
+
+            var aU = Math.PI * u;
+            var aV = Math.PI * v;
+            var aK = 2 * Math.PI * k;
+            //var pp = new Vector3(Math.Cos(aU), 0, Math.Sin(aU)).Normalize();
+
+            q.w = Math.Cos(aU);
+            q.x = Math.Sqrt(1- Math.Cos(aU).Pow2());
+            q.y = 0;
+            q.z = Math.Cos(aK);
+
+            return q.Normalize() * p;
+        }
+
+        var coods = Shapes.CoodsWithText.ApplyColor(Color.Black);
+        var plane = Shapes.Plane(31, 31).Perfecto(2);
+
+        return (200).SelectInterval(k=>new[]
+        {
+            plane.TransformPoints(p=> GetP(p, k)).ToMeta(),
+            coods,
+        }.ToSingleShape()).ToMotion();
+
+        //return Surfaces.MagicWand(20, 100, 5, 0.27, 1.3, 1.3, 2, convexFunc:Convexes.ChessHedgehog).ApplyColor(Color.Yellow).ToMotion();
     }
 }
