@@ -24,7 +24,7 @@ namespace Model3D.Tools
             (int i, int j, int k) Sub((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i, a.j - b.j, a.k - b.k);
             (int i, int j, int k) Mult((int i, int j, int k) a, (int i, int j, int k) b) => (a.i * b.i, a.j * b.j, a.k * b.k);
             bool IsOrt((int i, int j, int k) a, (int i, int j, int k) b) => Mult(a, b) == default;
-            //int Distance((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i).Abs() + (a.j - b.j).Abs() + (b.k - b.k).Abs();
+            //int Distance((int gi, int j, int k) a, (int gi, int j, int k) b) => (a.gi - b.gi).Abs() + (a.j - b.j).Abs() + (b.k - b.k).Abs();
 
             IEnumerable<(int i, int j, int k)> Siblings((int i, int j, int k) a) => siblings.Select(b => Add(a, b));
 
@@ -41,7 +41,7 @@ namespace Model3D.Tools
             }
 
             // 3я точка ищется в 2х плоскостях точке a, b среди 8 точек
-            //(int i, int j, int k) FindThird((int i, int j, int k) a, (int i, int j, int k) b) => NetSiblings(a).First(s => s!=b && Distance(s, b))
+            //(int gi, int j, int k) FindThird((int gi, int j, int k) a, (int gi, int j, int k) b) => NetSiblings(a).First(s => s!=b && Distance(s, b))
             var cash = new Dictionary<(int, int, int), int>();
 
             int SolidFn((int i, int j, int k) p)
@@ -114,7 +114,7 @@ namespace Model3D.Tools
 
             // направление?
             // todo: обход сетки
-            //var pairs = new ((int i, int j, int k) a, (int i, int j, int k) b)[]
+            //var pairs = new ((int gi, int j, int k) a, (int gi, int j, int k) b)[]
             //{
             //    ((1, 0, 0), (0, 1, 0)),
             //    ((1, 0, 0), (0, 0, 1)),
@@ -134,11 +134,11 @@ namespace Model3D.Tools
 
             //var zr = new Vector3(0, 0, 0);
             
-            //var convexes = pdDic.SelectMany(v =>
+            //var convexes = pdDic.SelectMany(voxel =>
             //    pairs
-            //        .Select(pr => (a: Add(v.Key, pr.a), b: Add(v.Key, pr.b)))
+            //        .Select(pr => (a: Add(voxel.Key, pr.a), b: Add(voxel.Key, pr.b)))
             //        .Where(pr => net.Contains(pr.a) && net.Contains(pr.b))
-            //        .Select(pr => new[] {v.Value, pdDic[pr.a], pdDic[pr.b]}))
+            //        .Select(pr => new[] {voxel.Value, pdDic[pr.a], pdDic[pr.b]}))
             //    //.Select(c=>Angle.IsLeftDirection(zr, ps[c[0]], ps[c[1]]))
             //    .ToArray();
 

@@ -26,7 +26,7 @@ namespace Model3D.Tools.Model
         public LevelStrategy PolygonLevelStrategy { get; set; } = LevelStrategy.All;    // what kind of polygon levels should be taken
 
         public PolygonPointStrategy PolygonPointStrategy { get; set; } = PolygonPointStrategy.Circle; // how to get points from single bitmap point
-        public double PolygonPointRadius { get; set; } = 0.01;      // radius of single point for some polygon strategies
+        public double PolygonPointRadius { get; set; } = 0.01;      // linkRadius of single point for some polygon strategies
 
         public bool NormalizeScale = true;
         public bool NormalizeAlign = true;

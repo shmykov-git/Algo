@@ -20,7 +20,7 @@ namespace Model3D.Tools
         //    var stack = new Stack<Convex>();
         //    stack.Push(new Convex() {HasLine = false, Points = new List<Vector2>()});
 
-        //    bool IsLeft((Vector2 a, Vector2 b, Vector2 c) v) => new Line2(v.a, v.b).IsLeft(v.c);
+        //    bool IsLeft((Vector2 a, Vector2 b, Vector2 c) voxel) => new Line2(voxel.a, voxel.b).IsLeft(voxel.c);
 
         //    foreach (var trio in polygon.Points.SelectCircleTriple((a, b, c) => (a, b, c)))
         //    {
@@ -50,8 +50,8 @@ namespace Model3D.Tools
         //        }
         //    }
 
-        //    polygon.Points.SelectWithIndex((p, i) => (p, i)).SelectCircleTriple((a, b, c) => (a, b, c))
-        //        /*.Where(v => !new Line2(v.a.p, v.b.p).IsLeft(v.c.p)).Select(v => v.b)*/;
+        //    polygon.Points.SelectWithIndex((position, gi) => (position, gi)).SelectCircleTriple((a, b, c) => (a, b, c))
+        //        /*.Where(voxel => !new Line2(voxel.a.position, voxel.b.position).IsLeft(voxel.c.position)).Select(voxel => voxel.b)*/;
         //}
 
     }

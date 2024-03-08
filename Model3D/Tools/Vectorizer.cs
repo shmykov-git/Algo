@@ -469,7 +469,7 @@ namespace Model3D.Tools
                 };
 
 
-            //(int i, int j) GetDir((int i, int j) a, (int i, int j) b) => (b.i - a.i, b.j - a.j);
+            //(int gi, int j) GetDir((int gi, int j) a, (int gi, int j) b) => (b.gi - a.gi, b.j - a.j);
 
             // todo: все еще есть точки для оптимизации (3d шрифт)
             var deleted = points
@@ -880,8 +880,8 @@ namespace Model3D.Tools
 
             var g = new Graph(edges);
 
-            //foreach (var v in g.FullVisit())
-            //    Debug.WriteLine(nodes[v.i].v);
+            //foreach (var voxel in g.FullVisit())
+            //    Debug.WriteLine(nodes[voxel.gi].voxel);
 
             // todo: все еще есть точки для оптимизации
             // todo: 3d шрифт
@@ -892,9 +892,9 @@ namespace Model3D.Tools
             foreach (var node in delNodes)
                 g.TakeOutNode(node);
 
-            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (ns: new[] { g[1], g[2], g[3] }, del: g[1].edges.Count == 2 && g[2].edges.Count == 2 && g[3].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[2].i].v) == GetDir(nodes[g[2].i].v, nodes[g[4].i].v))).Where(v => v.del).SelectMany(v => v.ns).Distinct().ToArray();
+            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (ns: new[] { g[1], g[2], g[3] }, del: g[1].edges.Count == 2 && g[2].edges.Count == 2 && g[3].edges.Count == 2 && GetDir(nodes[g[0].gi].voxel, nodes[g[2].gi].voxel) == GetDir(nodes[g[2].gi].voxel, nodes[g[4].gi].voxel))).Where(voxel => voxel.del).SelectMany(voxel => voxel.ns).Distinct().ToArray();
 
-            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (n: g[2], del: g[2].edges.Count == 2 && GetDir(nodes[g[0].i].v, nodes[g[2].i].v) == GetDir(nodes[g[2].i].v, nodes[g[4].i].v))).Where(v => v.del).Select(v => v.n).ToArray();
+            //var delNodes2 = g.FullVisit().SelectCircleGroup(5, g => (n: g[2], del: g[2].edges.Count == 2 && GetDir(nodes[g[0].gi].voxel, nodes[g[2].gi].voxel) == GetDir(nodes[g[2].gi].voxel, nodes[g[4].gi].voxel))).Where(voxel => voxel.del).Select(voxel => voxel.n).ToArray();
             //foreach (var node in delNodes2)
             //    g.TakeOutNode(node);
 

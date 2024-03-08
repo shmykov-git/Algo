@@ -35,7 +35,7 @@ namespace Model3D.Tools
                 {
                     for (var j = i; j < ps.Length; j++)
                     {
-                        if ((ps[i-1].value - ps[j].value).Length < distance) //  && IsRight(a.value, ps[i - 1].value, ps[j].value)
+                        if ((ps[i-1].value - ps[j].value).Length < distance) //  && IsRight(a.value, ps[gi - 1].value, ps[j].value)
                         {
                             var t = ps[i];
                             ps[i] = ps[j];

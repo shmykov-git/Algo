@@ -295,7 +295,7 @@ namespace Model3D.Tools
 
                 planeLiquidAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
 
-                //Debug.WriteLine($"{minDist}, {liquidAccelerations.Min(v=>v.Length)}, {liquidAccelerations.Max(v => v.Length)}");
+                //Debug.WriteLine($"{minDist}, {liquidAccelerations.Min(voxel=>voxel.Length)}, {liquidAccelerations.Max(voxel => voxel.Length)}");
             }
 
             foreach (var p in particles)

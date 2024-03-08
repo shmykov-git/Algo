@@ -111,7 +111,7 @@ public partial class ActiveWorld
         // </plane>
         public Func<Vector3> PositionFn => () => position - model.center;
         public Vector3 speed;
-        //private Vector3 _speed = Vector3.Origin; public Vector3 speed { get => _speed; set { _speed = debugSpeed(value); } }
+        //private Vector3 _speed = Vector3.Origin; public Vector3 acc { get => _speed; set { _speed = debugSpeed(value); } }
         // <ground>
         public double speedY = 0;
         // </ground>

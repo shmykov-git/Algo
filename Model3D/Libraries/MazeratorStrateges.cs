@@ -53,7 +53,7 @@ namespace Model3D.Libraries
 
                 //var randomOrderCount = nodeIndices.Length == 2 ? 1 : 2;
 
-                //Debug.WriteLine($"{points[to].ToV2()}: {string.Join(", ", probabilities.Select(p => $"{p:F1}"))}");
+                //Debug.WriteLine($"{points[to].ToV2()}: {string.Join(", ", probabilities.Select(position => $"{position:F1}"))}");
 
                 return rnd.RandomIndices(probabilities, probabilities.Length - 1).Select(i => nodeIndices[i]).ToArray();
             }

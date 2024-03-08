@@ -471,31 +471,31 @@ public static class Surfaces
 
     private static int[][] ChessSquares(int un, int vn) => Convexes.ChessSquares(un, vn);
     //{
-    //    int GetNum(int u, int v) => vn * u + v;
-    //    return (un - 1, vn - 1).SelectRange((u, v) => (u, v)).Where(x=>(x.u+x.v).IsEven()).Select(x => new int[]
+    //    int GetNum(int u, int voxel) => vn * u + voxel;
+    //    return (un - 1, vn - 1).SelectRange((u, voxel) => (u, voxel)).Where(x=>(x.u+x.voxel).IsEven()).Select(x => new int[]
     //    {
-    //        GetNum(x.u, x.v), GetNum(x.u, x.v + 1), GetNum(x.u + 1, x.v + 1), GetNum(x.u + 1, x.v)
+    //        GetNum(x.u, x.voxel), GetNum(x.u, x.voxel + 1), GetNum(x.u + 1, x.voxel + 1), GetNum(x.u + 1, x.voxel)
     //    }).ToArray();
     //}
 
     private static int[][] Triangles(int un, int vn) => Convexes.Triangles(un, vn);
     //{
-    //    int GetNum(int u, int v) => vn * u + v;
-    //    return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
+    //    int GetNum(int u, int voxel) => vn * u + voxel;
+    //    return (un - 1, vn - 1).SelectRange((u, voxel) => new int[][]
     //    {
-    //        new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v) },
-    //        new int[] { GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) }
-    //    }).SelectMany(v => v).ToArray();
+    //        new int[] { GetNum(u, voxel), GetNum(u, voxel + 1), GetNum(u + 1, voxel) },
+    //        new int[] { GetNum(u, voxel + 1), GetNum(u + 1, voxel + 1), GetNum(u + 1, voxel) }
+    //    }).SelectMany(voxel => voxel).ToArray();
     //}
 
     private static int[][] Diagonals(int un, int vn) => Convexes.DiagonalSquares2D(un, vn);
     //{
-    //    int GetNum(int u, int v) => vn * u + v;
-    //    return (un - 1, vn - 1).SelectRange((u, v) => new int[][]
+    //    int GetNum(int u, int voxel) => vn * u + voxel;
+    //    return (un - 1, vn - 1).SelectRange((u, voxel) => new int[][]
     //    {
-    //        new int[] { GetNum(u, v), GetNum(u, v + 1), GetNum(u + 1, v + 1), GetNum(u + 1, v) },
-    //        new int[] { GetNum(u, v), GetNum(u + 1, v + 1)},
-    //        new int[] { GetNum(u, v+1), GetNum(u + 1, v)}
-    //    }).SelectMany(v => v).ToArray();
+    //        new int[] { GetNum(u, voxel), GetNum(u, voxel + 1), GetNum(u + 1, voxel + 1), GetNum(u + 1, voxel) },
+    //        new int[] { GetNum(u, voxel), GetNum(u + 1, voxel + 1)},
+    //        new int[] { GetNum(u, voxel+1), GetNum(u + 1, voxel)}
+    //    }).SelectMany(voxel => voxel).ToArray();
     //}
 }

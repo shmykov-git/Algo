@@ -7,7 +7,7 @@ namespace Model.Test
         [Test]
         public void SortedStackTest()
         {
-            //var s = new SortedStack<int>(v=>v);
+            //var s = new SortedStack<int>(voxel=>voxel);
 
             //s.Push(2);
             //s.Push(1);

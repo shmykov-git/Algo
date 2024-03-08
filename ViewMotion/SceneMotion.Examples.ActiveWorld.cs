@@ -341,7 +341,7 @@ partial class SceneMotion //ActiveWorld
 
                     o.OnShow += s =>
                     {
-                        // change any shape options on show
+                        // change any shape Options on show
 
                         return s; // ball.ApplyColor(Color.LightBlue);
                     };
@@ -365,7 +365,7 @@ partial class SceneMotion //ActiveWorld
 
             o.OnStep += w =>
             {
-                // Add any world animation
+                // Add any World animation
             };
         }).ToMotion(10);
 

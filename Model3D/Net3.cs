@@ -69,6 +69,8 @@ namespace Model3D
             v.j >= 0 && v.j < ny &&
             v.k >= 0 && v.k < nz;
 
+        //public (int)
+
         public Net3(TNetItem[] items, Vector3 from, Vector3 to, double clusterSize) : this(from, to, clusterSize)
         {
             AddItems(items);
@@ -152,8 +154,10 @@ namespace Model3D
             .ToArray();
 
 
-        public IEnumerable<TNetItem> SelectNeighbors(TNetItem item) => SelectNeighbors(item.PositionFn()).Where(b=> !item.Equals(b));
-        
+        public IEnumerable<TNetItem> SelectNeighbors(TNetItem item) => SelectNeighbors(item.PositionFn()).Where(b => !item.Equals(b));
+
+        public IEnumerable<TNetItem> SelectNeighborsByRadius(TNetItem item, double radius) => SelectItemsByRadius(item.PositionFn(), radius).Where(b => !item.Equals(b));
+
         public IEnumerable<TNetItem> SelectNeighbors(Vector3 item)
         {
             var v0 = GetIndex(item);

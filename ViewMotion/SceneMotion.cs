@@ -43,44 +43,102 @@ using System.Windows.Shapes;
 using System.Windows;
 using System.Diagnostics.Metrics;
 using Aspose.ThreeD;
+using Model3D.Voxels;
 
 namespace ViewMotion;
 
 partial class SceneMotion
 {
+    private Shape ToShape(Vape vape)
+    {
+        var s = new Shape
+        {
+            Points3 = vape.net.NetItems.Select(v => v.position + vape.position).ToArray(),
+            Convexes = vape.edges.Values.Select(e => (e.a.i, e.b.i).OrderedEdge()).Distinct().Select(e => new[] { e.i, e.j }).ToArray()
+        };
+
+        return s;
+    }
+
     public Task<Motion> Scene()
     {
-        return Shapes.Ball.Perfecto(3).ToMeta().ToMotion();
+        var nMotion = 1000;
 
+        //var pointsA = Shapes.Cube.Perfecto().SplitPlanes(0.1).Points3;
+        var n = 5;
+        var nB = 3;
 
-        Vector3 GetP(Vector3 p, double k)
+        var mult = 1.0 / (n - 1);
+        var pointsA = (n, n, n).SelectRange((i, j, k) => mult * (new Vector3(i, j, k) - (n-1) * new Vector3(0.5, 0.5, 0.5))).ToArray();
+        var pointsB = (nB, nB, nB).SelectRange((i, j, k) => mult * (new Vector3(i, j, k) - (nB-1) * new Vector3(0.5, 0.5, 0.5))).ToArray();
+        var voxelSize = 1.0 / (n - 1);
+
+        var world = new VapeWorld(new VapeWorldOptions
         {
-            var q = Quaternion.Identity;
-            var u = p.x;
-            var v = p.y;
+            VoxelSize = voxelSize,
+            InteractionMult = 1.4,
+            InactiveSpeed = 0.00001
+        });
 
-            var aU = Math.PI * u;
-            var aV = Math.PI * v;
-            var aK = 2 * Math.PI * k;
-            //var pp = new Vector3(Math.Cos(aU), 0, Math.Sin(aU)).Normalize();
+        var material = new VoxelMaterial()
+        {
+            power = 0.0002,
+            powerRadius = voxelSize,
+            destroyRadius = 2 * voxelSize,
+            damping = 0.95,
+            mass = 1,
+            interaction = new VoxelInteraction
+            {
+                power = 0.0002,
+                powerRadius = 0.9 * voxelSize
+            }
+        };
 
-            q.w = Math.Cos(aU);
-            q.x = Math.Sqrt(1- Math.Cos(aU).Pow2());
-            q.y = 0;
-            q.z = Math.Cos(aK);
+        var vapeA = new Vape(world, pointsA.Select(p => new Voxel
+        {
+            position = p,
+            speed = Vector3.Origin,
+            material = material
+        }))
+        { 
+            position = new Vector3(0, 0, 1) 
+        };
 
-            return q.Normalize() * p;
+        var vapeB = new Vape(world, pointsB.Select(p => new Voxel
+        {
+            position = p,
+            speed = new Vector3(0, 0, 0.01),
+            material = material
+        }))
+        { 
+            position = new Vector3(0, 0, -3) 
+        };
+
+
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var step = 0; step < nMotion; step++)
+            {
+                vapeB.activeVoxelRoots = new();
+                vapeB.net.NetItems.ForEach(v => vapeB.activeVoxelRoots.Add(v));
+                vapeA.activeVoxelRoots = new();
+                vapeA.net.NetItems.ForEach(v => vapeA.activeVoxelRoots.Add(v));
+
+
+                var sw = Stopwatch.StartNew();
+                world.Step();
+                //Debug.WriteLine($"{step,-2} step: {sw.ElapsedMilliseconds:F0}ms ({vapeA.World.Options.stepFuncExecCount})");
+
+                yield return new[] 
+                {
+                    ToShape(vapeA),
+                    ToShape(vapeB)
+                }.ToSingleShape().Mult(3).ToMeta(multPoint:5);
+                //yield return ToShape(vapeA).Mult(3).ToSpots3(1, Color.Blue, Shapes.Cube.Centered().ToLines().Mult(40 * 3 * voxelSize));
+            }
         }
 
-        var coods = Shapes.CoodsWithText.ApplyColor(Color.Black);
-        var plane = Shapes.Plane(31, 31).Perfecto(2);
-
-        return (200).SelectInterval(k=>new[]
-        {
-            plane.TransformPoints(p=> GetP(p, k)).ToMeta(),
-            coods,
-        }.ToSingleShape()).ToMotion();
-
-        //return Surfaces.MagicWand(20, 100, 5, 0.27, 1.3, 1.3, 2, convexFunc:Convexes.ChessHedgehog).ApplyColor(Color.Yellow).ToMotion();
+        return Animate().ToMotion();
     }
 }

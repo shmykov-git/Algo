@@ -68,16 +68,16 @@ partial class SceneMotion
 
         var gravity = 0.01 * new Vector3(0, -1, 0);
         //var planeForce = new Vector3(0, 1, 0);
-        //var planePoint = ps.OrderByDescending(p => p.y).First();
+        //var planePoint = ps.OrderByDescending(position => position.y).First();
 
 
         //void CalculateStoneAccelerationsSingleTouchPoint(Solid solid, Vector3 touchPoint)
         //{
         //    var touchDirection = touchPoint - solid.Position;
 
-        //    solid.Items.Select(v =>
+        //    solid.Items.Select(voxel =>
         //    {
-        //        // todo: разложить v.position, gravity на ускорение вращения и ускорение перемещения центра
+        //        // todo: разложить voxel.position, gravity на ускорение вращения и ускорение перемещения центра
         //        // плоскость точки касания, центра, позиции
         //        // проекциия верктора гравитации на эту плоскость - это определяет ускорение перемещения без вращения (с учетом массы и расстояния)
         //        // а проекция на нормаль это плоскости определяет ускорение вращения (с учетом массы и расстояния)
@@ -86,23 +86,23 @@ partial class SceneMotion
         //        //  для обсчета достаточно центра, скоростей, ускорений, массы
 
         //        var a = touchDirection.Normalize();
-        //        var b = v.Position.Normalize();
+        //        var b = voxel.Position.Normalize();
         //        var c = a.MultV(b);
         //        var d = a.MultV(c);
 
-        //        var l = v.Position.MultV(touchDirection);
+        //        var l = voxel.Position.MultV(touchDirection);
 
         //        return Vector3.Origin;
         //    }).Sum();
 
-        //    //var planeForceDir = planePoint - v.Position;
+        //    //var planeForceDir = planePoint - voxel.Position;
         //    //var planeForce = planeForceDir.ToLen(planeForceDir.MultS(gravity).Abs());
-        //    //var acc = v.Mass * (gravity + planeForce);
+        //    //var acc = voxel.Mass * (gravity + planeForce);
 
         //    // todo: 2 точки A, B. В точке A ускорение a, какое в точке B?
         //    //var accZ = 
 
-        //    //v.Acceleration = acc;
+        //    //voxel.Acceleration = acc;
         //}
 
         // todo: посчитать Zx, Zy, Yx
@@ -146,7 +146,7 @@ partial class SceneMotion
             }
 
 
-            //items.ForEach(v => v.Acceleration = Vector3.Origin);
+            //items.ForEach(voxel => voxel.Acceleration = Vector3.Origin);
             //stone.Items.ForEach(SetStoneAccelerations);
 
             //foreach (var Item in items)

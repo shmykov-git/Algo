@@ -344,7 +344,7 @@ namespace ViewMotion
             {
                 Positions = new Point3DCollection(shape.Points3.Select(p => p.ToP3D())),
                 TriangleIndices = new Int32Collection(shape.Triangles),
-                //Normals = new Vector3DCollection(shape.PointNormals.Select(p => p.ToV3D())),
+                //Normals = new Vector3DCollection(shape.PointNormals.Select(position => position.ToV3D())),
                 TextureCoordinates = shape.TexturePoints == null
                     ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
                     : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D())),

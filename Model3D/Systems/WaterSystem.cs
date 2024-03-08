@@ -302,7 +302,7 @@ namespace Model3D.Systems
 
             var rnd = new Random(options.Seed);
             var cubeSize = options.SceneSize;
-            //var particleRadius = options.ParticleRadius;
+            //var particleRadius = Options.ParticleRadius;
 
 
             //var mebius = Surfaces.MobiusStrip(120, 20, bothFaces:true).GroupMembers(3).ToOy()
@@ -333,7 +333,7 @@ namespace Model3D.Systems
                     return true;
                 });
 
-            //return logicGround.ResizeByNormals(-options.ParticleRadius).ApplyColor(Color.Blue);
+            //return logicGround.ResizeByNormals(-Options.ParticleRadius).ApplyColor(Color.Blue);
 
             Shape TransformSpiral(Shape s) => s.Normalize().Scale(1, 1, 1 / Math.PI).Perfecto(11)
                 .CurveZ(Funcs3.Spiral(1.25)).Mult(4).ToOyM().RotateOy(Math.PI / 10)
@@ -349,7 +349,7 @@ namespace Model3D.Systems
 
             var box = logicBox.AddNormalVolume(-0.15).Normalize().ApplyColor(Color.Black);
 
-            //Shape TransformSphere(Shape s) => s.Where(v=>v.y < 0.2).GroupMembers(5).FilterConvexes(c => (c[0] + c[2]) % 2 == 0)
+            //Shape TransformSphere(Shape s) => s.Where(voxel=>voxel.y < 0.2).GroupMembers(5).FilterConvexes(c => (c[0] + c[2]) % 2 == 0)
             //    .Move(0, -cubeSize.y / 2 + 2.5, 3);
 
             //var ball = Shapes.GolfBall4;

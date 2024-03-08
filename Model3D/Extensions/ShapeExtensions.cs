@@ -209,7 +209,7 @@ namespace Model3D.Extensions
                 {
                     up ? convex.Reverse().ToArray() : convex,
                     (up ? convex : convex.Reverse()).Select(i => i + shape.Points.Length).ToArray()
-                }).ToArray() //.Concat(convex.SelectCirclePair((i, j) => new int[] { i, i + shape0.Points.Length, j + shape0.Points.Length, j }).ToArray())).ToArray(),
+                }).ToArray() //.Concat(convex.SelectCirclePair((gi, j) => new int[] { gi, gi + shape0.Points.Length, j + shape0.Points.Length, j }).ToArray())).ToArray(),
             };
 
             return s;
@@ -548,7 +548,7 @@ namespace Model3D.Extensions
             var psMoves = shape.Convexes.Select((c, i) => (c, i)).SelectMany(v => v.c.Select(i => (i, v.c, ind: v.i))).GroupBy(v => v.i).Select(gv =>
                     (i: gv.Key,
                         n: GetNP(gv.Select(v => GetN(v.c)))))
-                /*.OrderBy(v => v.i)*/.ToDictionary(v => v.i, v => v.n); // todo: check
+                /*.OrderBy(voxel => voxel.gi)*/.ToDictionary(v => v.i, v => v.n); // todo: check
 
             return new Shape()
             {

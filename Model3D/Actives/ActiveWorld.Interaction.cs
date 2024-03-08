@@ -179,7 +179,7 @@ public partial class ActiveWorld // Interaction
         if (options.Debug.DebugPlaneMaterialPenetration)
             Debugs.MaxPercent("Plane material penetration: {0}", forceDistance / (options.JediMaterialThickness + options.MaterialThickness));
 
-        //Debug.WriteLine($"{cc++} {-forceDistance / (options.JediMaterialThickness + options.MaterialThickness):P0}: {collideForce.Length} ({elasticForce.Length}, {frictionForce.Length}, {clingForce.Length}) ");
+        //Debug.WriteLine($"{cc++} {-forceDistance / (Options.JediMaterialThickness + Options.MaterialThickness):P0}: {collideForce.Length} ({elasticForce.Length}, {frictionForce.Length}, {clingForce.Length}) ");
 
         rra.applyCollideForce(aPack, collideMass, collideForce);
         rrb.applyCollideForce(planePack, collideMass, -collideForce);
@@ -282,7 +282,7 @@ public partial class ActiveWorld // Interaction
 
     //    foreach (var a in activeShapes.Where(a => a.Options.UseInteractions))
     //    {
-    //        var materialThickness = options.MaterialThickness + options.JediMaterialThickness;
+    //        var materialThickness = Options.MaterialThickness + Options.JediMaterialThickness;
 
     //        foreach (var b in worldNet.SelectNeighbors(a))
     //            foreach (var pb in b.Planes)
@@ -298,8 +298,8 @@ public partial class ActiveWorld // Interaction
 
     //                foreach (var ea in a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize).SelectMany(n => n.edges))
     //                {
-    //                    var isStrikeDirI = /*!ea.ni.hasnDir || */ea.ni.speed.MultS(nOne) < 0;
-    //                    var isStrikeDirJ = /*!ea.nj.hasnDir || */ea.nj.speed.MultS(nOne) < 0;
+    //                    var isStrikeDirI = /*!ea.ni.hasnDir || */ea.ni.acc.MultS(nOne) < 0;
+    //                    var isStrikeDirJ = /*!ea.nj.hasnDir || */ea.nj.acc.MultS(nOne) < 0;
 
     //                    if (isStrikeDirI || isStrikeDirJ)
     //                    {
@@ -389,7 +389,7 @@ public partial class ActiveWorld // Interaction
 
     //                if (isColliding)
     //                {
-    //                    n.speed += n.collideForce / n.collideCount;
+    //                    n.acc += n.collideForce / n.collideCount;
     //                }
 
     //                n.collideCount = 0;

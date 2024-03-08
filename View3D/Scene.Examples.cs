@@ -73,9 +73,9 @@ namespace View3D
         // Green tree // var shape = LineFractals.Tree3.CreateFractal(6).ToShape(10, true, Color.FromArgb(0, 10, 0), Color.FromArgb(0, 50, 0)).Rotate(Rotates.Z_Y);
         // Polynom // var shape = Surfaces.Cylinder(8, 61).MassCentered().Scale(0.1, 0.1, 0.1).CurveZ(Funcs3.RootPolinomY(1.0/20, new[]{ -3, -2, -0.5, 0, 1.1, 2.2, 3})) + Shapes.Cube;
         // Fourier  eagle // var shape = Polygons.FourierSeries(400, ((0.05, 0), 20), (Fourier.RotateN(1, 4), 1)).ToShape2().ToShape3().ToLines();
-        // Rainbow // var shape = Surfaces.ParticleWithPlane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, v => -v.y - v.x * v.x, v=>0.005*Math.Sin(v.x*171 + v.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
-        // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(v => v.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
-        // Mandelbrot // var s = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).Select(v => v.ToV3()).ToShape().ToCubeSpots3(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
+        // Rainbow // var shape = Surfaces.ParticleWithPlane(300, 30).Move(-150, -15, 0).Mult(0.0020).ApplyFn(null, voxel => -voxel.y - voxel.x * voxel.x, voxel=>0.005*Math.Sin(voxel.x*171 + voxel.y*750)).ToSpots3(0.05).ApplyColorGradientZ((x, y) => -x * x - y, Color.Red, Color.Red, Color.Orange, Color.Yellow, Color.Green, Color.Blue, Color.DarkBlue, Color.Purple, Color.Purple);
+        // Barnsley Fern // var shape = IteratedFunctionSystem.BarnsleyFern(20000).Select(voxel => voxel.ToV3()).ToShape().ToTetrahedronSpots3().ApplyColor(Color.Blue);
+        // Mandelbrot // var s = MandelbrotFractalSystem.GetPoints(2, 0.002, 1000).Select(voxel => voxel.ToV3()).ToShape().ToCubeSpots3(0.2).ScaleZ(15).ApplyColor(Color.Blue) + Shapes.Ball.Mult(0.1).ApplyColor(Color.Red);
         // Maze 5 5 5 // var shape = Mazes.CreateNet3Maze(5, 5, 5).ToCubeMetaShape3(10, 10, Color.Blue, Color.Red);
         // Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.03, 1.7, -1.09, 5).ToMetaShape3(0.2, 0.5, Color.Blue, Color.Red);
         // Fantastic Kershner8 Maze // var shape = Mazes.CrateKershner8Maze(0.01, 1.7, -1.09, 5).Mult(3).Transform(TransformFuncs3.Flower(0.3, 0.3, 5)).ToLines(0.2, Color.Green);
@@ -279,7 +279,7 @@ namespace View3D
                 .ApplyColorSphereGradient(Color.White, Color.Black, Color.Black);
 
             //var fieldPoint = Shapes.Tetrahedron.Mult(0.1).ApplyColor(Color.Blue);
-            //var field = animator.NetField.Select(p => fieldPoint.Move(p)).ToSingleShape();
+            //var field = animator.NetField.Select(position => fieldPoint.Move(position)).ToSingleShape();
 
             return shape/* + field + Shapes.CoodsWithText*/;
         }
@@ -405,9 +405,9 @@ namespace View3D
                 .Select((p, i) => p.ToShape().ToLines(0.2) + vectorizer.GetTextObsolet(i.ToString()).Perfecto(0.01)
                     .Move(p.Points.Center().ToV3()).ToLines(0.1).ApplyColor(Color.Blue)).Select((s, i) => s.MoveZ(i * 0.02)).ToSingleShape();
 
-            //return s.ToPerimeterPolygons().Select(p => p.SmoothOut(2)).ToArray()
+            //return s.ToPerimeterPolygons().Select(position => position.SmoothOut(2)).ToArray()
             //    .ComposeObsolet(new[] { (4, 3), (6, 3), (7, 3), (8, 3), (9, 3), (10, 3), (11, 3), (12, 3), (13, 3), (14, 3), (15, 3), (16, 3) })
-            //    .Select(p => p.ToShape(0.02, trioStrategy: true)).ToSingleShape();
+            //    .Select(position => position.ToShape(0.02, trioStrategy: true)).ToSingleShape();
         }
 
         public Shape GoldMe(Shape shape = null, bool addSpheres = true, bool addPrice = true)
@@ -496,7 +496,7 @@ namespace View3D
 
             var ss = points.Select(v => GetFigure(chess, v.a, v.b)).ToArray();
 
-            //var (k, q, b, n, r, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]); // chess3
+            //var (k, q, b, n, r, position) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]); // chess3
             var (r, b, k, q, n, p) = (ss[0], ss[1], ss[2], ss[3], ss[4], ss[5]);
 
             var data = new (Shape s, (int x, int z) p, Color c)[]
@@ -546,7 +546,7 @@ namespace View3D
             var ns = tb.Normals;
             var ps = tb.Planes.Select(p => p.Center()).ToArray();
             //tb = Surfaces.ParticleWithPlane(9, 9).ApplyColorChess(black, white)
-            //    .FilterConvexes((c,i) => i < 16 || i >= 48 || rnd.NextDouble()<0.8).GroupMembers(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
+            //    .FilterConvexes((c,gi) => gi < 16 || gi >= 48 || rnd.NextDouble()<0.8).GroupMembers(8 * l).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
 
             return new[]
             {

@@ -123,7 +123,7 @@ partial class SceneMotion
             var s = new[]
             {
                 dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().ToLines(1, Color.Blue),
-                //dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().AddPerimeterZVolume(-itemSize).ApplyColor(Color.Black),
+                //dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(position=>position.z>0)).Normalize().AddPerimeterZVolume(-itemSize).ApplyColor(Color.Black),
                 dynPlane.FilterConvexPlanes((ps, _)=> ps.Any(p=>p.z>0)).AddNormalVolume(-itemSize).ApplyColor(Color.Red),
                 showModel ? model.ToLines(5, Color.Yellow) : Shape.Empty
             }.ToSingleShape();
@@ -294,7 +294,7 @@ partial class SceneMotion
             var aCoef = k * 1;
             var gCoef = k * 1;
             var bulletForceCoef = k * 0.005;  // fix bullet interactive force
-            var bulletBorderCoef = -0.4;      // depends on bullet.radius
+            var bulletBorderCoef = -0.4;      // depends on bullet.powerRadius
             var dampingCoef = 0.8;
             var forceBorder = 0.5;
             var gravityCoef = 0.0001;

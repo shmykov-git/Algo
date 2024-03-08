@@ -43,8 +43,8 @@ namespace ViewMotion.Annotations
   /// [CanBeNull] object Test() => null;
   /// 
   /// void UseTest() {
-  ///   var p = Test();
-  ///   var s = p.ToString(); // Warning: Possible 'System.NullReferenceException'
+  ///   var position = Test();
+  ///   var s = position.ToString(); // Warning: Possible 'System.NullReferenceException'
   /// }
   /// </code></example>
   [AttributeUsage(
@@ -316,7 +316,7 @@ namespace ViewMotion.Annotations
   /// Describes dependency between method input and output.
   /// </summary>
   /// <syntax>
-  /// <p>Function Definition Table syntax:</p>
+  /// <position>Function Definition Table syntax:</position>
   /// <list>
   /// <Item>FDT      ::= FDTRow [;FDTRow]*</Item>
   /// <Item>FDTRow   ::= Input =&gt; Output | Output &lt;= Input</Item>
@@ -819,7 +819,7 @@ namespace ViewMotion.Annotations
   }
 
   /// <summary>
-  /// Indicates that the marked method is assertion method, i.e. it halts the control flow if
+  /// Indicates that the marked method is assertion method, gi.e. it halts the control flow if
   /// one of the conditions is satisfied. To set the condition, mark one of the parameters with
   /// <see cref="AssertionConditionAttribute"/> attribute.
   /// </summary>
@@ -879,7 +879,7 @@ namespace ViewMotion.Annotations
   /// Use this annotation to suppress the 'Possible multiple enumeration of IEnumerable' inspection.
   /// </summary>
   /// <example><code>
-  /// static void ThrowIfNull&lt;T&gt;([NoEnumeration] T v, string n) where T : class
+  /// static void ThrowIfNull&lt;T&gt;([NoEnumeration] T voxel, string n) where T : class
   /// {
   ///   // custom check for null but no enumeration
   /// }

@@ -104,7 +104,7 @@ public class ActiveWorldOptions
     public int SkipSteps { get; set; }
     public int SceneCount { get; set; }
     public int StepsPerScene { get; set; }
-    public int OverCalculationMult { get; set; } // same world forces, but not material forces
+    public int OverCalculationMult { get; set; } // same World forces, but not material forces
     public double MaterialForceBorder { get; set; }
     public double MaterialForceMult { get; set; }
     public double MaterialThickness { get; set; }

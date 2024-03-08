@@ -48,20 +48,20 @@ public static class MandelbrotQuaternionFractalSystem
     //    var precision2 = precision.Pow2();
     //    var v0 = FindBounds(power, new Complex(0, 0), precision, maxIterations);
 
-    //    bool IsInside(Vector2 v) => MandelbrotDistance(power, v.ToZ(), maxIterations) == 0;
+    //    bool IsInside(Vector2 voxel) => MandelbrotDistance(power, voxel.ToZ(), maxIterations) == 0;
 
-    //    (Vector2 a, Vector2 b) NextPoint((Vector2 a, Vector2 b) v)
+    //    (Vector2 a, Vector2 b) NextPoint((Vector2 a, Vector2 b) voxel)
     //    {
-    //        var dir = (v.b - v.a).NormalM.ToLen(precision);
-    //        var c = v.a + dir;
-    //        var d = v.b + dir;
+    //        var dir = (voxel.b - voxel.a).NormalM.ToLen(precision);
+    //        var c = voxel.a + dir;
+    //        var d = voxel.b + dir;
     //        var isCInside = IsInside(c);
     //        var isDInside = IsInside(d);
 
     //        if (isCInside)
     //        {
     //            if (isDInside)
-    //                return (d, v.b);
+    //                return (d, voxel.b);
     //            else
     //                return (c, d);
     //        }
@@ -70,26 +70,26 @@ public static class MandelbrotQuaternionFractalSystem
     //            //if (isDInside)
     //            //    throw new ApplicationException("Loop");
     //            //else
-    //            return (v.a, c);
+    //            return (voxel.a, c);
     //        }
     //    }
 
     //    var res = new List<Vector2>();
 
-    //    var v = NextPoint(v0);
-    //    res.Add(v.b);
+    //    var voxel = NextPoint(v0);
+    //    res.Add(voxel.b);
 
     //    do
     //    {
-    //        v = NextPoint(v);
-    //        var p = v.a + insideCoff * (v.b - v.a);
+    //        voxel = NextPoint(voxel);
+    //        var position = voxel.a + insideCoff * (voxel.b - voxel.a);
 
-    //        res.Add(p);
+    //        res.Add(position);
 
     //        if (limit-- == 0)
     //            break;
 
-    //    } while ((v.b - v0.b).Len2 > precision2);
+    //    } while ((voxel.b - v0.b).Len2 > precision2);
 
     //    return res.ToArray();
     //}

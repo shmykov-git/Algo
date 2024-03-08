@@ -43,7 +43,7 @@ namespace Model3D.Tools
 
             //var ps = d.Points;
             //foreach (var c in plane.Convexes)
-            //    Debug.WriteLine(string.Join(", ", c.SelectCirclePair((i, j) => (ps[j] - ps[i]).Length.ToString("F2"))));
+            //    Debug.WriteLine(string.Join(", ", c.SelectCirclePair((gi, j) => (ps[j] - ps[gi]).Length.ToString("F2"))));
 
             return new Shape()
             {
