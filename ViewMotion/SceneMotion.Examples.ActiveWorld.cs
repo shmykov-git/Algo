@@ -145,21 +145,25 @@ partial class SceneMotion //ActiveWorld
     public Task<Motion> TwoBallFallingToNetMotion()
     {
         var ball = Shapes.IcosahedronSp1.Perfecto();
+        var posA = new Vector3(1.5, 3, -0.5);
+        var posB = new Vector3(-1, 2, 0.5);
 
         return new[] {
-            ball.PutOn(3).Move(0.5,0,-0.5).ToActiveShape(o =>
+            ball.Move(posA).ToActiveShape(o =>
             {
                 //o.ShowMeta = true;
-                o.Mass = 3;
+                o.Speed = 0.0001 * (posB-posA);
+                o.Mass = 6;
                 o.AllowTriangulation0  =false;
             }),
-            ball.PutOn(2).Move(-0.2,0,0.5).ToActiveShape(o =>
+            ball.Move(posB).ToActiveShape(o =>
             {
-                o.Mass = 3;
+                o.Mass = 6;
+                o.Speed = 0.0001 * (posA-posB);
                 //o.ShowMeta = true;
                 o.AllowTriangulation0  =false;
             }),
-            Surfaces.Plane(20,20).Perfecto(5).ToOy()/*.RotateOz(Math.PI/6)*/.PutOn().ToActiveShape(o =>
+            Surfaces.Plane(20,20).Perfecto(5).ToOy().RotateOx(Math.PI/24).PutOn().ToActiveShape(o =>
             {
                 o.Type = ActiveShapeOptions.ShapeType.D2;
                 o.ShowMeta = true;
@@ -178,9 +182,10 @@ partial class SceneMotion //ActiveWorld
             o.Ground.Y = -10;
             o.Ground.ClingForce = 0.01;
             o.InteractionType = InteractionType.ParticleWithPlane;
+            o.Interaction.ParticleForce = 5;
             o.Interaction.ElasticForce = 1;
-            o.Interaction.ClingForce = 2;
-            o.Interaction.FrictionForce = 2;
+            o.Interaction.ClingForce = 0.5;
+            o.Interaction.FrictionForce = 0.5;
         }).ToMotion(10);
     }
 

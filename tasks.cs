@@ -109,3 +109,6 @@ public Task<Motion> Scene()
 }
 #endregion
 
+#region Vape - попробовать сделать свои воксели
+// см. SceneMotion.Vape.cs
+#endregion
