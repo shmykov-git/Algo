@@ -186,6 +186,22 @@ namespace Model.Extensions
             }
         }
 
+        public static IEnumerable<TRes> SelectTriple<T, TRes>(this IEnumerable<T> list, Func<T, T, T, TRes> func)
+        {
+            var i = 0;
+            var prevPrevT = default(T);
+            var prevT = default(T);
+            foreach (var t in list)
+            {
+                if (i >= 2)
+                    yield return func(prevPrevT, prevT, t);
+
+                prevPrevT = prevT;
+                prevT = t;
+                i++;
+            }
+        }
+
         public static IEnumerable<TRes> SelectCircleFours<T, TRes>(this IEnumerable<T> list, Func<T, T, T, T, TRes> func)
         {
             var i = 0;

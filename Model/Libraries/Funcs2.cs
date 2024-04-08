@@ -1,4 +1,5 @@
-﻿using Model.Extensions;
+﻿using Model.Bezier;
+using Model.Extensions;
 using System;
 
 namespace Model.Libraries
@@ -26,5 +27,7 @@ namespace Model.Libraries
         }
 
         public static Func2 Flower(int n, double a) => t => (a * new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t)))/ (a+1);
+
+        public static Func2 Bz(Vector2[][] ps, bool closed = false) => ps.ToBz(closed);
     }
 }

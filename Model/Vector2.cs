@@ -60,6 +60,21 @@ namespace Model
             return new Vector2 { x = v.a, y = v.b };
         }
 
+        public static implicit operator Vector2((int a, int b) v)
+        {
+            return new Vector2 { x = v.a, y = v.b };
+        }
+
+        public static implicit operator Vector2((int a, double b) v)
+        {
+            return new Vector2 { x = v.a, y = v.b };
+        }
+
+        public static implicit operator Vector2((double a, int b) v)
+        {
+            return new Vector2 { x = v.a, y = v.b };
+        }
+
         public static implicit operator (double x, double y)(Vector2 v)
         {
             return (v.x, v.y);

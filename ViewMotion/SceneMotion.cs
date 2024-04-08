@@ -38,6 +38,8 @@ using System.Windows.Shapes;
 using System.Windows;
 using System.Diagnostics.Metrics;
 using Aspose.ThreeD;
+using Model.Bezier;
+using System.Linq;
 
 namespace ViewMotion;
 
@@ -45,19 +47,18 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return TwoBallFallingToNetMotion();
+        Vector2[][] bps = [[(0, 1), (0.05, 0.8), (0.15, 0.5)], [(0.5, 0.5), (0.85, 0.5), (0.95, 1)], [(1, 0)]];
 
-        return new[] 
-        { 
-            Shapes.Cube.PutOn(0.5).ToActiveShape(),
-            Shapes.Cube.Mult(0.5).PutOn(1.6).ToActiveShape(o =>
-            {
-                o.MaterialPower = 5;
-                o.Skeleton.Power = 5;
-            }),
-        }.ToWorld(o =>
+        var fn = Funcs2.Bz(bps);
+
+        var ps = (100).SelectInterval(1, x => fn(x));
+
+        return new[]
         {
-            o.OverCalculationMult = 10;
-        }).ToMotion();
+            bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
+            bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
+            ps.ToShape2().ToShape3().ToLines(Color.Blue),
+            Shapes.Coods2WithText
+        }.ToSingleShape().ToMotion();
     }
 }
