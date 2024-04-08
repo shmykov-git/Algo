@@ -8,12 +8,14 @@ namespace ViewMotion.Commands
     {
         private readonly Action<TArg> execute;
         private readonly Func<TArg, bool>? canExecute;
+        private readonly Action? refresh;
 
-        public UICommand(Action<TArg> execute, Func<TArg, bool>? canExecute = null, Action<Action>? buttonRefresher = null)
+        public UICommand(Action<TArg> execute, Func<TArg, bool>? canExecute = null, Action<Action>? buttonRefresher = null, Action? refresh = null)
         {
             this.execute = execute;
             this.canExecute = canExecute;
-            
+            this.refresh = refresh;
+
             buttonRefresher?.Invoke(() =>
                 {
                     if (CanExecuteChanged != null)
@@ -29,6 +31,7 @@ namespace ViewMotion.Commands
         public void Execute(object? parameter)
         {
             execute(parameter == null ? default! : (TArg)parameter);
+            refresh?.Invoke();
         }
 
         public event EventHandler? CanExecuteChanged;

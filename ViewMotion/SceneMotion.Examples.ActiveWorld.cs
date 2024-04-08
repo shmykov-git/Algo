@@ -152,14 +152,14 @@ partial class SceneMotion //ActiveWorld
             ball.Move(posA).ToActiveShape(o =>
             {
                 //o.ShowMeta = true;
-                o.Speed = 0.0001 * (posB-posA);
+                o.Speed = (posB-posA).ToLen(0.0002);
                 o.Mass = 6;
                 o.AllowTriangulation0  =false;
             }),
             ball.Move(posB).ToActiveShape(o =>
             {
                 o.Mass = 6;
-                o.Speed = 0.0001 * (posA-posB);
+                o.Speed = (posA-posB).ToLen(0.0002);
                 //o.ShowMeta = true;
                 o.AllowTriangulation0  =false;
             }),

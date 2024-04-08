@@ -15,6 +15,7 @@ partial class ViewerModel
         if (key == Key.Space)
         {
             DoReplay();
+            Refresh();
         }
     }
 

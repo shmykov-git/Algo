@@ -88,6 +88,7 @@
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" Background="{Binding Path=SavedColorBrushes[7]}" MouseDown="Border_MouseDown" x:Name="b7" />
                 <Border Style="{StaticResource Color}" DockPanel.Dock="Left" BorderBrush="Transparent" Background="Transparent" />
             </DockPanel>
+            <Button DockPanel.Dock="Top" Command="{Binding RestoreCameraCommand}" Content="{Binding RestoreCameraName}"/>
             <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="5 50 0 0"/>
         </DockPanel>
         <Grid>

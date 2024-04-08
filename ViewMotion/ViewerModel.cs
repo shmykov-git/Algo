@@ -50,7 +50,10 @@ namespace ViewMotion
         private double light;
 
         private CameraMotionOptions? cameraMotionOptions;
-        
+        private CameraOptions defaultCameraOptions;
+
+        private bool isAnimatePlaying => isPlaying && AnimationIndex > 0;
+
         public ViewerModel(MotionSettings motionSettings, SceneMotion scene, StaticSceneRender staticRender, StaticSettings staticSettings)
         {
             this.motionSettings = motionSettings;
@@ -62,7 +65,7 @@ namespace ViewMotion
 
             var motion = scene.Scene().Result;
             cameraMotionOptions = motion.CameraMotionOptions;
-            
+
             if (cameraMotionOptions?.CameraStartOptions != null)
                 motionSettings.CameraOptions = cameraMotionOptions.CameraStartOptions;
 
@@ -89,6 +92,8 @@ namespace ViewMotion
                 motionSettings.CameraOptions.LookDirection = -motionSettings.CameraOptions.Position.Normalize();
                 RefreshCamera();
             }
+
+            defaultCameraOptions = motionSettings.CameraOptions.Copy();
 
             CalculateFrames(motion);
         }
@@ -182,7 +187,7 @@ namespace ViewMotion
 
         public string ReplayName => isPlaying ? "■ Stop Playing" : "► Play";
 
-        public ICommand ReplayCommand => new Command(DoReplay, () => !isCalculating, SaveRefresh);
+        public ICommand ReplayCommand => new Command(DoReplay, () => !isCalculating, SaveRefresh, Refresh);
 
         public Brush BackgroundColorBrush { get => new SolidColorBrush(BackgroundColor); }
         public ColorState BackgroundColorState
@@ -218,8 +223,10 @@ namespace ViewMotion
         public Brush[] SavedColorBrushes => persistState.SavedColorStates.Select(c => new SolidColorBrush(c.FromState())).ToArray();
 
         public string ChangeBcName => "🎨 Background color";
-
         public ICommand ChangeBcCommand => new Command(() => IsColorPickerVisible = !IsColorPickerVisible);
+
+        public string RestoreCameraName => "🎥 Restore camera";
+        public ICommand RestoreCameraCommand => new Command(() => motionSettings.CameraOptions = defaultCameraOptions.Copy(), () => !isAnimatePlaying, SaveRefresh, Refresh);
 
         public bool IsColorPickerVisible { get => _cpv; set { _cpv = value; OnPropertyChanged(); } }
 
@@ -228,17 +235,12 @@ namespace ViewMotion
             if (isPlaying)
                 isPlaying = false;
             else
-                Play();
-            Refresh();
+                Play();            
         }
 
-        public ICommand CalcCommand => new Command(() =>
-        {
-            isCalculating = !isCalculating;
-            Refresh();
-        }, () => !isPlaying, SaveRefresh);
-
         public string CalcName => isCalculating ? "■ Stop Calculation" : "► Calculate";
+        public ICommand CalcCommand => new Command(() => isCalculating = !isCalculating, () => !isPlaying, SaveRefresh, Refresh);
+
         public bool CanCalc { get; set; } = true;
         public bool IsControlPanelVisible
         {
