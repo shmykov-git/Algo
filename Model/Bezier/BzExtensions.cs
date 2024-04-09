@@ -16,7 +16,7 @@ public static class BzExtensions
             1 => new Bz(aa[0], bb[0]),
             2 => new Bz(aa[0], aa[1], bb[0]),
             3 => new Bz(aa[0], aa[1], aa[2], bb[0]),
-            _ => throw new NotImplementedException($"{aa.Length} is not implemented")
+            _ => new Bz(aa.Concat(new[] { bb[0] }).ToArray())
         };
 
         var bzs = closed 

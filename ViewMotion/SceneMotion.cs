@@ -47,18 +47,39 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        Vector2[][] bps = [[(0, 1), (0.05, 0.8), (0.15, 0.5)], [(0.5, 0.5), (0.85, 0.5), (0.95, 1)], [(1, 0)]];
+        var alfa = Math.PI / 2;
+        var L = 0.5 * 4 / 3 * Math.Tan(alfa / 4);
 
-        var fn = Funcs2.Bz(bps);
+        //Vector2[][] bps = [[(0, 1), (0.05, 0.8), (0.15, 0.5)], [(0.5, 0.5), (0.85, 0.5), (0.95, 1)], [(1, 0)]];
+        //Vector2[][] bps =
+        //[
+        //    [(0, 0.5), (0, 1)],
+        //    [(0.5, 1), (1, 1)],
+        //    [(1, 0.5), (1, 0)],
+        //    [(0.5, 0), (0, 0)],
+        //];
+        Vector2[][] bps =
+        [
+            [(0, 0.5), (0, 0.5 + L), (0.25, 0.75), (0.5 - L, 1)],
+            [(0.5, 1), (0.5 + L, 1), (1, 1), (1, 0.5 + L)],
+            [(1, 0.5), (1, 0.5 - L), (0.5 + L, 0)],
+            [(0.5, 0), (0.5 - L, 0), (0, 0.5 - L)],
+        ];
 
-        var ps = (100).SelectInterval(1, x => fn(x));
+        var fn = Funcs2.Bz(bps, true);
+
+        var ps = (1000).SelectInterval(1, x => fn(x));
+
+        var circle = Funcs2.Circle();
+        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.499*circle(x) + (0.5, 0.5));
 
         return new[]
         {
+            cps.ToShape2().ToShape3().ToLines(0.3, Color.Red),
             bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
             bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
-            ps.ToShape2().ToShape3().ToLines(Color.Blue),
+            ps.ToShape2().ToShape3().ToLines(0.3, Color.Blue),
             Shapes.Coods2WithText
-        }.ToSingleShape().ToMotion();
+        }.ToSingleShape().ToMotion(0.5);
     }
 }
