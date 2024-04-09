@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Net.NetworkInformation;
 using System.Numerics;
 using Model.Extensions;
 
@@ -9,6 +10,13 @@ public abstract class Bezier
     protected int n;
     protected Vector2[] ps;
     protected int[] bs;
+
+    public Vector2[] points => ps.SkipLast(1).ToArray();
+
+    protected Vector2 a => ps[0];
+    protected Vector2 b => ps[1];
+    protected Vector2 c => ps[2];
+    protected Vector2 d => ps[3];
 
     protected Bezier(Vector2[] ps)
     {

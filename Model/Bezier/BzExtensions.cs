@@ -8,7 +8,7 @@ namespace Model.Bezier;
 
 public static class BzExtensions
 {
-    public static Func2 ToBz(this Vector2[][] ps, bool closed = false)
+    public static Bz[] ToBzs(this Vector2[][] ps, bool closed = false)
     {
         Bz GetBz(Vector2[] aa, Vector2[] bb) => aa.Length switch
         {
@@ -19,16 +19,19 @@ public static class BzExtensions
             _ => new Bz(aa.Concat(new[] { bb[0] }).ToArray())
         };
 
-        var bzs = closed 
-            ? ps.SelectCirclePair(GetBz).ToArray() 
+        return closed
+            ? ps.SelectCirclePair(GetBz).ToArray()
             : ps.SelectPair(GetBz).ToArray();
+    }
 
-        var n = closed ? ps.Length : ps.Length - 1;
+    public static Func2 ToBz(this Bz[] bzs, bool closed = false)
+    {
+        var n = closed ? bzs.Length : bzs.Length - 1;
 
         Vector2 fn(double x)
         {
             var k = (int)(x * n);
-            
+
             if (k >= n)
                 k = n - 1;
 
@@ -39,4 +42,6 @@ public static class BzExtensions
 
         return fn;
     }
+
+    public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz(closed);
 }

@@ -22,6 +22,8 @@ using Model3D.Actives;
 using Model.Fourier;
 using System.Diagnostics;
 using System.CodeDom;
+using Model.Bezier;
+using Vector2 = Model.Vector2;
 
 namespace ViewMotion;
 /// <summary>
@@ -29,6 +31,66 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+
+    public Task<Motion> BezierPower2To3()
+    {
+        Vector2[][] bps =
+        [
+            [(0, 0.5), (0, 1)],
+            [(0.5, 1), (1, 1)],
+            [(1, 0.5), (1, 0)],
+            [(0.5, 0), (0, 0)],
+        ];
+
+        var bzs = bps.ToBzs(true);
+        bzs[0] = bzs[0].ToPower3();
+        bps = bzs.Select(b => b.points).ToArray();
+        var fn = bzs.ToBz(true);
+        var ps = (1000).SelectInterval(1, x => fn(x), true);
+
+        var circle = Funcs2.Circle();
+        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.498 * circle(x) + (0.5, 0.5), true);
+
+        return new[]
+        {
+            cps.ToShape2().ToShape3().ToLines(0.3, Color.Red),
+            bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
+            bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
+            ps.ToShape2().ToShape3().ToLines(0.3, Color.Blue),
+            Shapes.Coods2WithText
+        }.ToSingleShape().Move(-0.5, -0.5, 0).ToMotion(1.5);
+    }
+
+    public Task<Motion> BezierCircle()
+    {
+        var alfa = Math.PI / 2;
+        var L = 0.5 * 4 / 3 * Math.Tan(alfa / 4);
+
+        Vector2[][] bps =
+        [
+            [(0, 0.5), (0, 0.5 + L), (0.75, 0.25), (0.5 - L, 1)],
+            [(0.5, 1), (0.5 + L, 1), (1.125, 1.125), (1, 0.5 + L)],
+            [(1, 0.5), (1, 0.5 - L), (0.5 + L, 0)],
+            [(0.5, 0), (0.5 - L, 0), (0, 0.5 - L)],
+        ];
+
+        var fn = bps.ToBz(true);
+
+        var ps = (1000).SelectInterval(1, x => fn(x), true);
+
+        var circle = Funcs2.Circle();
+        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.498 * circle(x) + (0.5, 0.5), true);
+
+        return new[]
+        {
+            cps.ToShape2().ToShape3().ToLines(0.3, Color.Red),
+            bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
+            bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
+            ps.ToShape2().ToShape3().ToLines(0.3, Color.Blue),
+            Shapes.Coods2WithText
+        }.ToSingleShape().Move(-0.5, -0.5, 0).ToMotion(1.5);
+    }
+
     public Task<Motion> SaintPetersburgLamps()
     {
         var n = 15;
