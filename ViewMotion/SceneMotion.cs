@@ -60,8 +60,8 @@ partial class SceneMotion
         //];
         Vector2[][] bps =
         [
-            [(0, 0.5), (0, 0.5 + L), (0.25, 0.75), (0.5 - L, 1)],
-            [(0.5, 1), (0.5 + L, 1), (1, 1), (1, 0.5 + L)],
+            [(0, 0.5), (0, 0.5 + L), (0.75, 0.25), (0.5 - L, 1)],
+            [(0.5, 1), (0.5 + L, 1), (1.125, 1.125), (1, 0.5 + L)],
             [(1, 0.5), (1, 0.5 - L), (0.5 + L, 0)],
             [(0.5, 0), (0.5 - L, 0), (0, 0.5 - L)],
         ];
@@ -71,7 +71,7 @@ partial class SceneMotion
         var ps = (1000).SelectInterval(1, x => fn(x));
 
         var circle = Funcs2.Circle();
-        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.499*circle(x) + (0.5, 0.5));
+        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.498*circle(x) + (0.5, 0.5));
 
         return new[]
         {
