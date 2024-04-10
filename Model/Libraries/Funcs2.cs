@@ -12,6 +12,7 @@ namespace Model.Libraries
         public static Func2 VerticalLine() => t => (1, t);
         public static Func2 Circle() => t => (Math.Sin(t), Math.Cos(t));
         public static Func2 CircleX() => t => (Math.Cos(t), Math.Sin(t));
+        public static Func2 CircleR(double r) => t => (r * Math.Cos(t), r * Math.Sin(t));
         public static Func2 Torus(double centerRadius) => t => new Vector2(centerRadius + Math.Cos(t), Math.Sin(t)) / (centerRadius + 1);
         public static Func2 Parabola() => t => (t, t * t);
 
@@ -29,5 +30,19 @@ namespace Model.Libraries
         public static Func2 Flower(int n, double a) => t => (a * new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t)))/ (a+1);
 
         public static Func2 Bz(Vector2[][] ps, bool closed = false) => ps.ToBz(closed);
+
+        public static Func2 Slide(double slope, double height = 0.5, double? hillHeight = null, double hillCenter = 0.625)
+        {
+            var sl = 1 - slope;
+
+            Vector2[][] bps = [
+                hillHeight == null
+                    ? [(0, height), (0, height * sl), (sl, 0)]
+                    : [(0, height), (0, height * sl), (hillCenter, hillHeight.Value), (sl, 0)],
+                [(1, 0)],
+            ];
+
+            return bps.ToBz();
+        }
     }
 }

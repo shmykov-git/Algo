@@ -29,6 +29,81 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion //ActiveWorld
 {
+    public Task<Motion> ThreeBallsRace()
+    {
+        var r = 0.5;
+        var ball = Shapes.IcosahedronSp1.Perfecto(2 * r);
+
+        return new[]{
+            Surfaces.Slide(40, 10, 0.5, 0.2, 0.5, 0.8, 0.6).Mult(5).MoveX(-4).ToActiveShape(o =>
+            {
+                o.Type = ActiveShapeOptions.ShapeType.D2;
+                o.ShowMeta = true;
+                o.AllowTriangulation0 = false;
+                o.UseSkeleton = false;
+                o.Mass = 1;
+                o.MaterialPower = 5;
+                o.Fix = new ActiveShapeOptions.FixOptions
+                {
+                    Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Back | ActiveShapeOptions.FixDock.Front,
+                };
+            }),
+            ball.Move(-4 + r, 3, 0).ToActiveShape(o =>
+            {
+                //o.ShowMeta = true;
+                o.Mass = 4;
+                o.AllowTriangulation0  =false;
+            }),
+
+            Surfaces.Slide(40, 10, 0.5, 0.2, 0.5, 0.8).Mult(5).MoveX(-4).MoveZ(2).ToActiveShape(o =>
+            {
+                o.Type = ActiveShapeOptions.ShapeType.D2;
+                o.ShowMeta = true;
+                o.AllowTriangulation0 = false;
+                o.UseSkeleton = false;
+                o.Mass = 1;
+                o.MaterialPower = 5;
+                o.Fix = new ActiveShapeOptions.FixOptions
+                {
+                    Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Back | ActiveShapeOptions.FixDock.Front,
+                };
+            }),
+            ball.Move(-4 + r, 3, 2).ToActiveShape(o =>
+            {
+                //o.ShowMeta = true;
+                o.Mass = 4;
+                o.AllowTriangulation0  =false;
+            }),
+
+            Surfaces.Slide(40, 10, 0.5, 0.2, 0.5, 0.3).Mult(5).MoveX(-4).MoveZ(-2).ToActiveShape(o =>
+            {
+                o.Type = ActiveShapeOptions.ShapeType.D2;
+                o.ShowMeta = true;
+                o.AllowTriangulation0 = false;
+                o.UseSkeleton = false;
+                o.Mass = 1;
+                o.MaterialPower = 5;
+                o.Fix = new ActiveShapeOptions.FixOptions
+                {
+                    Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right | ActiveShapeOptions.FixDock.Back | ActiveShapeOptions.FixDock.Front,
+                };
+            }),
+            ball.Move(-4 + r, 3, -2).ToActiveShape(o =>
+            {
+                //o.ShowMeta = true;
+                o.Mass = 4;
+                o.AllowTriangulation0  =false;
+            }),
+        }.ToWorld(o =>
+        {
+            o.InteractionType = InteractionType.ParticleWithPlane;
+            o.Interaction.ParticleForce = 5;
+            o.Interaction.ElasticForce = 1;
+            o.Interaction.ClingForce = 0.5;
+            o.Interaction.FrictionForce = 0.5;
+        }).ToMotion();
+    }
+
     public Task<Motion> EggsStrikeMotion()
     {
         //var metaEgg = Shapes.PlaneSphere(20, 20).ToOy();

@@ -11,6 +11,14 @@ namespace Model3D.Libraries
 
     public static class SurfaceFuncs
     {
+        private static SurfaceFunc LineComposeY(Func2 fXY, Func2 fZY, Vector3 shift) => (double u, double v) =>
+        {
+            var fxy = fXY(u);
+            var fzy = fZY(v);
+
+            return new Vector3(fxy.x, fxy.y + fzy.y, fzy.x) + shift;
+        };
+
         public static SurfaceFunc ShapeFuncY(Shape shape, Func2 fn)
         {
             var points = shape.Points2;
@@ -50,6 +58,9 @@ namespace Model3D.Libraries
 
             return (double u, double v) => new Vector3(u, v, 100*fi((new Model.Vector2(u, v) + shift?? zero).Len));
         }
+
+        public static SurfaceFunc Slide(double slope, double height, double width = 0.2, double? hillHeight = null) =>
+            LineComposeY(Funcs2.Slide(slope, height, hillHeight), Funcs2.CircleR(width), new Vector3(0, width, 0));
 
         public static SurfaceFunc Sphere => (double u, double v) => new Vector3(Math.Cos(u) * Math.Sin(v), Math.Sin(u) * Math.Sin(v), Math.Cos(v));
         public static SurfaceFunc Heart

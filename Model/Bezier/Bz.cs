@@ -25,6 +25,6 @@ public class Bz : Bezier
         if (n != 2)
             throw new ApplicationException("Bz is not of power 2");
 
-        return new Bz(a, a + 2.0 / 3 * (b - a), b + 1.0 / 3 * (c - b), c);
+        return new Bz(a, b + 1d / 3 * (a - b), b + 1d / 3 * (c - b), c);
     }
 }

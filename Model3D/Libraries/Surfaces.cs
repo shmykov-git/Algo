@@ -9,11 +9,27 @@ using Model.Fourier;
 using Model.Libraries;
 using Vector2 = Model.Vector2;
 using System.Diagnostics;
+using Shape = Model.Shape;
 
 namespace Model3D.Libraries;
 
 public static class Surfaces
 {
+
+    public static Shape Slide(int un, int vn, double height, double width, double gutterBend, double slope, double? hillHeight = null) => new Shape
+    {
+        Points3 = new SurfaceFuncInfo
+        {
+            Fn = SurfaceFuncs.Slide(slope, height, width, hillHeight),
+            UFrom = 0,
+            UTo = 1,
+            UN = un,
+            VFrom = -gutterBend * Math.PI/2,
+            VTo = -Math.PI + gutterBend * Math.PI / 2,
+            VN = vn,
+        }.GetPoints(),
+        Convexes = Squares(vn, un)
+    };
 
     public static Shape APowerB(int un, int vn, double from, double to) => new Shape
     {

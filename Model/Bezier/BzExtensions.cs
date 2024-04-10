@@ -24,9 +24,9 @@ public static class BzExtensions
             : ps.SelectPair(GetBz).ToArray();
     }
 
-    public static Func2 ToBz(this Bz[] bzs, bool closed = false)
+    public static Func2 ToBz(this Bz[] bzs)
     {
-        var n = closed ? bzs.Length : bzs.Length - 1;
+        var n = bzs.Length;
 
         Vector2 fn(double x)
         {
@@ -43,5 +43,5 @@ public static class BzExtensions
         return fn;
     }
 
-    public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz(closed);
+    public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz();
 }
