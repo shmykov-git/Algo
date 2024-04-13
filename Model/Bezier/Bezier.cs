@@ -7,17 +7,17 @@ namespace Model.Bezier;
 
 public abstract class Bezier
 {
-    protected int n;
-    protected int[] bs;
-
+    public int n;
+    public int[] bs;
     public Vector2[] ps;
-
-    public Vector2[] points => ps.SkipLast(1).ToArray();
 
     public Vector2 a { get => ps[0]; set => ps[0] = value; }
     public Vector2 b { get => ps[1]; set => ps[1] = value; }
     public Vector2 c { get => ps[2]; set => ps[2] = value; }
     public Vector2 d { get => ps[3]; set => ps[3] = value; }
+
+    public Vector2 la { get => ps[^1]; set => ps[^1] = value; }
+    public Vector2 lb { get => ps[^2]; set => ps[^2] = value; }
 
     protected Bezier(Vector2[] ps)
     {

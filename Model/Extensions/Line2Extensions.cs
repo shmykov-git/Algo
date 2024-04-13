@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Model.Libraries;
 
 namespace Model.Extensions
 {
@@ -16,8 +17,17 @@ namespace Model.Extensions
             var m = new Matrix(new[] { a.Normal.values.ToArray(), b.Normal.values.ToArray() });
             var c = new Vector(a.A * a.Normal, b.A * b.Normal);
             var p = m.Kramer(c);
-            
+
             return p.ToV2();
+        }
+
+        public static (bool success, Vector2 result) IntersectionPointChecked(this Line2 a, Line2 b, double epsilon = Values.Epsilon9)
+        {
+            var m = new Matrix([a.Normal.values.ToArray(), b.Normal.values.ToArray()]);
+            var c = new Vector(a.A * a.Normal, b.A * b.Normal);
+            var (success, p) = m.KramerChecked(c, epsilon);
+
+            return (success, p.ToV2());
         }
 
         public static Vector2 ProjectionPoint(this Line2 l, Vector2 p)

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model;
 using Model3D.Actives;
@@ -44,6 +45,22 @@ static class MotionExtensions
 
     public static Task<Motion> ToWorldMotion(this ActiveShape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
         (new[] { shape }, new Shape[0]).ToWorldMotion(cameraDistance, startShape, stepDelay);
+
+    public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, Vector3 cameraPosition)
+    {
+        return ToMotion(shapes, new MotionOptions()
+        {
+            CameraMotionOptions = new CameraMotionOptions()
+            {
+                CameraStartOptions = new CameraOptions
+                {
+                    Position = cameraPosition,
+                    LookDirection = -cameraPosition.Normalize(),
+                    UpDirection = Vector3.YAxis,
+                }
+            },
+        });
+    }
 
     public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {

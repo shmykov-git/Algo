@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Model
 {
@@ -130,9 +131,11 @@ namespace Model
             };
         }
 
-        public static double operator *(Vector2 a, Vector2 b)
+        public static double operator *(Vector2 a, Vector2 b) => a.MultS(b);
+
+        public double MultS(Vector2 b)
         {
-            return a.x * b.x + a.y * b.y;
+            return x * b.x + y * b.y;
         }
 
         public double Square(Vector2 b)

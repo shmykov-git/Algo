@@ -98,12 +98,23 @@ namespace Model
             return mIns;
         }
 
-        //todo: check D0
         public Vector Kramer(Vector d)
         {
             var D0 = D();
             var Ds = Enumerable.Range(0, N).Select(i => InsCol(i, d).D());
             return new Vector(Ds.Select(Di => Di / D0).ToArray());
+        }
+
+        public (bool success, Vector result) KramerChecked(Vector d, double epsilon)
+        {
+            var D0 = D();
+            if (D0.Abs() < epsilon)
+                return (false, default);
+
+            var Ds = Enumerable.Range(0, N).Select(i => InsCol(i, d).D());
+            var res = new Vector(Ds.Select(Di => Di / D0).ToArray());
+
+            return (true, res);
         }
 
         private void DebugM(string msg, Matrix m)

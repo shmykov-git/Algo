@@ -88,6 +88,12 @@ namespace Model.Extensions
             return Enumerable.Range(0, range).Select(i => selectFn(from + (to - from) * i / divider, i));
         }
 
+        public static IEnumerable<T> SelectInterval<T>(this (int r1, int r2) range, double from1, double to1, double from2, double to2, Func<double, double, T> selectFn, bool isClosed1 = false, bool isClosed2 = false)
+        {
+            return (range.r1).SelectInterval(from1, to1, v => v, isClosed1).SelectMany(x =>
+                   (range.r2).SelectInterval(from2, to2, v => v, isClosed2).Select(y => selectFn(x, y)));
+        }
+
         public static IEnumerable<T> SelectSquarePoints<T>(this int range, Func<int, double, double, T> selectFn)
         {
             var size = (int)Math.Sqrt(range - 1) + 1;

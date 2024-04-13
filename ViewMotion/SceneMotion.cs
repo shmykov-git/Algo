@@ -28,6 +28,7 @@ using ViewMotion.Models;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
 using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
 using Vector2 = Model.Vector2;
+using Vector3 = Aspose.ThreeD.Utilities.Vector3;
 using Model.Tools;
 using System.Drawing.Text;
 using System.Threading.Tasks.Sources;
@@ -48,33 +49,35 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return ThreeBallsRace();
-
-        return  (Surfaces.Slide(40, 10, 0.5, 0.2, 0.5, 0.8, 0.6).ToMetaShape3(0.3, 0.3) + Shapes.CoodsWithText).ToMotion();
-
-        Vector2[][] GetBps(double x, double? y = null) => 
-        [
-            y == null 
-            ? [(0, 0.5), (0, 0.5*x), (x, 0)]
-            : [(0, 0.5), (0, 0.5 * x), (0.625, y.Value), (x, 0)],
-            [(1, 0)],
-        ];
-
         var coods = Shapes.Coods2WithText;
 
-        return (100).SelectInterval(0.05, 0.95, x =>
+        return (1).SelectInterval(0, 5, x =>
         {
-            var bps = GetBps(x, 1-x);
-            var fn = bps.ToBz();
-            var ps = (1000).SelectInterval(1, x => fn(x));
+            var a = new Bz((3, 1), (3, 2));
+            var b = new Bz((4, 3), (5, 3));
+            var aa = new Bz((5, 4), (4, 4));
+            var bb = new Bz((2, 2), (2, 1));
+
+            //var c = a.CanJoin2(b) ? a.Join2(b) : a.Join3(b, x, y);
+            var c = a.Join2(b);
+            var d = new Bz((3, 2), (3, 3.5), (2.5, 3), (4, 3));
+            var cc = aa.Join2(bb);
+            var dd = new Bz((4, 4), (3,4), (2, 3), (2, 2));
+            var ee = aa.JoinCircle(bb);
+            var ff = new Bz((4, 4), (1, 4), (2, 5), (2, 2));
+            Bz[] bzs = [a, c, d, b, aa, cc, bb, dd, ee, ff];
+
+            var fn = bzs.ToBz();
+            var ps = (2000).SelectInterval(0, 1, v => fn(v));
+            var lp = bzs.LinePoints();
 
             return new[]
             {
-                bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1),
-                bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1),
-                ps.ToShape2().ToShape3().ToLines(Color.Blue),
-                coods
-            }.ToSingleShape().Move(-0.5, -0.5, 0);
-        }).ToMotion(1.5);
+                bzs.LinePoints().ToShape().ToPoints(Color.Green, 1),
+                bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.2),
+                ps.ToShape2().ToShape3().ToShapedSpots3(Shapes.Tetrahedron.Mult(0.01), Color.Blue),
+                coods.Mult(5)
+            }.ToSingleShape().Move(-2.5, -2.5, 0);
+        }).ToMotion(new Vector3(0, 0, 7));
     }
 }

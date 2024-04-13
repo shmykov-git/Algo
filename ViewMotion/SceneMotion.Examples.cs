@@ -44,7 +44,6 @@ partial class SceneMotion
 
         var bzs = bps.ToBzs(true);
         bzs[0] = bzs[0].ToPower3();
-        bps = bzs.Select(b => b.points).ToArray();
         var fn = bzs.ToBz();
         var ps = (1000).SelectInterval(1, x => fn(x), true);
 
@@ -54,8 +53,8 @@ partial class SceneMotion
         return new[]
         {
             cps.ToShape2().ToShape3().ToLines(0.3, Color.Red),
-            bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
-            bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
+            bzs.LinePoints().ToShape().ToPoints(Color.Green, 1.5),
+            bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.5),
             ps.ToShape2().ToShape3().ToLines(0.3, Color.Blue),
             Shapes.Coods2WithText
         }.ToSingleShape().Move(-0.5, -0.5, 0).ToMotion(1.5);

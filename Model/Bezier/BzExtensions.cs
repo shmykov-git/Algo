@@ -24,11 +24,16 @@ public static class BzExtensions
             : ps.SelectPair(GetBz).ToArray();
     }
 
+    public static Vector2[] LinePoints(this Bz[] bzs) =>
+        bzs.SelectCirclePair<Bz, Vector2[]>((x, y) => x.la == y.a ? [x.a] : [x.a, x.la]).SelectMany(v => v).ToArray();
+
+    public static Vector2[] ControlPoints(this Bz[] bzs) => bzs.SelectMany(x => x.ps.Skip(1).SkipLast(1)).ToArray();
+
     public static Func2 ToBz(this Bz[] bzs)
     {
         var n = bzs.Length;
 
-        Vector2 fn(double x)
+        return x =>
         {
             var k = (int)(x * n);
 
@@ -38,9 +43,7 @@ public static class BzExtensions
             var t = x * n - k;
 
             return bzs[k].B(t);
-        }
-
-        return fn;
+        };
     }
 
     public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz();
