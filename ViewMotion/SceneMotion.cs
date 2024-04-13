@@ -60,12 +60,16 @@ partial class SceneMotion
 
             //var c = a.CanJoin2(b) ? a.Join2(b) : a.Join3(b, x, y);
             var c = a.Join2(b);
-            var d = new Bz((3, 2), (3, 3.5), (2.5, 3), (4, 3));
+            var d = new Bz(a.b, (3, 3.5), (2.5, 3), b.a);
             var cc = aa.Join2(bb);
-            var dd = new Bz((4, 4), (3,4), (2, 3), (2, 2));
+            var dd = new Bz(aa.b, (3,4), (2, 3), bb.a);
             var ee = aa.JoinCircle(bb);
-            var ff = new Bz((4, 4), (1, 4), (2, 5), (2, 2));
-            Bz[] bzs = [a, c, d, b, aa, cc, bb, dd, ee, ff];
+            var ff = new Bz(aa.b, (1, 4), (2, 5), bb.a);
+
+            var baa = b.JoinCircle(aa);
+            var bba = bb.JoinCircle(a);
+
+            Bz[] bzs = [a, c, d, b, baa, aa, cc, bb, bba, dd, ee, ff];
 
             var fn = bzs.ToBz();
             var ps = (2000).SelectInterval(0, 1, v => fn(v));

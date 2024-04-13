@@ -89,7 +89,7 @@ public class Bz : Bezier
             if ((checkP - line2.A).Len > epsilon)
                 throw new ArgumentException("Cannot join as a circle");
 
-            var l = GetCircleL(Math.PI / 2);
+            var l = GetCircleL(Math.PI);
             var len = 0.5 * (line1.B - line2.A).Len;
 
             var bb = la + (la - lb).ToLen(len * l);

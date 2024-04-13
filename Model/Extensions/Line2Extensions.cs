@@ -27,7 +27,7 @@ namespace Model.Extensions
             var c = new Vector(a.A * a.Normal, b.A * b.Normal);
             var (success, p) = m.KramerChecked(c, epsilon);
 
-            return (success, p.ToV2());
+            return (success, success ? p.ToV2() : default);
         }
 
         public static Vector2 ProjectionPoint(this Line2 l, Vector2 p)
