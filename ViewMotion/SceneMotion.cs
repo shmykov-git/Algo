@@ -51,17 +51,18 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var coods = Shapes.Coods2WithText(5);
 
-        return (1).SelectInterval(1, 5, x =>
+        return (100).SelectInterval(1, 5, x =>
         {
+            var coods = Shapes.CoodsWithText(x, Color.Red);
+
             var a = new Bz((1, 1), (1, 2));
-            var b = new Bz((3, 3), (5, 3));
+            var b = new Bz((3, 1.5), (5, 1.5));
 
             var c = a.Join(b, new BzJoinOptions
             {
-                Type = BzJoinType.PowerTwo,
-                //Alfa = Math.PI / 4,
+                Type = BzJoinType.PowerTwoLikeEllipse,
+                Alfa = 5 * Math.PI / 4,
                 //Betta = -Math.PI / 4,
             });
 

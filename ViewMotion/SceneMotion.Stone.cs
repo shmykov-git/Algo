@@ -164,9 +164,9 @@ partial class SceneMotion
                 Shapes.IcosahedronSp3.Perfecto(0.1).Move(touchPoint).ApplyColor(Color.Red),
                 stone.VisibleShape.Rotate(stone.Rotation).Move(stone.Position).ApplyColor(Color.DarkBlue),
                 stone.LogicShape.Rotate(stone.Rotation).Move(stone.Position).ToLines(1).ApplyColor(Color.Green),
-                Shapes.Coods.Rotate(stone.Rotation).Move(stone.Position),
+                Shapes.Coods().Rotate(stone.Rotation).Move(stone.Position),
                 Shapes.CirclePlatform(platformSize, platformSize, 0.1).ApplyColor(Color.FromArgb(128, 0, 0)),
-                Shapes.CoodsWithText.ApplyColor(Color.DarkBlue),
+                Shapes.CoodsWithText().ApplyColor(Color.DarkBlue),
             }.ToSingleShape();
 
         IEnumerable<Shape> Animate()

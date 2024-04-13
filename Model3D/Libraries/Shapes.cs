@@ -87,14 +87,11 @@ namespace Model.Libraries
             }
         }.Mult(0.01).ToLines(0.7, Color.Red);
 
-        public static Shape Coods
+        public static Shape Coods(double mult = 1, Color? color = null)
         {
-            get
-            {
-                var a = ArrowR(10, 1.1, 0.005).Move(0, 0, -0.1).ApplyColor(Color.Red);
+            var a = ArrowR(10, mult + 0.1, 0.005).Move(0, 0, -0.1).ApplyColor(color ?? Color.Red);
 
-                return a + a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
-            }
+            return a + a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
         }
 
         public static Shape Coods2(double mult = 1, Color? color = null)
@@ -104,20 +101,30 @@ namespace Model.Libraries
             return a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
         }
 
-        public static Shape CoodsWithText =>
-            Coods +
-            IcosahedronSp2.Mult(0.02).ApplyColor(Color.Red) +
-            vectorizer.GetText("x", 100, "Georgia").Mult(0.03).Move(0.95, -0.06, 0).ApplyColor(Color.Red) +
-            vectorizer.GetText("y", 100, "Georgia").Mult(0.03).Move(0.02, 0.96, 0).ApplyColor(Color.Red) +
-            vectorizer.GetText("z", 100, "Georgia").Mult(0.03).Rotate(Rotates.Z_X).Move(0, -0.06, 1).ApplyColor(Color.Red);
+        public static Shape Net2(double mult = 1, Color? color = null)
+        {
+            return Plane((int)mult + 1, (int)mult + 1).Mult((int)mult).ToLines(0.4, color ?? Color.Black);
+        }
 
-        public static Shape Coods2WithText(double mult = 1, Color? color = null) =>
-            Coods2(mult, color) +
-            IcosahedronSp2.Mult(0.02).ApplyColor(color ?? Color.Red) +
-            vectorizer.GetText("x", 100, "Georgia").Align(1, 1, 0).Mult(0.02 + 0.01 * mult).Move(mult - 0.01, -0.03, 0).ApplyColor(color ?? Color.Red) +
-            vectorizer.GetText("y", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Move(0.03, mult - 0.01, 0).ApplyColor(color ?? Color.Red);
+        public static Shape CoodsWithText(double mult = 1, Color? color = null) => new[]
+        {
+            Coods(mult, color),
+            IcosahedronSp2.Mult(0.02).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("x", 100, "Georgia").Align(1, 1, 0).Mult(0.02 + 0.01 * mult).Move(mult - 0.01, -0.03, 0).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("y", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Move(0.03, mult - 0.02, 0).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("z", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Rotate(Rotates.Z_X).Move(0, -0.03, mult).ApplyColor(color ?? Color.Red),
+        }.ToSingleShape();
 
-        public static Shape CoodsNet => CoodsWithText + Surfaces.Plane(11, 11).Perfecto().ToLines(0.3, Color.Khaki);
+        public static Shape Coods2WithText(double mult = 1, Color? color = null, Color? netColor = null) => new[]
+        {
+            Coods2(mult, color),
+            netColor.HasValue ? Net2(mult, netColor) : Shape.Empty,
+            IcosahedronSp2.Mult(0.02).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("x", 100, "Georgia").Align(1, 1, 0).Mult(0.02 + 0.01 * mult).Move(mult - 0.01, -0.03, 0).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("y", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Move(0.03, mult - 0.02, 0).ApplyColor(color ?? Color.Red)
+        }.ToSingleShape();
+
+        public static Shape CoodsNet => CoodsWithText() + Surfaces.Plane(11, 11).Perfecto().ToLines(0.3, Color.Khaki);
 
         public static Shape Point => new Shape()
         {
