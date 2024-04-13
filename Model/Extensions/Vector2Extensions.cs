@@ -85,5 +85,13 @@ namespace Model.Extensions
         {
             return x.IsLeft(a, b, false) && x.IsLeft(b, c, false) && x.IsLeft(c, a, true);
         }
+
+        public static Vector2 Rotate(this Vector2 x, double alfa, Vector2? center = null)
+        {
+            var c = center ?? Vector2.Zero;
+            Vector2[] mRotate = [(Math.Cos(alfa), -Math.Sin(alfa)), (Math.Sin(alfa), Math.Cos(alfa))]; // rows
+
+            return (mRotate[0] * (x - c), mRotate[1] * (x - c)) + c;
+        }
     }
 }

@@ -44,103 +44,88 @@ public class Bz : Bezier
         return correctSide;
     }
 
-    public Bz Join2(Bz z)
-    {
-        var line1 = new Line2(lb, la);
-        var line2 = new Line2(z.a, z.b);
-        var c = line1.IntersectionPoint(line2);
-
-        return new Bz(la, c, z.a);
-    }
-
-    public Bz JoinCircle(Bz z, double epsilon = Values.Epsilon9)
-    {
-        var line1 = new Line2(lb, la);
-        var lOrt1 = new Line2(la, la + line1.AB.Normal);
-        var line2 = new Line2(z.a, z.b);
-        var lOrt2 = new Line2(z.a, z.a + line2.AB.Normal);
-
-        var (isCrossed, cOrt) = lOrt1.IntersectionPointChecked(lOrt2);
-
-        if (isCrossed)
-        {
-            var r1 = la - cOrt;
-            var r2 = z.a - cOrt;
-            var len = r1.Len;
-
-            if ((len - r2.Len).Abs() > epsilon)
-                throw new ArgumentException("Cannot join as a circle");
-
-            var c = line1.IntersectionPoint(line2);
-
-            var alfa = 2 * GetAngle(r1, c - cOrt);
-
-            var l = GetCircleL(alfa);
-
-            var bb = la + (la - lb).ToLen(len * l);
-            var cc = z.a + (z.a - z.b).ToLen(len * l);
-
-            return new Bz(la, bb, cc, z.a);
-        }
-        else
-        {
-            var checkP = line2.IntersectionPoint(lOrt1);
-
-            if ((checkP - line2.A).Len > epsilon)
-                throw new ArgumentException("Cannot join as a circle");
-
-            var l = GetCircleL(Math.PI);
-            var len = 0.5 * (line1.B - line2.A).Len;
-
-            var bb = la + (la - lb).ToLen(len * l);
-            var cc = z.a + (z.a - z.b).ToLen(len * l);
-
-            return new Bz(la, bb, cc, z.a);
-        }
-    }
-
-    public Bz Join3(Bz z, double x) => Join3(z, x, x);
-
-    private double GetAngle(Vector2 a, Vector2 b) => Math.Acos(a.Normed * b.Normed);
-    private double GetCircleL(double alfa) => 4.0 / 3 * Math.Tan(alfa / 4);
-
-    public Bz Join3(Bz z, double x, double y)
-    {
-        ///4 / 3 * Math.Tan(alfa / 4);
-        var line1 = new Line2(lb, la);
-        var lOrt1 = new Line2(la, la + line1.AB.Normal);
-
-        var line2 = new Line2(z.a, z.b);
-        var lOrt2 = new Line2(z.a, z.a + line2.AB.Normal);
-
-        var cnt = lOrt1.IntersectionPoint(lOrt2);
-
-        //var c1 = line1.IntersectionPoint(lOrt1);
-        var r1 = la - cnt;
-        //var c2 = line2.IntersectionPoint(lOrt2);
-        var r2 = z.a - cnt;
-
-        var c = line1.IntersectionPoint(line2);
-
-        var alfa1 = 2*GetAngle(r1, c - cnt);
-        var alfa2 = 2*GetAngle(r2, c - cnt);
-
-        var l1 = GetCircleL(alfa1);
-        var l2 = GetCircleL(alfa2);
-
-        var bb = la + (la - lb).ToLen(r2.Len*l2);
-        var cc = z.a + (z.a - z.b).ToLen(r1.Len*l1);
-
-        //var bb = la + x * (la - lb);
-        //var cc = z.a + y * (z.a - z.b);
-
-        return new Bz(la, bb, cc, z.a);
-    }
-
-    //public static implicit operator Bz(Vector2 v)
+    //public Bz Join2(Bz z)
     //{
-    //    return new Vector2 { x = v.a, y = v.b };
+    //    var line1 = new Line2(lb, la);
+    //    var line2 = new Line2(z.a, z.b);
+    //    var c = line1.IntersectionPoint(line2);
+
+    //    return new Bz(la, c, z.a);
     //}
+
+    //public Bz JoinCircleClose(Bz z, double epsilon = Values.Epsilon9)
+    //{
+    //    var line1 = new Line2(lb, la);
+    //    var lOrt1 = new Line2(la, la + line1.AB.Normal);
+    //    var line2 = new Line2(z.a, z.b);
+    //    var lOrt2 = new Line2(z.a, z.a + line2.AB.Normal);
+
+    //    var (isCrossed, cOrt) = lOrt1.IntersectionPointChecked(lOrt2, epsilon);
+
+    //    if (isCrossed)
+    //    {
+    //        var r1 = line1.B - cOrt;
+    //        var r2 = line2.A - cOrt;
+    //        var len = r1.Len;
+
+    //        if ((len - r2.Len).Abs() > epsilon)
+    //            throw new ArgumentException("Cannot join as a circle");
+
+    //        var alfa = GetAngle(r1, r2);
+    //        var c = line1.IntersectionPoint(line2);
+    //        alfa = line1.AB * (cOrt - c) < 0 ? alfa : 2 * Math.PI - alfa;
+
+    //        var l = GetCircleL(alfa);
+
+    //        var bb = line1.B + line1.AB.ToLen(len * l);
+    //        var cc = line2.A - line2.AB.ToLen(len * l);
+
+    //        return new Bz(la, bb, cc, z.a);
+    //    }
+    //    else
+    //    {
+    //        var checkP = line2.IntersectionPoint(lOrt1);
+
+    //        if ((checkP - line2.A).Len > epsilon)
+    //            throw new ArgumentException("Cannot join as a circle");
+
+    //        var l = GetCircleL(Math.PI);
+    //        var len = 0.5 * (line1.B - line2.A).Len;
+
+    //        var bb = line1.B + line1.AB.ToLen(len * l);
+    //        var cc = line2.A - line2.AB.ToLen(len * l);
+
+    //        return new Bz(la, bb, cc, z.a);
+    //    }
+    //}
+
+
+
+    //public Bz Join3(Bz z, double x = 1) => Join3(z, x, x);
+
+    //public Bz JoinLine(Bz z) => new Bz(la, z.a);
+
+    //public Bz Join3(Bz z, double x, double y, double epsilon = Values.Epsilon9)
+    //{
+    //    var line1 = new Line2(lb, la);
+    //    var line2 = new Line2(z.a, z.b);
+
+    //    var d1 = line2.Distance(line1.B);
+    //    var d2 = line1.Distance(line2.A);
+
+    //    if (d1 < epsilon) d1 = d2;
+    //    if (d2 < epsilon) d2 = d1;
+
+    //    if (d1 < epsilon)
+    //        throw new ArgumentException("Already joined");
+
+    //    var bb = line1.B + line1.AB.ToLen(d1 * x);
+    //    var cc = line2.A - line2.AB.ToLen(d2 * y);
+
+    //    return new Bz(line1.B, bb, cc, line2.A);
+    //}
+
+    //public static Bz operator +(Bz a, Bz b) => a.Join3(b);
 
     public Bz ToPower3()
     {

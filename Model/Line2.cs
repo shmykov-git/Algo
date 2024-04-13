@@ -50,6 +50,8 @@ namespace Model
             B = b;
         }
 
+        public override string ToString() => $"{A} - {B}";
+
         public static implicit operator Line2((Vector2 a, Vector2 b) l)
         {
             return new Line2 (l.a, l.b);

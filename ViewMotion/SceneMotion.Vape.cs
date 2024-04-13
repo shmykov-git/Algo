@@ -15,7 +15,7 @@ namespace ViewMotion;
 partial class SceneMotion
 {
 
-    private Shape ToShape(Vape vape)
+    private Shape ToShapeForVape(Vape vape)
     {
         var s = new Shape
         {
@@ -26,7 +26,7 @@ partial class SceneMotion
         return s;
     }
 
-    public Task<Motion> Scene1()
+    public Task<Motion> SceneVape()
     {
         var nMotion = 1000;
 
@@ -98,8 +98,8 @@ partial class SceneMotion
 
                 yield return new[]
                 {
-                    ToShape(vapeA),
-                    ToShape(vapeB)
+                    ToShapeForVape(vapeA),
+                    ToShapeForVape(vapeB)
                 }.ToSingleShape().Mult(3).ToMeta(multPoint: 5);
                 //yield return ToShape(vapeA).Mult(3).ToSpots3(1, Color.Blue, Shapes.Cube.Centered().ToLines().Mult(40 * 3 * voxelSize));
             }
