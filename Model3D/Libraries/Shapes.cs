@@ -103,7 +103,7 @@ namespace Model.Libraries
 
         public static Shape Net2(double mult = 1, Color? color = null)
         {
-            return Plane((int)mult + 1, (int)mult + 1).Mult((int)mult).ToLines(0.4, color ?? Color.Black);
+            return Plane((int)mult + 1, (int)mult + 1).Mult((int)mult).ToLines(0.5, color ?? Color.Black);
         }
 
         public static Shape CoodsWithText(double mult = 1, Color? color = null) => new[]

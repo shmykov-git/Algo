@@ -51,11 +51,12 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        var size = 10;
+        var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
+        var point = Shapes.Tetrahedron.Mult(0.015);
 
-        return (100).SelectInterval(1, 5, x =>
+        return (1).SelectInterval(1, 5, x =>
         {
-            var coods = Shapes.CoodsWithText(x, Color.Red);
-
             var a = new Bz((1, 1), (1, 2));
             var b = new Bz((3, 1.5), (5, 1.5));
 
@@ -74,12 +75,12 @@ partial class SceneMotion
 
             return new[]
             {
-                bzs.LinePoints().ToShape().ToPoints(Color.Green, 1),
-                bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.2),
-                ps.ToShape2().ToShape3().ToShapedSpots3(Shapes.Tetrahedron.Mult(0.01), Color.Blue),
+                bzs.LinePoints().ToShape().ToPoints(Color.Green, 1.5),
+                bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.8),
+                ps.ToShape2().ToShape3().ToShapedSpots3(point, Color.Blue),
                 coods
-            }.ToSingleShape().Move(-2.5, -2.5, 0);
-        }).ToMotion(new Vector3(0, 0, 7));
+            }.ToSingleShape().Move(-size/2, -size/2, 0);
+        }).ToMotion(new Vector3(0, 0, size * 1.1));
     }
 
     //public Task<Motion> Scene1()
