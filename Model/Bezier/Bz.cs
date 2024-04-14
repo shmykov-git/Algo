@@ -53,6 +53,7 @@ public class Bz
     {
     }
 
+    public Bz Rotate0(double alfa0) => new Bz(a, this.alfa0 + alfa0);
 
     public Vector2 B(double t) => (n + 1).SelectRange(k => bs[k] * ps[k] * Pow(t, k) * Pow(1 - t, n - k)).Sum();
 

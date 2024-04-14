@@ -104,62 +104,25 @@ public static class BzExtensions
             var ortB = new Line2(b, b + lineB.Normal);
             var ortCross = ortA.IntersectionPoint(ortB);
 
-            if (options.Type == BzJoinType.PowerTwoLikeCircle)
+            if (options.Type == BzJoinType.PowerTwoLikeEllipse)
             {
                 var rA = a - ortCross;
                 var rB = b - ortCross;
-                var radius = rA.Len;
 
-                if ((radius - rB.Len).Abs() > options.Epsilon)
-                    throw new ArgumentException("No circle");
+                if (rA.Len < options.Epsilon || rB.Len < options.Epsilon)
+                    throw new ArgumentException("No ellipse");
 
                 var alfa = GetAngle(rA, rB);
                 alfa = lineA.AB * (ortCross - cross) < 0 ? alfa : 2 * Math.PI - alfa;
                 var L = GetCircleL(alfa);
 
-                return GetBz2(radius * L, radius * L);
-            }
-
-            if (options.Type == BzJoinType.PowerTwoLikeEllipse) // TODO: like ellipse math solution?
-            {
-                var rA = a - ortCross;
-                var rB = b - ortCross;
-                var rCross = cross - ortCross;
-
-                if (rA.Len < options.Epsilon || rB.Len < options.Epsilon)
-                    throw new ArgumentException("No ellipse");
-
-                var alfa = 2 * GetAngle(rA, rCross);
-                alfa = lineA.AB * (ortCross - cross) < 0 ? alfa : 2 * Math.PI - alfa;
-
-                var betta = 2 * GetAngle(rB, rCross);
-                betta = lineB.AB * rCross < 0 ? betta : 2 * Math.PI - betta;
-
-                var LAlfa = GetCircleL(alfa);
-                var LBetta = GetCircleL(betta);
-
-                return GetBz2(1.05 * rA.Len * LAlfa, 1.05 * rB.Len * LBetta); // simply corrected
+                return GetBz2(rB.Len * L, rA.Len * L); // simply corrected
             }
         }
         else
         {
             if (options.Type == BzJoinType.PowerOne)
                 throw new ArgumentException("No cross point");
-
-            var ortB = new Line2(b, b + lineB.Normal);
-
-            if (options.Type == BzJoinType.PowerTwoLikeCircle)
-            {
-                var checkA = lineA.IntersectionPoint(ortB);
-
-                if ((checkA - a).Len > options.Epsilon)
-                    throw new ArgumentException("No circle");
-
-                var L = GetCircleL(Math.PI);
-                var radius = 0.5 * (b - a).Len;
-
-                return GetBz2(radius * L, radius * L);
-            }
 
             if (options.Type == BzJoinType.PowerTwoLikeEllipse)
             {

@@ -6,6 +6,5 @@ public enum BzJoinType
     PowerOne,
     PowerTwo,
     PowerTwoByDistance,
-    PowerTwoLikeCircle,
     PowerTwoLikeEllipse,
 }

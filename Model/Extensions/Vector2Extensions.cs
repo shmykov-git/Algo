@@ -93,5 +93,7 @@ namespace Model.Extensions
 
             return (mRotate[0] * (x - c), mRotate[1] * (x - c)) + c;
         }
+
+        public static double Angle(this Vector2 a, Vector2 b) => Math.Acos(a.Normed * b.Normed);
     }
 }

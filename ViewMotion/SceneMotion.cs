@@ -58,9 +58,20 @@ partial class SceneMotion
         return (1).SelectInterval(1, 5, x =>
         {
             var a0 = new Bz((4, 4));
-            var b0 = new Bz((6, 3), Math.PI / 2);
+            var b0 = new Bz((7, 3), Math.PI / 2);
             var c0 = new Bz((4, 2));
-            var d0 = new Bz((2, 3), -Math.PI/2);
+            var d0 = new Bz((1, 3), -Math.PI/2);
+
+            var r1 = 0.5 * (a0.a - c0.a).Len;
+            var r2 = 0.5 *(b0.a - d0.a).Len;
+            var r = Math.Max(r1, r2);
+            var center = 0.5 * (a0.a + c0.a);
+
+            //var a = a0.Join(c0, BzJoinType.PowerTwoLikeEllipse);
+            //var b = a.Join(a0.Rotate0(Math.PI), BzJoinType.PowerTwoLikeEllipse);
+            //Bz[] bzs = [a, b];
+            //f(x).Scale((1.65, 1.0/1.65)).Rotate(-0.5555555) + (4, 3)
+
             var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
             var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
             var c = b.Join(d0, BzJoinType.PowerTwoLikeEllipse);
@@ -73,7 +84,7 @@ partial class SceneMotion
             var lp = bzs.LinePoints();
 
             var f = Funcs2.CircleX();
-            var cps = (100).SelectInterval(2*Math.PI, x => 2*f(x).Scale((1, 0.5)) + (4, 3));
+            var cps = (100).SelectInterval(2*Math.PI, x => r*f(x).Scale((1/r1, 1/r2)) + center);
 
             return new[]
             {
