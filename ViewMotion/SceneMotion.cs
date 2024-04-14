@@ -55,21 +55,25 @@ partial class SceneMotion
         var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
         var point = Shapes.Tetrahedron.Mult(0.015);
 
-        return (100).SelectInterval(-0.9, 3, x =>
+        return (1).SelectInterval(0, 3, x =>
         {
-            var a0 = new Bz((4, 4));
-            var b0 = new Bz((5+x, 3), Math.PI / 2);
-            var c0 = new Bz((4, 2));
-            var d0 = new Bz((3-x, 3), -Math.PI/2);
+            var a0 = new Bz((4, 2));
+            var b0 = new Bz((5+x, 3));
+            var c0 = new Bz((4, 4));
+            var d0 = new Bz((3-x, 3));
 
             var r1 = 0.5 * (a0.a - c0.a).Len;
             var r2 = 0.5 *(b0.a - d0.a).Len;
             var center = 0.5 * (a0.a + c0.a);
 
+            //var a = a0.Join(c0, BzJoinType.PowerTwoLikeEllipse);
+            //var b = a.Join(a, BzJoinType.PowerTwoLikeEllipse);
+            //Bz[] bzs = [a, b];
+
             var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
             var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
-            var c = b.Join(d0, BzJoinType.PowerTwoLikeEllipse);
-            var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse);
+            var c = b.Join(d0, BzJoinType.Line);
+            var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse, Math.PI / 4);
 
             Bz[] bzs = [a, b, c, d];
 

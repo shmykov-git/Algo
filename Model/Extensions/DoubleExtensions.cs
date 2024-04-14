@@ -10,6 +10,7 @@ namespace Model.Extensions
         public static double Abs(this double x) => Math.Abs(x);
         public static double Sign(this double x) => Math.Sign(x);
         public static int Sgn(this double x) => x < 0 ? -1 : 1;
+        public static int SgnZ(this double x) => x > 0 ? 1 : -1;
         public static double Pow2(this double x) => x * x;
         public static double Pow3(this double x) => x * x * x;
         public static double Pow4(this double x) => x * x * x * x;

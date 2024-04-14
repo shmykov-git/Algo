@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using Meta.Model;
 using Model.Extensions;
 using Model.Libraries;
 
@@ -49,21 +52,91 @@ public static class BzExtensions
         };
     }
 
+    private static (int x, int y) SgnZ(Vector2 x) => (x.x.SgnZ(), x.y.SgnZ());
+
     public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz();
 
-
-    private static double GetAngle(Vector2 a, Vector2 b) => Math.Acos(a.Normed * b.Normed);
-
     private static double GetCircleL(double alfa) => 4.0 / 3 * Math.Tan(alfa / 4);
+
+    private static (double aAlfa, double bAlfa) CalcLeftAlfa0(Bz a, Bz b)
+    {
+        var any = 0;
+        var right = 0;
+        var left = Math.PI;
+        var up = Math.PI/2;
+        var down = -Math.PI / 2;
+
+        if (a.IsLine && b.IsLine)
+            return (0, 0);
+
+        var d = SgnZ(b.a - a.a);
+
+        if (a.IsPoint && b.IsPoint)
+        {
+            return d switch
+            {
+                (1, 1) => (right, down),
+                (1, -1) => (down, left),
+                (-1, 1) => (up, right),
+                (-1, -1) => (left, up),
+            };
+        }
+
+        if (a.IsLine)
+        {
+            var aLine = new Line2(a.lb, a.la);
+            var lr = aLine.IsLeft(b.a) ? 'L' : 'R';
+
+            return (lr, d.x, d.y) switch
+            {
+                ('L', 1, 1) => (any, down),
+                ('R', 1, 1) => (any, left),
+
+                ('L', 1, -1) => (any, left),
+                ('R', 1, -1) => (any, up),
+
+                ('L', -1, 1) => (any, right),
+                ('R', -1, 1) => (any, down),
+
+                ('L', -1, -1) => (any, up),
+                ('R', -1, -1) => (any, right),
+            };
+        }
+
+        if (b.IsLine)
+        {
+            var bLine = new Line2(b.a, b.b);
+            var lr = bLine.IsLeft(a.a) ? 'L' : 'R';
+
+            return (lr, d.x, d.y) switch
+            {
+                ('L', 1, 1) => (up, any),
+                ('R', 1, 1) => (right, any),
+
+                ('L', 1, -1) => (right, any),
+                ('R', 1, -1) => (down, any),
+
+                ('L', -1, 1) => (left, any),
+                ('R', -1, 1) => (up, any),
+
+                ('L', -1, -1) => (down, any),
+                ('R', -1, -1) => (left, any),
+            };
+        }
+
+        throw new AlgorithmException("Cannot return here");
+    }
 
     public static Bz Join(this Bz bzA, Bz bzB, BzJoinType type, double alfa = 0, double betta = 0) => bzA.Join(bzB, new BzJoinOptions { Type = type, Alfa = alfa, Betta = betta });
 
     public static Bz Join(this Bz bzA, Bz bzB, BzJoinOptions options)
     {
+        var (aAlfa00, bAlfa00) = CalcLeftAlfa0(bzA, bzB);
+
         var a = bzA.la;
-        var a0 = bzA.IsPoint ? new Vector2(a.x - 1, a.y).Rotate(bzA.alfa0, a) : bzA.lb;
+        var a0 = bzA.IsPoint ? new Vector2(a.x - 1, a.y).Rotate(bzA.alfa0 ?? aAlfa00, a) : bzA.lb;
         var b = bzB.a;
-        var b1 = bzB.IsPoint ? new Vector2(b.x - 1, b.y).Rotate(bzB.alfa0, b) : bzB.b;
+        var b1 = bzB.IsPoint ? new Vector2(b.x - 1, b.y).Rotate(bzB.alfa0 ?? bAlfa00, b) : bzB.b;
 
         if (options.Type == BzJoinType.Line)
             return new Bz(a, b);
@@ -73,14 +146,20 @@ public static class BzExtensions
 
         Bz GetBz2(double x, double y)
         {
-            var c = a + x * lineA.One;
-            var d = b - y * lineB.One;
+            var c = a + options.x * x * lineA.One;
+            var d = b - options.y * y * lineB.One;
 
             return new Bz(a, c, d, b);
         }
 
         if (options.Type == BzJoinType.PowerTwo)
-            return GetBz2(options.x, options.y);
+            return GetBz2(1, 1);
+
+        if (options.Type == BzJoinType.PowerTwoHalf)
+            return GetBz2(0.5, 0.5);
+
+        if (options.Type == BzJoinType.PowerTwoDouble)
+            return GetBz2(2, 2);
 
         if (options.Type == BzJoinType.PowerTwoByDistance)
         {
@@ -90,7 +169,7 @@ public static class BzExtensions
             if (dToA < options.Epsilon || dToB < options.Epsilon)
                 throw new ArgumentException("Zero distance");
 
-            return GetBz2(options.x * dToA, options.y * dToB);
+            return GetBz2(dToA, dToB);
         }
 
         var (hasCrossed, cross) = lineA.IntersectionPointChecked(lineB, options.Epsilon);
@@ -112,11 +191,11 @@ public static class BzExtensions
                 if (rA.Len < options.Epsilon || rB.Len < options.Epsilon)
                     throw new ArgumentException("No ellipse");
 
-                var alfa = GetAngle(rA, rB);
+                var alfa = rA.Angle(rB);
                 alfa = lineA.AB * (ortCross - cross) < 0 ? alfa : 2 * Math.PI - alfa;
                 var L = GetCircleL(alfa);
 
-                return GetBz2(rB.Len * L, rA.Len * L); // simply corrected
+                return GetBz2(rB.Len * L, rA.Len * L);
             }
         }
         else

@@ -7,7 +7,7 @@ namespace Model.Bezier;
 
 public class Bz
 {
-    public double alfa0 = 0;
+    public double? alfa0 = null;
     public int[] bs;
     public Vector2[] ps;
 
@@ -36,7 +36,7 @@ public class Bz
         this.bs = bs;
     }
 
-    public Bz(Vector2 a, double alfa0 = 0) : this([a], [1])
+    public Bz(Vector2 a, double? alfa0 = null) : this([a], [1])
     {
         this.alfa0 = alfa0;
     }
