@@ -120,7 +120,7 @@ public static class BzExtensions
                 return GetBz2(radius * L, radius * L);
             }
 
-            if (options.Type == BzJoinType.PowerTwoLikeEllipse)
+            if (options.Type == BzJoinType.PowerTwoLikeEllipse) // TODO: like ellipse math solution?
             {
                 var rA = a - ortCross;
                 var rB = b - ortCross;
@@ -138,7 +138,7 @@ public static class BzExtensions
                 var LAlfa = GetCircleL(alfa);
                 var LBetta = GetCircleL(betta);
 
-                return GetBz2(1.05 * rA.Len * LAlfa, 1.05 * rB.Len * LBetta);
+                return GetBz2(1.05 * rA.Len * LAlfa, 1.05 * rB.Len * LBetta); // simply corrected
             }
         }
         else
