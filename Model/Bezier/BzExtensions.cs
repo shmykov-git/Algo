@@ -138,7 +138,7 @@ public static class BzExtensions
                 var LAlfa = GetCircleL(alfa);
                 var LBetta = GetCircleL(betta);
 
-                return GetBz2(rA.Len * LAlfa, rB.Len * LBetta);
+                return GetBz2(1.05 * rA.Len * LAlfa, 1.05 * rB.Len * LBetta);
             }
         }
         else
