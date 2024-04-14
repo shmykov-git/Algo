@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Model.Extensions;
@@ -25,12 +26,14 @@ public static class BzExtensions
     }
 
     public static Vector2[] LinePoints(this Bz[] bzs) =>
-        bzs.SelectCirclePair<Bz, Vector2[]>((x, y) => x.la == y.a ? [x.a] : [x.a, x.la]).SelectMany(v => v).ToArray();
+        bzs.Where(b => b.IsLine).SelectCirclePair<Bz, Vector2[]>((x, y) => x.la == y.a ? [x.a] : [x.a, x.la]).SelectMany(v => v).ToArray();
 
-    public static Vector2[] ControlPoints(this Bz[] bzs) => bzs.SelectMany(x => x.ps.Skip(1).SkipLast(1)).ToArray();
+    public static Vector2[] ControlPoints(this Bz[] bzs) => bzs.Where(b => b.IsLine).SelectMany(x => x.ps.Skip(1).SkipLast(1)).ToArray();
 
-    public static Func2 ToBz(this Bz[] bzs)
+    public static Func2 ToBz(this IEnumerable<Bz> bzs0)
     {
+        var bzs = bzs0.Where(b => b.IsLine).ToArray();
+
         var n = bzs.Length;
 
         return x =>
@@ -53,14 +56,14 @@ public static class BzExtensions
 
     private static double GetCircleL(double alfa) => 4.0 / 3 * Math.Tan(alfa / 4);
 
-    public static Bz Join(this Bz bzA, Bz bzB, BzJoinType type) => bzA.Join(bzB, new BzJoinOptions { Type = type });
+    public static Bz Join(this Bz bzA, Bz bzB, BzJoinType type, double alfa = 0, double betta = 0) => bzA.Join(bzB, new BzJoinOptions { Type = type, Alfa = alfa, Betta = betta });
 
     public static Bz Join(this Bz bzA, Bz bzB, BzJoinOptions options)
     {
         var a = bzA.la;
-        var a0 = bzA.lb;
+        var a0 = bzA.IsPoint ? new Vector2(a.x - 1, a.y).Rotate(bzA.alfa0, a) : bzA.lb;
         var b = bzB.a;
-        var b1 = bzB.b;
+        var b1 = bzB.IsPoint ? new Vector2(b.x - 1, b.y).Rotate(bzB.alfa0, b) : bzB.b;
 
         if (options.Type == BzJoinType.Line)
             return new Bz(a, b);

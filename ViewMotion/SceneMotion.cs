@@ -57,24 +57,27 @@ partial class SceneMotion
 
         return (1).SelectInterval(1, 5, x =>
         {
-            var a = new Bz((1, 1), (1, 2));
-            var b = new Bz((3, 1.5), (5, 1.5));
+            var a0 = new Bz((4, 4));
+            var b0 = new Bz((6, 3), Math.PI / 2);
+            var c0 = new Bz((4, 2));
+            var d0 = new Bz((2, 3), -Math.PI/2);
+            var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
+            var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
+            var c = b.Join(d0, BzJoinType.PowerTwoLikeEllipse);
+            var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse);
 
-            var c = a.Join(b, new BzJoinOptions
-            {
-                Type = BzJoinType.PowerTwoLikeEllipse,
-                Alfa = 5 * Math.PI / 4,
-                //Betta = -Math.PI / 4,
-            });
-
-            Bz[] bzs = [a, c, b];
+            Bz[] bzs = [a, b, c, d];
 
             var fn = bzs.ToBz();
             var ps = (2000).SelectInterval(0, 1, v => fn(v));
             var lp = bzs.LinePoints();
 
+            var f = Funcs2.CircleX();
+            var cps = (100).SelectInterval(2*Math.PI, x => 2*f(x).Scale((1, 0.5)) + (4, 3));
+
             return new[]
             {
+                cps.ToShape2().ToShape3().ToLines(Color.Red, 1),
                 bzs.LinePoints().ToShape().ToPoints(Color.Green, 1.5),
                 bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.8),
                 ps.ToShape2().ToShape3().ToShapedSpots3(point, Color.Blue),
