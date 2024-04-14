@@ -44,7 +44,7 @@ namespace Model3D.Libraries
             };
         }
 
-        public static SurfaceFunc CylinderShapeFuncY(Shape shape) => ShapeFuncY(shape, Funcs2.Circle());
+        public static SurfaceFunc CylinderShapeFuncY(Shape shape) => ShapeFuncY(shape, Funcs2.CircleY());
 
         public static SurfaceFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);
 

@@ -47,7 +47,7 @@ partial class SceneMotion
         var fn = bzs.ToBz();
         var ps = (1000).SelectInterval(1, x => fn(x), true);
 
-        var circle = Funcs2.Circle();
+        var circle = Funcs2.CircleY();
         var cps = (1000).SelectInterval(2 * Math.PI, x => 0.498 * circle(x) + (0.5, 0.5), true);
 
         return new[]
@@ -60,34 +60,46 @@ partial class SceneMotion
         }.ToSingleShape().Move(-0.5, -0.5, 0).ToMotion(1.5);
     }
 
-    public Task<Motion> BezierCircle()
+    public Task<Motion> BezierLikeEllipse()
     {
-        var alfa = Math.PI / 2;
-        var L = 0.5 * 4 / 3 * Math.Tan(alfa / 4);
+        var size = 8;
+        var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
+        var point = Shapes.Tetrahedron.Mult(0.015);
 
-        Vector2[][] bps =
-        [
-            [(0, 0.5), (0, 0.5 + L), (0.75, 0.25), (0.5 - L, 1)],
-            [(0.5, 1), (0.5 + L, 1), (1.125, 1.125), (1, 0.5 + L)],
-            [(1, 0.5), (1, 0.5 - L), (0.5 + L, 0)],
-            [(0.5, 0), (0.5 - L, 0), (0, 0.5 - L)],
-        ];
-
-        var fn = bps.ToBz(true);
-
-        var ps = (1000).SelectInterval(1, x => fn(x), true);
-
-        var circle = Funcs2.Circle();
-        var cps = (1000).SelectInterval(2 * Math.PI, x => 0.498 * circle(x) + (0.5, 0.5), true);
-
-        return new[]
+        return (100).SelectInterval(-0.9, 3, x =>
         {
-            cps.ToShape2().ToShape3().ToLines(0.3, Color.Red),
-            bps.Select(aa=>aa[0]).ToArray().ToShape().ToPoints(Color.Green, 1.5),
-            bps.SelectMany(aa=>aa.Skip(1)).ToArray().ToShape().ToPoints(Color.Yellow, 1.5),
-            ps.ToShape2().ToShape3().ToLines(0.3, Color.Blue),
-            Shapes.Coods2WithText()
-        }.ToSingleShape().Move(-0.5, -0.5, 0).ToMotion(1.5);
+            var a0 = new Bz((4, 4));
+            var b0 = new Bz((5 + x, 3), Math.PI / 2);
+            var c0 = new Bz((4, 2));
+            var d0 = new Bz((3 - x, 3), -Math.PI / 2);
+
+            var r1 = 0.5 * (a0.a - c0.a).Len;
+            var r2 = 0.5 * (b0.a - d0.a).Len;
+            var center = 0.5 * (a0.a + c0.a);
+
+            var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
+            var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
+            var c = b.Join(d0, BzJoinType.PowerTwoLikeEllipse);
+            var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse);
+
+            Bz[] bzs = [a, b, c, d];
+
+            var fn = bzs.ToBz();
+            var ps = (500).SelectInterval(0, 1, v => fn(v));
+            var lp = bzs.LinePoints();
+
+            var f = Funcs2.Circle();
+            var cps = (100).SelectInterval(2 * Math.PI, x => r1 * f(x).Scale((r2 / r1, 1)) + center);
+
+            return new[]
+            {
+                cps.ToShape2().ToShape3().ToLines(Color.Red, 1),
+                bzs.LinePoints().ToShape().ToPoints(Color.Green, 1.5),
+                bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.8),
+                ps.ToShape2().ToShape3().ToShapedSpots3(point, Color.Blue),
+                coods
+            }.ToSingleShape().Move(-size / 2, -size / 2, 0);
+        }).ToMotion(new Vector3(0, 0, size * 1.1));
     }
 
     public Task<Motion> SaintPetersburgLamps()

@@ -51,26 +51,20 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var size = 10;
+        var size = 8;
         var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
         var point = Shapes.Tetrahedron.Mult(0.015);
 
-        return (1).SelectInterval(1, 5, x =>
+        return (100).SelectInterval(-0.9, 3, x =>
         {
             var a0 = new Bz((4, 4));
-            var b0 = new Bz((7, 3), Math.PI / 2);
+            var b0 = new Bz((5+x, 3), Math.PI / 2);
             var c0 = new Bz((4, 2));
-            var d0 = new Bz((1, 3), -Math.PI/2);
+            var d0 = new Bz((3-x, 3), -Math.PI/2);
 
             var r1 = 0.5 * (a0.a - c0.a).Len;
             var r2 = 0.5 *(b0.a - d0.a).Len;
-            var r = Math.Max(r1, r2);
             var center = 0.5 * (a0.a + c0.a);
-
-            //var a = a0.Join(c0, BzJoinType.PowerTwoLikeEllipse);
-            //var b = a.Join(a0.Rotate0(Math.PI), BzJoinType.PowerTwoLikeEllipse);
-            //Bz[] bzs = [a, b];
-            //f(x).Scale((1.65, 1.0/1.65)).Rotate(-0.5555555) + (4, 3)
 
             var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
             var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
@@ -80,11 +74,11 @@ partial class SceneMotion
             Bz[] bzs = [a, b, c, d];
 
             var fn = bzs.ToBz();
-            var ps = (2000).SelectInterval(0, 1, v => fn(v));
+            var ps = (500).SelectInterval(0, 1, v => fn(v));
             var lp = bzs.LinePoints();
 
-            var f = Funcs2.CircleX();
-            var cps = (100).SelectInterval(2*Math.PI, x => r*f(x).Scale((1/r1, 1/r2)) + center);
+            var f = Funcs2.Circle();
+            var cps = (100).SelectInterval(2*Math.PI, x => r1*f(x).Scale((r2/r1, 1)) + center);
 
             return new[]
             {
