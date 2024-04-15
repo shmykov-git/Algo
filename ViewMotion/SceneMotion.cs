@@ -55,38 +55,45 @@ partial class SceneMotion
         var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
         var point = Shapes.Tetrahedron.Mult(0.015);
 
-        return (1).SelectInterval(0, 3, x =>
+        return (100).SelectInterval(0, Math.PI/5, t =>
         {
-            var a0 = new Bz((4, 2));
-            var b0 = new Bz((5+x, 3));
-            var c0 = new Bz((4, 4));
-            var d0 = new Bz((3-x, 3));
+            var bzs = (10).SelectInterval(2 * Math.PI, x => 3 * Funcs2.Circle()(x).Rotate(t) + new Vector2(4, 4), true).Select(p => new Bz(p)).ToArray();
+            bzs.Index().ForEachCirclePair((i, j) =>
+            {
+                bzs[j] = bzs[i].Join(bzs[j], BzJoinType.PowerTwoByDistanceHalf);
+                if (i == 0) bzs[i] = bzs[j];
+            });
 
-            var r1 = 0.5 * (a0.a - c0.a).Len;
-            var r2 = 0.5 *(b0.a - d0.a).Len;
-            var center = 0.5 * (a0.a + c0.a);
+            //var a0 = new Bz((4, 2));
+            //var b0 = new Bz((5+x, 3));
+            //var c0 = new Bz((4, 4));
+            //var d0 = new Bz((3-x, 3));
+
+            //var r1 = 0.5 * (a0.a - c0.a).Len;
+            //var r2 = 0.5 * (b0.a - d0.a).Len;
+            //var center = 0.5 * (a0.a + c0.a);
 
             //var a = a0.Join(c0, BzJoinType.PowerTwoLikeEllipse);
             //var b = a.Join(a, BzJoinType.PowerTwoLikeEllipse);
             //Bz[] bzs = [a, b];
 
-            var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
-            var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
-            var c = b.Join(d0, BzJoinType.Line);
-            var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse, Math.PI / 4);
+            //var a = a0.Join(b0, BzJoinType.PowerTwoLikeEllipse);
+            //var b = a.Join(c0, BzJoinType.PowerTwoLikeEllipse);
+            //var c = b.Join(d0, BzJoinType.Line);
+            //var d = c.Join(a, BzJoinType.PowerTwoLikeEllipse, Math.PI / 4);
 
-            Bz[] bzs = [a, b, c, d];
+            //Bz[] bzs = [a, b, c, d];
 
             var fn = bzs.ToBz();
-            var ps = (500).SelectInterval(0, 1, v => fn(v));
+            var ps = (2000).SelectInterval(0, 1, v => fn(v));
             var lp = bzs.LinePoints();
 
-            var f = Funcs2.Circle();
-            var cps = (100).SelectInterval(2*Math.PI, x => r1*f(x).Scale((r2/r1, 1)) + center);
+            //var f = Funcs2.Circle();
+            //var cps = (100).SelectInterval(2*Math.PI, x => r1*f(x).Scale((r2/r1, 1)) + center);
 
             return new[]
             {
-                cps.ToShape2().ToShape3().ToLines(Color.Red, 1),
+                //cps.ToShape2().ToShape3().ToLines(Color.Red, 1),
                 bzs.LinePoints().ToShape().ToPoints(Color.Green, 1.5),
                 bzs.ControlPoints().ToShape().ToPoints(Color.Yellow, 1.8),
                 ps.ToShape2().ToShape3().ToShapedSpots3(point, Color.Blue),

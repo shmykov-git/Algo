@@ -8,5 +8,7 @@ public enum BzJoinType
     PowerTwoDouble,
     PowerTwoHalf,
     PowerTwoByDistance,
+    PowerTwoByDistanceHalf,
+    PowerTwoByDistanceDouble,
     PowerTwoLikeEllipse,
 }

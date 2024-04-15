@@ -12,6 +12,13 @@ namespace Model.Bezier;
 
 public static class BzExtensions
 {
+    private const double zeroDistance = 0.25;
+
+    private static (BzJoinType type, double mult)[] power2s = [(BzJoinType.PowerTwo, 1), (BzJoinType.PowerTwoHalf, 0.5), (BzJoinType.PowerTwoDouble, 2)];
+    private static (BzJoinType type, double mult)[] power2Distances = [(BzJoinType.PowerTwoByDistance, 1), (BzJoinType.PowerTwoByDistanceHalf, 0.5), (BzJoinType.PowerTwoByDistanceDouble, 2)];
+    private static Dictionary<BzJoinType, double> power2Dic = power2s.ToDictionary(v => v.type, v => v.mult);
+    private static Dictionary<BzJoinType, double> power2DistanceDic = power2Distances.ToDictionary(v => v.type, v => v.mult);
+
     public static Bz[] ToBzs(this Vector2[][] ps, bool closed = false)
     {
         Bz GetBz(Vector2[] aa, Vector2[] bb) => aa.Length switch
@@ -152,24 +159,18 @@ public static class BzExtensions
             return new Bz(a, c, d, b);
         }
 
-        if (options.Type == BzJoinType.PowerTwo)
-            return GetBz2(1, 1);
+        if (power2Dic.TryGetValue(options.Type, out var multP2))
+            return GetBz2(multP2, multP2);
 
-        if (options.Type == BzJoinType.PowerTwoHalf)
-            return GetBz2(0.5, 0.5);
-
-        if (options.Type == BzJoinType.PowerTwoDouble)
-            return GetBz2(2, 2);
-
-        if (options.Type == BzJoinType.PowerTwoByDistance)
+        if (power2DistanceDic.TryGetValue(options.Type, out var multDP2))
         {
             var dToA = lineA.Distance(b);
             var dToB = lineB.Distance(a);
 
-            if (dToA < options.Epsilon || dToB < options.Epsilon)
-                throw new ArgumentException("Zero distance");
+            var dA = dToA < options.Epsilon ? zeroDistance : dToA;
+            var dB = dToB < options.Epsilon ? zeroDistance : dToB;
 
-            return GetBz2(dToA, dToB);
+            return GetBz2(multDP2 * dA, multDP2 * dB);
         }
 
         var (hasCrossed, cross) = lineA.IntersectionPointChecked(lineB, options.Epsilon);
