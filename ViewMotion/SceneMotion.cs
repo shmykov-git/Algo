@@ -55,13 +55,14 @@ partial class SceneMotion
         var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
         var point = Shapes.Tetrahedron.Mult(0.015);
 
-        return (100).SelectInterval(0, Math.PI/5, t =>
+        var n = 10;
+        return (100).SelectInterval(0, 2*Math.PI/n, t =>
         {
-            var bzs = (10).SelectInterval(2 * Math.PI, x => 3 * Funcs2.Circle()(x).Rotate(t) + new Vector2(4, 4), true).Select(p => new Bz(p)).ToArray();
+            var bzs = (n).SelectInterval(2 * Math.PI, x => 3 * Funcs2.Circle()(x).Rotate(t) + new Vector2(4, 4), true).Select(p => new Bz(p)).ToArray();
             bzs.Index().ForEachCirclePair((i, j) =>
             {
-                bzs[j] = bzs[i].Join(bzs[j], BzJoinType.PowerTwoByDistanceHalf);
-                if (i == 0) bzs[i] = bzs[j];
+                bzs[j] = bzs[i].Join(bzs[j], BzJoinType.PowerTwoHalf);
+                if (i == 0) bzs[0] = bzs[1];
             });
 
             //var a0 = new Bz((4, 2));

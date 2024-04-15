@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -59,26 +60,28 @@ public static class BzExtensions
         };
     }
 
-    private static (int x, int y) SgnZ(Vector2 x) => (x.x.SgnZ(), x.y.SgnZ());
+    private static (int x, int y) SgnZ(Vector2 x, double epsilon = Values.Epsilon9) => (x.x.SgnZ(epsilon), x.y.SgnZ(epsilon));
 
     public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz();
 
     private static double GetCircleL(double alfa) => 4.0 / 3 * Math.Tan(alfa / 4);
 
-    private static (double aAlfa, double bAlfa) CalcLeftAlfa0(Bz a, Bz b)
+    private static (double aAlfa, double bAlfa) CalcLeftAlfa0(Bz az, Bz bz, double epsilon)
     {
         var any = 0;
         var right = 0;
         var left = Math.PI;
         var up = Math.PI/2;
         var down = -Math.PI / 2;
+        var aOut = az.la;
+        var bIn = bz.a;
 
-        if (a.IsLine && b.IsLine)
+        if (az.IsLine && bz.IsLine)
             return (0, 0);
 
-        var d = SgnZ(b.a - a.a);
+        var d = SgnZ(bIn - aOut, epsilon);
 
-        if (a.IsPoint && b.IsPoint)
+        if (az.IsPoint && bz.IsPoint)
         {
             return d switch
             {
@@ -89,11 +92,11 @@ public static class BzExtensions
             };
         }
 
-        if (a.IsLine)
+        if (az.IsLine)
         {
-            var aLine = new Line2(a.lb, a.la);
-            var lr = aLine.IsLeft(b.a) ? 'L' : 'R';
-
+            var aLine = az.OutLine();
+            var lr = aLine.IsLeft(bIn) ? 'L' : 'R';
+            
             return (lr, d.x, d.y) switch
             {
                 ('L', 1, 1) => (any, down),
@@ -110,10 +113,10 @@ public static class BzExtensions
             };
         }
 
-        if (b.IsLine)
+        if (bz.IsLine)
         {
-            var bLine = new Line2(b.a, b.b);
-            var lr = bLine.IsLeft(a.a) ? 'L' : 'R';
+            var bLine = bz.InLine();
+            var lr = bLine.IsLeft(aOut) ? 'L' : 'R';
 
             return (lr, d.x, d.y) switch
             {
@@ -138,18 +141,15 @@ public static class BzExtensions
 
     public static Bz Join(this Bz bzA, Bz bzB, BzJoinOptions options)
     {
-        var (aAlfa00, bAlfa00) = CalcLeftAlfa0(bzA, bzB);
-
         var a = bzA.la;
-        var a0 = bzA.IsPoint ? new Vector2(a.x - 1, a.y).Rotate(bzA.alfa0 ?? aAlfa00, a) : bzA.lb;
         var b = bzB.a;
-        var b1 = bzB.IsPoint ? new Vector2(b.x - 1, b.y).Rotate(bzB.alfa0 ?? bAlfa00, b) : bzB.b;
 
         if (options.Type == BzJoinType.Line)
             return new Bz(a, b);
 
-        var lineA = new Line2(a0.Rotate(options.Alfa, a), a);
-        var lineB = new Line2(b, b1.Rotate(options.Betta, b));
+        var (alfa0, betta0) = CalcLeftAlfa0(bzA, bzB, options.Epsilon);
+        var lineA = bzA.OutLine(alfa0 + options.Alfa);
+        var lineB = bzB.InLine(betta0 + options.Betta);
 
         Bz GetBz2(double x, double y)
         {

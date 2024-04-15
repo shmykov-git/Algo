@@ -7,7 +7,7 @@ namespace Model.Bezier;
 
 public class Bz
 {
-    public double? alfa0 = null;
+    public double alfa0 = 0;
     public int[] bs;
     public Vector2[] ps;
 
@@ -24,6 +24,20 @@ public class Bz
     public Vector2 la { get => ps[^1]; set => ps[^1] = value; }
     public Vector2 lb { get => ps[^2]; set => ps[^2] = value; }
 
+    public Line2 OutLine(double alfa = 0)
+    {
+        var la0 = IsPoint ? new Vector2(la.x - 1, la.y).Rotate(alfa0 + alfa, la) : lb;
+
+        return new Line2(la0, la);
+    }
+
+    public Line2 InLine(double alfa = 0)
+    {
+        var a1 = IsPoint ? new Vector2(a.x - 1, a.y).Rotate(alfa0 + alfa, a) : b;
+
+        return new Line2(a, a1);
+    }
+
     public Bz(Vector2[] ps)
     {
         this.ps = ps;
@@ -36,7 +50,7 @@ public class Bz
         this.bs = bs;
     }
 
-    public Bz(Vector2 a, double? alfa0 = null) : this([a], [1])
+    public Bz(Vector2 a, double alfa0 = 0) : this([a], [1])
     {
         this.alfa0 = alfa0;
     }
