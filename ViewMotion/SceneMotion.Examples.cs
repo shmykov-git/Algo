@@ -68,10 +68,10 @@ partial class SceneMotion
 
         return (100).SelectInterval(-0.9, 3, x =>
         {
-            var a0 = new Bz((4, 4));
-            var b0 = new Bz((5 + x, 3), Math.PI / 2);
-            var c0 = new Bz((4, 2));
-            var d0 = new Bz((3 - x, 3), -Math.PI / 2);
+            var a0 = new Bz((4, 2));
+            var b0 = new Bz((5 + x, 3));
+            var c0 = new Bz((4, 4));
+            var d0 = new Bz((3 - x, 3), Math.PI / 2);
 
             var r1 = 0.5 * (a0.a - c0.a).Len;
             var r2 = 0.5 * (b0.a - d0.a).Len;

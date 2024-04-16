@@ -148,8 +148,8 @@ public static class BzExtensions
             return new Bz(a, b);
 
         var (alfa0, betta0) = CalcLeftAlfa0(bzA, bzB, options.Epsilon);
-        var lineA = bzA.OutLine(alfa0 + options.Alfa);
-        var lineB = bzB.InLine(betta0 + options.Betta);
+        var lineA = bzA.OutLine(options.Alfa, alfa0);
+        var lineB = bzB.InLine(options.Betta, betta0);
 
         Bz GetBz2(double x, double y)
         {

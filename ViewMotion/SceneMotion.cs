@@ -51,6 +51,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
+        return BezierLikeEllipse();
+
         var size = 8;
         var coods = Shapes.Coods2WithText(size, Color.Red, Color.DarkGray);
         var point = Shapes.Tetrahedron.Mult(0.015);

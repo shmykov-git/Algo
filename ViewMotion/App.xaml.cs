@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Threading;
+using System.Windows;
 using Aspose.ThreeD;
 using Mapster;
 using Meta;
@@ -16,6 +17,9 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+        Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
         DI.Configure(services => services
             .AddSingleton<Viewer>(p => new Viewer() { DataContext = p.GetService<ViewerModel>() })
             .AddTransient<ViewerModel>()
@@ -27,7 +31,7 @@ public partial class App : Application
             .AddSingleton<StaticSceneRender>()
             .AddSingleton<Scene>()
             .AddSingleton<Vectorizer>()
-            .AddSingleton<ThreadPool>());
+            .AddSingleton<Meta.Tools.ThreadPool>());
         DI.Build();
 
         var viewer = DI.Get<Viewer>();

@@ -7,7 +7,7 @@ namespace Model.Bezier;
 
 public class Bz
 {
-    public double alfa0 = 0;
+    public double? alfa0 = null;
     public int[] bs;
     public Vector2[] ps;
 
@@ -24,16 +24,16 @@ public class Bz
     public Vector2 la { get => ps[^1]; set => ps[^1] = value; }
     public Vector2 lb { get => ps[^2]; set => ps[^2] = value; }
 
-    public Line2 OutLine(double alfa = 0)
+    public Line2 OutLine(double alfa = 0, double alfa0 = 0)
     {
-        var la0 = IsPoint ? new Vector2(la.x - 1, la.y).Rotate(alfa0 + alfa, la) : lb;
+        var la0 = IsPoint ? new Vector2(la.x - 1, la.y).Rotate(this.alfa0 ?? alfa0 + alfa, la) : lb.Rotate(alfa, la);
 
         return new Line2(la0, la);
     }
 
-    public Line2 InLine(double alfa = 0)
+    public Line2 InLine(double alfa = 0, double alfa0 = 0)
     {
-        var a1 = IsPoint ? new Vector2(a.x - 1, a.y).Rotate(alfa0 + alfa, a) : b;
+        var a1 = IsPoint ? new Vector2(a.x - 1, a.y).Rotate(this.alfa0 ?? alfa0 + alfa, a) : b.Rotate(alfa, a);
 
         return new Line2(a, a1);
     }
@@ -50,7 +50,7 @@ public class Bz
         this.bs = bs;
     }
 
-    public Bz(Vector2 a, double alfa0 = 0) : this([a], [1])
+    public Bz(Vector2 a, double? alfa0 = null) : this([a], [1])
     {
         this.alfa0 = alfa0;
     }
@@ -66,8 +66,6 @@ public class Bz
     public Bz(Vector2 a, Vector2 b, Vector2 c, Vector2 d) : this([a, b, c, d], [1, 3, 3, 1])
     {
     }
-
-    public Bz Rotate0(double alfa0) => new Bz(a, this.alfa0 + alfa0);
 
     public Vector2 B(double t) => (n + 1).SelectRange(k => bs[k] * ps[k] * Pow(t, k) * Pow(1 - t, n - k)).Sum();
 
