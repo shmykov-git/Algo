@@ -408,6 +408,8 @@ namespace Model3D.Extensions
         }
 
         public static Shape ToPoints(this Shape shape, Color? color = null, double mult = 1, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToPoints(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+
 
         public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 

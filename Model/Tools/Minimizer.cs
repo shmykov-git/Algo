@@ -22,7 +22,7 @@ public static class Minimizer
     private readonly static double q5 = Math.Sqrt(5);
     private readonly static double alfa = (-1 + q5) / 2;
     private readonly static double betta = 1 - alfa;
-    private readonly static double gamma = -alfa / (alfa * alfa - betta * betta);
+    private readonly static double gamma = alfa / (alfa * alfa - betta * betta);
     private readonly static double delta = -betta / (alfa * alfa - betta * betta);
 
     public static IEnumerable<(double[] x, double[] fx)> Gradient(double[] x0, double[] dx0, double epsilon, Func<int, double, double> func, bool debug = false)
@@ -91,8 +91,8 @@ public static class Minimizer
 
         double GetX1(double a, double b) => alfa * a + betta * b;
         double GetX2(double a, double b) => betta * a + alfa * b;
-        double GetA(double x1, double x2) => gamma * x1 - delta * x2;
-        double GetB(double x1, double x2) => delta * x1 - gamma * x2;
+        double GetA(double x1, double x2) => gamma * x1 + delta * x2;
+        double GetB(double x1, double x2) => delta * x1 + gamma * x2;
 
         var a = x0;
         var b = x0 + dx0;
