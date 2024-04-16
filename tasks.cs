@@ -112,3 +112,5 @@ public Task<Motion> Scene()
 #region Vape - попробовать сделать свои воксели
 // см. SceneMotion.Vape.cs
 #endregion
+
+// Модифицировать существующий шрифт TrueType - получить его производную
