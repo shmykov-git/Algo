@@ -7,13 +7,13 @@ using System.Linq;
 using Meta;
 using Model3D.Libraries;
 using Model3D.Systems;
-using Model3D.Tools;
 using Model3D.Tools.Model;
 using View3D.Libraries;
 using Model.Fourier;
 using System.Diagnostics;
 using Aspose.ThreeD.Entities;
 using System.Security.Cryptography;
+using Model3D.Tools.Vectorization;
 
 namespace Model.Libraries
 {

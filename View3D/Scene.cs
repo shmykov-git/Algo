@@ -1,5 +1,5 @@
 ﻿using Model3D.Extensions;
-using Model3D.Tools;
+using Model3D.Tools.Vectorization;
 using System.Drawing;
 using Shape = Model.Shape;
 

@@ -7,6 +7,7 @@ using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Model.Interfaces;
 using Model3D.Tools;
+using Model3D.Tools.Vectorization;
 using View3D.Tools;
 
 namespace ViewMotion;

@@ -95,5 +95,17 @@ namespace Model.Extensions
         }
 
         public static double Angle(this Vector2 a, Vector2 b) => Math.Acos(a.Normed * b.Normed);
+
+        /// <summary>
+        /// [-2, 2]. >0 - goes left, <0 - goes right, =0 - goes stright, -2 or 2 - goes back
+        /// </summary>
+        public static double ScalarAngle(this Vector2 a, Vector2 b)
+        {
+            var bOrt = b.Normal;
+            var angle = a.Normed * bOrt.Normed;
+            var isShort = a * b > 0;
+
+            return isShort ? angle : 2 * angle.Sgn() - angle;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Model.Extensions
 {
@@ -41,12 +42,17 @@ namespace Model.Extensions
             return Enumerable.Range(0, range.m).SelectMany(i => Enumerable.Range(0, range.n).SelectMany(j => Enumerable.Range(0, range.l).Select(k => selectFn(i, j, k))));
         }
 
-        public static IEnumerable<int> Range(this int n) => n.SelectRange(i => i);
+        public static IEnumerable<int> Range(this int n, int from = 0) => n.SelectRange(from, i => i);
         public static IEnumerable<T> Range<T>(this int n, Func<int, T> fn) => n.SelectRange(fn);
 
         public static IEnumerable<T> SelectRange<T>(this int range, Func<int, T> selectFn)
         {
             return Enumerable.Range(0, range).Select(i => selectFn(i));
+        }
+
+        public static IEnumerable<T> SelectRange<T>(this int range, int from, Func<int, T> selectFn)
+        {
+            return Enumerable.Range(from, range).Select(i => selectFn(i));
         }
 
         public static IEnumerable<T> SelectInterval<T>(this int range, Func<double, T> selectFn, bool isClosed = false)

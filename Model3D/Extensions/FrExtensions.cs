@@ -7,7 +7,7 @@ using Meta;
 using Model;
 using Model.Extensions;
 using Model.Fourier;
-using Model3D.Tools;
+using Model3D.Tools.Vectorization;
 
 namespace Model3D.Extensions
 {

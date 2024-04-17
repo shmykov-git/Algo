@@ -237,7 +237,24 @@ namespace Model.Extensions
         {
             var group = new Queue<T>(groupSize);
 
-            foreach (var t in list.Concat(list.Take(groupSize-1)))
+            foreach (var t in list.Concat(list.Take(groupSize - 1)))
+            {
+                if (group.Count < groupSize - 1)
+                    group.Enqueue(t);
+                else
+                {
+                    group.Enqueue(t);
+                    yield return func(group.ToArray());
+                    group.Dequeue();
+                }
+            }
+        }
+
+        public static IEnumerable<TRes> SelectGroup<T, TRes>(this IEnumerable<T> list, int groupSize, Func<T[], TRes> func)
+        {
+            var group = new Queue<T>(groupSize);
+
+            foreach (var t in list)
             {
                 if (group.Count < groupSize - 1)
                     group.Enqueue(t);

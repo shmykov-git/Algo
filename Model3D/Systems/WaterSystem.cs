@@ -14,11 +14,11 @@ using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems.Model;
-using Model3D.Tools;
 using Model3D.Tools.Model;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
+using Model3D.Tools.Vectorization;
 
 namespace Model3D.Systems
 {

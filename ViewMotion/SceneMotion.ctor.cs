@@ -1,4 +1,4 @@
-﻿using Model3D.Tools;
+﻿using Model3D.Tools.Vectorization;
 using System;
 
 namespace ViewMotion;

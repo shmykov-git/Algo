@@ -74,21 +74,6 @@ public static class Minimizer
         if (dx0 <= 0)
             throw new ArgumentException("dx0 should be more 0");
 
-        var fn = func;
-
-        if (debug)
-        {
-            int count = 0;
-
-            fn = x =>
-            {
-                var f = func(x);
-                Debug.WriteLine($"Gold {++count}: ({x}, {f})");
-
-                return f;
-            };
-        }
-
         double GetX1(double a, double b) => alfa * a + betta * b;
         double GetX2(double a, double b) => betta * a + alfa * b;
         double GetA(double x1, double x2) => gamma * x1 + delta * x2;
@@ -98,6 +83,21 @@ public static class Minimizer
         var b = x0 + dx0;
         var x1 = GetX1(a, b);
         var x2 = GetX2(a, b);
+
+        var fn = func;
+
+        if (debug)
+        {
+            int count = 0;
+
+            fn = x =>
+            {
+                var f = func(x);
+                Debug.WriteLine($"Gold {++count}: ({x}, {f}) ab={b-a:F6}");
+
+                return f;
+            };
+        }
 
         var fa = fn(a);
         yield return (a, fa);

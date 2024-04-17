@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Model.Interfaces;
 using Model3D.Tools;
 using View3D.Tools;
+using Model3D.Tools.Vectorization;
 
 namespace View3D
 {
