@@ -44,7 +44,7 @@ partial class SceneMotion
 
         var bzs = bps.ToBzs(true);
         bzs[0] = bzs[0].ToPower3();
-        var fn = bzs.ToBz();
+        var fn = bzs.ToFn();
         var ps = (1000).SelectInterval(1, x => fn(x), true);
 
         var circle = Funcs2.CircleY();
@@ -84,7 +84,7 @@ partial class SceneMotion
 
             Bz[] bzs = [a, b, c, d];
 
-            var fn = bzs.ToBz();
+            var fn = bzs.ToFn();
             var ps = (500).SelectInterval(0, 1, v => fn(v));
             var lp = bzs.LinePoints();
 

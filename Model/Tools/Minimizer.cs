@@ -25,7 +25,7 @@ public static class Minimizer
     private readonly static double gamma = alfa / (alfa * alfa - betta * betta);
     private readonly static double delta = -betta / (alfa * alfa - betta * betta);
 
-    public static IEnumerable<(double[] x, double[] fx)> Gradient(double[] x0, double[] dx0, double epsilon, Func<int, double, double> func, bool debug = false)
+    public static IEnumerable<(double[] x, double[] fx)> Gradient(double[] x0, double[] dx0, double epsilon, Func<double[], double> func, bool debug = false)
     {
         var n = x0.Length;
 
@@ -35,19 +35,35 @@ public static class Minimizer
         if (dx0.Any(v => v <= 0))
             throw new ArgumentException("dx0 should be more then zero for each coordinate");
 
-        //if (maxDx != null && x0.Length != maxDx.Length)
-        //    throw new ArgumentException("maxDx should be the same len as x0 or null");
-
         var x = x0.ToArray();
         var dx = dx0.ToArray();
         var fx = new double[n];
 
-        while ((n).SelectRange(i => dx[i].Abs()).Max() > epsilon)
+        double maxDx() => (n).SelectRange(i => dx[i].Abs()).Max();
+
+        var fn = func;
+
+        if (debug)
+        {
+            int count = 0;
+
+            fn = x =>
+            {
+                var f = func(x);
+                Debug.WriteLine($"Gradient [{x0.Length}] {++count}: ({x}, {f}) maxDx={maxDx():F6}");
+
+                return f;
+            };
+        }
+
+        while (maxDx() > epsilon)
         {
             for (var i = 0; i < n; i++)
             {
-                var fx1 = func(i, x[i]);
-                var fx2 = func(i, x[i] + dx[i]);
+                var fx1 = fn(x);
+                var x2 = x.ToArray();
+                x2[i] = x[i] + dx[i];
+                var fx2 = fn(x2);
 
                 if (fx1 > fx2)
                 {
@@ -56,7 +72,9 @@ public static class Minimizer
                 }
                 else // fx1 > fx3
                 {
-                    var fx3 = func(i, x[i] - dx[i]);                    
+                    var x3 = x.ToArray();
+                    x3[i] = x[i] - dx[i];
+                    var fx3 = fn(x3);                    
 
                     x[i] = x[i] - dx[i];
                     fx[i] = fx3;

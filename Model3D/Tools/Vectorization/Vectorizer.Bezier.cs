@@ -10,6 +10,7 @@ using Model;
 using Model.Bezier;
 using Model.Extensions;
 using Model.Libraries;
+using Model.Tools;
 using Model3D.Tools.Model;
 
 namespace Model3D.Tools.Vectorization;
@@ -166,8 +167,30 @@ public partial class Vectorizer // Bezier
             var j = lps[(m + 1) % lps.Length];
             var ps = Ranges.Circle(i + 1, j - 1, n).Select(k => resPs[k]).ToArray();
 
-            var u = 1;
-            var v = 0.5;
+            var pn = options.OptimizationAccuracy * ps.Length;
+
+            Func2 GetBFn(double u, double v)
+            {
+                var cc = a + u * (c - a);
+                var dd = b + v * (d - b);
+                return new[] { new Bz(a, cc, dd, b) }.ToFn();
+            }
+
+            double Fn(double u, double v)
+            {
+                var bFn = GetBFn(u, v);
+                var bFnPs = (pn).SelectInterval(t => bFn(t)).ToArray();
+
+                return ps.Select(p1=>bFnPs.Min(p2=>(p2-p1).Len2)).Sum(); // todo: optimize
+            }
+
+            var x0 = new double[] { 1, 1 };
+            var dx = new double[] { 0.1, 0.1 };
+
+            var (xMin, _) = Minimizer.Gradient(x0, dx, options.OptimizationEpsilon, xi => Fn(xi[0], xi[1]), false).Last();
+
+            var u = xMin[0];
+            var v = xMin[1];
 
             var cc = a + u * (c - a);
             var dd = b + v * (d - b);

@@ -53,12 +53,14 @@ partial class SceneMotion
     {
         var options = new BezierOptions()
         {
-            SmoothingResultLevel = 3,
-            SmoothingAlgoLevel = 5,
+            SmoothingResultLevel = 1,
+            SmoothingAlgoLevel = 3,
+            OptimizationAccuracy = 3,
+            DebugProcess = true,
         };
         var bzs = vectorizer.GetBeziers("hh3", options);
         
-        var fn = bzs[0].ToBz();
+        var fn = bzs[0].ToFn();
         var fps = (1000).SelectInterval(x=>fn(x));
 
         return new[] 

@@ -8,6 +8,8 @@ namespace Model3D.Tools.Model
         public int MaxPointDistance { get; set; } = 16;
         public int SmoothingResultLevel { get; set; } = 3;
         public int SmoothingAlgoLevel { get; set; } = 3;
+        public int OptimizationAccuracy { get; set; } = 3;
+        public double OptimizationEpsilon { get; set; } = 0.01;
 
         public bool DebugProcess { get; set; }
 

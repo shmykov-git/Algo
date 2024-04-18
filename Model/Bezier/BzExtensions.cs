@@ -41,7 +41,7 @@ public static class BzExtensions
 
     public static Vector2[] ControlPoints(this Bz[] bzs) => bzs.Where(b => b.IsLine).SelectMany(x => x.ps.Skip(1).SkipLast(1)).ToArray();
 
-    public static Func2 ToBz(this IEnumerable<Bz> bzs0)
+    public static Func2 ToFn(this IEnumerable<Bz> bzs0)
     {
         var bzs = bzs0.Where(b => b.IsLine).ToArray();
 
@@ -62,7 +62,7 @@ public static class BzExtensions
 
     private static (int x, int y) SgnZ(Vector2 x, double epsilon = Values.Epsilon9) => (x.x.SgnZ(epsilon), x.y.SgnZ(epsilon));
 
-    public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToBz();
+    public static Func2 ToBz(this Vector2[][] ps, bool closed = false) => ps.ToBzs(closed).ToFn();
 
     private static double GetCircleL(double alfa) => 4.0 / 3 * Math.Tan(alfa / 4);
 
