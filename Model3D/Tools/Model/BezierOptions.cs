@@ -11,7 +11,8 @@ namespace Model3D.Tools.Model
 
         public bool DebugProcess { get; set; }
 
-        public Vector2[] bps;
+        public Vector2[] cps;
+        public Vector2[] lps;
         public Vector2[] ps;
     }
 }

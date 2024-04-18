@@ -114,12 +114,15 @@ namespace Model.Extensions
                     yield return enumerator.Current;
         }
 
-        public static IEnumerable<T> Triples<T>(this IEnumerable<T> list)
+        /// <summary>
+        /// Каждый третий, shift = 0, 1, 2
+        /// </summary>
+        public static IEnumerable<T> Triples<T>(this IEnumerable<T> list, int shift = 0)
         {
             var i = 0;
             var enumerator = list.GetEnumerator();
             while (enumerator.MoveNext())
-                if (i++ % 3 == 0)
+                if (i++ % 3 == shift)
                     yield return enumerator.Current;
         }
 
@@ -151,6 +154,8 @@ namespace Model.Extensions
                 return true;
             }));
         }
+
+        public static T[] CircleArrayShift<T>(this IEnumerable<T> list, int shift) => list.ToArray().CircleShift(shift);
 
         public static IEnumerable<(T a, T b, T c)> SelectCircleTriple<T>(this IEnumerable<T> list) =>
             list.SelectCircleTriple((a, b, c) => (a, b, c));

@@ -30,4 +30,24 @@ public static class Ranges
     {
         return (m, n).SelectRange((i, j) => (i * n + j, i, j, (i + j) % 2 == shift));
     }
+
+    /// <summary>
+    /// 0 <= i < n, 
+    /// 0 <= j < n,
+    /// circle values from i to j excluding i, j 
+    /// </summary>
+    public static IEnumerable<int> Circle(int i, int j, int n)
+    {
+        i = (i + n) % n;
+        j = (j + n) % n;
+
+        var k = (i + 1) % n;
+
+        while (k != j)
+        {
+            yield return k;
+
+            k = (k + 1) % n;
+        }
+    }
 }

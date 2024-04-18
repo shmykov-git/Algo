@@ -1,6 +1,8 @@
 ﻿using Model.Extensions;
+using Model.Libraries;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 
@@ -8,8 +10,8 @@ namespace Model
 {
     public struct Vector2 : IEquatable<Vector2>, INetKey
     {
-        public const double Epsilon = 0.000000001;
-        public const decimal EpsilonM = 0.000000001m;
+        public const double Epsilon = Values.Epsilon9;
+        public const decimal EpsilonM = Values.Epsilon9m;
 
         public double x;
         public double y;
@@ -183,6 +185,13 @@ namespace Model
             var y = Math.Round((decimal)this.y / EpsilonM) * EpsilonM;
             
             return HashCode.Combine(x, y);
+        }
+
+        [DebuggerStepThrough()]
+        public void BreakNan()
+        {
+            if (double.IsNaN(x) || double.IsInfinity(x) || double.IsNaN(y) || double.IsInfinity(y))
+                Debugger.Break();
         }
     }
 }
