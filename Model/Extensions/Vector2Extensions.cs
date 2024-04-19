@@ -108,6 +108,14 @@ namespace Model.Extensions
             return isAcute ? scalar : 2 * scalar.Sgn() - scalar;
         }
 
+        // check ScalarAngle and FullAngle
+        //return new[]
+        //{
+        //    (1000).SelectInterval(-2*Math.PI, 2*Math.PI, fi => new Vector2(fi, Vector2.OneX.ScalarAngle(new Vector2(Math.Cos(fi), Math.Sin(fi))))).ToShape2().ToShape3().ToPoints(0.5).ApplyColor(Color.Red),
+        //    (1000).SelectInterval(-2*Math.PI, 2*Math.PI, fi => new Vector2(fi, Vector2.OneX.FullAngle(new Vector2(Math.Cos(fi), Math.Sin(fi))))).ToShape2().ToShape3().ToPoints(0.5).ApplyColor(Color.Blue),
+        //    Shapes.Coods2WithText(4)
+        //}.ToSingleShape().ToMotion();
+
         public static double FullAngle(this Vector2 a, Vector2 b)
         {
             var bOrt = b.Normal;

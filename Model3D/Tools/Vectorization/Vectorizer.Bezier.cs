@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks.Dataflow;
 using Mapster;
 using MathNet.Numerics;
@@ -77,10 +78,11 @@ public partial class Vectorizer // Bezier
 
         Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
 
-        var anglePoints = GetAnglePoints(options.SmoothingAlgoLevel);
+        var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);
+        options.aps.Add(algoPoints);
 
         Vector2[] GetResultPoints() => options.SmoothingAlgoLevel == options.SmoothingResultLevel
-            ? anglePoints
+            ? algoPoints
             : (options.SmoothingResultLevel == 1
                 ? basePoints
                 : GetAnglePoints(options.SmoothingResultLevel));
@@ -88,7 +90,7 @@ public partial class Vectorizer // Bezier
         var points = GetResultPoints();
 
         double getCornerAngle(int i, int j, int k) => (points[i] - points[j]).FullAngle(points[k] - points[j]);
-        double getDirectionScalar(int i, int j, int k) => (anglePoints[j] - anglePoints[i]).ScalarAngle(anglePoints[k] - anglePoints[j]);
+        double getAlgoDirectionScalar(int i, int j, int k) => (algoPoints[j] - algoPoints[i]).ScalarAngle(algoPoints[k] - algoPoints[j]);
 
         (double s2, double avg) GetAngleDispersionPow2(int j)
         {
@@ -102,13 +104,28 @@ public partial class Vectorizer // Bezier
         int[] GetLps()
         {
             // веса углов
-            //   - еще нужна дисперсия
             // нельзя брать углы на малом расстоянии minNode
             // нужно закончить, если все ноды на расстоянии не больше maxNode
             //    - много лишних углов
 
-            var angles = anglePoints.Index().SelectCircleTriple(getDirectionScalar).ToArray().CircleShift(1)
-                .Select((v, i) => (i, v)).OrderByDescending(v => v.v.Abs()).Select(v => v.i).ToArray();
+            int WS2(double s2) => double.IsNaN(s2) || double.IsInfinity(s2) ? 100 : (int)(10 * s2);
+            int WA(double a) => (int)(50 * (2 - a.Abs()));
+
+            //algoPoints.Index()
+            //    .SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
+            //    .Select((v, i) => (i: (i + 1) % n, v.a, v.s2))
+            //    .OrderBy(v => Math.Max(WS2(v.s2.s2), WA(v.a)))
+            //    .ForEach(v =>
+            //    {
+            //        Debug.WriteLine($"{v.i}: {Math.Min(WS2(v.s2.s2), WA(v.a))} ({WS2(v.s2.s2)}, {WA(v.a)}) [{v.s2}, {v.a}]");
+            //    });
+
+            // выраженность угла и величина угла
+            var angles = algoPoints.Index().SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
+                .Select((v, i) => (i: (i+1) % n, v.a, v.s2))
+                .OrderBy(v => Math.Max(WS2(v.s2.s2), WA(v.a)))
+                .Select(v => v.i)
+                .ToArray();
 
             HashSet<int> nodes = new();
             HashSet<int> check = new();
@@ -272,6 +289,7 @@ public partial class Vectorizer // Bezier
         // сортировать углы по sigma2
         // объединить bzs до требуемого количества
         // что-то не то с max point
+        // нужна дисперсия не углов, а линий от углов
 
         return bzs;
     }

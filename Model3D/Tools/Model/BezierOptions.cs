@@ -29,5 +29,6 @@ namespace Model3D.Tools.Model
         public List<Vector2[]> cps = new();
         public List<Vector2[]> lps = new();
         public List<Vector2[]> ps = new();
+        public List<Vector2[]> aps = new();
     }
 }

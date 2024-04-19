@@ -113,6 +113,11 @@ namespace Model.Extensions
             return (range).SelectRange(i => selectFn(i, 2 * Math.PI * i / range));
         }
 
+        public static IEnumerable<T> SelectCirclePoints<T>(this int range, Func<int, double, double, double, T> selectFn)
+        {
+            return (range).SelectCircleAngle((i, fi) => selectFn(i, fi, Math.Cos(fi), Math.Sin(fi)));
+        }
+
         public static IEnumerable<T> SelectCirclePoints<T>(this int range, Func<int, double, double, T> selectFn)
         {
             return (range).SelectCircleAngle((i, fi) => selectFn(i, Math.Cos(fi), Math.Sin(fi)));
