@@ -44,9 +44,6 @@ public static class Ranges
         var ii = (i + n) % n;
         var jj = (j + n) % n;
 
-        if (i != ii && jj != j)
-            throw new ArgumentException("Cannot jump through zero in both directions");
-
         var k = ii;
 
         while (k != jj)

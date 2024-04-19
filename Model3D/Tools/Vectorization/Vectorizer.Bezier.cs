@@ -69,10 +69,6 @@ public partial class Vectorizer // Bezier
     {
         #region Bezier line points
 
-        var minNode = options.MinPointDistance;
-        var maxNode = options.MaxPointDistance;
-        var maxNode2 = maxNode / 2;
-
         var basePoints = polygon.Points;
         var n = basePoints.Length;
 
@@ -92,13 +88,19 @@ public partial class Vectorizer // Bezier
         double getCornerAngle(int i, int j, int k) => (points[i] - points[j]).FullAngle(points[k] - points[j]);
         double getAlgoDirectionScalar(int i, int j, int k) => (algoPoints[j] - algoPoints[i]).ScalarAngle(algoPoints[k] - algoPoints[j]);
 
-        (double s2, double avg) GetAngleDispersionPow2(int j)
+        (double iS2, double kS2, double iAvg, double kAvg) GetAngleDispersionPow2(int j)
         {
-            var angles = Ranges.CircleBoth(n, j, options.AnglePointDistance).Select(v => getCornerAngle(v.i, j, v.k)).ToArray();
-            var avg = angles.Average();
-            var s2 = angles.DispersionPow2(avg);
+            var iVs = Ranges.Circle(n, j - 1, j - options.AnglePointDistance).ToArray();
+            var kVs = Ranges.Circle(n, j + 1, j + options.AnglePointDistance).ToArray();
+            var iAngs = iVs.Select(i => kVs.Select(k => getCornerAngle(i, j, k)).DispersionPow2WithAvg()).ToArray();
+            var kAngs = kVs.Select(k => iVs.Select(i => getCornerAngle(i, j, k)).DispersionPow2WithAvg()).ToArray();
 
-            return (s2, avg);
+            var iS2 = iAngs.Max(v => v.s2);
+            var kS2 = kAngs.Max(v => v.s2);
+            var iAvg = iAngs.Select(v => v.avg).Average();
+            var kAvg = kAngs.Select(v => v.avg).Average();
+
+            return (iS2, kS2, iAvg, kAvg);
         }
 
         int[] GetLps()
@@ -114,7 +116,7 @@ public partial class Vectorizer // Bezier
             //algoPoints.Index()
             //    .SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
             //    .Select((v, i) => (i: (i + 1) % n, v.a, v.s2))
-            //    .OrderBy(v => Math.Max(WS2(v.s2.s2), WA(v.a)))
+            //    .OrderBy(v => Math.Max(Math.Min(WS2(v.s2.iS2), WS2(v.s2.kS2)), WA(v.a)))
             //    .ForEach(v =>
             //    {
             //        Debug.WriteLine($"{v.i}: {Math.Min(WS2(v.s2.s2), WA(v.a))} ({WS2(v.s2.s2)}, {WA(v.a)}) [{v.s2}, {v.a}]");
@@ -123,26 +125,64 @@ public partial class Vectorizer // Bezier
             // выраженность угла и величина угла
             var angles = algoPoints.Index().SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
                 .Select((v, i) => (i: (i+1) % n, v.a, v.s2))
-                .OrderBy(v => Math.Max(WS2(v.s2.s2), WA(v.a)))
+                .OrderBy(v => Math.Max(Math.Min(WS2(v.s2.iS2), WS2(v.s2.kS2)), WA(v.a)))
                 .Select(v => v.i)
-                .ToArray();
+                .ToList();
 
             HashSet<int> nodes = new();
-            HashSet<int> check = new();
+            HashSet<int> allows = (n).Range().ToHashSet();
+            HashSet<int> musts = (n).Range().ToHashSet();
 
-            void AddNode(int i)
+            void AddNode(int j)
             {
-                nodes.Add(i);
-                check.Add(i / maxNode2);
+                nodes.Add(j);
+                allows.Remove(j);
+
+                Ranges.CircleBoth(n, j, options.MinPointDistance).ForEach(v =>
+                {
+                    allows.Remove(v.i);
+                    allows.Remove(v.k);
+                });
+
+                musts.Remove(j);
+
+                Ranges.CircleBoth(n, j, options.MaxPointDistance).ForEach(v =>
+                {
+                    musts.Remove(v.i);
+                    musts.Remove(v.k);
+                });
             }
 
-            foreach (var i in angles)
-            {
-                if (!nodes.Contains(i) && !Ranges.CircleBoth(n, i, minNode).Any(v => nodes.Contains(v.i) || nodes.Contains(v.k)))
-                    AddNode(i);
+            var jj = 0;
+            var isCircled = false;
 
-                if (check.Count == angles.Length / maxNode2)
-                    break;
+            while (musts.Count > 0)
+            {
+                var j = angles[jj];
+
+                if (isCircled)
+                {
+                    if (allows.Contains(j))
+                    {
+                        AddNode(j);
+                        angles.Remove(j);
+                        isCircled = false;
+                        jj = 0;
+                    }
+                }
+                else
+                {
+                    if (musts.Contains(j))
+                    {
+                        AddNode(j);
+                        angles.Remove(j);
+                        isCircled = false;
+                        jj = 0;
+                    }
+                }
+
+                isCircled = ++jj == angles.Count;
+                if (isCircled) jj = 0;
             }
 
             return nodes.OrderBy(i => i).ToArray();
@@ -201,14 +241,14 @@ public partial class Vectorizer // Bezier
             var aa = line.ProjectionPoint(a);
             var cc = line.ProjectionPoint(c);
 
-            var (s2, avgAng) = GetAngleDispersionPow2(j);
+            var (iS2, kS2, iAvg, kAvg) = GetAngleDispersionPow2(j);
             //Debug.WriteLine($"s2={s2} {s2 < options.AngleSigma2}");
 
-            if (avgAng.Abs() < options.AllowedAngle && s2 < options.AngleSigma2)
-            {
-                aa = aa.Rotate((avgAng.Sgn() * Math.PI - avgAng) / 2, b);
-                cc = cc.Rotate((-avgAng.Sgn() * Math.PI + avgAng) / 2, b);
-            }
+            if (iAvg.Abs() < options.AllowedAngle && iS2 < options.AngleSigma2)
+                aa = aa.Rotate((iAvg.Sgn() * Math.PI - iAvg) / 2, b);
+
+            if (kAvg.Abs() < options.AllowedAngle && kS2 < options.AngleSigma2)
+                cc = cc.Rotate((-kAvg.Sgn() * Math.PI + kAvg) / 2, b);
 
             if (options.DebugBreak)
             {
@@ -289,7 +329,7 @@ public partial class Vectorizer // Bezier
         // сортировать углы по sigma2
         // объединить bzs до требуемого количества
         // что-то не то с max point
-        // нужна дисперсия не углов, а линий от углов
+        // нужна дисперсия не углов, а линий от углов        
 
         return bzs;
     }
