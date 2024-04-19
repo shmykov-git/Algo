@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Model.Libraries;
 
 namespace Model.Extensions
@@ -17,5 +19,13 @@ namespace Model.Extensions
         public static double Pow4(this double x) => x * x * x * x;
         public static double Pow6(this double x) => x.Pow3().Pow2();
         public static double Pow12(this double x) => x.Pow6().Pow2();
+        
+        public static double DispersionPow2(this IEnumerable<double> values, double? avgValue = null)
+        {
+            var avg = avgValue ?? values.Average();
+            var s2 = values.Select(a => (a - avg).Pow2()).Average();
+
+            return s2;
+        }
     }
 }

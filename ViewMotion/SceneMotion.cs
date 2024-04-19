@@ -51,24 +51,29 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var options = new BezierOptions()
+        return (1).SelectInterval(5, 20, x =>
         {
-            SmoothingResultLevel = 1,
-            SmoothingAlgoLevel = 3,
-            OptimizationAccuracy = 3,
-            DebugProcess = true,
-        };
-        var bzs = vectorizer.GetBeziers("hh3", options);
-        
-        var fn = bzs[0].ToFn();
-        var fps = (1000).SelectInterval(x=>fn(x));
+            var options = new BezierOptions()
+            {
+                //AllowedAngle = 0.75 * Math.PI,
+                //AnglePointDistance = 2,
+                SmoothingResultLevel = 1,
+                SmoothingAlgoLevel = 3,
+                MinPointDistance = 3,
 
-        return new[] 
-        {
-            options.cps.ToShape2().ToShape3().ToPoints(0.6, Color.Yellow),
-            options.lps.ToShape2().ToShape3().ToPoints(0.5, Color.Red),
-            options.ps.ToShape2().ToShape3().ToPoints(0.3, Color.Blue),
-            fps.ToShape2().ToShape3().ToPoints(0.2, Color.Green),
-        }.ToSingleShape().ToMotion(1);
+                DebugProcess = true,
+            };
+            var bzs = vectorizer.GetContentBeziers("debug3", options);
+
+            var fpss = bzs.Select(b => { var fn = b.ToFn(); return (3000).SelectInterval(x => fn(x)); }).ToArray();
+
+            return new[]
+            {
+                options.cps.Select(c=>c.ToShape2().ToShape3().ToPoints(0.11, Color.Yellow)).ToSingleShape(),
+                options.lps.Select(l=>l.ToShape2().ToShape3().ToPoints(0.11, Color.Red)).ToSingleShape(),
+                //options.ps.ToShape2().ToShape3().ToPoints(0.1, Color.Blue),
+                fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(0.05, Color.Green)).ToSingleShape(),
+            }.ToSingleShape().Perfecto();
+        }).ToMotion(1);
     }
 }

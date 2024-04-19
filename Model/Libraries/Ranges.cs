@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using Meta.Model;
 using Model.Extensions;
 
 namespace Model.Libraries;
@@ -36,18 +39,35 @@ public static class Ranges
     /// 0 <= j < n,
     /// circle values from i to j excluding i, j 
     /// </summary>
-    public static IEnumerable<int> Circle(int i, int j, int n)
+    public static IEnumerable<int> Circle(int n, int i, int j)
     {
-        i = (i + n) % n;
-        j = (j + n) % n;
+        var ii = (i + n) % n;
+        var jj = (j + n) % n;
 
-        var k = (i + 1) % n;
+        if (i != ii && jj != j)
+            throw new ArgumentException("Cannot jump through zero in both directions");
 
-        while (k != j)
+        var k = ii;
+
+        while (k != jj)
         {
             yield return k;
 
             k = (k + 1) % n;
+        }
+
+        yield return jj;
+    }
+
+    public static IEnumerable<(int i, int k)> CircleBoth(int n, int i, int count, int countFrom = 0)
+    {
+        var ii = (i + n) % n;
+        var j = countFrom + 1;
+
+        while (j <= count)
+        {
+            yield return ((ii - j + n) % n, (ii + j) % n);
+            j++;
         }
     }
 }

@@ -102,10 +102,19 @@ namespace Model.Extensions
         public static double ScalarAngle(this Vector2 a, Vector2 b)
         {
             var bOrt = b.Normal;
-            var angle = a.Normed * bOrt.Normed;
-            var isShort = a * b > 0;
+            var scalar = a.Normed * bOrt.Normed;
+            var isAcute = a * b > 0;
 
-            return isShort ? angle : 2 * angle.Sgn() - angle;
+            return isAcute ? scalar : 2 * scalar.Sgn() - scalar;
+        }
+
+        public static double FullAngle(this Vector2 a, Vector2 b)
+        {
+            var bOrt = b.Normal;
+            var angle = Math.PI / 2 - Math.Acos(a.Normed * bOrt.Normed);
+            var isAcute = a * b > 0;
+
+            return isAcute ? angle : angle.Sgn() * Math.PI - angle;
         }
     }
 }

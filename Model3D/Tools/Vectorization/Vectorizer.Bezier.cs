@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks.Dataflow;
 using Mapster;
 using MathNet.Numerics;
 using Meta.Model;
@@ -17,7 +18,7 @@ namespace Model3D.Tools.Vectorization;
 
 public partial class Vectorizer // Bezier
 {
-    public Bz[][] GetBeziers(string name, BezierOptions? options = null)
+    public Bz[][] GetContentBeziers(string name, BezierOptions? options = null)
     {
         options ??= new BezierOptions();
 
@@ -42,19 +43,19 @@ public partial class Vectorizer // Bezier
     private Bz[][] GetBeziers(Bitmap bitmap, BezierOptions options)
     {
         var sw = Stopwatch.StartNew();
-        var (polygons, map) = GetContentPolygons(bitmap, new PolygonOptions
-        {
-            PolygonPointStrategy = PolygonPointStrategy.Center,
-            PolygonLevelStrategy = LevelStrategy.TopLevel,
-            PolygonOptimizationLevel = 0,
-        });
+        var (polygons, map) = GetContentPolygons(bitmap, options);
         sw.Stop();
 
         if (options.DebugProcess)
             Debug.WriteLine($"Polygons: {sw.Elapsed}");
 
         sw.Restart();
-        var bzs = polygons.Select(p => GetPolygonBeziers(p, options)).ToArray();
+
+        var bzs = polygons.Where(p => p.Points.Length >= 2)
+            .Select(p => GetPolygonBeziers(p, options))
+            .Where(b => b.Length > 0)
+            .ToArray();
+
         sw.Stop();
 
         if (options.DebugProcess)
@@ -65,53 +66,85 @@ public partial class Vectorizer // Bezier
 
     private Bz[] GetPolygonBeziers(Polygon polygon, BezierOptions options)
     {
+        #region Bezier line points
+
         var minNode = options.MinPointDistance;
         var maxNode = options.MaxPointDistance;
         var maxNode2 = maxNode / 2;
 
-        var ps = polygon.Points;
-        var n = ps.Length;
+        var basePoints = polygon.Points;
+        var n = basePoints.Length;
 
-        Vector2[] GetGps(int level) => ps.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
+        Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
 
-        var gps = GetGps(options.SmoothingAlgoLevel);            
+        var anglePoints = GetAnglePoints(options.SmoothingAlgoLevel);
 
-        double getScalarAngle(int i, int j, int k) => (gps[j] - gps[i]).ScalarAngle(gps[k] - gps[j]);
+        Vector2[] GetResultPoints() => options.SmoothingAlgoLevel == options.SmoothingResultLevel
+            ? anglePoints
+            : (options.SmoothingResultLevel == 1
+                ? basePoints
+                : GetAnglePoints(options.SmoothingResultLevel));
 
-        var angles = gps.Index().SelectCircleTriple(getScalarAngle).ToArray().CircleShift(1)
-            .Select((v, i) => (i, v)).OrderByDescending(v => v.v.Abs()).Select(v => v.i).ToArray();
+        var points = GetResultPoints();
 
-        HashSet<int> nodes = new();
-        HashSet<int> check = new();
+        double getCornerAngle(int i, int j, int k) => (points[i] - points[j]).FullAngle(points[k] - points[j]);
+        double getDirectionScalar(int i, int j, int k) => (anglePoints[j] - anglePoints[i]).ScalarAngle(anglePoints[k] - anglePoints[j]);
 
-        void AddNode(int i)
+        (double s2, double avg) GetAngleDispersionPow2(int j)
         {
-            nodes.Add(i);
-            check.Add(i / maxNode2);
+            var angles = Ranges.CircleBoth(n, j, options.AnglePointDistance).Select(v => getCornerAngle(v.i, j, v.k)).ToArray();
+            var avg = angles.Average();
+            var s2 = angles.DispersionPow2(avg);
+
+            return (s2, avg);
         }
 
-        foreach (var i in angles)
+        int[] GetLps()
         {
-            if (!nodes.Contains(i) && !(minNode).Range(1).Any(j => nodes.Contains(i + j) || nodes.Contains(i - j)))
-                AddNode(i);
+            // веса углов
+            //   - еще нужна дисперсия
+            // нельзя брать углы на малом расстоянии minNode
+            // нужно закончить, если все ноды на расстоянии не больше maxNode
+            //    - много лишних углов
 
-            if (check.Count == angles.Length / maxNode2)
-                break;
+            var angles = anglePoints.Index().SelectCircleTriple(getDirectionScalar).ToArray().CircleShift(1)
+                .Select((v, i) => (i, v)).OrderByDescending(v => v.v.Abs()).Select(v => v.i).ToArray();
+
+            HashSet<int> nodes = new();
+            HashSet<int> check = new();
+
+            void AddNode(int i)
+            {
+                nodes.Add(i);
+                check.Add(i / maxNode2);
+            }
+
+            foreach (var i in angles)
+            {
+                if (!nodes.Contains(i) && !Ranges.CircleBoth(n, i, minNode).Any(v => nodes.Contains(v.i) || nodes.Contains(v.k)))
+                    AddNode(i);
+
+                if (check.Count == angles.Length / maxNode2)
+                    break;
+            }
+
+            return nodes.OrderBy(i => i).ToArray();
         }
 
-        var lps = nodes.OrderBy(i => i).ToArray();
+        var lps = GetLps();
+        
+        if (options.DebugProcess)
+            Debug.WriteLine($"Bezier line points count: {lps.Length}");
 
-        var resPs = options.SmoothingAlgoLevel == options.SmoothingResultLevel
-            ? gps
-            : (options.SmoothingResultLevel == 1 
-                ? ps 
-                : GetGps(options.SmoothingResultLevel));
+        #endregion
 
-        (int i, int j) GetCpInds(int i, int j)
+        #region Bezier control points
+
+        (int i, int j) GetIndCps(int i, int j)
         {
-            var bzAngles = ((j - i + n) % n) >= 5
-                    ? Ranges.Circle(i + 2, j - 2, n).Select(k => (k, a: (resPs[i] - resPs[k]).ScalarAngle(resPs[j] - resPs[k]))).ToArray()
-                    : Ranges.Circle(i + 1, j - 1, n).Select(k => (k, a: (resPs[i] - resPs[k]).ScalarAngle(resPs[j] - resPs[k]))).ToArray();
+            var bzAngles = Ranges.Circle(n, i, j).Count() >= 5
+                    ? Ranges.Circle(n, i + 2, j - 2).Select(k => (k, a: (points[i] - points[k]).ScalarAngle(points[j] - points[k]))).ToArray()
+                    : Ranges.Circle(n, i + 1, j - 1).Select(k => (k, a: (points[i] - points[k]).ScalarAngle(points[j] - points[k]))).ToArray();
 
             var hasLeft = bzAngles.Where(a => a.a <= 0).Any();
             var hasRight = bzAngles.Where(a => a.a > 0).Any();
@@ -122,7 +155,8 @@ public partial class Vectorizer // Bezier
                 var right = bzAngles.Where(a => a.a > 0).MinBy(v => v.a);
 
                 return left.k < right.k ? (left.k, right.k) : (right.k, left.k);
-            } else if (hasRight)
+            }
+            else if (hasRight)
             {
                 var right = bzAngles.Where(a => a.a > 0).MinBy(v => v.a);
 
@@ -138,34 +172,49 @@ public partial class Vectorizer // Bezier
             throw new AlgorithmException();
         }
 
-        // сохранить углы
-        (Vector2 a, Vector2 b, Vector2 c) GetAngCps(int i, int j, int k)
+        (Vector2 a, Vector2 b, Vector2 c) GetAngleCps(int i, int j, int k)
         {
-            var a = resPs[i];
-            var b = resPs[j];
-            var c = resPs[k];
-            var ba = (a - b).Normed;
-            var bc = (c - b).Normed;
-            var n = ba + bc;
+            var a = points[i];
+            var b = points[j];
+            var c = points[k];
 
-            var l = n == Vector2.Zero ? -ba + bc : n.Normal;
+            var l = (a - b).Normed + (b - c).Normed;
             var line = new Line2(b, b + l);
 
             var aa = line.ProjectionPoint(a);
             var cc = line.ProjectionPoint(c);
 
-            //aa.BreakNan();
-            //b.BreakNan();
-            //cc.BreakNan();
+            var (s2, avgAng) = GetAngleDispersionPow2(j);
+            //Debug.WriteLine($"s2={s2} {s2 < options.AngleSigma2}");
+
+            if (avgAng.Abs() < options.AllowedAngle && s2 < options.AngleSigma2)
+            {
+                aa = aa.Rotate((avgAng.Sgn() * Math.PI - avgAng) / 2, b);
+                cc = cc.Rotate((-avgAng.Sgn() * Math.PI + avgAng) / 2, b);
+            }
+
+            if (options.DebugBreak)
+            {
+                aa.BreakNan();
+                b.BreakNan();
+                cc.BreakNan();
+            }
 
             return (aa, b, cc);
         }
 
-        (Vector2 c, Vector2 d) GetOptimized(int m, Vector2 a, Vector2 c, Vector2 d, Vector2 b)
+        (Vector2 c, Vector2 d) GetOptimizedCps(int m, Vector2 a, Vector2 c, Vector2 d, Vector2 b)
         {
             var i = lps[m];
             var j = lps[(m + 1) % lps.Length];
-            var ps = Ranges.Circle(i + 1, j - 1, n).Select(k => resPs[k]).ToArray();
+
+            if (options.DebugBreak)
+            {
+                if (Ranges.Circle(n, i + 1, j - 1).Count() > options.MaxPointDistance)
+                    Debugger.Break();
+            }
+
+            var ps = Ranges.Circle(n, i + 1, j - 1).Select(k => points[k]).ToArray();
 
             var pn = options.OptimizationAccuracy * ps.Length;
 
@@ -187,7 +236,7 @@ public partial class Vectorizer // Bezier
             var x0 = new double[] { 1, 1 };
             var dx = new double[] { 0.1, 0.1 };
 
-            var (xMin, _) = Minimizer.Gradient(x0, dx, options.OptimizationEpsilon, xi => Fn(xi[0], xi[1]), false).Last();
+            var (xMin, _) = Minimizer.Gradient(x0, dx, options.OptimizationEpsilon, xi => Fn(xi[0], xi[1]), false).TopLast(options.OptimizationMaxCount);
 
             var u = xMin[0];
             var v = xMin[1];
@@ -198,42 +247,32 @@ public partial class Vectorizer // Bezier
             return (cc, dd);
         }
 
-        var bps = lps.SelectCirclePair((i, j) => (i, j, cs: GetCpInds(i, j)))       // i, j -> i, ii, jj, j
-            .SelectMany(v => new[] { v.i, v.cs.i, v.cs.j })                         // (i, ii, jj) -> arr
-            .CircleArrayShift(1)                                                    // arr: (jj, i, ii)
-            .SelectCircleTriple((i, j, k) => (i, j, k)).Triples()                   // arr: (jj, i, ii), (jj, i, ii)
-            .Select(v => GetAngCps(v.i, v.j, v.k))                                  // arr: ((a, b, c))
-            .SelectMany(v => new[] { v.a, v.b, v.c })                               // arr: (a, b, c)
-            .CircleArrayShift(-1)                                                   // arr: (b, c, a)
-            .SelectCircleTriple((a, b, c) => (a, b, c)).Triples()                   // arr (b, c, a), (b, c, a)
-            .SelectCirclePair((aa, bb) => (aa, bb)).Select((vv, m) => (vv.aa.a, b: vv.bb.a, ops: GetOptimized(m, vv.aa.a, vv.aa.b, vv.aa.c, vv.bb.a))) // optimize
-            .Select(v => (v.a, v.ops.c, v.ops.d, v.b))                              // (b, c, a, bb), b -- i
-            .ToArray();                
+        var bps = lps.SelectCirclePair((i, j) => (i, j, cs: GetIndCps(i, j)))       // ((i, ii, jj, j))
+            .SelectMany(v => new[] { v.i, v.cs.i, v.cs.j })                         // (i, ii, jj)
+            .CircleArrayShift(1)                                                    // (jj, i, ii)
+            .SelectCircleTriple((i, j, k) => (i, j, k)).Triples()                   // ((jj, i, ii), (jj, i, ii))
+            .Select(v => GetAngleCps(v.i, v.j, v.k))                                // ((a, b, c)), jj -> a, i -> b, ii -> c
+            .SelectMany(v => new[] { v.a, v.b, v.c })                               // (a, b, c)
+            .CircleArrayShift(-1)                                                   // (b, c, a)
+            .SelectCircleTriple((a, b, c) => (a, b, c)).Triples()                   // (b, c, a), (b, c, a)
+            .SelectCirclePair((aa, bb) => (aa, bb))                                 // ((b, c, a), (b, c, a))
+            .Select((vv, m) => (vv.aa.a, b: vv.bb.a, cps: GetOptimizedCps(m, vv.aa.a, vv.aa.b, vv.aa.c, vv.bb.a))) // optimize cps
+            .Select(v => (v.a, v.cps.c, v.cps.d, v.b))                              // (b, c, a, bb), b -- i
+            .ToArray();
 
-        options.cps = bps.SelectMany(v => new[] {v.c, v.d}).ToArray();
-        options.lps = bps.SelectMany(v => new[] { v.a, v.b }).ToArray();
-        options.ps = resPs;
+        #endregion
+
+        // tmp debug
+        options.cps.Add(bps.SelectMany(v => new[] {v.c, v.d}).ToArray());
+        options.lps.Add(bps.SelectMany(v => new[] { v.a, v.b }).ToArray());
+        options.ps.Add(points);
 
         var bzs = bps.Select(v => new Bz(v.a, v.c, v.d, v.b)).ToArray();
 
+        // сортировать углы по sigma2
+        // объединить bzs до требуемого количества
+        // что-то не то с max point
+
         return bzs;
     }
-
-    //var bz = new Bz((1, 1)).Join(new Bz((2, 2)), BzJoinType.PowerTwo);
-    //Vector2 a = (1.4, 1.01);
-    //Bz[] bzs = [bz];
-    //var bFn = bzs.ToBz();
-
-    //var t0 = (bz.a - a).Len / ((bz.a - a).Len + (bz.la - a).Len);
-    //var minFn = (double t) => (bFn(t) - a).Len2;
-
-    //var (tMin, _) = Minimizer.Gold(t0, 0.05, 0.001, minFn, 0.1, debug: true).Last();
-
-    //return new[]
-    //{
-    //    (100).SelectInterval(x => bFn(x)).ToShape2().ToShape3().ToLines(Color.Blue),
-    //    Shapes.IcosahedronSp2.Perfecto(0.1).Move(a.x, a.y, 0).ApplyColor(Color.Blue),
-    //    Shapes.IcosahedronSp2.Perfecto(0.1).Move(bFn(tMin).ToV3()).ApplyColor(Color.Red),
-    //    Shapes.Coods2WithText(3, Color.Black, Color.Gray)
-    //}.ToSingleShape().ToMotion();
 }

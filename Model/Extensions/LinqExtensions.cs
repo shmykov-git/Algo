@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Meta;
 using Meta.Tools;
 using ThreadPool = Meta.Tools.ThreadPool;
+using System.Runtime.CompilerServices;
 
 namespace Model.Extensions
 {
@@ -476,6 +477,17 @@ namespace Model.Extensions
                     max = enumerator.Current;
 
             return max;
+        }
+
+        public static TItem TopLast<TItem>(this IEnumerable<TItem> values, int top)
+        {
+            var enumerator = values.GetEnumerator();
+            var count = 0;
+
+            while (count <= top && enumerator.MoveNext())
+                count++;
+
+            return enumerator.Current;
         }
     }
 }
