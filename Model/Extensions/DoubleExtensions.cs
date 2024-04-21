@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Model.Libraries;
 
@@ -20,6 +21,8 @@ namespace Model.Extensions
         public static double Pow6(this double x) => x.Pow3().Pow2();
         public static double Pow12(this double x) => x.Pow6().Pow2();
 
+        public static double Dispersion(this IEnumerable<double> values, double? avgValue = null) => Math.Sqrt(values.DispersionPow2(avgValue));
+
         public static double DispersionPow2(this IEnumerable<double> values, double? avgValue = null)
         {
             var avg = avgValue ?? values.Average();
@@ -28,12 +31,26 @@ namespace Model.Extensions
             return s2;
         }
 
+        public static (double s, double avg) DispersionWithAvg(this IEnumerable<double> values)
+        {
+            var (s2, avg) = values.DispersionPow2WithAvg();
+
+            return (Math.Sqrt(s2), avg);
+        }
+
         public static (double s2, double avg) DispersionPow2WithAvg(this IEnumerable<double> values)
         {
             var avg = values.Average();
             var s2 = values.Select(a => (a - avg).Pow2()).Average();
 
             return (s2, avg);
+        }
+
+        [DebuggerStepThrough]
+        public static void BreakNaN(this double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                Debugger.Break();
         }
     }
 }

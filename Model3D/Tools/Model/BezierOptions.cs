@@ -10,7 +10,13 @@ namespace Model3D.Tools.Model
         public int MaxPointDistance { get; set; } = 16;
         public int AnglePointDistance { get; set; } = 4;
         public double AllowedAngle { get; set; } = 0.75 * Math.PI;
-        public double AngleSigma2 { get; set; } = 0.1;
+        public int AllowedAngleFactor { get; set; } = 75;
+        //public double AngleSigma { get; set; } = 0.1;
+
+        /// <summary>
+        /// 0 - skip all allowed points (off), 90 - take all angle close points, 100 - take all allowed points (max power)
+        /// </summary>
+        public int PointIgnoreFactor { get; set; } = 90;
         public int SmoothingResultLevel { get; set; } = 3;
         public int SmoothingAlgoLevel { get; set; } = 3;
         public int OptimizationAccuracy { get; set; } = 3;
@@ -24,7 +30,6 @@ namespace Model3D.Tools.Model
         }
 
         public bool DebugProcess { get; set; }
-        public bool DebugBreak { get; set; }
 
         public List<Vector2[]> cps = new();
         public List<Vector2[]> lps = new();

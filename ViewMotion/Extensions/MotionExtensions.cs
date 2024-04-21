@@ -39,6 +39,8 @@ static class MotionExtensions
 
     public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) => 
         new[] { shape }.ToMotion(cameraDistance, startShape, stepDelay);
+    
+    public static Task<Motion> ToMotion2D(this Shape shape, double cameraDistance) => new[] { shape }.ToMotion(new Vector3(0, 0, cameraDistance));
 
     public static Task<Motion> ToWorldMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
         new[] { shape }.ToWorldMotion(cameraDistance, startShape, stepDelay);
@@ -61,6 +63,8 @@ static class MotionExtensions
             },
         });
     }
+
+    public static Task<Motion> ToMotion2D(this IEnumerable<Shape> shapes, double cameraDistance) => shapes.ToMotion(new Vector3(0, 0, cameraDistance));
 
     public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {

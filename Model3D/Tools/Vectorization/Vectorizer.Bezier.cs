@@ -52,7 +52,7 @@ public partial class Vectorizer // Bezier
 
         sw.Restart();
 
-        var bzs = polygons.Where(p => p.Points.Length >= 2)
+        var bzs = polygons.Where(p => p.Points.Length > options.MinPointDistance && p.Points.Length > options.AnglePointDistance)
             .Select(p => GetPolygonBeziers(p, options))
             .Where(b => b.Length > 0)
             .ToArray();
@@ -67,11 +67,17 @@ public partial class Vectorizer // Bezier
 
     private Bz[] GetPolygonBeziers(Polygon polygon, BezierOptions options)
     {
+        int FactorSideSigma(double sigma) => !double.IsRealNumber(sigma) || (int)(300 * sigma) > 100 ? 100 : (int)(300 * sigma);    // FactorSigma for one side direction
+        int FactorSigma((double iSigma, double kSigma) s) => Math.Min(FactorSideSigma(s.iSigma), FactorSideSigma(s.kSigma));        // 0 - very perfect angle, 50 - a good one angle, 100 - this is curve (not angle at all)
+        int FactorAngle(double a) => (int)(100 * a.Abs() / Math.PI);                                                                // 0 - very acute angle, 50 - right angle, 100 - straight angle
+        int Factor(double a, (double, double) s) => Math.Max(FactorAngle(a), FactorSigma(s));                                       // 0 - very perfect acute angle, 50 - good right angle, 100 - some line points
+
         #region Bezier line points
 
         var basePoints = polygon.Points;
         var n = basePoints.Length;
 
+        // factor angle - size of angle, factor sigma - the angle is correctly determined
         Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
 
         var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);
@@ -85,22 +91,30 @@ public partial class Vectorizer // Bezier
 
         var points = GetResultPoints();
 
-        double getCornerAngle(int i, int j, int k) => (points[i] - points[j]).FullAngle(points[k] - points[j]);
-        double getAlgoDirectionScalar(int i, int j, int k) => (algoPoints[j] - algoPoints[i]).ScalarAngle(algoPoints[k] - algoPoints[j]);
-
-        (double iS2, double kS2, double iAvg, double kAvg) GetAngleDispersionPow2(int j)
+        (double cornerAngle, (double iS, double kS) dirDisps, (double iA, double kA) dirAngs) GetCornerData(Vector2[] ps, int j)
         {
-            var iVs = Ranges.Circle(n, j - 1, j - options.AnglePointDistance).ToArray();
-            var kVs = Ranges.Circle(n, j + 1, j + options.AnglePointDistance).ToArray();
-            var iAngs = iVs.Select(i => kVs.Select(k => getCornerAngle(i, j, k)).DispersionPow2WithAvg()).ToArray();
-            var kAngs = kVs.Select(k => iVs.Select(i => getCornerAngle(i, j, k)).DispersionPow2WithAvg()).ToArray();
+            double GetDirAngle(int i, int j, int k) => (ps[j] - ps[i]).FullAngle(ps[k] - ps[j]);
+            double GetCornerAngle(int i, int j, int k) => GetDirAngle(j, i, k).Abs();
 
-            var iS2 = iAngs.Max(v => v.s2);
-            var kS2 = kAngs.Max(v => v.s2);
-            var iAvg = iAngs.Select(v => v.avg).Average();
-            var kAvg = kAngs.Select(v => v.avg).Average();
+            (double s, double a) GetDirDispersionWithAvg(int i, int j, int[] ks) => ks.Select(k => GetDirAngle((i + n) % n, j, k)).DispersionWithAvg();
 
-            return (iS2, kS2, iAvg, kAvg);
+            ((double iS, double kS) ss, (double iAng, double kAng) angs) GetDirDispersionsAndAngles(int j)
+            {
+                var backKs = Ranges.CircleBack(n, j - 1, j - options.AnglePointDistance).ToArray();
+                var forwardVs = Ranges.Circle(n, j + 1, j + options.AnglePointDistance).ToArray();
+
+                var (iS, iAng) = GetDirDispersionWithAvg(j - 1, j, forwardVs);
+                var (kS, kAng) = GetDirDispersionWithAvg(j + 1, j, backKs);
+
+                return ((iS, kS), (iAng, kAng));
+            }
+
+            double GetCornerAvgAngle(int j) => Ranges.CircleBoth(n, j, options.AnglePointDistance).Select(v => GetCornerAngle(v.i, j, v.k)).Average();
+
+            var a = GetCornerAvgAngle(j);
+            var (ss, angs) = GetDirDispersionsAndAngles(j);
+
+            return (a, ss, angs);
         }
 
         int[] GetLps()
@@ -110,79 +124,69 @@ public partial class Vectorizer // Bezier
             // нужно закончить, если все ноды на расстоянии не больше maxNode
             //    - много лишних углов
 
-            int WS2(double s2) => double.IsNaN(s2) || double.IsInfinity(s2) ? 100 : (int)(10 * s2);
-            int WA(double a) => (int)(50 * (2 - a.Abs()));
+            var query = algoPoints.Index()
+                .Select(j => GetCornerData(algoPoints, j))
+                .Select((v, i) => (i, a: v.cornerAngle, v.dirDisps, factor: Factor(v.cornerAngle, v.dirDisps)))
+                .OrderBy(v => v.factor);
 
-            //algoPoints.Index()
-            //    .SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
-            //    .Select((v, i) => (i: (i + 1) % n, v.a, v.s2))
-            //    .OrderBy(v => Math.Max(Math.Min(WS2(v.s2.iS2), WS2(v.s2.kS2)), WA(v.a)))
-            //    .ForEach(v =>
-            //    {
-            //        Debug.WriteLine($"{v.i}: {Math.Min(WS2(v.s2.s2), WA(v.a))} ({WS2(v.s2.s2)}, {WA(v.a)}) [{v.s2}, {v.a}]");
-            //    });
+            query.ForEach(v =>
+            {
+                Debug.WriteLine($"{v.i}: f={v.factor} a=({FactorAngle(v.a)}, {v.a}) s=({FactorSigma(v.dirDisps)}, {v.dirDisps})");
+            });
 
             // выраженность угла и величина угла
-            var angles = algoPoints.Index().SelectCircleTriple((i, j, k) => (a: getAlgoDirectionScalar(i, j, k), s2: GetAngleDispersionPow2(j)))
-                .Select((v, i) => (i: (i+1) % n, v.a, v.s2))
-                .OrderBy(v => Math.Max(Math.Min(WS2(v.s2.iS2), WS2(v.s2.kS2)), WA(v.a)))
-                .Select(v => v.i)
-                .ToList();
+            var angles = query
+                .Select(v => (v.i, v.factor))
+                .ToList();                
 
             HashSet<int> nodes = new();
-            HashSet<int> allows = (n).Range().ToHashSet();
-            HashSet<int> musts = (n).Range().ToHashSet();
+            HashSet<int> allows = (n).Range().ToHashSet();   // can be taken
+            HashSet<int> musts = (n).Range().ToHashSet();    // must be taken
 
-            void AddNode(int j)
+            void AddCheckSet(HashSet<int> checkSet, int j, int distance)
             {
-                nodes.Add(j);
-                allows.Remove(j);
+                checkSet.Remove(j);
 
-                Ranges.CircleBoth(n, j, options.MinPointDistance).ForEach(v =>
+                Ranges.CircleBoth(n, j, distance).ForEach(v =>
                 {
-                    allows.Remove(v.i);
-                    allows.Remove(v.k);
-                });
-
-                musts.Remove(j);
-
-                Ranges.CircleBoth(n, j, options.MaxPointDistance).ForEach(v =>
-                {
-                    musts.Remove(v.i);
-                    musts.Remove(v.k);
+                    checkSet.Remove(v.i);
+                    checkSet.Remove(v.k);
                 });
             }
 
-            var jj = 0;
-            var isCircled = false;
-
-            while (musts.Count > 0)
+            void AddNode(int jA, int j)
             {
-                var j = angles[jj];
+                nodes.Add(j);
+                AddCheckSet(allows, j, options.MinPointDistance);
+                AddCheckSet(musts, j, options.MaxPointDistance);
 
-                if (isCircled)
+                var rm = angles.Where(a => !allows.Contains(a.i)).Select(a => (a.i, a.factor)).ToArray();
+                rm.ForEach(v => angles.Remove(v));
+            }
+
+            var jA = 0;
+            var nCircle = 0;
+            (HashSet<int> set, int maxFactor)[] plan = [ (musts, 75), (allows, 75), (musts, 95), (allows, 95), (musts, 100) ];
+
+            while (musts.Count > 0 || angles.Any(a=>a.factor <= options.PointIgnoreFactor))
+            {
+                var (j, jFactor) = angles[jA++];
+                var (checkSet, minFactor) = plan[nCircle];
+
+                if (jFactor <= minFactor && checkSet.Contains(j))
                 {
-                    if (allows.Contains(j))
-                    {
-                        AddNode(j);
-                        angles.Remove(j);
-                        isCircled = false;
-                        jj = 0;
-                    }
-                }
-                else
-                {
-                    if (musts.Contains(j))
-                    {
-                        AddNode(j);
-                        angles.Remove(j);
-                        isCircled = false;
-                        jj = 0;
-                    }
+                    AddNode(jA, j);
+                    nCircle = 0;
+                    jA = 0;
                 }
 
-                isCircled = ++jj == angles.Count;
-                if (isCircled) jj = 0;
+                if (jA == angles.Count)
+                {
+                    jA = 0;
+
+                    if (nCircle < plan.Length - 1)
+                        nCircle++;
+                }
             }
 
             return nodes.OrderBy(i => i).ToArray();
@@ -241,21 +245,21 @@ public partial class Vectorizer // Bezier
             var aa = line.ProjectionPoint(a);
             var cc = line.ProjectionPoint(c);
 
-            var (iS2, kS2, iAvg, kAvg) = GetAngleDispersionPow2(j);
-            //Debug.WriteLine($"s2={s2} {s2 < options.AngleSigma2}");
+            var (cornerAngle, dirDisps, dirAngs) = GetCornerData(points, j);
 
-            if (iAvg.Abs() < options.AllowedAngle && iS2 < options.AngleSigma2)
-                aa = aa.Rotate((iAvg.Sgn() * Math.PI - iAvg) / 2, b);
-
-            if (kAvg.Abs() < options.AllowedAngle && kS2 < options.AngleSigma2)
-                cc = cc.Rotate((-kAvg.Sgn() * Math.PI + kAvg) / 2, b);
-
-            if (options.DebugBreak)
+            if (cornerAngle < options.AllowedAngle)
             {
-                aa.BreakNan();
-                b.BreakNan();
-                cc.BreakNan();
+                if (FactorSideSigma(dirDisps.iS) < options.AllowedAngleFactor)
+                    aa = aa.Rotate((dirAngs.iA.Sgn() * Math.PI - dirAngs.iA) / 2, b);
+
+                if (FactorSideSigma(dirDisps.kS) < options.AllowedAngleFactor)
+                    cc = cc.Rotate((-dirAngs.kA.Sgn() * Math.PI + dirAngs.kA) / 2, b);
             }
+
+
+            //var (iS2, kS2, iAvg, kAvg) = GetCornerData(points, j);
+            //if (kAvg.Abs() < options.AllowedAngle && kS2 < options.AngleSigma2)
+            //    cc = cc.Rotate((-kAvg.Sgn() * Math.PI + kAvg) / 2, b);
 
             return (aa, b, cc);
         }
@@ -264,12 +268,6 @@ public partial class Vectorizer // Bezier
         {
             var i = lps[m];
             var j = lps[(m + 1) % lps.Length];
-
-            if (options.DebugBreak)
-            {
-                if (Ranges.Circle(n, i + 1, j - 1).Count() > options.MaxPointDistance)
-                    Debugger.Break();
-            }
 
             var ps = Ranges.Circle(n, i + 1, j - 1).Select(k => points[k]).ToArray();
 

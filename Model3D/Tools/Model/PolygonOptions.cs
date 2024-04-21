@@ -14,7 +14,10 @@ namespace Model3D.Tools.Model
 
     public class BitmapOptions
     {
-        public int ColorLevel { get; set; } = 200;      // 0 - white, 200 - middle, 255 - black
+        /// <summary>
+        /// 0 - white, 200 - middle, 255 - black
+        /// </summary>
+        public int ColorLevel { get; set; } = 200;
         public bool InvertColor { get; set; } = false;  // invert black and white color
         [JsonIgnore]public Func<double, double, Func<double, double, bool>> ColorMask { get; set; } // function to set white color to outside points
     }

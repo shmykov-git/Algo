@@ -187,8 +187,8 @@ namespace Model
             return HashCode.Combine(x, y);
         }
 
-        [DebuggerStepThrough()]
-        public void BreakNan()
+        [DebuggerStepThrough]
+        public void BreakNaN()
         {
             if (double.IsNaN(x) || double.IsInfinity(x) || double.IsNaN(y) || double.IsInfinity(y))
                 Debugger.Break();

@@ -55,35 +55,34 @@ partial class SceneMotion
         {
             var options = new BezierOptions()
             {
+                ColorLevel = 150,
                 AllowedAngle = 0.75 * Math.PI,
-                AngleSigma2 = 0.1,
-                SmoothingResultLevel = 1,
-                SmoothingAlgoLevel = 1,
+                AllowedAngleFactor = 75,
+                SmoothingResultLevel = 3,
+                SmoothingAlgoLevel = 3,
                 MinPointDistance = 5,
-                MaxPointDistance = 16,
-                AnglePointDistance = 4,
+                MaxPointDistance = 32,
+                AnglePointDistance = 5,
 
                 DebugProcess = true,
             };
 
-            var bzs = vectorizer.GetContentBeziers("la", options);
+            var bzs = vectorizer.GetContentBeziers("debug4", options);
 
-            var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*20).SelectInterval(x => fn(x)); }).ToArray();
+            var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
+            var m = 0.15;
 
             return new[]
             {
-                //options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(0.34, Color.Yellow)).ToSingleShape(),
-                //options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(0.33, Color.Green)).ToSingleShape(),
-                //options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(0.3, Color.Blue)).ToSingleShape(),
+                options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Yellow)).ToSingleShape(),
+                options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.32, Color.Green)).ToSingleShape(),
+                options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.3, Color.Blue)).ToSingleShape(),
 
-                //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(0.1, Color.Blue)).ToSingleShape(),
-                
-                // углы?
+                //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(m*0.1, Color.Blue)).ToSingleShape(),
 
-
-                options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(0.32, Color.Red)).ToSingleShape(),
-                fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(0.1, Color.Red)).ToSingleShape(),
+                options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.33, Color.Red)).ToSingleShape(),
+                fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(m*0.1, Color.Red)).ToSingleShape(),
             }.ToSingleShape().Perfecto();
-        }).ToMotion(1);
+        }).ToMotion2D(1);
     }
 }

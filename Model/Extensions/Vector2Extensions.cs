@@ -121,7 +121,9 @@ namespace Model.Extensions
             var bOrt = b.Normal;
             var angle = Math.PI / 2 - Math.Acos(a.Normed * bOrt.Normed);
             var isAcute = a * b > 0;
-
+            
+            angle.BreakNaN();
+            
             return isAcute ? angle : angle.Sgn() * Math.PI - angle;
         }
     }

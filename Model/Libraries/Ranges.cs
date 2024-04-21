@@ -37,7 +37,7 @@ public static class Ranges
     /// <summary>
     /// 0 <= i < n, 
     /// 0 <= j < n,
-    /// circle values from i to j excluding i, j 
+    /// circle values from i to j by straight direction
     /// </summary>
     public static IEnumerable<int> Circle(int n, int i, int j)
     {
@@ -51,6 +51,28 @@ public static class Ranges
             yield return k;
 
             k = (k + 1) % n;
+        }
+
+        yield return jj;
+    }
+
+    /// <summary>
+    /// 0 <= i < n, 
+    /// 0 <= j < n,
+    /// circle values from i to j by back direction
+    /// </summary>
+    public static IEnumerable<int> CircleBack(int n, int i, int j)
+    {
+        var ii = (i + n) % n;
+        var jj = (j + n) % n;
+
+        var k = ii;
+
+        while (k != jj)
+        {
+            yield return k;
+
+            k = (k - 1 + n) % n;
         }
 
         yield return jj;
