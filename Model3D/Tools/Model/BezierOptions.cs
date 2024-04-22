@@ -47,6 +47,16 @@ public class BezierOptions : PolygonOptions
     public int SmoothingAlgoLevel { get; set; } = 3;
 
     /// <summary>
+    /// Compensate point move after smoothing
+    /// </summary>
+    public double SmoothingMoveCompensationLength { get; set; } = 1;
+
+    /// <summary>
+    /// Move smoothing point back to base positions by group of
+    /// </summary>
+    public int SmoothingMoveCompensationLevel { get; set; } = 3;
+
+    /// <summary>
     /// Multiply number of Bezier points when optimizing control points
     /// </summary>
     public int OptimizationAccuracy { get; set; } = 3;

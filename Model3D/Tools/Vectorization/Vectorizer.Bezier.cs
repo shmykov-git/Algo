@@ -52,7 +52,17 @@ public partial class Vectorizer // Bezier
 
         sw.Restart();
 
-        var bzs = polygons.Where(p => p.Points.Length > options.MinPointDistance && p.Points.Length > options.AnglePointDistance)
+        bool IsPolygonSupported(Polygon p)
+        {
+            var n = p.Points.Length;
+
+            return  n > options.MinPointDistance && 
+                    n > options.AnglePointDistance &&
+                    n > options.SmoothingAlgoLevel && 
+                    n > options.SmoothingResultLevel;
+        }
+
+        var bzs = polygons.Where(IsPolygonSupported)
             .Select(p => GetPolygonBeziers(p, options))
             .Where(b => b.Length > 0)
             .ToArray();
@@ -78,9 +88,20 @@ public partial class Vectorizer // Bezier
         var n = basePoints.Length;
 
         // factor angle - size of angle, factor sigma - the angle is correctly determined
-        Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
+        Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, ps => ps.Center()).ToArray().CircleShift(level / 2);
 
-        var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);        
+        Vector2[] GetMoveCompensatedPoints(int level, Vector2[] ps0, Vector2[] ps1)
+        {
+            var n = ps1.Length;
+            var moves = (n).Range().Select(i=> ps1[i] - ps0[i]).SelectCircleGroup(level, moves => moves.Center()).ToArray();
+
+            return (n).Range().Select(i => ps1[i] - options.SmoothingMoveCompensationLength * moves[(i + level/2) % n]).ToArray();
+        }
+
+        var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);
+
+        if (options.SmoothingMoveCompensationLength.Abs() > 0)
+            algoPoints = GetMoveCompensatedPoints(options.SmoothingMoveCompensationLevel, basePoints, algoPoints);
 
         Vector2[] GetResultPoints() => options.SmoothingAlgoLevel == options.SmoothingResultLevel
             ? algoPoints
@@ -89,6 +110,9 @@ public partial class Vectorizer // Bezier
                 : GetAnglePoints(options.SmoothingResultLevel));
 
         var points = GetResultPoints();
+
+        if (options.SmoothingMoveCompensationLength.Abs() > 0)
+            points = GetMoveCompensatedPoints(options.SmoothingMoveCompensationLevel, basePoints, points);
 
         (double cornerAngle, (double iS, double kS) dirDisps, (double iA, double kA) dirAngs) GetCornerData(Vector2[] ps, int j)
         {
