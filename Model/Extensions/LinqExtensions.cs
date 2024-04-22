@@ -489,5 +489,16 @@ namespace Model.Extensions
 
             return enumerator.Current;
         }
+
+        public static IEnumerable<TItem> While<TItem>(this IEnumerable<TItem> values, Func<TItem, bool> continueCondition)
+        {
+            foreach(var item in values)
+            {
+                if (continueCondition(item))
+                    yield return item;
+                else
+                    break;
+            }
+        }
     }
 }

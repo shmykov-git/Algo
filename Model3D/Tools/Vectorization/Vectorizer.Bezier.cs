@@ -137,7 +137,8 @@ public partial class Vectorizer // Bezier
             // выраженность угла и величина угла
             var angles = query
                 .Select(v => (v.i, v.factor))
-                .ToList();                
+                .ToList();
+            var angleFactors = angles.ToDictionary(v => v.i, v => v.factor);
 
             HashSet<int> nodes = new();
             HashSet<int> allows = (n).Range().ToHashSet();   // can be taken
@@ -154,14 +155,41 @@ public partial class Vectorizer // Bezier
                 });
             }
 
-            void AddNode(int jA, int j)
+            void AddNode(int jA)
             {
+                var (j, jFactor) = angles[jA];
                 nodes.Add(j);
                 AddCheckSet(allows, j, options.MinPointDistance);
                 AddCheckSet(musts, j, options.MaxPointDistance);
 
-                var rm = angles.Where(a => !allows.Contains(a.i)).Select(a => (a.i, a.factor)).ToArray();
-                rm.ForEach(v => angles.Remove(v));
+                var rmAngles = angles.Where(a => !allows.Contains(a.i)).ToArray();
+                rmAngles.ForEach(v => angles.Remove(v));
+            }
+
+            var sameFactorDistance = 5;
+            var bestNodeDistance = 3;
+
+            int GetBestNode(int jA, int minFactor)
+            {
+                bool IsSameGood(int i, int j) => allows.Contains(j) && angleFactors[j] <= minFactor && (angleFactors[i] - angleFactors[j]).Abs() <= sameFactorDistance;
+
+                var (j, _) = angles[jA];
+
+                var iN = Ranges.CircleBack(n, j - 1, j - bestNodeDistance).While(k => IsSameGood(j, k)).Count();
+                var kN = Ranges.Circle(n, j + 1, j + bestNodeDistance).While(k => IsSameGood(j, k)).Count();
+
+                var nn = iN + kN;
+                var ind = jA;
+
+                if (nn > 1)
+                {
+                    var l = Ranges.Circle(n, j - iN, j - iN + nn / 2).Last();
+                    ind = l == j ? jA : angles.IndexOf((l, angleFactors[l]));
+
+                    //if (l != j) Debugger.Break();
+                }
+
+                return ind;
             }
 
             var jA = 0;
@@ -170,15 +198,23 @@ public partial class Vectorizer // Bezier
 
             while (musts.Count > 0 || angles.Any(a=>a.factor <= options.PointIgnoreFactor))
             {
-                var (j, jFactor) = angles[jA++];
+                var (j, jFactor) = angles[jA];
+
+                //if (j == 227) Debugger.Break();
+
                 var (checkSet, minFactor) = plan[nCircle];
 
                 if (jFactor <= minFactor && checkSet.Contains(j))
                 {
-                    AddNode(jA, j);
+                    var bestA = GetBestNode(jA, minFactor);
+                    AddNode(bestA);
                     nCircle = 0;
                     jA = 0;
+
+                    continue;
                 }
+
+                jA++;   
 
                 if (jA == angles.Count)
                 {
@@ -289,7 +325,7 @@ public partial class Vectorizer // Bezier
             }
 
             var x0 = new double[] { 1, 1 };
-            var dx = new double[] { 0.1, 0.1 };
+            var dx = new double[] { 0.5, 0.5 };
 
             var (xMin, _) = Minimizer.Gradient(x0, dx, options.OptimizationEpsilon, xi => Fn(xi[0], xi[1]), false).TopLast(options.OptimizationMaxCount);
 

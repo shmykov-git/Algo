@@ -58,10 +58,10 @@ partial class SceneMotion
                 ColorLevel = 150,
                 AllowedAngle = 0.75 * Math.PI,
                 AllowedAngleFactor = 75,
-                SmoothingResultLevel = 3,
-                SmoothingAlgoLevel = 3,
+                SmoothingResultLevel = 5,
+                SmoothingAlgoLevel = 5,
                 MinPointDistance = 5,
-                MaxPointDistance = 32,
+                MaxPointDistance = 30,
                 AnglePointDistance = 5,
 
                 DebugProcess = true,
@@ -70,17 +70,17 @@ partial class SceneMotion
             var bzs = vectorizer.GetContentBeziers("debug4", options);
 
             var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
-            var m = 0.15;
+            var m = 0.6;
 
             return new[]
             {
-                options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Yellow)).ToSingleShape(),
-                options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.32, Color.Green)).ToSingleShape(),
-                options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.3, Color.Blue)).ToSingleShape(),
+                //options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.36, Color.Yellow)).ToSingleShape(),
+                //options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.32, Color.Green)).ToSingleShape(),
+                //options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.3, Color.Blue)).ToSingleShape(),
 
                 //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(m*0.1, Color.Blue)).ToSingleShape(),
 
-                options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.33, Color.Red)).ToSingleShape(),
+                options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Red)).ToSingleShape(),
                 fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(m*0.1, Color.Red)).ToSingleShape(),
             }.ToSingleShape().Perfecto();
         }).ToMotion2D(1);
