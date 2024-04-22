@@ -61,13 +61,14 @@ partial class SceneMotion
                 SmoothingResultLevel = 5,
                 SmoothingAlgoLevel = 5,
                 MinPointDistance = 5,
-                MaxPointDistance = 30,
+                MaxPointDistance = 20,
                 AnglePointDistance = 5,
 
                 DebugProcess = true,
+                DebugFillPoints = true,
             };
 
-            var bzs = vectorizer.GetContentBeziers("debug4", options);
+            var bzs = vectorizer.GetContentBeziers("lb2", options);
 
             var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
             var m = 0.6;

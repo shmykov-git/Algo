@@ -80,8 +80,7 @@ public partial class Vectorizer // Bezier
         // factor angle - size of angle, factor sigma - the angle is correctly determined
         Vector2[] GetAnglePoints(int level) => basePoints.SelectCircleGroup(level, aa => aa.Center()).ToArray().CircleShift(level / 2);
 
-        var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);
-        options.aps.Add(algoPoints);
+        var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);        
 
         Vector2[] GetResultPoints() => options.SmoothingAlgoLevel == options.SmoothingResultLevel
             ? algoPoints
@@ -119,20 +118,16 @@ public partial class Vectorizer // Bezier
 
         int[] GetLps()
         {
-            // веса углов
-            // нельзя брать углы на малом расстоянии minNode
-            // нужно закончить, если все ноды на расстоянии не больше maxNode
-            //    - много лишних углов
-
             var query = algoPoints.Index()
                 .Select(j => GetCornerData(algoPoints, j))
                 .Select((v, i) => (i, a: v.cornerAngle, v.dirDisps, factor: Factor(v.cornerAngle, v.dirDisps)))
                 .OrderBy(v => v.factor);
 
-            query.ForEach(v =>
-            {
-                Debug.WriteLine($"{v.i}: f={v.factor} a=({FactorAngle(v.a)}, {v.a}) s=({FactorSigma(v.dirDisps)}, {v.dirDisps})");
-            });
+            if (options.DebugBezier)
+                query.ForEach(v =>
+                {
+                    Debug.WriteLine($"{v.i}: f={v.factor} a=({FactorAngle(v.a)}, {v.a}) s=({FactorSigma(v.dirDisps)}, {v.dirDisps})");
+                });
 
             // выраженность угла и величина угла
             var angles = query
@@ -185,8 +180,6 @@ public partial class Vectorizer // Bezier
                 {
                     var l = Ranges.Circle(n, j - iN, j - iN + nn / 2).Last();
                     ind = l == j ? jA : angles.IndexOf((l, angleFactors[l]));
-
-                    //if (l != j) Debugger.Break();
                 }
 
                 return ind;
@@ -194,13 +187,12 @@ public partial class Vectorizer // Bezier
 
             var jA = 0;
             var nCircle = 0;
-            (HashSet<int> set, int maxFactor)[] plan = [ (musts, 75), (allows, 75), (musts, 95), (allows, 95), (musts, 100) ];
+            (HashSet<int> set, int maxFactor)[] plan = [(musts, 75), (allows, 75), (musts, 95), (allows, 95), (musts, 100)];
 
+            // todo: angles - только int, factor из словаря
             while (musts.Count > 0 || angles.Any(a=>a.factor <= options.PointIgnoreFactor))
             {
                 var (j, jFactor) = angles[jA];
-
-                //if (j == 227) Debugger.Break();
 
                 var (checkSet, minFactor) = plan[nCircle];
 
@@ -292,11 +284,6 @@ public partial class Vectorizer // Bezier
                     cc = cc.Rotate((-dirAngs.kA.Sgn() * Math.PI + dirAngs.kA) / 2, b);
             }
 
-
-            //var (iS2, kS2, iAvg, kAvg) = GetCornerData(points, j);
-            //if (kAvg.Abs() < options.AllowedAngle && kS2 < options.AngleSigma2)
-            //    cc = cc.Rotate((-kAvg.Sgn() * Math.PI + kAvg) / 2, b);
-
             return (aa, b, cc);
         }
 
@@ -353,17 +340,17 @@ public partial class Vectorizer // Bezier
 
         #endregion
 
-        // tmp debug
-        options.cps.Add(bps.SelectMany(v => new[] {v.c, v.d}).ToArray());
-        options.lps.Add(bps.SelectMany(v => new[] { v.a, v.b }).ToArray());
-        options.ps.Add(points);
+        if (options.DebugFillPoints)
+        {
+            options.ps.Add(points);
+            options.aps.Add(algoPoints);
+            options.cps.Add(bps.SelectMany(v => new[] { v.c, v.d }).ToArray());
+            options.lps.Add(bps.SelectMany(v => new[] { v.a, v.b }).ToArray());
+        }
 
         var bzs = bps.Select(v => new Bz(v.a, v.c, v.d, v.b)).ToArray();
 
-        // сортировать углы по sigma2
-        // объединить bzs до требуемого количества
-        // что-то не то с max point
-        // нужна дисперсия не углов, а линий от углов        
+        // todo: объединить bzs до требуемого количества
 
         return bzs;
     }
