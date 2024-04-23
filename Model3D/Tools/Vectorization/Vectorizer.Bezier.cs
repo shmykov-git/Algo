@@ -19,6 +19,28 @@ namespace Model3D.Tools.Vectorization;
 
 public partial class Vectorizer // Bezier
 {
+    public Bz[][] GetTextBeziers(string text, BezierTextOptions? options = null)
+    {
+        options ??= new BezierTextOptions();
+
+        if (options.DebugProcess)
+            Debug.WriteLine($"===== <[{text}]> =====");
+
+        var sw = Stopwatch.StartNew();
+        using var bitmap = GetTextBitmap(text, options.FontSize, options.FontName, options.MultY, options.MultX);
+        sw.Stop();
+
+        if (options.DebugProcess)
+            Debug.WriteLine($"Bitmap: {sw.Elapsed}");
+
+        var bzs = GetBeziers(bitmap, options);
+
+        if (options.DebugProcess)
+            Debug.WriteLine($"===== <[{text}]/> =====");
+
+        return bzs;
+    }
+
     public Bz[][] GetContentBeziers(string name, BezierOptions? options = null)
     {
         options ??= new BezierOptions();

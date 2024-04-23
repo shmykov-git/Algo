@@ -44,6 +44,8 @@ using System.Linq;
 using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
+using Mapster;
+using MapsterMapper;
 
 namespace ViewMotion;
 
@@ -53,27 +55,45 @@ partial class SceneMotion
     {
         return (1).SelectInterval(5, 20, x =>
         {
-            var options = new BezierOptions()
-            {
-                ColorLevel = 150,
-                AllowedAngle = 0.75 * Math.PI,
-                AllowedAngleFactor = 75,
-                SmoothingResultLevel = 5,
-                SmoothingAlgoLevel = 5,
-                SmoothingMoveCompensationLevel = null,
-                SmoothingMoveCompensationLength = 1,
-                MinPointDistance = 5,
-                MaxPointDistance = 20,
-                AnglePointDistance = 5,
+            //var options = new BezierOptions()
+            //{
+            //    ColorLevel = 150,
+            //    AllowedAngle = 0.75 * Math.PI,
+            //    AllowedAngleFactor = 75,
+            //    SmoothingResultLevel = 5,
+            //    SmoothingAlgoLevel = 5,
+            //    SmoothingMoveCompensationLevel = null,
+            //    SmoothingMoveCompensationLength = 1,
+            //    MinPointDistance = 5,
+            //    MaxPointDistance = 20,
+            //    AnglePointDistance = 5,
 
-                DebugProcess = true,
-                DebugFillPoints = true,
+            //    DebugProcess = true,
+            //    DebugFillPoints = true,
+            //};
+
+            //var config = TypeAdapterConfig.GlobalSettings.Clone();
+            //config.RequireDestinationMemberSource = true;
+            //config.ForType<BezierTextOptions, BezierTextOptions>();
+            //config.ForType<BezierTextOptions, BezierOptions>();
+
+            var options = new BezierTextOptions()
+            {
+                FontSize = 200,
+                FontName = "Times New Roman"
             };
 
-            var bzs = vectorizer.GetContentBeziers("lb2", options);
+            new Mapper().Map(BezierValues.PerfectLetterOptions, options);
+            new Mapper().Map(new BezierOptions
+            {
+                DebugFillPoints = true,
+                DebugProcess = true,
+            }, options);
+
+            var bzs = vectorizer.GetTextBeziers("abcdefg", options);
 
             var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
-            var m = 0.6;
+            var m = 0.5;
 
             return new[]
             {
@@ -83,7 +103,7 @@ partial class SceneMotion
 
                 //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(m*0.1, Color.Blue)).ToSingleShape(),
 
-                options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Red)).ToSingleShape(),
+                //options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Red)).ToSingleShape(),
                 fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(m*0.1, Color.Red)).ToSingleShape(),
             }.ToSingleShape().Perfecto();
         }).ToMotion2D(1);
