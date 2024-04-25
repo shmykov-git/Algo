@@ -18,5 +18,11 @@
     <ProjectReference Include="..\Model3D\Model3D.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="tables.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

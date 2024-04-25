@@ -1,0 +1,77 @@
+﻿[
+  {
+    "name": "info",
+    "fields": [
+      {
+        "name": "scalarType",
+        "type": "uint32"
+      },
+      {
+        "name": "tablesCount",
+        "type": "uint16"
+      },
+      {
+        "name": "searchRange",
+        "type": "uint16"
+      },
+      {
+        "name": "entrySelector",
+        "type": "uint16"
+      },
+      {
+        "name": "rangeShift",
+        "type": "uint16"
+      }
+    ]
+  },
+  {
+    "name": "tables",
+    "parent": "info",
+    "rowsCount": "info.tablesCount",
+    "fields": [
+      {
+        "name": "tag",
+        "type": "tag"
+      },
+      {
+        "name": "checksum",
+        "type": "uint32"
+      },
+      {
+        "name": "offset",
+        "type": "uint32"
+      },
+      {
+        "name": "length",
+        "type": "uint32"
+      }
+    ]
+  },
+  {
+    "name": "cmap",
+    "parent": "tables",
+    "offset": "tables[tag={name}].offset",
+    "fields": [
+      {
+        "name": "version",
+        "type": "uint16"
+      },
+      {
+        "name": "rowsCount",
+        "type": "uint16"
+      },
+      {
+        "name": "platformId",
+        "type": "uint16"
+      },
+      {
+        "name": "encodingId",
+        "type": "uint16"
+      },
+      {
+        "name": "offset",
+        "type": "uint32"
+      }
+    ]
+  }
+]
