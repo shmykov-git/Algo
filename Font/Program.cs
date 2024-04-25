@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using Font;
 using Font.Model;
 using Font.Model.Fts;
@@ -31,9 +32,10 @@ using var serviceProvider = DI.Build();
 
 
 var tablesJson = File.ReadAllText("tables.json");
-FontTable[] tables = tablesJson.FromJson<FontTable[]>() ?? throw new ArgumentException("Configuration error");
+FontTable root = tablesJson.FromJson<FontTable>() ?? throw new ArgumentException("Configuration error");
 
-var family = new FontTableFamily();
+
+
 
 var assembly  = Assembly.GetExecutingAssembly();
 
@@ -52,11 +54,17 @@ var typesFactory = assembly.GetTypes()
     .Select(m => (singleton: m(), method: m))
     .ToDictionary(v => v.singleton.Type, v => v);
 
-void InitTable(FontTable t)
+FontTable CreateActiveTable(FontTable table, FontTable? activeParent)
 {
-    family.Tables.Add(t);
-    t.Family = family;
-    t.Fields.ForEach(f =>
+    var activeTable = table.Clone();
+    activeTable.ActiveTables = new();
+    activeTable.ParentTable = activeParent;
+    activeTable.Tables ??= new FontTable[0];
+    activeTable.Fields ??= new FontField[0];
+
+    activeParent?.ActiveTables.Add(activeTable);
+
+    activeTable.Fields.ForEach(f =>
     {
         f.Ft = typesFactory[f.Type].singleton.IsSingleton
             ? typesFactory[f.Type].singleton
@@ -64,63 +72,46 @@ void InitTable(FontTable t)
 
         if (!f.Ft.IsSingleton)
         {
-            f.Ft.table = t;
+            f.Ft.table = activeTable;
             f.Ft.field = f;
         }
     });
+
+    return activeTable;
 }
 
-//tables.ForEach(InitTable);
+
 
 
 using var stream = File.OpenRead(@"C:\\WINDOWS\\Fonts\\Alef-Bold.ttf");
 using var reader = new BinaryReader(stream);
 
-void Read(int count, int tableIndex)
+var lastLevel = 0;
+void Read(FontTable activeTable, int parentRowNumber)
 {
-    if (tables.Length == tableIndex)
-        return;
-
-    for (var iterationNumber = 0; iterationNumber < count; iterationNumber++)
+    var level = activeTable.Level;
+    var shift = new string(' ', 2 * activeTable.Level);
+    if (level == lastLevel) Debug.WriteLine("--");
+    Debug.WriteLine($"{shift}<{activeTable.FullName}_{parentRowNumber}> ({reader.BaseStream.Position})");
+            
+    activeTable.Read(reader, parentRowNumber, rowNumber =>
     {
-        var t = tables[tableIndex].Clone();
-        InitTable(t);
-        t.TableIndex = iterationNumber;
+        foreach (var child in activeTable.Tables)
+        {
+            var activeChild = CreateActiveTable(child, activeTable);
+            Read(activeChild, rowNumber);
+        }
+    });
 
-        Debug.WriteLine("");
-        Debug.WriteLine($"======= <{t.Name}_{iterationNumber}> =======");
-        t.Read(reader);
-        t.compactValues.ForEach(row => Debug.WriteLine(row));
-        Debug.WriteLine($"======= </{t.Name}_{iterationNumber}> =======");
-
-        if (t.ReadIterationCount > 1)
-            Read(t.ReadIterationCount - 1, tableIndex + 1);
-        else
-            Read(1, tableIndex + 1);
-    }
+    activeTable.compactValues.ForEach(row => Debug.WriteLine($"{shift}  {row}"));
+    Debug.WriteLine($"{shift}</{activeTable.FullName}_{parentRowNumber}> ({reader.BaseStream.Position})");
+    lastLevel = level;
 }
 
-Read(1, 0);
-
-//tables.ForEach(t =>
-//{
-//    Debug.WriteLine("");
-//    Debug.WriteLine($"======= <{t.Name}> =======");
-//    t.Read(reader);
-//    t.compactValues.ForEach(row => Debug.WriteLine(row));
-//    var iterationCount = t.ReadIterationCount;
-
-
-//    Debug.WriteLine($"======= </{t.Name}> =======");
-//});
-
-//cmap тут
+var activeRoot = CreateActiveTable(root, null);
+Read(activeRoot, 0);
 
 var stop = 1;
-
-
-
-
 
 //var vectorizer = DI.Get<Vectorizer>();
 
