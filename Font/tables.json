@@ -26,7 +26,6 @@
   },
   {
     "name": "tables",
-    "parent": "info",
     "rowsCount": "info.tablesCount",
     "fields": [
       {
@@ -49,8 +48,8 @@
   },
   {
     "name": "cmap",
-    "parent": "tables",
     "offset": "tables[tag={name}].offset",
+    "readIterationField": "rowsCount",
     "fields": [
       {
         "name": "version",
@@ -71,6 +70,82 @@
       {
         "name": "offset",
         "type": "uint32"
+      }
+    ]
+  },
+  {
+    "name": "cmapSub",
+    "parent": "cmap",
+    "offset": "cmap.offset",
+    "fields": [
+      {
+        "name": "tableType",
+        "type": "uint16"
+      }
+    ]
+  },
+  {
+    "name": "cmapSub_DeltaValues",
+    "condition": "cmapSub.tableType=4",
+    "parent": "cmap",
+    "offset": "cmap.offset",
+    "fields": [
+      {
+        "name": "tableType",
+        "type": "uint16"
+      },
+      {
+        "name": "length",
+        "type": "uint16"
+      },
+      {
+        "name": "language",
+        "type": "uint16"
+      },
+      {
+        "name": "segCountX2",
+        "type": "uint16"
+      },
+      {
+        "name": "searchRange",
+        "type": "uint16"
+      },
+      {
+        "name": "entrySelector",
+        "type": "uint16"
+      },
+      {
+        "name": "rangeShift",
+        "type": "uint16"
+      },
+      {
+        "name": "endCount",
+        "type": "ArraySegment",
+        "linkField": "segCountX2"
+      },
+      {
+        "name": "reservedPad",
+        "type": "uint16"
+      },
+      {
+        "name": "startCount",
+        "type": "ArraySegment",
+        "linkField": "segCountX2"
+      },
+      {
+        "name": "idDelta",
+        "type": "ArraySegment",
+        "linkField": "segCountX2"
+      },
+      {
+        "name": "idRangeOffset",
+        "type": "ArraySegment",
+        "linkField": "segCountX2"
+      },
+      {
+        "name": "glyphIdArray",
+        "type": "ArrayGlyph",
+        "linkField": "length"
       }
     ]
   }

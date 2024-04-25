@@ -1,18 +1,18 @@
-﻿namespace Font.Model;
+﻿using Font.Extensions;
+
+namespace Font.Model;
 
 public class FontTableFamily
 {
-    public FontTable[] Tables { get; set; }
+    public List<FontTable> Tables { get; } = new();
 
     private (string tableName, string? rowExpression, string fieldName) ParsePath(FontTable table, string path)
     {
-        var parts = path.Split('.');
-        (string tablePart, string fieldName) = (parts[0], parts[1]);         
+        (string tablePart, string fieldName) = path.SplitByTwo('.');         
 
         if (tablePart.Contains("["))
         {
-            var tParts = tablePart.Split(['[', ']']);
-            (string tableName, string rowExpression) = (tParts[0], tParts[1]);
+            (string tableName, string rowExpression) = tablePart.SplitByTwo('[', ']');
             rowExpression = rowExpression.Replace("{name}", table.Name);
 
             return (tableName, rowExpression, fieldName);
@@ -34,8 +34,7 @@ public class FontTableFamily
         var i = 0;
         if (rowExpression != null)
         {
-            var rowParts = rowExpression.Split('=');
-            (string rowField, string rowValue) = (rowParts[0], rowParts[1]);
+            (string rowField, string rowValue) = rowExpression.SplitByTwo('=');
             i = linkTable.SearchRowIndex(rowField, rowValue);
         }
 
@@ -43,5 +42,18 @@ public class FontTableFamily
         var value = linkTable.GetLongValue(i, j);
 
         return value;
+    }
+
+    public bool CheckCondition(string? condition)
+    {
+        if (condition == null)
+            return true;
+
+        (string link, string expectedValue) = condition.SplitByTwo('=');
+        (string tableName, string field) = link.SplitByTwo('.');
+        var table = GetTable(tableName);
+        var actualValue = table.GetValue(0, table.GetFieldIndex(field));
+
+        return actualValue == expectedValue;
     }
 }

@@ -1,8 +1,5 @@
-﻿using System.Drawing;
-using System.IO;
-using Font.Exceptions;
+﻿using Font.Exceptions;
 using Model.Extensions;
-using Model.Libraries;
 
 namespace Font.Model;
 
@@ -10,9 +7,14 @@ public class FontTable
 {
     public required string Name { get; set; }
     public string? Parent { get; set; }
+    public string? Condition { get; set; }
     public required FontField[] Fields { get; set; }
     public string? Offset { get; set; }
     public string? RowsCount { get; set; }
+    public string? ReadIterationField { get; set; }
+    public int TableIndex { get; set; } = 0;
+
+    public int ReadIterationCount => ReadIterationField == null || !IsRead ? 1 : GetIntValue(ReadIterationField);
 
     // <init>
     public FontTableFamily Family { get; set; }
@@ -20,13 +22,19 @@ public class FontTable
 
     public void Read(BinaryReader reader)
     {
-        startPosition = reader.BaseStream.Position;
+        if (!Family.CheckCondition(Condition))
+            return;
 
         offsetValue = Family.FindValue(this, Offset);
         rowsCountValue = Family.FindValue(this, RowsCount, 1);
 
-        var position = Parent == null ? startPosition : Family.GetTable(Parent).endPosition;
-        reader.BaseStream.Seek(position + offsetValue, SeekOrigin.Begin);
+        var parentOffset = Parent == null ? 0 : Family.GetTable(Parent).startPosition;
+        var globalOffset = offsetValue + parentOffset;
+
+        if (globalOffset > 0)
+            reader.BaseStream.Seek(globalOffset, SeekOrigin.Begin);
+
+        startPosition = reader.BaseStream.Position;
 
         datas = new byte[rowsCountValue][][];
 
@@ -43,10 +51,16 @@ public class FontTable
         endPosition = reader.BaseStream.Position;
     }
 
-    public string[][] values => datas.Select((row, i) => row.Select((_, j) => GetValue(i, j)).ToArray()).ToArray();
-    public string[] compactValues => datas.Select((row, i) => row.Select((_, j) => $"({Fields[j].Name}: {GetValue(i, j)})").SJoin(" ")).ToArray();
+    public string[][] values => IsRead 
+        ? datas.Select((row, i) => row.Select((_, j) => GetValue(i, j)).ToArray()).ToArray()
+        : new string[0][];
+
+    public string[] compactValues => IsRead
+        ? datas.Select((row, i) => row.Select((_, j) => $"({Fields[j].Name}: {GetValue(i, j)})").SJoin(" ")).ToArray()
+        : new string[0];
 
     // <read>
+    public bool IsRead => datas != null;
     public byte[][][] datas;
 
     public long startPosition;
@@ -70,6 +84,14 @@ public class FontTable
         return Fields[j].Ft!.GetValue(datas[i][j]);
     }
 
+    public int GetIntValue(string fieldName) => (int)GetLongValue(fieldName);
+
+    public long GetLongValue(string fieldName)
+    {
+        var j = GetFieldIndex(fieldName);
+        return GetLongValue(0, j);
+    }
+
     public long GetLongValue(int i, int j)
     {
         if (datas == null)
@@ -85,11 +107,4 @@ public class FontTable
 
         return Fields[j].Ft!.GetStringValue(datas[i][j]);
     }
-}
-
-public class FontField
-{
-    public string? Name { get; set; }
-    public required FontType Type { get; set; }
-    public Ft? Ft { get; set; } = null;
 }

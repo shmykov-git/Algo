@@ -1,20 +1,33 @@
-﻿namespace Font.Model;
+﻿namespace Font.Model.Fts;
 
 public abstract class Ft
 {
+    public virtual bool IsSingleton { get; } = true;
     public virtual bool Signed { get; } = true;
     public abstract int Size { get; }
     public abstract FontType Type { get; }
 
-    private FontType[] stringTypes = [FontType.Tag];
+    // <not_singleton>
+    public FontTable table;
+    public FontField field;
+    protected long position = -1;
+    // </not_singleton>
+
+
+    private static FontType[] stringTypes = [FontType.Tag];
 
     public string GetValue(byte[] data)
     {
         if (stringTypes.Contains(Type))
             return GetStringValue(data);
 
+        if (!IsSingleton)
+            return GetArrayInfoValue(data);
+
         return GetLongValue(data).ToString();
     }
+
+    public string GetArrayInfoValue(byte[] data) => $"byte[{data.Length}]";
 
     public long GetLongValue(byte[] data)
     {
@@ -33,9 +46,9 @@ public abstract class Ft
             (true, 8) => BitConverter.ToInt64(data),
 
             _ => throw new NotImplementedException(),
-        };        
+        };
     }
-    
+
     public string GetStringValue(byte[] data)
     {
         return new string(data.Select(d => (char)d).ToArray());
@@ -43,6 +56,9 @@ public abstract class Ft
 
     public byte[] Read(BinaryReader reader)
     {
+        if (!IsSingleton)
+            position = reader.BaseStream.Position;
+
         var data = new byte[Size];
         reader.Read(data, 0, Size);
 
@@ -134,4 +150,3 @@ public class FtTag : Ft
     public override int Size => 4;
     public override FontType Type => FontType.Tag;
 }
-
