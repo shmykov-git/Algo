@@ -1,5 +1,4 @@
 ﻿{
-  "rowsCountValue": 1,
   "TABLES": [
     {
       "name": "info",
@@ -49,59 +48,227 @@
       ]
     },
     {
-      "name": "cmap",
-      "offset": "tables[tag={name}].offset",
-      "fields": [
+      "name": "cmapGroup",
+      "skip": "true",
+      "TABLES": [
         {
-          "name": "version",
-          "type": "uint16"
+          "name": "cmap",
+          "offset": "tables[tag={name}].offset",
+          "fields": [
+            {
+              "name": "version",
+              "type": "uint16"
+            },
+            {
+              "name": "rowsCount",
+              "type": "uint16"
+            }
+          ]
         },
         {
-          "name": "rowsCount",
-          "type": "uint16"
+          "name": "cmapBody",
+          "rowsCount": "cmap.rowsCount",
+          "TABLES": [
+            {
+              "name": "cmapRow",
+              "fields": [
+                {
+                  "name": "platformId",
+                  "type": "uint16"
+                },
+                {
+                  "name": "encodingId",
+                  "type": "uint16"
+                },
+                {
+                  "name": "offset",
+                  "type": "uint32"
+                }
+              ],
+              "TABLES": [
+                {
+                  "name": "cmapValues",
+                  "offsetTable": "cmap",
+                  "offset": "cmapRow.offset",
+                  "hide": "true",
+                  "fields": [
+                    {
+                      "name": "format",
+                      "type": "uint16"
+                    }
+                  ]
+                },
+                {
+                  "name": "cmapValues_Delta",
+                  "condition": "cmapValues.format=4",
+                  "offsetTable": "cmap",
+                  "offset": "cmapRow.offset",
+                  "fields": [
+                    {
+                      "name": "format",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "length",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "language",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "segCountX2",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "searchRange",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "entrySelector",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "rangeShift",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "endCount",
+                      "type": "Array",
+                      "length": "segCountX2"
+                    },
+                    {
+                      "name": "reservedPad",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "startCount",
+                      "type": "Array",
+                      "length": "segCountX2"
+                    },
+                    {
+                      "name": "idDelta",
+                      "type": "Array",
+                      "length": "segCountX2"
+                    },
+                    {
+                      "name": "idRangeOffset",
+                      "type": "Array",
+                      "length": "segCountX2"
+                    },
+                    {
+                      "name": "glyphIdArray",
+                      "type": "ArrayGlyph",
+                      "length": "length"
+                    }
+                  ]
+                },
+                {
+                  "name": "cmapValues_Trimmed",
+                  "condition": "cmapValues.format=6",
+                  "offsetTable": "cmap",
+                  "offset": "cmapRow.offset",
+                  "fields": [
+                    {
+                      "name": "format",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "length",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "language",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "firstCode",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "entryCount",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "glyphIdArray",
+                      "type": "ArrayX2",
+                      "length": "entryCount"
+                    }
+                  ]
+                },
+                {
+                  "name": "cmapValues_Byte",
+                  "condition": "cmapValues.format=0",
+                  "offsetTable": "cmap",
+                  "offset": "cmapRow.offset",
+                  "fields": [
+                    {
+                      "name": "format",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "length",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "language",
+                      "type": "uint16"
+                    },
+                    {
+                      "name": "ids",
+                      "type": "Array",
+                      "length": "256"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
-      "name": "cmapBody",
-      "rowsCount": "cmap.rowsCount",
+      "name": "nameGroup",
       "TABLES": [
         {
-          "name": "cmapRow",
+          "name": "name",
+          "offset": "tables[tag={name}].offset",
           "fields": [
             {
-              "name": "platformId",
+              "name": "format",
               "type": "uint16"
             },
             {
-              "name": "encodingId",
+              "name": "count",
               "type": "uint16"
             },
             {
-              "name": "offset",
-              "type": "uint32"
+              "name": "stringOffset",
+              "type": "uint16"
             }
-          ],
+          ]
+        },
+        {
+          "name": "nameBody",
+          "rowsCount": "name.count",          
           "TABLES": [
             {
-              "name": "cmapValues",
-              "offsetTable": "cmap",
-              "offset": "cmapRow.offset",
+              "name": "nameRow",
               "fields": [
                 {
-                  "name": "tableType",
+                  "name": "platformId",
                   "type": "uint16"
-                }
-              ]
-            },
-            {
-              "name": "cmapValues_Delta",
-              "condition": "cmapValues.tableType=4",
-              "offsetTable": "cmap",
-              "offset": "cmapRow.offset",
-              "fields": [
+                },
                 {
-                  "name": "tableType",
+                  "name": "encodingId",
+                  "type": "uint16"
+                },
+                {
+                  "name": "languageId",
+                  "type": "uint16"
+                },
+                {
+                  "name": "nameId",
                   "type": "uint16"
                 },
                 {
@@ -109,53 +276,15 @@
                   "type": "uint16"
                 },
                 {
-                  "name": "language",
+                  "name": "offset",
                   "type": "uint16"
                 },
                 {
-                  "name": "segCountX2",
-                  "type": "uint16"
-                },
-                {
-                  "name": "searchRange",
-                  "type": "uint16"
-                },
-                {
-                  "name": "entrySelector",
-                  "type": "uint16"
-                },
-                {
-                  "name": "rangeShift",
-                  "type": "uint16"
-                },
-                {
-                  "name": "endCount",
-                  "type": "ArraySegment",
-                  "linkField": "segCountX2"
-                },
-                {
-                  "name": "reservedPad",
-                  "type": "uint16"
-                },
-                {
-                  "name": "startCount",
-                  "type": "ArraySegment",
-                  "linkField": "segCountX2"
-                },
-                {
-                  "name": "idDelta",
-                  "type": "ArraySegment",
-                  "linkField": "segCountX2"
-                },
-                {
-                  "name": "idRangeOffset",
-                  "type": "ArraySegment",
-                  "linkField": "segCountX2"
-                },
-                {
-                  "name": "glyphIdArray",
-                  "type": "ArrayGlyph",
-                  "linkField": "length"
+                  "name": "text",
+                  "type": "OffsetString",
+                  "length": "length",
+                  "storageOffset": "name.stringOffset",
+                  "offset": "offset"
                 }
               ]
             }

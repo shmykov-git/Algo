@@ -21,6 +21,9 @@ public enum FontType
     Offset24,   //24-bit offset to a table, same as uint24, NULL offset = 0x000000
     Offset32,   //Long offset to a table, same as uint32, NULL offset = 0x00000000
     Version16Dot16,	//Packed 32-bit value with major and minor version numbers. (See Table Version Numbers.)
-    ArraySegment,  // byte array of segments
+    Array,    // byte array with length parameter
+    String,   // byte array with length parameter known as string
+    OffsetString,   // byte array with length parameter known as string located at offset
+    ArrayX2,  // double byte array with length parameter
     ArrayGlyph,  // byte array of glyphs
 }

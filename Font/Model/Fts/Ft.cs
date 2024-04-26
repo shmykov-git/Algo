@@ -14,7 +14,7 @@ public abstract class Ft
     // </not_singleton>
 
 
-    private static FontType[] stringTypes = [FontType.Tag];
+    private static FontType[] stringTypes = [FontType.Tag, FontType.String, FontType.OffsetString];
 
     public string GetValue(byte[] data)
     {
@@ -49,12 +49,16 @@ public abstract class Ft
         };
     }
 
-    public string GetStringValue(byte[] data)
+    public virtual string GetStringValue(byte[] data)
     {
-        return new string(data.Select(d => (char)d).ToArray());
+        return new string(data.Select(d => (char)d).ToArray())
+            .Replace("\0", string.Empty)
+            .Replace("\r", "\\r")
+            .Replace("\n", "\\n")
+            .Trim();
     }
 
-    public byte[] Read(BinaryReader reader)
+    public virtual byte[] Read(BinaryReader reader)
     {
         if (!IsSingleton)
             position = reader.BaseStream.Position;

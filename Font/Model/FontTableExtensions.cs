@@ -34,6 +34,19 @@ public static class FontTableExtensions
 
     public static FontTable FindTable(this FontTable table, string name) => IterateBackAndUp(table.ParentTable).First(t => t.Name == name);
 
+    public static long FindRelatedOffset(this FontTable table, string? path)
+    {
+        if (path == null)
+            return 0;
+        
+        (string relatedTableName, _) = path.SplitByTwo('.');
+        var relatedTable = table.FindTable(relatedTableName);
+        var value = table.FindValue(path);
+        var relatedOffset = relatedTable.startPosition + value;
+        
+        return relatedOffset;
+    }
+
     public static long FindValue(this FontTable table, string? path, long defaultValue = default)
     {
         if (path == null)

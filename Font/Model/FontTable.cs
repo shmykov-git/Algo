@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Font.Exceptions;
+using Font.Extensions;
 using Model.Extensions;
 
 namespace Font.Model;
@@ -7,13 +9,15 @@ namespace Font.Model;
 public class FontTable
 {
     public required string Name { get; set; }
-    public string? OffsetTable { get; set; }
     public string? Condition { get; set; }
-    public required FontField[] Fields { get; set; }
+    public string? OffsetTable { get; set; }
     public string? Offset { get; set; }
+    public required FontField[] Fields { get; set; }
     public string? RowsCount { get; set; }              // ссылка на таблицу где указано число строк в этой таблице
     
     public bool Break {  get; set; }
+    public bool Skip { get; set; }
+    public bool Hide {  get; set; }
     
     public FontTable? ParentTable { get; set; }
     
@@ -48,18 +52,15 @@ public class FontTable
         var globalOffset = offset + offsetTableOffset;
 
         if (globalOffset > 0)
-            Seek(reader, globalOffset, "new table");
+            reader.Seek(globalOffset, "new table");
     }
 
-    private void Seek(BinaryReader reader, long position, string desc)
-    {
-        //Debug.WriteLine($"Position={position} ({desc})");
-        reader.BaseStream.Seek(position, SeekOrigin.Begin);
-    }
-
-    public void Read(BinaryReader reader, int parentRowNumber, Action<int> readRowData)
+    public void Read(BinaryReader reader, int parentRowNumber, StringBuilder debug, Action<int> readRowData)
     {
         if (Break) Debugger.Break();
+
+        if (Skip)
+            return;
 
         if (!this.CheckCondition(Condition))
             return;
@@ -69,8 +70,8 @@ public class FontTable
 
         var rowsCountValue = this.FindValue(RowsCount, 1);
         startPosition = reader.BaseStream.Position;
+        //debug.AppendLine($"start={startPosition}");
         datas = new byte[rowsCountValue][][];
-        //Debug.WriteLine($"DataPos={reader.BaseStream.Position}");
         for (var i = 0; i < rowsCountValue; i++)
         {
             datas[i] = new byte[Fields.Length][];
@@ -84,7 +85,7 @@ public class FontTable
             readRowData(i);
             
             if (IsTable)
-                Seek(reader, endRowPosition, $"end of {Name} row");
+                reader.Seek(endRowPosition, $"end of {Name} row");
         }
 
         endPosition = reader.BaseStream.Position;
@@ -106,8 +107,6 @@ public class FontTable
 
     public long startPosition;
     public long endPosition;
-    //public long rowsCountValue;
-    //public long offsetValue;
     // </read>
 
     public int GetFieldIndex(string fieldName) => Fields.Select((f, j) => (f, j)).First(v => v.f.Name == fieldName).j;

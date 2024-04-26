@@ -3,6 +3,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using Font;
 using Font.Model;
 using Font.Model.Fts;
@@ -60,7 +61,7 @@ FontTable CreateActiveTable(FontTable table, FontTable? activeParent)
     activeTable.ActiveTables = new();
     activeTable.ParentTable = activeParent;
     activeTable.Tables ??= new FontTable[0];
-    activeTable.Fields ??= new FontField[0];
+    activeTable.Fields ??= new FontField[0];    
 
     activeParent?.ActiveTables.Add(activeTable);
 
@@ -86,30 +87,49 @@ FontTable CreateActiveTable(FontTable table, FontTable? activeParent)
 using var stream = File.OpenRead(@"C:\\WINDOWS\\Fonts\\Alef-Bold.ttf");
 using var reader = new BinaryReader(stream);
 
-var lastLevel = 0;
-void Read(FontTable activeTable, int parentRowNumber)
-{
+
+string Read(FontTable activeTable, int parentRowNumber)
+{    
+    var tableDebug = new StringBuilder();
+
     var level = activeTable.Level;
     var shift = new string(' ', 2 * activeTable.Level);
-    if (level == lastLevel) Debug.WriteLine("--");
-    Debug.WriteLine($"{shift}<{activeTable.FullName}_{parentRowNumber}> ({reader.BaseStream.Position})");
-            
-    activeTable.Read(reader, parentRowNumber, rowNumber =>
+    tableDebug.AppendLine($"{shift}<{activeTable.FullName}_{parentRowNumber}> |{reader.BaseStream.Position}");
+
+    var rowDebug = new StringBuilder();
+
+    activeTable.Read(reader, parentRowNumber, rowDebug, rowNumber =>
     {
         foreach (var child in activeTable.Tables)
         {
             var activeChild = CreateActiveTable(child, activeTable);
-            Read(activeChild, rowNumber);
+            var rowText = Read(activeChild, rowNumber);
+
+            if (rowText.HasText())
+            {
+                if (rowNumber > 0) 
+                    rowDebug.AppendLine();
+
+                rowDebug.Append(rowText);
+            }
         }
     });
 
-    activeTable.compactValues.ForEach(row => Debug.WriteLine($"{shift}  {row}"));
-    Debug.WriteLine($"{shift}</{activeTable.FullName}_{parentRowNumber}> ({reader.BaseStream.Position})");
-    lastLevel = level;
+    tableDebug.Append(rowDebug);    
+    activeTable.compactValues.Where(row => row.HasText()).ForEach(row => tableDebug.AppendLine($"{shift}  {row}"));
+    tableDebug.AppendLine($"{shift}</{activeTable.FullName}_{parentRowNumber}> |{reader.BaseStream.Position}");
+
+    var hasData = activeTable.compactValues.Length > 0 && !activeTable.Hide;
+
+    return hasData ? tableDebug.ToString() : "";
 }
 
 var activeRoot = CreateActiveTable(root, null);
-Read(activeRoot, 0);
+
+Debug.WriteLine("============");
+var text = Read(activeRoot, 0);
+Debug.Write(text);
+Debug.WriteLine("============");
 
 var stop = 1;
 
