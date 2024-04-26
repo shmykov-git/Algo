@@ -15,11 +15,15 @@ public abstract class Ft
 
 
     private static FontType[] stringTypes = [FontType.Tag, FontType.String, FontType.OffsetString];
+    public static FontType[] fixedTypes = [FontType.Fixed];
 
     public string GetValue(byte[] data)
     {
         if (stringTypes.Contains(Type))
             return GetStringValue(data);
+
+        if (fixedTypes.Contains(Type))
+            return GetFixedValue(data).ToString();
 
         if (!IsSingleton)
             return GetArrayInfoValue(data);
@@ -28,6 +32,25 @@ public abstract class Ft
     }
 
     public string GetArrayInfoValue(byte[] data) => $"byte[{data.Length}]";
+
+    public float GetFixedValue(byte[] data)
+    {
+        if (data.Length != 4)
+            throw new NotImplementedException("only 4");
+
+        var (decData, fracData) = (data.Take(2).ToArray(), data.Skip(2).ToArray());
+
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(decData);
+            Array.Reverse(fracData);
+        }
+
+        var dec = BitConverter.ToInt16(decData);
+        var frac = BitConverter.ToUInt16(fracData);
+
+        return dec + frac / 65535f;
+    }
 
     public long GetLongValue(byte[] data)
     {
@@ -121,11 +144,6 @@ public class Ftint32 : Ft
 {
     public override int Size => 4;
     public override FontType Type => FontType.int32;
-}
-
-public class FtFixed : Ftint32
-{
-    public override FontType Type => FontType.Fixed;
 }
 
 public class FtFWORD : Ftint16

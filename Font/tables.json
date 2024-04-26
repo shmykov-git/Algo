@@ -2,6 +2,7 @@
   "TABLES": [
     {
       "name": "info",
+      "hide": "true",
       "fields": [
         {
           "name": "scalarType",
@@ -27,6 +28,7 @@
     },
     {
       "name": "tables",
+      "hide": "true",
       "rowsCount": "info.tablesCount",
       "fields": [
         {
@@ -49,7 +51,7 @@
     },
     {
       "name": "cmapGroup",
-      "skip": "true",
+      "hide": "true",
       "TABLES": [
         {
           "name": "cmap",
@@ -229,6 +231,7 @@
     },
     {
       "name": "nameGroup",
+      "hide": "true",
       "TABLES": [
         {
           "name": "name",
@@ -250,7 +253,7 @@
         },
         {
           "name": "nameBody",
-          "rowsCount": "name.count",          
+          "rowsCount": "name.count",
           "TABLES": [
             {
               "name": "nameRow",
@@ -287,6 +290,102 @@
                   "offset": "offset"
                 }
               ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "headGroup",
+      "TABLES": [
+        {
+          "name": "head",
+          "offset": "tables[tag={name}].offset",
+          "fields": [
+            {
+              "name": "version",
+              "type": "Fixed",
+              "description": "0x00010000 if (version 1.0)"
+            },
+            {
+              "name": "fontRevision",
+              "type": "Fixed",
+              "description": "set by font manufacturer"
+            },
+            {
+              "name": "checkSumAdjustment",
+              "type": "uint32",
+              "description": "To compute: set it to 0, calculate the checksum for the�'head'�table and put it in the table directory, sum the entire font as a uint32_t, then store�0xB1B0AFBA - sum. (The checksum for the�'head'�table will be wrong as a result. That is OK, do not reset it.)"
+            },
+            {
+              "name": "magicNumber",
+              "type": "uint32",
+              "description": "set to 0x5F0F3CF5"
+            },
+            {
+              "name": "flags",
+              "type": "uint16",
+              "description": "bit 0 - y value of 0 specifies baseline||bit 1 - x position of left most black bit is LSB||bit 2 - scaled point size and actual point size will differ (i.e. 24 point glyph differs from 12 point glyph scaled by factor of 2)||bit 3 - use integer scaling instead of fractional||bit 4 - (used by the Microsoft implementation of the TrueType scaler)||bit 5 - This bit should be set in fonts that are intended to e laid out vertically, and in which the glyphs have been drawn such that an x-coordinate of 0 corresponds to the desired vertical baseline.||bit 6 - This bit must be set to zero.||bit 7 - This bit should be set if the font requires layout for correct linguistic rendering (e.g. Arabic fonts).||bit 8 - This bit should be set for an AAT font which has one or more metamorphosis effects designated as happening by default.||bit 9 - This bit should be set if the font contains any strong right-to-left glyphs.||bit 10 - This bit should be set if the font contains Indic-style rearrangement effects.||bits 11-13 - Defined by�Adobe.||bit 14 - This bit should be set if the glyphs in the font are simply generic symbols for code point ranges, such as for a last resort font."
+            },
+            {
+              "name": "unitsPerEm",
+              "type": "uint16",
+              "description": "range from 64 to 16384"
+            },
+            {
+              "name": "created",
+              "type": "longDateTime",
+              "description": "international date"
+            },
+            {
+              "name": "modified",
+              "type": "longDateTime",
+              "description": "international date"
+            },
+            {
+              "name": "xMin",
+              "type": "FWord",
+              "description": "for all glyph bounding boxes"
+            },
+            {
+              "name": "yMin",
+              "type": "FWord",
+              "description": "for all glyph bounding boxes"
+            },
+            {
+              "name": "xMax",
+              "type": "FWord",
+              "description": "for all glyph bounding boxes"
+            },
+            {
+              "name": "yMax",
+              "type": "FWord",
+              "description": "for all glyph bounding boxes"
+            },
+            {
+              "name": "macStyle",
+              "type": "uint16",
+              "description": "bit 0 bold||bit 1 italic||bit 2 underline||bit 3 outline||bit 4 shadow||bit 5 condensed (narrow)||bit 6 extended"
+            },
+            {
+              "name": "lowestRecPPEM",
+              "type": "uint16",
+              "description": "smallest readable size in pixels"
+            },
+            {
+              "name": "fontDirectionHint",
+              "type": "int16",
+              "description": "0 Mixed directional glyphs||1 Only strongly left to right glyphs||2 Like 1 but also contains neutrals||-1 Only strongly right to left glyphs||-2 Like -1 but also contains neutrals"
+            },
+            {
+              "name": "indexToLocFormat",
+              "type": "int16",
+              "description": "0 for short offsets, 1 for long"
+            },
+            {
+              "name": "glyphDataFormat",
+              "type": "int16",
+              "description": "0 for current format"
             }
           ]
         }
