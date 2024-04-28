@@ -2,9 +2,9 @@
 
 public static class StringExtensions
 {
-    public static (string, string) SplitByTwo(this string value, params char[] cs)
+    public static (string, string?) SplitByTwo(this string value, params char[] cs)
     {
         var parts = value.Split(cs);
-        return (parts[0], parts[1]);
+        return (parts[0], parts.Skip(1).FirstOrDefault());
     }
 }

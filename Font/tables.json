@@ -55,38 +55,16 @@
       "TABLES": [
         {
           "name": "cmap",
-          "offset": "tables[tag={name}].offset",
-          "fields": [
-            {
-              "name": "version",
-              "type": "uint16"
-            },
-            {
-              "name": "rowsCount",
-              "type": "uint16"
-            }
-          ]
+          "specName": "cmap",
+          "offset": "tables[tag={name}].offset"
         },
         {
-          "name": "cmapBody",
-          "rowsCount": "cmap.rowsCount",
+          "name": "cmapBody",          
+          "rowsCount": "cmap.numberSubtables",
           "TABLES": [
             {
               "name": "cmapRow",
-              "fields": [
-                {
-                  "name": "platformId",
-                  "type": "uint16"
-                },
-                {
-                  "name": "encodingId",
-                  "type": "uint16"
-                },
-                {
-                  "name": "offset",
-                  "type": "uint32"
-                }
-              ],
+              "specName": "cmap.cmap_sub1",
               "TABLES": [
                 {
                   "name": "cmapValues",
@@ -102,6 +80,7 @@
                 },
                 {
                   "name": "cmapValues_Delta",
+                  "specName_": "cmap.cmap_sub4",
                   "condition": "cmapValues.format=4",
                   "offsetTable": "cmap",
                   "offset": "cmapRow.offset",
@@ -167,6 +146,7 @@
                 },
                 {
                   "name": "cmapValues_Trimmed",
+                  "specName_": "cmap.cmap_sub5",
                   "condition": "cmapValues.format=6",
                   "offsetTable": "cmap",
                   "offset": "cmapRow.offset",
@@ -252,11 +232,11 @@
           ]
         },
         {
-          "name": "nameBody",
+          "name": "nameRecord",
           "rowsCount": "name.count",
           "TABLES": [
             {
-              "name": "nameRow",
+              "name": "nameRecordRow",
               "fields": [
                 {
                   "name": "platformId",

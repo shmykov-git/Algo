@@ -9,6 +9,8 @@ namespace Font.Model;
 public class FontTable
 {
     public required string Name { get; set; }
+    public string? SpecName { get; set; }
+    public string? Description { get; set; }
     public string? Condition { get; set; }
     public string? OffsetTable { get; set; }
     public string? Offset { get; set; }

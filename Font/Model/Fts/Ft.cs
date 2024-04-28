@@ -134,6 +134,11 @@ public class Ftint8 : Ft
     public override FontType Type => FontType.int8;
 }
 
+public class FtByte : Ftuint8
+{
+    public override FontType Type => FontType.@byte;
+}
+
 public class Ftint16 : Ft
 {
     public override int Size => 2;

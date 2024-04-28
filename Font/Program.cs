@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Font;
+using Font.Extensions;
 using Font.Model;
 using Font.Model.Fts;
 using Mapster;
@@ -29,7 +30,19 @@ DI.Configure(services => services
 
 using var serviceProvider = DI.Build();
 
+var specTablesJson = File.ReadAllText("TrueType.json");
+var specTables = specTablesJson.FromJson<FontTable[]>() ?? throw new ArgumentException("Configuration error");
 
+FontTable GetSpecTable(string name)
+{
+    var (theName, subName) = name.SplitByTwo('.');
+    var table = specTables.First(t => t.Name == theName);
+
+    if (subName.HasText())
+        table = table.Tables.First(t => t.Name == subName);
+
+    return table;
+}
 
 
 var tablesJson = File.ReadAllText("tables.json");
@@ -61,7 +74,13 @@ FontTable CreateActiveTable(FontTable table, FontTable? activeParent)
     activeTable.ActiveTables = new();
     activeTable.ParentTable = activeParent;
     activeTable.Tables ??= new FontTable[0];
-    activeTable.Fields ??= new FontField[0];    
+    activeTable.Fields ??= new FontField[0];
+
+    if (activeTable.SpecName.HasText())
+    {
+        var specTable = GetSpecTable(activeTable.SpecName!).Clone();
+        activeTable.Fields = specTable.Fields.Concat(activeTable.Fields).ToArray();
+    }
 
     activeParent?.ActiveTables.Add(activeTable);
 

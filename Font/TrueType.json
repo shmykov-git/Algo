@@ -1,0 +1,1406 @@
+[
+  {
+    "name": "cmap",
+    "description": "The original definition of the 'cmap' table used either eight or sixteen bits for character codes. In support for versions of Unicode from 2.0 onwards, it is possible that fonts may require references to data that uses a mixture of sixteen and thirty-two bits per character, or simply thirty-two bits per character.",
+    "fields": [
+      {
+        "type": "UInt16",
+        "name": "version",
+        "description": "Version number (Set to zero)"
+      },
+      {
+        "type": "UInt16",
+        "name": "numberSubtables",
+        "description": "Number of encoding subtables"
+      }
+    ],
+    "tables": [
+      {
+        "name": "cmap_sub1",
+        "description": "Each 'cmap' subtable consists of three fields:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "platformID",
+            "description": "Platform identifier"
+          },
+          {
+            "type": "UInt16",
+            "name": "platformSpecificID",
+            "description": "Platform-specific encoding identifier"
+          },
+          {
+            "type": "UInt32",
+            "name": "offset",
+            "description": "Offset of the mapping table"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub2",
+        "description": "Format 0 is suitable for fonts whose character codes and glyph indices are restricted to single bytes. This was a very common situation when TrueType was introduced but is rarely encountered now.",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Set to 0"
+          },
+          {
+            "type": "UInt16",
+            "name": "length",
+            "description": "Length in bytes of the subtable (set to 262 for format 0)"
+          },
+          {
+            "type": "UInt16",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt8",
+            "name": "glyphIndexArray[256]",
+            "description": "An array that maps character codes to glyph index values"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub3",
+        "description": "Consider a high byte, i, designating an integer between 0 and 255. The value subHeaderKeys[i], divided by 8, is the index k into the subHeaders array. The value k equals 0 is special. It means that i is a one-byte code and no second byte will be referenced. If k is positive, then i is the high-byte of a two-byte code and its second byte, j, will be consumed.",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Set to 2"
+          },
+          {
+            "type": "UInt16",
+            "name": "length",
+            "description": "Total table length in bytes"
+          },
+          {
+            "type": "UInt16",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt16",
+            "name": "subHeaderKeys[256]",
+            "description": "Array that maps high bytes to subHeaders: value is index * 8"
+          },
+          {
+            "type": "Array",
+            "name": "subHeaders[variable]",
+            "description": "Variable length array of subHeader structures",
+            "length": "8"
+          },
+          {
+            "type": "UInt16",
+            "name": "glyphIndexArray[variable]",
+            "description": "Variable length array containing subarrays"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub4",
+        "description": "A variable-length array of glyph IDs",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Format number is set to 4"
+          },
+          {
+            "type": "UInt16",
+            "name": "length",
+            "description": "Length of subtable in bytes"
+          },
+          {
+            "type": "UInt16",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt16",
+            "name": "segCountX2",
+            "description": "2 * segCount"
+          },
+          {
+            "type": "UInt16",
+            "name": "searchRange",
+            "description": "2 * (2**FLOOR(log2(segCount)))"
+          },
+          {
+            "type": "UInt16",
+            "name": "entrySelector",
+            "description": "log2(searchRange/2)"
+          },
+          {
+            "type": "UInt16",
+            "name": "rangeShift",
+            "description": "(2 * segCount) - searchRange"
+          },
+          {
+            "type": "UInt16",
+            "name": "endCode[segCount]",
+            "description": "Ending character code for each segment, last = 0xFFFF."
+          },
+          {
+            "type": "UInt16",
+            "name": "reservedPad",
+            "description": "This value should be zero"
+          },
+          {
+            "type": "UInt16",
+            "name": "startCode[segCount]",
+            "description": "Starting character code for each segment"
+          },
+          {
+            "type": "UInt16",
+            "name": "idDelta[segCount]",
+            "description": "Delta for all character codes in segment"
+          },
+          {
+            "type": "UInt16",
+            "name": "idRangeOffset[segCount]",
+            "description": "Offset in bytes to glyph indexArray, or 0"
+          },
+          {
+            "type": "UInt16",
+            "name": "glyphIndexArray[variable]",
+            "description": "Glyph index array"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub5",
+        "description": "Format 6 is used to map 16-bit, 2-byte, characters to glyph indexes. It is sometimes called the trimmed table mapping. It should be used when character codes for a font fall into a single contiguous range. This results in what is termed a dense mapping. Two-byte fonts that are not densely mapped (due to their multiple contiguous ranges) should use Format 4. Character-to-glyph index mapping subtable Format 6 is shown in the following table:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Format number is set to 6"
+          },
+          {
+            "type": "UInt16",
+            "name": "length",
+            "description": "Length in bytes"
+          },
+          {
+            "type": "UInt16",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt16",
+            "name": "firstCode",
+            "description": "First character code of subrange"
+          },
+          {
+            "type": "UInt16",
+            "name": "entryCount",
+            "description": "Number of character codes in subrange"
+          },
+          {
+            "type": "UInt16",
+            "name": "glyphIndexArray[entryCount]",
+            "description": "Array of glyph index values for character codes in the range"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub6",
+        "description": "Here's the format 8 subtable format:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Subtable format, set to 8"
+          },
+          {
+            "type": "UInt16",
+            "name": "reserved",
+            "description": "Set to 0"
+          },
+          {
+            "type": "UInt32",
+            "name": "length",
+            "description": "Byte length of this subtable (including the header)"
+          },
+          {
+            "type": "UInt32",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt8",
+            "name": "is32[65536]",
+            "description": "Tightly packed array of bits (8K bytes total) indicating whether the particular 16-bit (index) value is the start of a 32-bit character code"
+          },
+          {
+            "type": "UInt32",
+            "name": "nGroups",
+            "description": "Number of groupings which follow"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub7",
+        "description": "Here follow the individual groups. Each group has the following format:",
+        "fields": [
+          {
+            "type": "UInt32",
+            "name": "startCharCode",
+            "description": "First character code in this group, note that if this group is for one or more 16-bit character codes (which is determined from the is32 array), this 32-bit value will have the high 16-bits set to zero"
+          },
+          {
+            "type": "UInt32",
+            "name": "endCharCode",
+            "description": "Last character code in this group, same condition as listed above for the startCharCode"
+          },
+          {
+            "type": "UInt32",
+            "name": "startGlyphCode",
+            "description": "Glyph index corresponding to the starting character code"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub8",
+        "description": "Format 10 is a bit like format 6, in that it defines a trimmed array for a tight range of 32-bit character codes:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Subtable format, set to 10"
+          },
+          {
+            "type": "UInt16",
+            "name": "reserved",
+            "description": "Set to 10"
+          },
+          {
+            "type": "UInt32",
+            "name": "length",
+            "description": "Byte length of this subtable (including the header)"
+          },
+          {
+            "type": "UInt32",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt32",
+            "name": "startCharCode",
+            "description": "First character code covered"
+          },
+          {
+            "type": "UInt32",
+            "name": "numChars",
+            "description": "Number of character codes covered"
+          },
+          {
+            "type": "UInt16",
+            "name": "glyphs[]",
+            "description": "Array of glyph indices for the character codes covered"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub9",
+        "description": "Format 12 is a bit like format 4, in that it defines segments for sparse representation in 4-byte character space. Here's the subtable format:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "format",
+            "description": "Subtable format, set to 12"
+          },
+          {
+            "type": "UInt16",
+            "name": "reserved",
+            "description": "Set to 0."
+          },
+          {
+            "type": "UInt32",
+            "name": "length",
+            "description": "Byte length of this subtable (including the header)"
+          },
+          {
+            "type": "UInt32",
+            "name": "language",
+            "description": "Language code (see above)"
+          },
+          {
+            "type": "UInt32",
+            "name": "nGroups",
+            "description": "Number of groupings which follow"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub10",
+        "description": "Here follow the individual groups, each of which has the following format:",
+        "fields": [
+          {
+            "type": "UInt32",
+            "name": "startCharCode",
+            "description": "First character code in this group"
+          },
+          {
+            "type": "UInt32",
+            "name": "endCharCode",
+            "description": "Last character code in this group"
+          },
+          {
+            "type": "UInt32",
+            "name": "startGlyphCode",
+            "description": "Glyph index corresponding to the starting character code, subsequent charcters are mapped to sequential glyphs"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub11",
+        "description": "(Note the presence of 24-bit integers in the structures used. The type 14 'cmap' subtable does not keep data aligned to four-byte boundaries. This is also the only 'cmap' subtable which does not stand by itself and is not completely independent of all others, a 'cmap' may not consist of a type 14 subtable alone.)",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "format",
+            "description": "Subtable format. Set to 14."
+          },
+          {
+            "type": "uint32",
+            "name": "length",
+            "description": "Byte length of this subtable (including this header)"
+          },
+          {
+            "type": "uint32",
+            "name": "numVarSelectorRecords",
+            "description": "Number of variation Selector Records"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub12",
+        "description": "This is immediately followed by �numVarSelectorRecords� Variation Selector Records.",
+        "fields": [
+          {
+            "type": "uint24",
+            "name": "varSelector",
+            "description": "Variation selector"
+          },
+          {
+            "type": "uint32",
+            "name": "defaultUVSOffset",
+            "description": "Offset to Default UVS Table. May be 0."
+          },
+          {
+            "type": "uint32",
+            "name": "nonDefaultUVSOffset",
+            "description": "Offset to Non-Default UVS Table. May be 0."
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub13",
+        "description": "A Default UVS Table is simply a range-compressed list of Unicode scalar values, representing the base characters of the default UVSes which use the varSelector of the associated Variation Selector Record.",
+        "fields": [
+          {
+            "type": "uint32",
+            "name": "numUnicodeValueRanges",
+            "description": "Number of ranges that follow"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub14",
+        "description": "This is immediately followed by numUnicodeValueRanges Unicode Value Ranges, each of which represents a contiguous range of Unicode values.",
+        "fields": [
+          {
+            "type": "uint24",
+            "name": "startUnicodeValue",
+            "description": "First value in this range"
+          },
+          {
+            "type": "BYTE",
+            "name": "additionalCount",
+            "description": "Number of additional values in this range"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub15",
+        "description": "A Non-Default UVS Table is a list of pairs of Unicode scalar values and glyph IDs. The Unicode values represent the base characters of all non-default UVSes which use the �varSelector� of the associated Variation Selector Record, and the glyph IDs specify the glyph IDs to use for the UVSes.",
+        "fields": [
+          {
+            "type": "uint32",
+            "name": "numUVSMappings",
+            "description": "Number of UVS Mappings that follow"
+          }
+        ]
+      },
+      {
+        "name": "cmap_sub16",
+        "description": "This is immediately followed by �numUVSMappings� UVS Mappings.",
+        "fields": [
+          {
+            "type": "uint24",
+            "name": "unicodeValue",
+            "description": "Base Unicode value of the UVS"
+          },
+          {
+            "type": "uint16",
+            "name": "glyphID",
+            "description": "Glyph ID of the UVS"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "head",
+    "description": "Table 22 : 'head' table",
+    "fields": [
+      {
+        "type": "Fixed",
+        "name": "version",
+        "description": "0x00010000 if (version 1.0)"
+      },
+      {
+        "type": "Fixed",
+        "name": "fontRevision",
+        "description": "set by font manufacturer"
+      },
+      {
+        "type": "uint32",
+        "name": "checkSumAdjustment",
+        "description": "To compute: set it to 0, calculate the checksum for the 'head' table and put it in the table directory, sum the entire font as a uint32_t, then store 0xB1B0AFBA - sum. (The checksum for the 'head' table will be wrong as a result. That is OK, do not reset it.)"
+      },
+      {
+        "type": "uint32",
+        "name": "magicNumber",
+        "description": "set to 0x5F0F3CF5"
+      },
+      {
+        "type": "uint16",
+        "name": "flags",
+        "description": "bit 0 - y value of 0 specifies baseline||bit 1 - x position of left most black bit is LSB||bit 2 - scaled point size and actual point size will differ (i.e. 24 point glyph differs from 12 point glyph scaled by factor of 2)||bit 3 - use integer scaling instead of fractional||bit 4 - (used by the Microsoft implementation of the TrueType scaler)||bit 5 - This bit should be set in fonts that are intended to e laid out vertically, and in which the glyphs have been drawn such that an x-coordinate of 0 corresponds to the desired vertical baseline.||bit 6 - This bit must be set to zero.||bit 7 - This bit should be set if the font requires layout for correct linguistic rendering (e.g. Arabic fonts).||bit 8 - This bit should be set for an AAT font which has one or more metamorphosis effects designated as happening by default.||bit 9 - This bit should be set if the font contains any strong right-to-left glyphs.||bit 10 - This bit should be set if the font contains Indic-style rearrangement effects.||bits 11-13 - Defined by Adobe.||bit 14 - This bit should be set if the glyphs in the font are simply generic symbols for code point ranges, such as for a last resort font."
+      },
+      {
+        "type": "uint16",
+        "name": "unitsPerEm",
+        "description": "range from 64 to 16384"
+      },
+      {
+        "type": "longDateTime",
+        "name": "created",
+        "description": "international date"
+      },
+      {
+        "type": "longDateTime",
+        "name": "modified",
+        "description": "international date"
+      },
+      {
+        "type": "FWord",
+        "name": "xMin",
+        "description": "for all glyph bounding boxes"
+      },
+      {
+        "type": "FWord",
+        "name": "yMin",
+        "description": "for all glyph bounding boxes"
+      },
+      {
+        "type": "FWord",
+        "name": "xMax",
+        "description": "for all glyph bounding boxes"
+      },
+      {
+        "type": "FWord",
+        "name": "yMax",
+        "description": "for all glyph bounding boxes"
+      },
+      {
+        "type": "uint16",
+        "name": "macStyle",
+        "description": "bit 0 bold||bit 1 italic||bit 2 underline||bit 3 outline||bit 4 shadow||bit 5 condensed (narrow)||bit 6 extended"
+      },
+      {
+        "type": "uint16",
+        "name": "lowestRecPPEM",
+        "description": "smallest readable size in pixels"
+      },
+      {
+        "type": "int16",
+        "name": "fontDirectionHint",
+        "description": "0 Mixed directional glyphs||1 Only strongly left to right glyphs||2 Like 1 but also contains neutrals||-1 Only strongly right to left glyphs||-2 Like -1 but also contains neutrals"
+      },
+      {
+        "type": "int16",
+        "name": "indexToLocFormat",
+        "description": "0 for short offsets, 1 for long"
+      },
+      {
+        "type": "int16",
+        "name": "glyphDataFormat",
+        "description": "0 for current format"
+      }
+    ]
+  },
+  {
+    "name": "hhea",
+    "description": "The value numOfLongHorMetrics is used by the 'hmtx' table.",
+    "fields": [
+      {
+        "type": "Fixed",
+        "name": "version",
+        "description": "0x00010000 (1.0)"
+      },
+      {
+        "type": "FWord",
+        "name": "ascent",
+        "description": "Distance from baseline of highest ascender"
+      },
+      {
+        "type": "FWord",
+        "name": "descent",
+        "description": "Distance from baseline of lowest descender"
+      },
+      {
+        "type": "FWord",
+        "name": "lineGap",
+        "description": "typographic line gap"
+      },
+      {
+        "type": "uFWord",
+        "name": "advanceWidthMax",
+        "description": "must be consistent with horizontal metrics"
+      },
+      {
+        "type": "FWord",
+        "name": "minLeftSideBearing",
+        "description": "must be consistent with horizontal metrics"
+      },
+      {
+        "type": "FWord",
+        "name": "minRightSideBearing",
+        "description": "must be consistent with horizontal metrics"
+      },
+      {
+        "type": "FWord",
+        "name": "xMaxExtent",
+        "description": "max(lsb + (xMax-xMin))"
+      },
+      {
+        "type": "int16",
+        "name": "caretSlopeRise",
+        "description": "used to calculate the slope of the caret (rise/run) set to 1 for vertical caret"
+      },
+      {
+        "type": "int16",
+        "name": "caretSlopeRun",
+        "description": "0 for vertical"
+      },
+      {
+        "type": "FWord",
+        "name": "caretOffset",
+        "description": "set value to 0 for non-slanted fonts"
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "set value to 0"
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "set value to 0"
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "set value to 0"
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "set value to 0"
+      },
+      {
+        "type": "int16",
+        "name": "metricDataFormat",
+        "description": "0 for current format"
+      },
+      {
+        "type": "uint16",
+        "name": "numOfLongHorMetrics",
+        "description": "number of advance widths in metrics table"
+      }
+    ]
+  },
+  {
+    "name": "hmtx",
+    "description": "Table 24 : 'hmtx' table",
+    "fields": [
+      {
+        "type": "uint16",
+        "name": "hMetrics[numOfLongHorMetrics]",
+        "description": "The value numOfLongHorMetrics comes from the 'hhea' table. If the font is monospaced, only one entry need be in the array but that entry is required."
+      },
+      {
+        "type": "FWord",
+        "name": "leftSideBearing[]",
+        "description": "Here the advanceWidth is assumed to be the same as the advanceWidth for the last entry above. The number of entries in this array is derived from the total number of glyphs minus numOfLongHorMetrics. This generally is used with a run of monospaced glyphs (e.g. Kanji fonts or Courier fonts). Only one run is allowed and it must be at the end."
+      }
+    ]
+  },
+  {
+    "name": "kern",
+    "description": "Table 25: 'kern' header",
+    "fields": [
+      {
+        "type": "fixed32",
+        "name": "version",
+        "description": "The version number of the kerning table (0x00010000 for the current version)."
+      },
+      {
+        "type": "uint32",
+        "name": "nTables",
+        "description": "The number of subtables included in the kerning table."
+      }
+    ],
+    "tables": [
+      {
+        "name": "kern_sub1",
+        "description": "Table 26: 'kern' subtable header",
+        "fields": [
+          {
+            "type": "uint32",
+            "name": "length",
+            "description": "The length of this subtable in bytes, including this header."
+          },
+          {
+            "type": "uint16",
+            "name": "coverage",
+            "description": "Circumstances under which this table is used. See below for description."
+          },
+          {
+            "type": "uint16",
+            "name": "tupleIndex",
+            "description": "The tuple index (used for variations fonts). This value specifies which tuple this subtable covers."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub2",
+        "description": "Table 28: 'kern' format 0",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "nPairs",
+            "description": "The number of kerning pairs in this subtable."
+          },
+          {
+            "type": "uint16",
+            "name": "searchRange",
+            "description": "The largest power of two less than or equal to the value of nPairs, multiplied by the size in bytes of an entry in the subtable."
+          },
+          {
+            "type": "uint16",
+            "name": "entrySelector",
+            "description": "This is calculated as log2 of the largest power of two less than or equal to the value of nPairs. This value indicates how many iterations of the search loop have to be made. For example, in a list of eight items, there would be three iterations of the loop."
+          },
+          {
+            "type": "uint16",
+            "name": "rangeShift",
+            "description": "The value of nPairs minus the largest power of two less than or equal to nPairs. This is multiplied by the size in bytes of an entry in the table."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub3",
+        "description": "Table 29: 'kern' format 0 kerning pairs and values",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "left",
+            "description": "The glyph index for the lefthand glyph in the kerning pair."
+          },
+          {
+            "type": "uint16",
+            "name": "right",
+            "description": "The glyph index for the righthand glyph in the kerning pair."
+          },
+          {
+            "type": "int16",
+            "name": "value",
+            "description": "The kerning value in FUnits for the left and right pair in FUnits. If this value is greater than zero, the glyphs are moved apart. If this value is less than zero, the glyphs are moved together."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub4",
+        "description": "Format 1 kerning tables contain a format specific header and a state table to allow kerning of up to eight glyphs at once. The format specific header for a Format 1 kerning table is as follows:",
+        "fields": [
+          {
+            "type": "StateHeader",
+            "name": "stHeader",
+            "description": "The contextual kerning state table header."
+          },
+          {
+            "type": "uint16",
+            "name": "valueTable",
+            "description": "Offset in bytes from the beginning of the subtable to the beginning of the kerning table."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub5",
+        "description": "Table 30: simple array header",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "rowWidth",
+            "description": "The width, in bytes, of a row in the subtable."
+          },
+          {
+            "type": "uint16",
+            "name": "leftOffsetTable",
+            "description": "Offset from beginning of this subtable to the left-hand offset table."
+          },
+          {
+            "type": "uint16",
+            "name": "rightOffsetTable",
+            "description": "Offset from beginning of this subtable to right-hand offset table."
+          },
+          {
+            "type": "uint16",
+            "name": "array",
+            "description": "Offset from beginning of this subtable to the start of the kerning array."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub6",
+        "description": "Table 31: class table header",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "firstGlyph",
+            "description": "First glyph in class range."
+          },
+          {
+            "type": "uint16",
+            "name": "nGlyphs",
+            "description": "Number of glyph in class range."
+          },
+          {
+            "type": "UInt16",
+            "name": "offsets[nGlyphs]",
+            "description": "The offsets array for all of the glyphs in the range."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub7",
+        "description": "The header of the format 3 simple array header subtable is as follows:",
+        "fields": [
+          {
+            "type": "uint16",
+            "name": "glyphCount",
+            "description": "The number of glyphs in this font."
+          },
+          {
+            "type": "uint8",
+            "name": "kernValueCount",
+            "description": "The number of kerning values."
+          },
+          {
+            "type": "uint8",
+            "name": "leftClassCount",
+            "description": "The number of left-hand classes."
+          },
+          {
+            "type": "uint8",
+            "name": "rightClassCount",
+            "description": "The number of right-hand classes."
+          },
+          {
+            "type": "uint8",
+            "name": "flags",
+            "description": "Set to zero (reserved for future use)."
+          }
+        ]
+      },
+      {
+        "name": "kern_sub8",
+        "description": "Immediately following the header described above are four variable length arrays, described in the following table:",
+        "fields": [
+          {
+            "type": "FWord",
+            "name": "kernValue[kernValueCount]",
+            "description": "The kerning values."
+          },
+          {
+            "type": "uint8",
+            "name": "leftClass[glyphCount]",
+            "description": "The left-hand classes."
+          },
+          {
+            "type": "uint8",
+            "name": "rightClass[glyphCount]",
+            "description": "The right-hand classes"
+          },
+          {
+            "type": "uint8",
+            "name": "kernIndex[leftClassCount * rightClassCount]",
+            "description": "The indices into the kernValue array."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "maxp",
+    "description": "The maxComponentDepth refers to the number of levels of recursion used in constructing the most complex compound glyph. The maximum legal value for maxComponentDepth is 16. If there are no components within components, all compound glyphs can be deemed simple and this field can be set to the value one.",
+    "fields": [
+      {
+        "type": "Fixed",
+        "name": "version",
+        "description": "0x00010000 (1.0)"
+      },
+      {
+        "type": "uint16",
+        "name": "numGlyphs",
+        "description": "the number of glyphs in the font"
+      },
+      {
+        "type": "uint16",
+        "name": "maxPoints",
+        "description": "points in non-compound glyph"
+      },
+      {
+        "type": "uint16",
+        "name": "maxContours",
+        "description": "contours in non-compound glyph"
+      },
+      {
+        "type": "uint16",
+        "name": "maxComponentPoints",
+        "description": "points in compound glyph"
+      },
+      {
+        "type": "uint16",
+        "name": "maxComponentContours",
+        "description": "contours in compound glyph"
+      },
+      {
+        "type": "uint16",
+        "name": "maxZones",
+        "description": "set to 2"
+      },
+      {
+        "type": "uint16",
+        "name": "maxTwilightPoints",
+        "description": "points used in Twilight Zone (Z0)"
+      },
+      {
+        "type": "uint16",
+        "name": "maxStorage",
+        "description": "number of Storage Area locations"
+      },
+      {
+        "type": "uint16",
+        "name": "maxFunctionDefs",
+        "description": "number of FDEFs"
+      },
+      {
+        "type": "uint16",
+        "name": "maxInstructionDefs",
+        "description": "number of IDEFs"
+      },
+      {
+        "type": "uint16",
+        "name": "maxStackElements",
+        "description": "maximum stack depth"
+      },
+      {
+        "type": "uint16",
+        "name": "maxSizeOfInstructions",
+        "description": "byte count for glyph instructions"
+      },
+      {
+        "type": "uint16",
+        "name": "maxComponentElements",
+        "description": "number of glyphs referenced at top level"
+      },
+      {
+        "type": "uint16",
+        "name": "maxComponentDepth",
+        "description": "levels of recursion, set to 0 if font has only simple glyphs"
+      }
+    ],
+    "tables": [
+      {
+        "name": "maxp_sub1",
+        "description": "Fonts with PostScript outlines (that is, OpenType fonts with 'CFF ' tables) use a six-byte version of the 'maxp' table:",
+        "fields": [
+          {
+            "type": "Fixed",
+            "name": "version",
+            "description": "0x00005000 (0.5)"
+          },
+          {
+            "type": "uint16",
+            "name": "numGlyphs",
+            "description": "the number of glyphs in the font"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "name",
+    "description": "The name table header gives the format of the table, the number of name records (rows) in the table, and the offset in bytes to the multilingual character name strings. The format of the name table header is as follows:",
+    "fields": [
+      {
+        "type": "UInt16",
+        "name": "format",
+        "description": "Format selector. Set to 0."
+      },
+      {
+        "type": "UInt16",
+        "name": "count",
+        "description": "The number of nameRecords in this name table."
+      },
+      {
+        "type": "UInt16",
+        "name": "stringOffset",
+        "description": "Offset in bytes to the beginning of the name character strings."
+      },
+      {
+        "type": "NameRecord",
+        "name": "nameRecord[count]",
+        "description": "The name records array."
+      },
+      {
+        "type": "variable",
+        "name": "name",
+        "description": "Character strings. The character strings of the names. Note that these are not necessarily ASCII!"
+      }
+    ],
+    "tables": [
+      {
+        "name": "name_sub1",
+        "description": "The name records array follows the name table header. Six entries are provided for each name record. Here is the format of a NameRecord:",
+        "fields": [
+          {
+            "type": "UInt16",
+            "name": "platformID",
+            "description": "Platform identifier code."
+          },
+          {
+            "type": "UInt16",
+            "name": "platformSpecificID",
+            "description": "Platform-specific encoding identifier."
+          },
+          {
+            "type": "UInt16",
+            "name": "languageID",
+            "description": "Language identifier."
+          },
+          {
+            "type": "UInt16",
+            "name": "nameID",
+            "description": "Name identifier."
+          },
+          {
+            "type": "UInt16",
+            "name": "length",
+            "description": "Name string length in bytes."
+          },
+          {
+            "type": "UInt16",
+            "name": "offset",
+            "description": "Name string offset in bytes from stringOffset."
+          },
+          {
+            "type": "OffsetString",
+            "name": "string",
+            "length": "length",
+            "offset": "offset"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "OS/2",
+    "description": "Table 1: 'OS/2' table",
+    "fields": [
+      {
+        "type": "uint16",
+        "name": "version",
+        "description": "table version number (set to 0)"
+      },
+      {
+        "type": "int16",
+        "name": "xAvgCharWidth",
+        "description": "average weighted advance width of lower case letters and space"
+      },
+      {
+        "type": "uint16",
+        "name": "usWeightClass",
+        "description": "visual weight (degree of blackness or thickness) of stroke in glyphs"
+      },
+      {
+        "type": "uint16",
+        "name": "usWidthClass",
+        "description": "relative change from the normal aspect ratio (width to height ratio) as specified by a font designer for the glyphs in the font"
+      },
+      {
+        "type": "int16",
+        "name": "fsType",
+        "description": "characteristics and properties of this font (set undefined bits to zero)"
+      },
+      {
+        "type": "int16",
+        "name": "ySubscriptXSize,",
+        "description": "recommended horizontal size in pixels for subscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySubscriptYSize",
+        "description": "recommended vertical size in pixels for subscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySubscriptXOffset",
+        "description": "recommended horizontal offset for subscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySubscriptYOffset",
+        "description": "recommended vertical offset form the baseline for subscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySuperscriptXSize",
+        "description": "recommended horizontal size in pixels for superscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySuperscriptYSize",
+        "description": "recommended vertical size in pixels for superscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySuperscriptXOffset",
+        "description": "recommended horizontal offset for superscripts"
+      },
+      {
+        "type": "int16",
+        "name": "ySuperscriptYOffset",
+        "description": "recommended vertical offset from the baseline for superscripts"
+      },
+      {
+        "type": "int16",
+        "name": "yStrikeoutSize",
+        "description": "width of the strikeout stroke"
+      },
+      {
+        "type": "int16",
+        "name": "yStrikeoutPosition",
+        "description": "position of the strikeout stroke relative to the baseline"
+      },
+      {
+        "type": "int16",
+        "name": "sFamilyClass",
+        "description": "classification of font-family design."
+      },
+      {
+        "type": "Array",
+        "name": "panose",
+        "description": "10 byte series of number used to describe the visual characteristics of a given typeface",
+        "length": "10"
+      },
+      {
+        "type": "uint32",
+        "name": "ulUnicodeRange[4]",
+        "description": "Field is split into two bit fields of 96 and 36 bits each. The low 96 bits are used to specify the Unicode blocks encompassed by the font file. The high 32 bits are used to specify the character or script sets covered by the font file. Bit assignments are pending. Set to 0"
+      },
+      {
+        "type": "int8",
+        "name": "achVendID[4]",
+        "description": "four character identifier for the font vendor"
+      },
+      {
+        "type": "uint16",
+        "name": "fsSelection",
+        "description": "2-byte bit field containing information concerning the nature of the font patterns"
+      },
+      {
+        "type": "uint16",
+        "name": "fsFirstCharIndex",
+        "description": "The minimum Unicode index in this font."
+      },
+      {
+        "type": "uint16",
+        "name": "fsLastCharIndex",
+        "description": "The maximum Unicode index in this font."
+      }
+    ],
+    "tables": [
+      {
+        "name": "OS/2_sub1",
+        "description": "The fields added since the original version of the 'OS/2' table format are:",
+        "fields": [
+          {
+            "type": "int16",
+            "name": "sTypoAscender",
+            "description": "The typographic ascender for this font. This is not necessarily the same as the ascender value in the 'hhea' table."
+          },
+          {
+            "type": "int16",
+            "name": "sTypoDescender",
+            "description": "The typographic descender for this font. This is not necessarily the same as the descender value in the 'hhea' table."
+          },
+          {
+            "type": "int16",
+            "name": "sTypoLineGap",
+            "description": "The typographic line gap for this font. This is not necessarily the same as the line gap value in the 'hhea' table."
+          },
+          {
+            "type": "uint16",
+            "name": "usWinAscent",
+            "description": "The ascender metric for Windows. usWinAscent is computed as the yMax for all characters in the Windows ANSI character set."
+          },
+          {
+            "type": "uint16",
+            "name": "usWinDescent",
+            "description": "The descender metric for Windows. usWinDescent is computed as the -yMin for all characters in the Windows ANSI character set."
+          },
+          {
+            "type": "uint32",
+            "name": "ulCodePageRange1",
+            "description": "Bits 0-31"
+          },
+          {
+            "type": "uint32",
+            "name": "ulCodePageRange2",
+            "description": "Bits 32-63"
+          },
+          {
+            "type": "int16",
+            "name": "sxHeight",
+            "description": "The distance between the baseline and the approximate height of non-ascending lowercase letters measured in FUnits."
+          },
+          {
+            "type": "int16",
+            "name": "sCapHeight",
+            "description": "The distance between the baseline and the approximate height of uppercase letters measured in FUnits."
+          },
+          {
+            "type": "uint16",
+            "name": "usDefaultChar",
+            "description": "The default character displayed by Windows to represent an unsupported character. (Typically this should be 0.)"
+          },
+          {
+            "type": "uint16",
+            "name": "usBreakChar",
+            "description": "The break character used by Windows."
+          },
+          {
+            "type": "uint16",
+            "name": "usMaxContext",
+            "description": "The maximum length of a target glyph OpenType context for any feature in this font."
+          },
+          {
+            "type": "uint16",
+            "name": "usLowerPointSize",
+            "description": "Proposed for version 5 The lowest size (in twentieths of a typographic point), at which the font starts to be used. This is an inclusive value."
+          },
+          {
+            "type": "uint16",
+            "name": "usUpperPointSize",
+            "description": "Proposed for version 5 The highest size (in twentieths of a typographic point), at which the font starts to be used. This is an exclusive value. Use 0xFFFFU to indicate no upper limit."
+          }
+        ]
+      },
+      {
+        "name": "OS/2_sub2",
+        "description": "Table 19 : PANOSE",
+        "fields": [
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bFamilyType,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bSerifStyle,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bWeight,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bProportion,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bContrast,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bStrokeVariation,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bArmStyle,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bLetterform,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bMidline,"
+          },
+          {
+            "type": "uint8",
+            "name": "",
+            "description": "bXHeight,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vhea",
+    "description": "The vertical header table format is as follows:",
+    "fields": [
+      {
+        "type": "fixed32",
+        "name": "version",
+        "description": "Version number of the Vertical Header Table (0x00011000 for the current version)."
+      },
+      {
+        "type": "int16",
+        "name": "vertTypoAscender",
+        "description": "The vertical typographic ascender for this font. It is the distance in FUnits from the vertical center baseline to the right of the design space. This will usually be set to half the horizontal advance of full-width glyphs. For example, if the full width is 1000 FUnits, this field will be set to 500."
+      },
+      {
+        "type": "int16",
+        "name": "vertTypoDescender",
+        "description": "The vertical typographic descender for this font. It is the distance in FUnits from the vertical center baseline to the left of the design space. This will usually be set to half the horizontal advance of full-width glyphs. For example, if the full width is 1000 FUnits, this field will be set to -500."
+      },
+      {
+        "type": "int16",
+        "name": "vertTypoLineGap",
+        "description": "The vertical typographic line gap for this font."
+      },
+      {
+        "type": "int16",
+        "name": "advanceHeightMax",
+        "description": "The maximum advance height measurement in FUnits found in the font. This value must be consistent with the entries in the vertical metrics table."
+      },
+      {
+        "type": "int16",
+        "name": "minTopSideBearing",
+        "description": "The minimum top side bearing measurement in FUnits found in the font, in FUnits. This value must be consistent with the entries in the vertical metrics table."
+      },
+      {
+        "type": "int16",
+        "name": "minBottomSideBearing",
+        "description": "The minimum bottom side bearing measurement in FUnits found in the font, in FUnits. This value must be consistent with the entries in the vertical metrics table."
+      },
+      {
+        "type": "int16",
+        "name": "yMaxExtent",
+        "description": "This is defined as the value of the minTopSideBearing field added to the result of the value of the yMin field subtracted from the value of the yMax field."
+      },
+      {
+        "type": "int16",
+        "name": "caretSlopeRise",
+        "description": "The value of the caretSlopeRise field divided by the value of the caretSlopeRun field determines the slope of the caret. A value of 0 for the rise and a value of 1 for the run specifies a horizontal caret. A value of 1 for the rise and a value of 0 for the run specifies a vertical caret. A value between 0 for the rise and 1 for the run is desirable for fonts whose glyphs are oblique or italic. For a vertical font, a horizontal caret is best."
+      },
+      {
+        "type": "int16",
+        "name": "caretSlopeRun",
+        "description": "See the caretSlopeRise field. Value = 0 for non-slanted fonts."
+      },
+      {
+        "type": "int16",
+        "name": "caretOffset",
+        "description": "The amount by which the highlight on a slanted glyph needs to be shifted away from the glyph in order to produce the best appearance. Set value equal to 0 for non-slanted fonts."
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "Set to 0."
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "Set to 0."
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "Set to 0."
+      },
+      {
+        "type": "int16",
+        "name": "reserved",
+        "description": "Set to 0."
+      },
+      {
+        "type": "int16",
+        "name": "metricDataFormat",
+        "description": "Set to 0."
+      },
+      {
+        "type": "uint16",
+        "name": "numOfLongVerMetrics",
+        "description": "Number of advance heights in the Vertical Metrics table."
+      }
+    ]
+  },
+  {
+    "name": "vmtx",
+    "description": "The format of an entry in the vertical metrics array is as follows:",
+    "fields": [
+      {
+        "type": "uint16",
+        "name": "advanceHeight",
+        "description": "The advance height of the glyph. Signed integer in FUnits."
+      },
+      {
+        "type": "int16",
+        "name": "topSideBearing",
+        "description": "The top side bearing of the glyph. Signed integer in FUnits"
+      }
+    ],
+    "tables": [
+      {
+        "name": "vmtx_sub1",
+        "description": "The number of entries in this array is calculated by subtracting the value of numOfLongVerMetrics from the number of glyphs in the font. The sum of glyphs represented in the first array plus the glyphs represented in the second array therefore equals the number of glyphs in the font. The format of the top side bearing array is as follows:",
+        "fields": [
+          {
+            "type": "int16",
+            "name": "topSideBearing[]",
+            "description": "The top side bearing of the glyph. Signed integer in FUnits"
+          }
+        ]
+      }
+    ]
+  }
+]

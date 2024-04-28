@@ -2,6 +2,7 @@
 
 public enum FontType
 {
+    @byte,  //uint8
     uint8,  //8-bit unsigned integer.
     int8,   //8-bit signed integer.
     uint16, //16-bit unsigned integer.
@@ -12,6 +13,7 @@ public enum FontType
     uint64,
     int64,
     Fixed,  //32-bit signed fixed-point number (16.16)
+    Fixed32,  // 32-bit signed fixed-point number
     FWORD,  //int16 that describes a quantity in font design units.
     UFWORD, //uint16 that describes a quantity in font design units.
     F2DOT14,    //16-bit signed fixed number with the low 14 bits of fraction (2.14).
@@ -26,4 +28,10 @@ public enum FontType
     OffsetString,   // byte array with length parameter known as string located at offset
     ArrayX2,  // double byte array with length parameter
     ArrayGlyph,  // byte array of glyphs
+
+    Ignored,     // logical usually placeholder type, should be ignored as a type
+    StateHeader, // ignored type
+    Variable,    // any data place, ignored type
+    NameRecord,  // record logical placeholder, ignored type
+
 }
