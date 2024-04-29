@@ -20,3 +20,8 @@ public class FtArray_Glyph : FtArray
     public override int Size => (int)(table.GetLongValue(field.Length!) - (position - table.startPosition));
     public override FontType Type => FontType.ArrayGlyph;
 }
+
+public class FtArrayUInt16 : FtArrayX2
+{
+    public override FontType Type => FontType.ArrayUInt16;
+}

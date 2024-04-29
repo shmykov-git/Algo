@@ -56,9 +56,10 @@
             "description": "Language code (see above)"
           },
           {
-            "type": "UInt8",
-            "name": "glyphIndexArray[256]",
-            "description": "An array that maps character codes to glyph index values"
+            "type": "Array",
+            "name": "glyphIndexArray",
+            "description": "An array that maps character codes to glyph index values",
+            "length": "256_UInt8"
           }
         ]
       },
@@ -82,9 +83,10 @@
             "description": "Language code (see above)"
           },
           {
-            "type": "UInt16",
-            "name": "subHeaderKeys[256]",
-            "description": "Array that maps high bytes to subHeaders: value is index * 8"
+            "type": "ArrayUInt16",
+            "name": "subHeaderKeys",
+            "description": "Array that maps high bytes to subHeaders: value is index * 8",
+            "length": "256"
           },
           {
             "type": "Array",
@@ -93,9 +95,10 @@
             "length": "8"
           },
           {
-            "type": "UInt16",
-            "name": "glyphIndexArray[variable]",
-            "description": "Variable length array containing subarrays"
+            "type": "ArrayUInt16",
+            "name": "glyphIndexArray",
+            "description": "Variable length array containing subarrays",
+            "length": "variable"
           }
         ]
       },
@@ -139,9 +142,10 @@
             "description": "(2 * segCount) - searchRange"
           },
           {
-            "type": "UInt16",
-            "name": "endCode[segCount]",
-            "description": "Ending character code for each segment, last = 0xFFFF."
+            "type": "ArrayUInt16",
+            "name": "endCode",
+            "description": "Ending character code for each segment, last = 0xFFFF.",
+            "length": "segCount"
           },
           {
             "type": "UInt16",
@@ -149,24 +153,28 @@
             "description": "This value should be zero"
           },
           {
-            "type": "UInt16",
-            "name": "startCode[segCount]",
-            "description": "Starting character code for each segment"
+            "type": "ArrayUInt16",
+            "name": "startCode",
+            "description": "Starting character code for each segment",
+            "length": "segCount"
           },
           {
-            "type": "UInt16",
-            "name": "idDelta[segCount]",
-            "description": "Delta for all character codes in segment"
+            "type": "ArrayUInt16",
+            "name": "idDelta",
+            "description": "Delta for all character codes in segment",
+            "length": "segCount"
           },
           {
-            "type": "UInt16",
-            "name": "idRangeOffset[segCount]",
-            "description": "Offset in bytes to glyph indexArray, or 0"
+            "type": "ArrayUInt16",
+            "name": "idRangeOffset",
+            "description": "Offset in bytes to glyph indexArray, or 0",
+            "length": "segCount"
           },
           {
-            "type": "UInt16",
-            "name": "glyphIndexArray[variable]",
-            "description": "Glyph index array"
+            "type": "ArrayUInt16",
+            "name": "glyphIndexArray",
+            "description": "Glyph index array",
+            "length": "variable"
           }
         ]
       },
@@ -200,9 +208,10 @@
             "description": "Number of character codes in subrange"
           },
           {
-            "type": "UInt16",
-            "name": "glyphIndexArray[entryCount]",
-            "description": "Array of glyph index values for character codes in the range"
+            "type": "ArrayUInt16",
+            "name": "glyphIndexArray",
+            "description": "Array of glyph index values for character codes in the range",
+            "length": "entryCount"
           }
         ]
       },
@@ -231,9 +240,10 @@
             "description": "Language code (see above)"
           },
           {
-            "type": "UInt8",
-            "name": "is32[65536]",
-            "description": "Tightly packed array of bits (8K bytes total) indicating whether the particular 16-bit (index) value is the start of a 32-bit character code"
+            "type": "Array",
+            "name": "is32",
+            "description": "Tightly packed array of bits (8K bytes total) indicating whether the particular 16-bit (index) value is the start of a 32-bit character code",
+            "length": "65536_UInt8"
           },
           {
             "type": "UInt32",
@@ -298,9 +308,10 @@
             "description": "Number of character codes covered"
           },
           {
-            "type": "UInt16",
-            "name": "glyphs[]",
-            "description": "Array of glyph indices for the character codes covered"
+            "type": "ArrayUInt16",
+            "name": "glyphs",
+            "description": "Array of glyph indices for the character codes covered",
+            "length": ""
           }
         ]
       },
@@ -641,14 +652,16 @@
     "description": "Table 24 : 'hmtx' table",
     "fields": [
       {
-        "type": "uint16",
-        "name": "hMetrics[numOfLongHorMetrics]",
-        "description": "The value numOfLongHorMetrics comes from the 'hhea' table. If the font is monospaced, only one entry need be in the array but that entry is required."
+        "type": "ArrayUInt16",
+        "name": "hMetrics",
+        "description": "The value numOfLongHorMetrics comes from the 'hhea' table. If the font is monospaced, only one entry need be in the array but that entry is required.",
+        "length": "numOfLongHorMetrics"
       },
       {
-        "type": "FWord",
-        "name": "leftSideBearing[]",
-        "description": "Here the advanceWidth is assumed to be the same as the advanceWidth for the last entry above. The number of entries in this array is derived from the total number of glyphs minus numOfLongHorMetrics. This generally is used with a run of monospaced glyphs (e.g. Kanji fonts or Courier fonts). Only one run is allowed and it must be at the end."
+        "type": "Array",
+        "name": "leftSideBearing",
+        "description": "Here the advanceWidth is assumed to be the same as the advanceWidth for the last entry above. The number of entries in this array is derived from the total number of glyphs minus numOfLongHorMetrics. This generally is used with a run of monospaced glyphs (e.g. Kanji fonts or Courier fonts). Only one run is allowed and it must be at the end.",
+        "length": "Unknown_FWord"
       }
     ]
   },
@@ -793,9 +806,10 @@
             "description": "Number of glyph in class range."
           },
           {
-            "type": "UInt16",
-            "name": "offsets[nGlyphs]",
-            "description": "The offsets array for all of the glyphs in the range."
+            "type": "ArrayUInt16",
+            "name": "offsets",
+            "description": "The offsets array for all of the glyphs in the range.",
+            "length": "nGlyphs"
           }
         ]
       },
@@ -835,24 +849,28 @@
         "description": "Immediately following the header described above are four variable length arrays, described in the following table:",
         "fields": [
           {
-            "type": "FWord",
-            "name": "kernValue[kernValueCount]",
-            "description": "The kerning values."
+            "type": "Array",
+            "name": "kernValue",
+            "description": "The kerning values.",
+            "length": "kernValueCount_FWord"
           },
           {
-            "type": "uint8",
-            "name": "leftClass[glyphCount]",
-            "description": "The left-hand classes."
+            "type": "Array",
+            "name": "leftClass",
+            "description": "The left-hand classes.",
+            "length": "glyphCount_uint8"
           },
           {
-            "type": "uint8",
-            "name": "rightClass[glyphCount]",
-            "description": "The right-hand classes"
+            "type": "Array",
+            "name": "rightClass",
+            "description": "The right-hand classes",
+            "length": "glyphCount_uint8"
           },
           {
-            "type": "uint8",
-            "name": "kernIndex[leftClassCount * rightClassCount]",
-            "description": "The indices into the kernValue array."
+            "type": "Array",
+            "name": "kernIndex",
+            "description": "The indices into the kernValue array.",
+            "length": "leftClassCount * rightClassCount_uint8"
           }
         ]
       }
@@ -977,9 +995,10 @@
         "description": "Offset in bytes to the beginning of the name character strings."
       },
       {
-        "type": "NameRecord",
-        "name": "nameRecord[count]",
-        "description": "The name records array."
+        "type": "Array",
+        "name": "nameRecord",
+        "description": "The name records array.",
+        "length": "count_NameRecord"
       },
       {
         "type": "variable",
@@ -1123,14 +1142,16 @@
         "length": "10"
       },
       {
-        "type": "uint32",
-        "name": "ulUnicodeRange[4]",
-        "description": "Field is split into two bit fields of 96 and 36 bits each. The low 96 bits are used to specify the Unicode blocks encompassed by the font file. The high 32 bits are used to specify the character or script sets covered by the font file. Bit assignments are pending. Set to 0"
+        "type": "Array",
+        "name": "ulUnicodeRange",
+        "description": "Field is split into two bit fields of 96 and 36 bits each. The low 96 bits are used to specify the Unicode blocks encompassed by the font file. The high 32 bits are used to specify the character or script sets covered by the font file. Bit assignments are pending. Set to 0",
+        "length": "4_uint32"
       },
       {
-        "type": "int8",
-        "name": "achVendID[4]",
-        "description": "four character identifier for the font vendor"
+        "type": "Array",
+        "name": "achVendID",
+        "description": "four character identifier for the font vendor",
+        "length": "4_int8"
       },
       {
         "type": "uint16",
@@ -1395,9 +1416,10 @@
         "description": "The number of entries in this array is calculated by subtracting the value of numOfLongVerMetrics from the number of glyphs in the font. The sum of glyphs represented in the first array plus the glyphs represented in the second array therefore equals the number of glyphs in the font. The format of the top side bearing array is as follows:",
         "fields": [
           {
-            "type": "int16",
-            "name": "topSideBearing[]",
-            "description": "The top side bearing of the glyph. Signed integer in FUnits"
+            "type": "Array",
+            "name": "topSideBearing",
+            "description": "The top side bearing of the glyph. Signed integer in FUnits",
+            "length": "Unknown_int16"
           }
         ]
       }

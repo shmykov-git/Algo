@@ -26,7 +26,8 @@ public enum FontType
     Array,    // byte array with length parameter
     String,   // byte array with length parameter known as string
     OffsetString,   // byte array with length parameter known as string located at offset
-    ArrayX2,  // double byte array with length parameter
+    ArrayX2,        // double byte array with length parameter
+    ArrayUInt16,    // ArrayX2
     ArrayGlyph,  // byte array of glyphs
 
     Ignored,     // logical usually placeholder type, should be ignored as a type
