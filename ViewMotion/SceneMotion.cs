@@ -79,18 +79,17 @@ partial class SceneMotion
 
             var options = new BezierTextOptions()
             {
-                FontSize = 200,
-                FontName = "Times New Roman"
-            };
-
-            new Mapper().Map(BezierValues.PerfectLetterOptions, options);
-            new Mapper().Map(new BezierOptions
+                FontSize = 300,
+                FontName = "Royal Inferno"
+            }
+            .With(BezierValues.HighLetterOptions)
+            .With(new BezierOptions
             {
                 DebugFillPoints = true,
                 DebugProcess = true,
-            }, options);
+            });
 
-            var bzs = vectorizer.GetTextBeziers("abcdefg", options);
+            var bzs = vectorizer.GetTextBeziers("abcd", options);
 
             var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
             var m = 0.5;

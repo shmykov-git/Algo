@@ -2,6 +2,16 @@
 
 public static class BezierValues
 {
+    public static BezierOptions HighLetterOptions => new BezierOptions
+    {
+        ColorLevel = 150,
+        SmoothingResultLevel = 5,
+        SmoothingAlgoLevel = 5,
+        MinPointDistance = 5,
+        MaxPointDistance = 50,
+        AnglePointDistance = 5,
+    };
+
     public static BezierOptions PerfectLetterOptions => new BezierOptions
     {
         ColorLevel = 150,
