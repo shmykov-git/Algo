@@ -53,43 +53,21 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return (1).SelectInterval(5, 20, x =>
+        
+        return (100).SelectInterval(10, 200, x =>
         {
-            //var options = new BezierOptions()
-            //{
-            //    ColorLevel = 150,
-            //    AllowedAngle = 0.75 * Math.PI,
-            //    AllowedAngleFactor = 75,
-            //    SmoothingResultLevel = 5,
-            //    SmoothingAlgoLevel = 5,
-            //    SmoothingMoveCompensationLevel = null,
-            //    SmoothingMoveCompensationLength = 1,
-            //    MinPointDistance = 5,
-            //    MaxPointDistance = 20,
-            //    AnglePointDistance = 5,
-
-            //    DebugProcess = true,
-            //    DebugFillPoints = true,
-            //};
-
-            //var config = TypeAdapterConfig.GlobalSettings.Clone();
-            //config.RequireDestinationMemberSource = true;
-            //config.ForType<BezierTextOptions, BezierTextOptions>();
-            //config.ForType<BezierTextOptions, BezierOptions>();
-
-            var options = new BezierTextOptions()
+            var bzs = vectorizer.GetTextBeziers("abcd", new BezierTextOptions()
             {
-                FontSize = 300,
+                FontSize = (int)x,
                 FontName = "Royal Inferno"
             }
-            .With(BezierValues.HighLetterOptions)
-            .With(new BezierOptions
+            .With(BezierValues.ExtremeLetterOptions)
+            .With(o =>
             {
-                DebugFillPoints = true,
-                DebugProcess = true,
-            });
-
-            var bzs = vectorizer.GetTextBeziers("abcd", options);
+                o.DebugFillPoints = true;
+                o.DebugProcess = true;
+            })
+            );
 
             var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
             var m = 0.5;
