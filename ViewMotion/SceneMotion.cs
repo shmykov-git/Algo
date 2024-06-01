@@ -46,6 +46,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mapster;
 using MapsterMapper;
+using AI.Model;
 
 namespace ViewMotion;
 
@@ -53,36 +54,18 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        
-        return (100).SelectInterval(10, 200, x =>
+        (float[] input, float[] expected)[] training = [([], [])];
+
+
+        var o = new NOptions()
         {
-            var bzs = vectorizer.GetTextBeziers("abcd", new BezierTextOptions()
-            {
-                FontSize = (int)x,
-                FontName = "Royal Inferno"
-            }
-            .With(BezierValues.ExtremeLetterOptions)
-            .With(o =>
-            {
-                o.DebugFillPoints = true;
-                o.DebugProcess = true;
-            })
-            );
 
-            var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length*100).SelectInterval(x => fn(x)); }).ToArray();
-            var m = 0.5;
+        }.With(o => o.Training = training);
 
-            return new[]
-            {
-                //options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.36, Color.Yellow)).ToSingleShape(),
-                //options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.32, Color.Green)).ToSingleShape(),
-                //options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.3, Color.Blue)).ToSingleShape(),
+        var brain = new NStore(o);
+        brain.Init();
+        (10000).ForEach(brain.Train);
 
-                //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(m*0.1, Color.Blue)).ToSingleShape(),
-
-                //options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Red)).ToSingleShape(),
-                fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(m*0.1, Color.Red)).ToSingleShape(),
-            }.ToSingleShape().Perfecto();
-        }).ToMotion2D(1);
+        return Shapes.Cube.ToMotion();
     }
 }

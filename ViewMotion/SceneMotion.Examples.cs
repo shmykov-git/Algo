@@ -24,6 +24,7 @@ using System.Diagnostics;
 using System.CodeDom;
 using Model.Bezier;
 using Vector2 = Model.Vector2;
+using Model3D.Tools.Model;
 
 namespace ViewMotion;
 /// <summary>
@@ -31,6 +32,40 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> BezierText()
+    {
+        return (1).SelectInterval(10, 200, x =>
+        {
+            var bzs = vectorizer.GetTextBeziers("abcd", new BezierTextOptions()
+            {
+                FontSize = 300,
+                FontName = "Royal Inferno"
+            }
+            .With(BezierValues.MediumLetterOptions)
+            .With(o =>
+            {
+                o.DebugFillPoints = true;
+                o.DebugProcess = true;
+            })
+            );
+
+            var fpss = bzs.Select(b => { var fn = b.ToFn(); return (b.Length * 100).SelectInterval(x => fn(x)); }).ToArray();
+            var m = 0.5;
+
+            return new[]
+            {
+                //options.cps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.36, Color.Yellow)).ToSingleShape(),
+                //options.aps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.32, Color.Green)).ToSingleShape(),
+                //options.ps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.3, Color.Blue)).ToSingleShape(),
+
+                //options.ps.Select(p=>p.ToShape2().ToShape3().ToNumSpots3(m*0.1, Color.Blue)).ToSingleShape(),
+
+                //options.lps.Select(p=>p.ToShape2().ToShape3().ToPoints(m*0.34, Color.Red)).ToSingleShape(),
+                fpss.Select(fps => fps.ToShape2().ToShape3().ToPoints(m*0.1, Color.Red)).ToSingleShape(),
+            }.ToSingleShape().Perfecto();
+        }).ToMotion2D(1);
+    }
+
 
     public Task<Motion> BezierPower2To3()
     {

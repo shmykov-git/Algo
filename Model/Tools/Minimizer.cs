@@ -70,15 +70,9 @@ public static class Minimizer
                     x[i] = x[i] + dx[i];
                     fx[i] = fx2;
                 }
-                else // fx1 > fx3
+                else // change dir and step
                 {
-                    var x3 = x.ToArray();
-                    x3[i] = x[i] - dx[i];
-                    var fx3 = fn(x3);                    
-
-                    x[i] = x[i] - dx[i];
-                    fx[i] = fx3;
-
+                    fx[i] = fx1;
                     dx[i] = -0.5 * dx[i];
                 }
             }
