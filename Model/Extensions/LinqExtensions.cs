@@ -355,6 +355,8 @@ namespace Model.Extensions
 
         public static TItem[] ManyToArray<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
             manyItems.SelectMany(v => v).ToArray();
+        public static TItem[] ToSingleArray<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
+            manyItems.SelectMany(v => v).ToArray();
 
         public static TOut[] SelectInParallel<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
         {

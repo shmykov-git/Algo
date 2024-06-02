@@ -2,33 +2,18 @@
 
 namespace AI.Model;
 
-
-public class NGroup
-{
-    //public float threshold;
-}
-
 public class N
 {
-    public E[] es = [];
-    public NGroup g;
-    public float x;
-    public float y;
-    public NFunc activatorFn;
-    public NFunc dampingFn;
-}
+    public float xx;     // signals sum
+    public float x;     // signals result func
+    public float delta; // training changing value
 
-public class E
-{
-    public float dw;
-    public int dwCount;
+    public NGroup g;    // group
+    public E[] es = [];    // forward links
 
-    public float w0;
-    public float w;
-    public float f;
+    public NFunc activatorFn;   // activator func
+    //public NFunc dampingFn;   // damping func
+    public NFunc errorFn;       // deviation train func
 
-    public float fPrev;
-    public float wPrev;
-    public N n;
-    public int[] influence;
+    public override string ToString() => $"{x:F2}";
 }

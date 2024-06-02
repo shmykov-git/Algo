@@ -40,6 +40,11 @@ namespace Model3D.Extensions
             return new Vector2(v.x, v.y);
         }
 
+        public static (float x, float y, float z) ToFloat(this Vector3 v)
+        {
+            return ((float)v.x, (float)v.y, (float)v.z);
+        }
+
         public static Vector3 SetX(this Vector3 v, double a)
         {
             return new Vector3(a, v.y, v.z);
@@ -239,6 +244,16 @@ namespace Model3D.Extensions
                 x = a.x * bSize.x / aSize.x,
                 y = a.y * bSize.y / aSize.y,
                 z = a.z * bSize.z / aSize.z
+            };
+        }
+
+        public static Vector3 Scale(this Vector3 a, Vector3 aSize)
+        {
+            return new Vector3
+            {
+                x = a.x * aSize.x,
+                y = a.y * aSize.y,
+                z = a.z * aSize.z
             };
         }
 
