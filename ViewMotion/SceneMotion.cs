@@ -55,8 +55,8 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var fnH = SurfaceFuncs.Hyperboloid;
-        SurfaceFunc fn = (u, v) => (fnH(u, v) + new Vector3(2, 2, 4)).MultC(new Vector3(0.25, 0.25, 0.125));
+        var fnH = SurfaceFuncs.Paraboloid;
+        Vector3 TrainFn(double u, double v) => (fnH(u, v) + new Vector3(2, 2, 4)).MultC(new Vector3(0.25, 0.25, 0.125));
 
         //return (new Shape()
         //{
@@ -64,49 +64,40 @@ partial class SceneMotion
         //    Convexes = Convexes.SquaresBoth(10, 10)
         //}.ToMeta()+Shapes.CoodsWithText()).ToMotion();
 
-        (float[] input, float[] expected)[] training = (10, 10)
-            .SelectInterval(-2, 2, -2, 2, (x, y) => fn(x, y).ToFloat())
+        var training = (10, 10)
+            .SelectInterval(-2, 2, -2, 2, (x, y) => TrainFn(x, y).ToFloat())
             .Select(v => (new float[] { v.x, v.y }, new float[] { v.z }))
             .ToArray();
-
-        //(float[] input, float[] expected)[] training = [([], [])];
-
 
         var o = new NOptions()
         {
             Seed = 1,
-            Shaffle = 0.1f,
+            Shaffle = 0.05f,
             CleanupPrevTrain = false,
             NInput = 2,
-            NHidden = (43, 3),
+            NHidden = (27, 3),
             NOutput = 1,
             Weight0 = (2f, -1f),
-            Alfa = 0.3f,
-            Nu = 0.1f,
-            FillFactor = 0.5f,
-            LinkFactor = 0.15f
+            Alfa = 0.5f,
+            Nu = 0.2f,
+            FillFactor = 0.7f,
+            LinkFactor = 0.3f
         }.With(o => o.Training = training);
 
         var brain = new NNet(o);
+        brain.Init();
 
-        Vector3 BrainFn(double xx, double yy)
+        NModel model = null;
+
+        Vector3 ModelFn(double xx, double yy)
         {
             var x = (float)(xx + 2) * 0.25f;
             var y = (float)(yy + 2) * 0.25f;
-            var res = brain.Predict([x, y]);
+            var res = model!.Predict([x, y]);
 
             return new Vector3(x, y, res[0]);
             //return new Vector3(4 * res[0] - 2, 4 * res[1] - 2, 4 * res[2] - 2);
         }
-
-        brain.Init();
-        //var y = BrainFn(1, 1);
-        brain.ShowDebug();
-
-        //(5).ForEach(brain.Train);
-        //var ys = (10, 10).SelectInterval(-2, 2, -2, 2, BrainFn).ToArray();
-        //brain.ShowDebug();
-
 
         var nEpoch = 100000;
         var part = 100;
@@ -115,26 +106,36 @@ partial class SceneMotion
         {
             for (var k = 0; k < nEpoch/part; k++)
             {
-                (part).ForEach(_ => brain.Train());
-                //brain.ShowDebug();
+                var err = float.MaxValue;
+
+                (part).ForEach(_ => 
+                { 
+                    var newErr = brain.Train();
+
+                    if (newErr < err)
+                    {
+                        err = newErr;
+                        Debug.WriteLine($"err: {err}");
+                        model = brain.model.Clone();
+                    }
+                });
 
                 yield return new[]
                 {
                     new Shape()
                     {
-                        Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, BrainFn).ToArray(),
+                        Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, ModelFn).ToArray(),
                         Convexes = Convexes.SquaresBoth(10, 10)
                     }.ToMeta(),
                     new Shape()
                     {
-                        Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, (u,v)=>fn(u,v)).ToArray(),
+                        Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, TrainFn).ToArray(),
                         Convexes = Convexes.SquaresBoth(10, 10)
-                    }.ToLines(Color.Green, 0.5),
-                    //Shapes.Coods()
+                    }.ToLines(Color.Black, 0.4)
                 }.ToSingleShape().Move(-0.5, -0.5, -0.5);
             }
         }
 
-        return Animate().ToMotion(2);
+        return Animate().ToMotion(3);
     }
 }
