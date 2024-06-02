@@ -74,15 +74,17 @@ partial class SceneMotion
 
         var o = new NOptions()
         {
-            Seed = 0,
+            Seed = 1,
+            Shaffle = 0.1f,
+            CleanupPrevTrain = false,
             NInput = 2,
-            NHidden = (11, 5),
+            NHidden = (43, 3),
             NOutput = 1,
-            BaseWeightFactor = (0.5f, -0.25f),
-            Alfa = 0.2f,
+            Weight0 = (2f, -1f),
+            Alfa = 0.3f,
             Nu = 0.1f,
-            FillFactor = 0.9f,
-            LinkFactor = 0.9f
+            FillFactor = 0.5f,
+            LinkFactor = 0.15f
         }.With(o => o.Training = training);
 
         var brain = new NNet(o);
@@ -129,7 +131,7 @@ partial class SceneMotion
                         Convexes = Convexes.SquaresBoth(10, 10)
                     }.ToLines(Color.Green, 0.5),
                     //Shapes.Coods()
-                }.ToSingleShape().Centered();
+                }.ToSingleShape().Move(-0.5, -0.5, -0.5);
             }
         }
 

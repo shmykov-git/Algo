@@ -48,7 +48,7 @@ public class NNet
     public void Init()
     {
         rnd = new Random(options.Seed);
-        var getBaseWeightFn = NFuncs.GetBaseWeight(options.BaseWeightFactor.a, options.BaseWeightFactor.b);
+        var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
         NGroup CreateGroup(int i) => new NGroup()
         {
@@ -107,23 +107,18 @@ public class NNet
         (options.NInput).Range().ForEach(i => input[i].x = vInput[i]);
     }
 
-    //public void Learn(float error, N n)
-    //{
-    //    n.delta = error * n.errorFn(n.f);
-
-    //    n.forward.ForEach(e =>
-    //    {
-    //        e.w += e.a.f * n.delta * options.LearningRate;
-    //    });
-    //}
-
     // todo: Shuffle(sequence); // visit each training data in random order
     public float Train()
     {
-        var avgErr = options.Training.Select(t => TrainCase(t.input, t.expected)).Average();
+        var data = options.Training.ToArray();
 
-        // cleanup dw
-        //es.ForEach(e => e.dw = 0);
+        if (options.Shaffle > 0)
+            data.Shaffle((int)(options.Shaffle * (3 * data.Length + 7)), rnd);
+
+        if (options.CleanupPrevTrain)
+            es.ForEach(e => e.dw = 0);
+
+        var avgErr = data.Select(t => TrainCase(t.input, t.expected)).Average();
 
         return avgErr;
     }
