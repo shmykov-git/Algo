@@ -14,15 +14,26 @@ public class NModel
     public float trainDeviation;
 
     public N[][] nns;
+    private readonly NOptions options;
+
     public IEnumerable<N> ns => nns.SelectMany(ns => ns);
     public N[] input => nns[0];
     public N[] output => nns[^1];
 
     public IEnumerable<E> es => nns.SelectMany(ns => ns.SelectMany(n => n.es));
 
+    public NModel(NOptions options)
+    {
+        this.options = options;
+    }
+
     public NModel Clone()
     {
-        N CloneN(N n) => new N() { sigmoidFn = n.sigmoidFn };
+        N CloneN(N n) => new N() 
+        { 
+            sigmoidFn = n.sigmoidFn,
+            dampingFn = n.dampingFn,
+        };
 
         var ns = nns.SelectMany(ns => ns).ToList();
         var esLinks = es.Select(e => (e, i: ns.IndexOf(e.a), j: ns.IndexOf(e.b))).ToArray();
@@ -34,7 +45,7 @@ public class NModel
 
         esLinks.GroupBy(v => v.i).ForEach(gv => newNs[gv.Key].es = gv.Select(v => CloneE(v.e, v.i, v.j)).ToArray());
 
-        return new NModel
+        return new NModel(options)
         {
             nns = newNns,
             error = error,
@@ -116,8 +127,8 @@ public class NModel
                 foreach (var n in ns)
                 {
                     // apply signals activator
-                    n.x = n.sigmoidFn(n.xx);
-                    //n.y = n.dampingFn(n.y);
+                    n.x = n.sigmoidFn(n.xx * options.PowerFactor);
+                    n.x = n.dampingFn(n.x);
                 }
 
             // pass signals from a to b

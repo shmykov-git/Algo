@@ -12,7 +12,7 @@ public class N
     public E[] es = [];    // forward links
 
     public NFunc sigmoidFn;   // activator func
-    //public NFunc dampingFn;   // damping func
+    public NFunc dampingFn;   // damping func
 
     public override string ToString() => $"{x:F2}";
 }

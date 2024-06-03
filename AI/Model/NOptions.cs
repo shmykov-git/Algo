@@ -3,16 +3,16 @@
 public class NOptions
 {
     public int Seed { get; set; } = 0;
-    public float Shaffle { get; set; } = 0;
+    public float ShaffleFactor { get; set; } = 0.1f;
     public bool CleanupPrevTrain { get; set; } = false;
     public int NInput { get; set; } = 2;
     public (int n, int nLayers) NHidden { get; set; } = (5, 3);
     public int NOutput { get; set; } = 1;
-    public (float a, float b) Weight0 { get; set; } = (0.00008f, 0.00001f);
-    public float ScaleFactor { get; set; } = 0.5f;
+    public (float a, float b) Weight0 { get; set; } = (2f, -1f);
+    public float PowerFactor { get; set; } = 1f;
     public float FillFactor { get; set; } = 0.5f;
     public float LinkFactor { get; set; } = 0.5f;
-    public float DampingCoeff { get; set; } = -0.0001f;
+    public float DampingCoeff { get; set; } = 0.0001f;
 
     public float Nu { get; set; } = 0.1f;
     public float Alfa { get; set; } = 0.5f;

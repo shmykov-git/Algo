@@ -6,20 +6,24 @@ public delegate float NFunc(float x);
 
 public static class NFuncs
 {
-    public static NFunc GetDampingFn(float c) => x => c * x;
-
-    public static NFunc GetSigmoidFn(float alfa) => x => 
+    public static NFunc GetDampingFn(float c)
     {
-        var y = 1 / (1 + MathF.Exp(-2 * alfa * x));
+        if (c > 0)
+        {
+            var a = (1 - c);
 
-        //if (y < 0.001f)
-        //    return 0.001f;
+            return x => a * x;
+        }
 
-        //if (y > 0.999f)
-        //    return 0.999f;
+        return x => x;
+    }
 
-        return y;
-    };
+    public static NFunc GetSigmoidFn(float alfa)
+    {
+        var a = -2 * alfa;
+
+        return x => 1 / (1 + MathF.Exp(a * x));
+    }
 
     public static NFunc GetBaseWeight(float a, float b) => x => a * x + b;
 }

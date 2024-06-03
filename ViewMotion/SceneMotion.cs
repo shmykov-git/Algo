@@ -55,12 +55,15 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var m = 0.3f;
+        var m = 0.1f;
+        var external = 10f;
+
+        // положить куб в куб
 
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
 
-        //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(0.25, 0.25, 0.125));
-        var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(0.25, 0.25, 0.125));
+        var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(0.25, 0.25, 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(0.25, 0.25, 0.125));
 
         //return (new Shape()
         //{
@@ -76,15 +79,16 @@ partial class SceneMotion
         var o = new NOptions()
         {
             Seed = 1,
-            Shaffle = 0.01f,
+            ShaffleFactor = 0.01f,
             CleanupPrevTrain = false,
             NInput = 2,
-            NHidden = (11, 1),
+            NHidden = (31, 1),
             NOutput = 1,
-            Weight0 = (4f, -2f),
+            Weight0 = (0.01f, -0.005f),
             Alfa = 0.5f,
             Nu = 0.1f,
-            ScaleFactor = 1f,
+            DampingCoeff = 0,
+            PowerFactor = 100f,
             FillFactor = 0.6f,
             LinkFactor = 0.4f
         }.With(o => o.Training = training);
@@ -95,8 +99,7 @@ partial class SceneMotion
         NModel model = brain.model.Clone();
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Length}->{model.output.Length})");
 
-        //var topology = model.GetTopology().ToShape3().Perfecto(100);
-        //return (topology.ToPoints(Color.Red, 10) + topology.ToDirectLines(10, Color.Blue)).ToMotion();
+        //return model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue).ToMotion();
 
         Vector3 ModelFn(double xx, double yy)
         {
@@ -116,7 +119,7 @@ partial class SceneMotion
         {
             new Shape()
             {
-                Points3 = (30, 30).SelectInterval(-6, 6, -6, 6, ModelFn).ToArray(),
+                Points3 = (30, 30).SelectInterval(-2*external, 2*external, -2*external, 2*external, ModelFn).ToArray(),
                 Convexes = Convexes.SquaresBoth(30, 30)
             }.Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(Color.Red, 0.7),
             new Shape()

@@ -26,7 +26,7 @@ public class NBrain
     {
         rnd = new Random(options.Seed);
         var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
-        model = new NModel();
+        model = new NModel(options);
 
         //NGroup CreateGroup(int i) => new NGroup()
         //{
@@ -36,8 +36,8 @@ public class NBrain
 
         N CreateN() => new N()
         {
-            //dampingFn = NFuncs.GetDampingFn(1 - options.DampingCoeff),
-            sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa * options.ScaleFactor),
+            dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
+            sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa),
             //g = groups[0]
         };
 
@@ -85,8 +85,8 @@ public class NBrain
     {
         var data = options.Training.ToArray();
 
-        if (options.Shaffle > 0)
-            data.Shaffle((int)(options.Shaffle * (3 * data.Length + 7)), rnd);
+        if (options.ShaffleFactor > 0)
+            data.Shaffle((int)(options.ShaffleFactor * (3 * data.Length + 7)), rnd);
 
         if (options.CleanupPrevTrain)
             model.es.ForEach(e => e.dw = 0);
@@ -106,22 +106,14 @@ public class NBrain
 
         model.ComputeOutputs(tInput);
 
-        float X(float x)
-        {
-            //if (model.trainError > 0.04)
-            //    return x.Sgn() * (x.Abs() + 0.001f);
-            //else
-                return x;
-        }
-
         model.output.ForEach((n, k) =>
         {
-            n.delta = -X(n.x) * X(1 - n.x) * (tExpected[k] - n.x);
+            n.delta = -n.x * (1 - n.x) * (tExpected[k] - n.x);
         });
 
         model.nns.Reverse().Skip(1).ForEach(ns => ns.ForEach(n =>
         {
-            n.delta = X(n.x) * X(1 - n.x) * n.es.Sum(e => e.b.delta * e.w);
+            n.delta = n.x * (1 - n.x) * n.es.Sum(e => e.b.delta * e.w);
 
             n.es.ForEach(e =>
             {
