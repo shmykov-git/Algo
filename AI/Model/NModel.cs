@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using AI.Exceptions;
+using Model;
 using Model.Extensions;
 
 namespace AI.Model;
@@ -8,13 +9,18 @@ public class NModel
 {
     public float error;
     public float trainError;
+    public (float, float) avgX;
+    public float speed;
+    public float trainDeviation;
+
     public N[][] nns;
+    public IEnumerable<N> ns => nns.SelectMany(ns => ns);
     public N[] input => nns[0];
     public N[] output => nns[^1];
 
     public IEnumerable<E> es => nns.SelectMany(ns => ns.SelectMany(n => n.es));
 
-    public NModel Clone() 
+    public NModel Clone()
     {
         N CloneN(N n) => new N() { sigmoidFn = n.sigmoidFn };
 
@@ -33,6 +39,33 @@ public class NModel
             nns = newNns,
             error = error,
             trainError = trainError,
+            avgX = avgX,
+            speed = speed
+        };
+    }
+
+    public Shape2 GetTopology()
+    {
+        var maxCount = nns.Max(ns => ns.Length);
+
+        double GetY(int count, int i)
+        {
+            return maxCount - 0.5 * (maxCount - count) - i * (maxCount * 1.0 / (count + 1));
+        }
+
+        double GetX(int lv)
+        {
+            return lv * maxCount;
+        }
+
+        var ns = nns.SelectMany(ns => ns).ToList();
+        var convexes = es.Select(e => new int[] { ns.IndexOf(e.a), ns.IndexOf(e.b) }).ToArray();
+        var ps = nns.SelectMany((ns, lv) => ns.Select((n, i) => new Vector2(GetX(lv), GetY(ns.Length, i)))).ToArray();
+
+        return new Shape2()
+        {
+            Points = ps,
+            Convexes = convexes
         };
     }
 
@@ -60,6 +93,15 @@ public class NModel
             Debug.WriteLine(ns.Select(n => n.es.Any() ? $"{n}: ({n.es.SJoin(", ")})" : $"{n}").SJoin(", "));
         });
     }
+    public void ShowDebugE()
+    {
+        Debug.WriteLine($"=== avg={avgX} speed={speed} ===");
+
+        nns.ForEach(ns =>
+        {
+            Debug.WriteLine(ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", "));
+        });
+    }
 
     public void ComputeOutputs(float[] vInput)
     {
@@ -79,7 +121,13 @@ public class NModel
                 }
 
             // pass signals from a to b
-            es.ForEach(e => e.b.xx += e.w * e.a.x);
+            es.ForEach(e => e.b.xx += e.w * e.a.x /*/ e.a.es.Length*/);
         }
+
+        var v1 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x > 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x > 0.5)).Average() : -1;
+        var v2 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x < 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x < 0.5)).Average() : -1;
+
+        avgX = (v1, v2);
+        //Debug.Write($"{oneCount*100/count}|");
     }
 }
