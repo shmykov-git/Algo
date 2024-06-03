@@ -2,8 +2,8 @@
 
 public class E
 {
-    public float dw;
-    public float w;
+    public double dw;
+    public double w;
     public N a;
     public N b;
 

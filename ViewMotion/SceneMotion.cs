@@ -55,45 +55,49 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var m = 0.1f;
-        var external = 10f;
-
         // положить куб в куб
+        
+        var m = 0.5f;
+        //var external = 1.8f;
+        var trainN = 10;
+        (double from, double to) trainR = (-2, 2);
+        var modelN = 30;
+        (double from, double to) modelR = (-4, 4);
 
-        Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
+        var nEpoch = 500000;
+        var nEpochPart = 200;
 
-        var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(0.25, 0.25, 0.125));
-        //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(0.25, 0.25, 0.125));
-
-        //return (new Shape()
-        //{
-        //    Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, TrainFn).ToArray(),
-        //    Convexes = Convexes.SquaresBoth(10, 10)
-        //}.ToMeta() + Shapes.NativeCube.ToLines()).ToMotion();
-
-        var training = (10, 10)
-            .SelectInterval(-2, 2, -2, 2, (x, y) => TrainFn(x, y).ToFloat())
-            .Select(v => (new float[] { v.x, v.y }, new float[] { v.z }))
-            .ToArray();
-
-        var o = new NOptions()
+        var options = new NOptions()
         {
             Seed = 1,
-            ShaffleFactor = 0.01f,
-            CleanupPrevTrain = false,
             NInput = 2,
             NHidden = (31, 1),
             NOutput = 1,
-            Weight0 = (0.01f, -0.005f),
-            Alfa = 0.5f,
-            Nu = 0.1f,
-            DampingCoeff = 0,
-            PowerFactor = 100f,
-            FillFactor = 0.6f,
-            LinkFactor = 0.4f
-        }.With(o => o.Training = training);
+            Weight0 = (0.00001, -0.000005),
+            Nu = 0.1,
+            ShaffleFactor = 0.01,
+            PowerFactor = 100,
+            FillFactor = 0.6,
+            LinkFactor = 0.4
+        };
 
-        var brain = new NBrain(o);
+        Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
+
+        var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainRange.to - trainRange.from), 1 / (trainRange.to - trainRange.from), 0.125));
+
+        //return (new Shape()
+        //{
+        //    Points3 = (trainN, trainN).SelectInterval(trainR.from, trainR.to, trainR.from, trainR.to, TrainFn).ToArray(),
+        //    Convexes = Convexes.SquaresBoth(trainN, trainN)
+        //}.ToMeta() + Shapes.NativeCube.ToLines()).ToMotion();
+
+        var training = (trainN, trainN)
+            .SelectInterval(trainR.from, trainR.to, trainR.from, trainR.to, (x, y) => TrainFn(x, y))
+            .Select(v => (new double[] { v.x, v.y }, new double[] { v.z }))
+            .ToArray();
+
+        var brain = new NBrain(options.With(o => o.Training = training));
         brain.Init();
 
         NModel model = brain.model.Clone();
@@ -103,29 +107,27 @@ partial class SceneMotion
 
         Vector3 ModelFn(double xx, double yy)
         {
-            var x = (float)(m*xx + 2) * 0.25f;
-            var y = (float)(m*yy + 2) * 0.25f;
-            var res = model!.Predict([x, y]);
+            var x = (float)(m * xx - trainR.from) / (trainR.to - trainR.from);
+            var y = (float)(m * yy - trainR.from) / (trainR.to - trainR.from);
+            var z = model!.Predict([x, y])[0];
 
-            return new Vector3(x, y, res[0]);
-            //return new Vector3(4 * res[0] - 2, 4 * res[1] - 2, 4 * res[2] - 2);
+            return new Vector3(x, y, z);
         }
 
-        var nEpoch = 200000;
-        var part = 200;
-        var bestErr = float.MaxValue;
+
+        var bestErr = double.MaxValue;
 
         Shape GetShape() => new[]
         {
             new Shape()
             {
-                Points3 = (30, 30).SelectInterval(-2*external, 2*external, -2*external, 2*external, ModelFn).ToArray(),
-                Convexes = Convexes.SquaresBoth(30, 30)
+                Points3 = (modelN, modelN).SelectInterval(modelR.from, modelR.to, modelR.from, modelR.to, ModelFn).ToArray(),
+                Convexes = Convexes.Squares(modelN, modelN)
             }.Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(Color.Red, 0.7),
             new Shape()
             {
-                Points3 = (10, 10).SelectInterval(-2, 2, -2, 2, TrainFn).ToArray(),
-                Convexes = Convexes.SquaresBoth(10, 10)
+                Points3 = (trainN, trainN).SelectInterval(trainR.from, trainR.to, trainR.from, trainR.to, TrainFn).ToArray(),
+                Convexes = Convexes.Squares(trainN, trainN)
             }.Move(-0.5, -0.5, -0.5).Mult(2).ToLines(Color.Blue),
             Shapes.Cube.Mult(2).ToLines(Color.Black)
         }.ToSingleShape();
@@ -134,11 +136,11 @@ partial class SceneMotion
         {
             yield return GetShape();
 
-            for (var k = 0; k < nEpoch / part; k++)
+            for (var k = 0; k < nEpoch / nEpochPart; k++)
             {
-                var err = float.MaxValue;
+                var err = double.MaxValue;
 
-                (part).ForEach(_ =>
+                (nEpochPart).ForEach(_ =>
                 {
                     var newErr = brain.Train();
 

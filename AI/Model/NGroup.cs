@@ -2,5 +2,5 @@
 
 public class NGroup
 {
-    //public float threshold;
+    //public double threshold;
 }

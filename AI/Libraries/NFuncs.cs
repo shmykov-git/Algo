@@ -2,11 +2,11 @@
 
 namespace AI.Libraries;
 
-public delegate float NFunc(float x);
+public delegate double NFunc(double x);
 
 public static class NFuncs
 {
-    public static NFunc GetDampingFn(float c)
+    public static NFunc GetDampingFn(double c)
     {
         if (c > 0)
         {
@@ -18,12 +18,12 @@ public static class NFuncs
         return x => x;
     }
 
-    public static NFunc GetSigmoidFn(float alfa)
+    public static NFunc GetSigmoidFn(double alfa)
     {
         var a = -2 * alfa;
 
-        return x => 1 / (1 + MathF.Exp(a * x));
+        return x => 1 / (1 + Math.Exp(a * x));
     }
 
-    public static NFunc GetBaseWeight(float a, float b) => x => a * x + b;
+    public static NFunc GetBaseWeight(double a, double b) => x => a * x + b;
 }

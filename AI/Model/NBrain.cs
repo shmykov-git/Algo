@@ -10,8 +10,8 @@ public class NBrain
     private readonly NOptions options;
     private Random rnd;
     private NGroup[] groups;
-    private float alfa;
-    private float nu;
+    private double alfa;
+    private double nu;
     
     public NModel model;
 
@@ -81,7 +81,7 @@ public class NBrain
         });
     }
 
-    public float Train()
+    public double Train()
     {
         var data = options.Training.ToArray();
 
@@ -98,8 +98,8 @@ public class NBrain
         return avgErr;
     }
 
-    float[] prev = null;
-    private float TrainCase(float[] tInput, float[] tExpected)
+    double[] prev = null;
+    private double TrainCase(double[] tInput, double[] tExpected)
     {
         if (tExpected.Length != options.NOutput)
             throw new InvalidExpectedDataException();

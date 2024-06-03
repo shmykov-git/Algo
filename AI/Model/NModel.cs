@@ -7,11 +7,11 @@ namespace AI.Model;
 
 public class NModel
 {
-    public float error;
-    public float trainError;
-    public (float, float) avgX;
-    public float speed;
-    public float trainDeviation;
+    public double error;
+    public double trainError;
+    public (double, double) avgX;
+    public double speed;
+    public double trainDeviation;
 
     public N[][] nns;
     private readonly NOptions options;
@@ -80,7 +80,7 @@ public class NModel
         };
     }
 
-    public void SetInput(float[] vInput)
+    public void SetInput(double[] vInput)
     {
         if (vInput.Length != input.Length)
             throw new InvalidInputDataException();
@@ -88,7 +88,7 @@ public class NModel
         (input.Length).Range().ForEach(i => input[i].x = vInput[i]);
     }
 
-    public float[] Predict(float[] vInput)
+    public double[] Predict(double[] vInput)
     {        
         ComputeOutputs(vInput);
 
@@ -114,7 +114,7 @@ public class NModel
         });
     }
 
-    public void ComputeOutputs(float[] vInput)
+    public void ComputeOutputs(double[] vInput)
     {
         SetInput(vInput);
 

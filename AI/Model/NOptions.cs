@@ -3,19 +3,19 @@
 public class NOptions
 {
     public int Seed { get; set; } = 0;
-    public float ShaffleFactor { get; set; } = 0.1f;
+    public double ShaffleFactor { get; set; } = 0.1;
     public bool CleanupPrevTrain { get; set; } = false;
     public int NInput { get; set; } = 2;
     public (int n, int nLayers) NHidden { get; set; } = (5, 3);
     public int NOutput { get; set; } = 1;
-    public (float a, float b) Weight0 { get; set; } = (2f, -1f);
-    public float PowerFactor { get; set; } = 1f;
-    public float FillFactor { get; set; } = 0.5f;
-    public float LinkFactor { get; set; } = 0.5f;
-    public float DampingCoeff { get; set; } = 0.0001f;
+    public (double a, double b) Weight0 { get; set; } = (2, -1);
+    public double PowerFactor { get; set; } = 1;
+    public double FillFactor { get; set; } = 0.5;
+    public double LinkFactor { get; set; } = 0.5;
+    public double DampingCoeff { get; set; } = 0;
 
-    public float Nu { get; set; } = 0.1f;
-    public float Alfa { get; set; } = 0.5f;
+    public double Nu { get; set; } = 0.1;
+    public double Alfa { get; set; } = 0.5;
 
-    public (float[] input, float[] expected)[] Training { get; set; }
+    public (double[] input, double[] expected)[] Training { get; set; }
 }

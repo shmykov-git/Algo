@@ -4,9 +4,9 @@ namespace AI.Model;
 
 public class N
 {
-    public float xx;     // signals sum
-    public float x;     // signals result func
-    public float delta; // training changing value
+    public double xx;     // signals sum
+    public double x;     // signals result func
+    public double delta; // training changing value
 
     //public NGroup g;    // group
     public E[] es = [];    // forward links
