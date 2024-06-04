@@ -1,4 +1,5 @@
-﻿using AI.Exceptions;
+﻿using System.Linq;
+using AI.Exceptions;
 using AI.Libraries;
 using MathNet.Numerics.Random;
 using Model.Extensions;
@@ -52,12 +53,12 @@ public class NBrain
         bool IsFilled(int i) => rnd.NextSingle() < options.FillFactor;
 
         // brains
-        model.nns = new N[][][]
+        model.nns = new List<List<N>>[]
         {
-            [(options.NInput).Range(_=>CreateN()).ToArray()],
-            (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_=>CreateN()).ToArray()).ToArray(),
-            [(options.NOutput).Range(_=>CreateN()).ToArray()],
-        }.ToSingleArray();
+            [(options.NInput).Range(_=>CreateN()).ToList()],
+            (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_=>CreateN()).ToList()).ToList(),
+            [(options.NOutput).Range(_=>CreateN()).ToList()],
+        }.ToSingleList();
 
         bool IsLinked(N n) => rnd.NextSingle() < options.LinkFactor;
 
@@ -65,20 +66,41 @@ public class NBrain
         {
             p.aL.ForEach(a =>
             {
-                a.es = p.bL.Where(IsLinked).Select(b => CreateE(a, b)).ToArray();
+                a.es = p.bL.Where(IsLinked).Select(b => CreateE(a, b)).ToList();
 
-                if (a.es.Length == 0)
-                    a.es = [CreateE(a, p.bL[rnd.Next(p.bL.Length)])];
+                if (a.es.Count == 0)
+                    a.es = [CreateE(a, p.bL[rnd.Next(p.bL.Count)])];
             });
 
             p.bL.Where(b => !p.aL.Any(a => a.es.Any(e => e.b == b))).ToArray()
                 .ForEach(b =>
                 {
-                    var a = p.aL[rnd.Next(p.aL.Length)];
+                    var a = p.aL[rnd.Next(p.aL.Count)];
                     var e = CreateE(a, b);
-                    a.es = a.es.Concat([e]).ToArray();
+                    a.es = a.es.Concat([e]).ToList();
                 });
         });
+
+        if (options.DuplicatorsCount.HasValue)
+        {
+            model.RestoreIndices();
+
+            string GetNUniqueKey(N n) => model.GetBackEs(n).Select(e => e.a.i).OrderBy(i => i).SJoin("|") + "|_|" + n.es.Select(e=>e.b.i).OrderBy(i => i).SJoin("|");
+
+            var removeNs = model.ns
+                .GroupBy(GetNUniqueKey)
+                .Where(gn => gn.Count() > options.DuplicatorsCount.Value)
+                .SelectMany(gn => gn.Skip(options.DuplicatorsCount.Value))
+                .ToHashSet();
+
+            var removeEs = removeNs.SelectMany(n=>n.es.Concat(model.GetBackEs(n))).ToHashSet();
+
+            model.nns.Select((ns, i) => (ns, i))
+                .ToArray()
+                .ForEach(v => model.nns[v.i] = v.ns.Where(n => !removeNs.Contains(n)).ToList());
+
+            model.ns.ForEach(n => n.es = n.es.Where(e => !removeEs.Contains(e)).ToList());            
+        }
     }
 
     public double Train()
@@ -99,6 +121,10 @@ public class NBrain
     }
 
     double[] prev = null;
+    /// <summary>
+    /// Метод обратного распространения ошибки
+    /// https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%BE%D0%B3%D0%BE_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8
+    /// </summary>
     private double TrainCase(double[] tInput, double[] tExpected)
     {
         if (tExpected.Length != options.NOutput)
@@ -108,23 +134,23 @@ public class NBrain
 
         model.output.ForEach((n, k) =>
         {
-            n.delta = -n.x * (1 - n.x) * (tExpected[k] - n.x);
+            n.delta = -n.f * (1 - n.f) * (tExpected[k] - n.f);
         });
 
-        model.nns.Reverse().Skip(1).ForEach(ns => ns.ForEach(n =>
+        model.nns.ReverseList().Skip(1).ForEach(ns => ns.ForEach(n =>
         {
-            n.delta = n.x * (1 - n.x) * n.es.Sum(e => e.b.delta * e.w);
+            n.delta = n.f * (1 - n.f) * n.es.Sum(e => e.b.delta * e.w);
 
             n.es.ForEach(e =>
             {
-                e.dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.x;
+                e.dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
                 e.w -= e.dw;
             });
         }));
 
-        var output = model.output.Select(n => n.x).ToArray();
+        var output = model.output.Select(n => n.f).ToArray();
 
-        var err = 0.5f * model.output.Select((n, i) => (tExpected[i] - n.x).Pow2()).Sum();
+        var err = 0.5f * model.output.Select((n, i) => (tExpected[i] - n.f).Pow2()).Sum();
         model.error = err;
         model.speed = model.ns.Average(n=>n.delta.Abs());
 

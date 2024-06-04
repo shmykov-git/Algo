@@ -9,8 +9,9 @@ public class NOptions
     public (int n, int nLayers) NHidden { get; set; } = (5, 3);
     public int NOutput { get; set; } = 1;
     public (double a, double b) Weight0 { get; set; } = (2, -1);
+    public int? DuplicatorsCount { get; set; } = 2;
     public double PowerFactor { get; set; } = 1;
-    public double FillFactor { get; set; } = 0.5;
+    public double FillFactor { get; set; } = 1;
     public double LinkFactor { get; set; } = 0.5;
     public double DampingCoeff { get; set; } = 0;
 

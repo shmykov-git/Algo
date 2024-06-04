@@ -4,15 +4,16 @@ namespace AI.Model;
 
 public class N
 {
-    public double xx;     // signals sum
-    public double x;     // signals result func
-    public double delta; // training changing value
+    public int i;
+    public double xx;       // signals sum (input)
+    public double f;        // signals result func (output)
+    public double delta;    // training changing value
 
     //public NGroup g;    // group
-    public E[] es = [];    // forward links
+    public List<E> es = [];    // forward links
 
     public NFunc sigmoidFn;   // activator func
     public NFunc dampingFn;   // damping func
 
-    public override string ToString() => $"{x:F2}";
+    public override string ToString() => $"{i}:{f:F2}";
 }

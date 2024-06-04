@@ -357,6 +357,10 @@ namespace Model.Extensions
             manyItems.SelectMany(v => v).ToArray();
         public static TItem[] ToSingleArray<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
             manyItems.SelectMany(v => v).ToArray();
+        public static List<TItem> ToSingleList<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
+            manyItems.SelectMany(v => v).ToList();
+
+        public static IEnumerable<TItem> ReverseList<TItem>(this List<TItem> items) => ((IEnumerable<TItem>)items).Reverse();
 
         public static TOut[] SelectInParallel<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
         {

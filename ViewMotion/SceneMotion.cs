@@ -55,36 +55,39 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
+        // оптимизация сети DuplicateFactor = 2
         // положить куб в куб
         
-        var m = 0.5f;
+        var m = 0.8f;
         //var external = 1.8f;
         var trainN = 10;
         (double from, double to) trainR = (-2, 2);
         var modelN = 30;
-        (double from, double to) modelR = (-4, 4);
+        (double from, double to) modelR = (-2/m, 2/m);
 
         var nEpoch = 500000;
         var nEpochPart = 200;
 
         var options = new NOptions()
         {
-            Seed = 1,
+            Seed = 2,
             NInput = 2,
-            NHidden = (31, 1),
+            NHidden = (20, 1),
             NOutput = 1,
-            Weight0 = (0.00001, -0.000005),
-            Nu = 0.1,
+            DuplicatorsCount = 2,
+            Weight0 = (0.001, -0.0005),
             ShaffleFactor = 0.01,
-            PowerFactor = 100,
-            FillFactor = 0.6,
-            LinkFactor = 0.4
+            Nu = 0.1,
+            PowerFactor = 10,
+            //FillFactor = 0.5,
+            LinkFactor = 0.2,
         };
 
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
 
-        var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
-        //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainRange.to - trainRange.from), 1 / (trainRange.to - trainRange.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
 
         //return (new Shape()
         //{
@@ -101,9 +104,13 @@ partial class SceneMotion
         brain.Init();
 
         NModel model = brain.model.Clone();
-        Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Length}->{model.output.Length})");
+        Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
 
-        //return model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue).ToMotion();
+        Shape Topology() => 
+            model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.25) + 
+            model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue);
+
+        //return Topology().ToMotion();
 
         Vector3 ModelFn(double xx, double yy)
         {
@@ -134,11 +141,15 @@ partial class SceneMotion
 
         IEnumerable<Shape> Animate() 
         {
+            yield return Topology();
+
             yield return GetShape();
 
             for (var k = 0; k < nEpoch / nEpochPart; k++)
             {
                 var err = double.MaxValue;
+                var errChanged = false;
+                var bestErrChanged = false;
 
                 (nEpochPart).ForEach(_ =>
                 {
@@ -147,21 +158,26 @@ partial class SceneMotion
                     if (newErr < err)
                     {
                         err = newErr;
+                        errChanged = true;
                         model = brain.model.Clone();
-
-                        model.ShowDebugE();
 
                         if (err < bestErr)
                         {
                             bestErr = err;
-                            Debug.WriteLine($"bestErr: {err} [{k + 2}]");
-                        }
-                        else
-                        {
-                            Debug.WriteLine($"err: {err}");
+                            bestErrChanged = true;
                         }
                     }
                 });
+
+                if (errChanged)
+                {
+                    if (bestErrChanged)
+                        Debug.WriteLine($"bestErr: {err} [{k + 3}]");
+                    else
+                        Debug.WriteLine($"err: {err}");
+
+                    model.ShowDebugE();
+                }
 
                 yield return GetShape();
             }

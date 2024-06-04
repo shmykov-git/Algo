@@ -13,37 +13,46 @@ public class NModel
     public double speed;
     public double trainDeviation;
 
-    public N[][] nns;
+    public List<List<N>> nns;
     private readonly NOptions options;
 
     public IEnumerable<N> ns => nns.SelectMany(ns => ns);
-    public N[] input => nns[0];
-    public N[] output => nns[^1];
+    public List<N> input => nns[0];
+    public List<N> output => nns[^1];
 
     public IEnumerable<E> es => nns.SelectMany(ns => ns.SelectMany(n => n.es));
+    public IEnumerable<E> GetBackEs(N n) => es.Where(e => e.b == n);
 
     public NModel(NOptions options)
     {
         this.options = options;
     }
 
+    public void RestoreIndices() => ns.ForEach((n, i) => n.i = i);
+
     public NModel Clone()
     {
+        RestoreIndices();
+
         N CloneN(N n) => new N() 
         { 
+            i = n.i,
             sigmoidFn = n.sigmoidFn,
             dampingFn = n.dampingFn,
         };
 
-        var ns = nns.SelectMany(ns => ns).ToList();
-        var esLinks = es.Select(e => (e, i: ns.IndexOf(e.a), j: ns.IndexOf(e.b))).ToArray();
-        var newNs = ns.Select(CloneN).ToArray();
-        var k = 0;
-        var newNns = nns.Select(ns => ns.Select(n => newNs[k++]).ToArray()).ToArray();
+        var esLinks = es.Select(e => (e, e.a.i, j: e.b.i)).ToArray();
+        var newNns = nns.Select(ns => ns.Select(CloneN).ToList()).ToList();
+        var newNs = newNns.ToSingleArray();
 
-        E CloneE(E e, int i, int j) => new E() { w = e.w, a = newNs[i], b = newNs[j] };
+        E CloneE(E e) => new E() 
+        { 
+            w = e.w, 
+            a = newNs[e.a.i], 
+            b = newNs[e.b.i] 
+        };
 
-        esLinks.GroupBy(v => v.i).ForEach(gv => newNs[gv.Key].es = gv.Select(v => CloneE(v.e, v.i, v.j)).ToArray());
+        es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(CloneE).ToList());
 
         return new NModel(options)
         {
@@ -57,11 +66,13 @@ public class NModel
 
     public Shape2 GetTopology()
     {
-        var maxCount = nns.Max(ns => ns.Length);
+        RestoreIndices();
+
+        double maxCount = nns.Max(ns => ns.Count);
 
         double GetY(int count, int i)
         {
-            return maxCount - 0.5 * (maxCount - count) - i * (maxCount * 1.0 / (count + 1));
+            return maxCount - 0.5 * (maxCount - count) - i * (maxCount / (count + 1));
         }
 
         double GetX(int lv)
@@ -69,9 +80,8 @@ public class NModel
             return lv * maxCount;
         }
 
-        var ns = nns.SelectMany(ns => ns).ToList();
-        var convexes = es.Select(e => new int[] { ns.IndexOf(e.a), ns.IndexOf(e.b) }).ToArray();
-        var ps = nns.SelectMany((ns, lv) => ns.Select((n, i) => new Vector2(GetX(lv), GetY(ns.Length, i)))).ToArray();
+        var convexes = es.Select(e => new int[] { e.a.i, e.b.i }).ToArray();
+        var ps = nns.SelectMany((ns, lv) => ns.Select((n, i) => new Vector2(GetX(lv), GetY(ns.Count, i)))).ToArray();
 
         return new Shape2()
         {
@@ -82,17 +92,17 @@ public class NModel
 
     public void SetInput(double[] vInput)
     {
-        if (vInput.Length != input.Length)
+        if (vInput.Length != input.Count)
             throw new InvalidInputDataException();
 
-        (input.Length).Range().ForEach(i => input[i].x = vInput[i]);
+        (input.Count).Range().ForEach(i => input[i].f = vInput[i]);
     }
 
     public double[] Predict(double[] vInput)
     {        
         ComputeOutputs(vInput);
 
-        return output.Select(n => n.x).ToArray();
+        return output.Select(n => n.f).ToArray();
     }
 
     public void ShowDebug()
@@ -127,16 +137,16 @@ public class NModel
                 foreach (var n in ns)
                 {
                     // apply signals activator
-                    n.x = n.sigmoidFn(n.xx * options.PowerFactor);
-                    n.x = n.dampingFn(n.x);
+                    n.f = n.sigmoidFn(n.xx * options.PowerFactor);
+                    n.f = n.dampingFn(n.f);
                 }
 
             // pass signals from a to b
-            es.ForEach(e => e.b.xx += e.w * e.a.x /*/ e.a.es.Length*/);
+            es.ForEach(e => e.b.xx += e.w * e.a.f /*/ e.a.es.Length*/);
         }
 
-        var v1 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x > 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x > 0.5)).Average() : -1;
-        var v2 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x < 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.x).Where(x => x < 0.5)).Average() : -1;
+        var v1 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.f).Where(x => x > 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.f).Where(x => x > 0.5)).Average() : -1;
+        var v2 = nns.Skip(1).SelectMany(ns => ns.Select(n => n.f).Where(x => x < 0.5)).Any() ? nns.Skip(1).SelectMany(ns => ns.Select(n => n.f).Where(x => x < 0.5)).Average() : -1;
 
         avgX = (v1, v2);
         //Debug.Write($"{oneCount*100/count}|");

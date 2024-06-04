@@ -50,6 +50,7 @@ namespace Model3D.Libraries
 
         public static SurfaceFunc Paraboloid => (double u, double v) => new Vector3(u, v, u * u + v * v);
         public static SurfaceFunc Hyperboloid => (double u, double v) => new Vector3(u, v, u * u - v * v);
+        public static SurfaceFunc Wave(double t, double w) => (double u, double v) => new Vector3(u, v, Math.Sin((t + (u * u + v * v).Sqrt()) * w));
 
         public static SurfaceFunc NormalDistribution(double mu, double sigma, Model.Vector2? shift = null)
         {
