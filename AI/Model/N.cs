@@ -23,6 +23,7 @@ public class N
     // </compute>
 
     // <learn>
+    public double avgF;
     public double delta;    // training changing value
     public bool learned;    // pass throw ns while learn
     // </learn>

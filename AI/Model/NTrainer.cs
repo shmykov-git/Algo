@@ -37,8 +37,6 @@ public class NTrainer
 
         //groups = [CreateGroup(0)];
 
-
-
         bool IsFilled(int i) => rnd.NextDouble() < options.FillFactor;
 
         model.input = (options.NInput).Range(_ => model.CreateN()).ToArray();
@@ -75,11 +73,10 @@ public class NTrainer
 
         model.ns = nns.ToSingleList();
         model.RestoreBackEs();
+        model.RestoreIndices();
 
         if (options.DuplicatorsCount.HasValue)
         {
-            model.RestoreIndices();
-
             string GetNUniqueKey(N n) => n.backEs.Select(e => e.a.i).OrderBy(i => i).SJoin("|") + "|_|" + n.es.Select(e=>e.b.i).OrderBy(i => i).SJoin("|");
 
             var removeNs = model.ns
@@ -104,7 +101,12 @@ public class NTrainer
         if (options.CleanupTrainTails)
             CleanupTrainTails();
 
+        model.ns.ForEach(n => { n.avgF = 0; });
+
         var errs = data.Select(t => TrainCase(t.input, t.expected)).ToArray();
+        
+        model.ns.ForEach(n => { n.avgF /= data.Length; });
+
         var avgErr = errs.Average();
         model.trainError = avgErr;
 
@@ -144,7 +146,7 @@ public class NTrainer
         model.ComputeOutputs(tInput);
 
         // learn cleanup
-        model.ns.ForEach(n => n.learned = false);
+        model.ns.ForEach(n => { n.learned = false; });
 
         model.output.ForEach(LearnBackPropagationOutput);
         model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
@@ -157,7 +159,7 @@ public class NTrainer
             if (n.es.All(e => e.b.learned))
             {
                 LearnBackPropagation(n);
-                n.backEs.Select(e => e.a).Distinct().ForEach(learnQueue.Enqueue);
+                n.backEs.Select(e => e.a).ForEach(learnQueue.Enqueue);
             }
             else
                 learnQueue.Enqueue(n);

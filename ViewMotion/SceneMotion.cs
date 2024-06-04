@@ -58,7 +58,7 @@ partial class SceneMotion
         // оптимизация сети DuplicateFactor = 2
         // положить куб в куб
         
-        var m = 0.8f;
+        var m = 0.9f;
         //var external = 1.8f;
         var trainN = 10;
         (double from, double to) trainR = (-2, 2);
@@ -74,20 +74,20 @@ partial class SceneMotion
             NInput = 2,
             NHidden = (20, 1),
             NOutput = 1,
-            DuplicatorsCount = 2,
+            DuplicatorsCount = 3,
             Weight0 = (0.001, -0.0005),
             ShaffleFactor = 0.01,
             Nu = 0.1,
-            PowerFactor = 10,
+            PowerFactor = 100,
             //FillFactor = 0.5,
-            LinkFactor = 0.2,
+            LinkFactor = 0.4,
         };
 
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
 
-        //var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.25));
         //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
-        var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
 
         //return (new Shape()
         //{
@@ -103,12 +103,45 @@ partial class SceneMotion
         var trainer = new NTrainer(options.With(o => o.Training = training));
         trainer.Init();
 
+
+        void SpliteN(int k)
+        {
+            //trainer.CleanupTrainTails();
+            trainer.model.HorizontalSplit(trainer.model.ns[k]);
+        }
+
+        void AddE(int i, int j)
+        {
+            trainer.model.AddE(trainer.model.ns[i], trainer.model.ns[j]);
+        }
+
+        (int time, Action modify)[] plan =
+        [
+            (10, () => SpliteN(2)),
+            (10, () => SpliteN(4)),
+            (10, () => SpliteN(6)),
+            (10, () => SpliteN(8)),
+            (10, () => SpliteN(10)),
+            (20, () => SpliteN(12)),
+            (20, () => SpliteN(14)),
+            (20, () => SpliteN(16)),
+            (20, () => SpliteN(18)),
+            (30, () => AddE(4, 3)),
+            (30, () => AddE(4, 7)),
+            (30, () => AddE(6, 3)),
+            (30, () => AddE(10, 20)),
+            (30, () => AddE(12, 19)),
+            (30, () => AddE(14, 7)),
+            (30, () => AddE(18, 11)),
+            (250, () => AddE(8, 5)),
+        ];
+
+        Shape GetTopologyShape() =>
+            trainer.model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.5) +
+            trainer.model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue);
+
         NModel model = trainer.model.Clone();
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Length}->{model.output.Length})");
-
-        Shape Topology() => 
-            model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.25) + 
-            model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue);
 
         //return Topology().ToMotion();
 
@@ -139,9 +172,13 @@ partial class SceneMotion
             Shapes.Cube.Mult(2).ToLines(Color.Black)
         }.ToSingleShape();
 
+        var planI = 0;
+        var planCount = 0;
+        var planStartI = 50;
+
         IEnumerable<Shape> Animate() 
         {
-            yield return Topology();
+            yield return GetTopologyShape();
 
             yield return GetShape();
 
@@ -150,6 +187,30 @@ partial class SceneMotion
                 var err = double.MaxValue;
                 var errChanged = false;
                 var bestErrChanged = false;
+
+                if (planStartI < k+3)
+                {
+                    if (planI < plan.Length)
+                    {
+                        if (planCount == 0)
+                        {
+                            plan[planI].modify();
+                        }
+
+                        planCount++;
+
+                        if (planCount == plan[planI].time)
+                        {
+                            planCount = 0;
+                            planI++;
+                        }
+                    }
+                    else if (planI == plan.Length)
+                    {
+                        yield return GetTopologyShape();
+                        break;
+                    }
+                }
 
                 (nEpochPart).ForEach(_ =>
                 {
@@ -181,6 +242,9 @@ partial class SceneMotion
 
                 yield return GetShape();
             }
+
+            if (planI == plan.Length)
+                yield break;
         }
 
         return Animate().ToMotion(3);

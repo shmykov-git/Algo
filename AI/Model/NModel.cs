@@ -28,17 +28,6 @@ public class NModel
         this.options = options;
     }
 
-    public void RestoreIndices() => ns.ForEach((n, i) => n.i = i);
-    public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
-    public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
-
-    public void RemoveN(N n) 
-    {
-        n.backEs.ForEach(e => e.a.es.Remove(e));
-        ns.Remove(n);
-        n.es.ForEach(e => RestoreBackEs(e.b));
-    }
-
     public N CreateN() => new N()
     {
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
@@ -54,15 +43,39 @@ public class NModel
         b = b,
     };
 
+    public void RestoreIndices() => ns.ForEach((n, i) => n.i = i);
+    public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
+    public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
+
+    public void RemoveN(N n) 
+    {
+        n.backEs.ForEach(e => e.a.es.Remove(e));
+        ns.Remove(n);
+        n.es.ForEach(e => RestoreBackEs(e.b));
+        RestoreIndices();
+    }
+
     public void HorizontalSplit(N n)
     {
-        var w = -Math.Log((1 - n.f) / n.f) / (2 * options.Alfa);
+        var w = -Math.Log((1 - n.avgF) / n.avgF) / (2 * options.Alfa * n.avgF * options.PowerFactor);
 
         var clone = CloneN(n);
         n.es.ForEach(e => e.a = clone);
         var e = CreateE(n, clone, w);
 
         (clone.es, n.es) = (n.es, [e]);
+        ns.Insert(n.i + 1, clone);
+        
+        RestoreBackEs(clone);
+        RestoreIndices();
+    }
+
+    public void AddE(N a, N b)
+    {
+        var w = a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
+        var e = CreateE(a, b, w);
+        a.es.Add(e);
+        RestoreBackEs(b);
     }
 
     private N CloneN(N n) => new N()
@@ -76,8 +89,6 @@ public class NModel
 
     public NModel Clone()
     {
-        RestoreIndices();
-
         var newNs = ns.Select(CloneN).ToList();
 
         E CloneE(E e) => new E() 
@@ -122,12 +133,11 @@ public class NModel
 
     public Shape2 GetTopology()
     {
-        RestoreIndices();
-
         var lvs = GetLevels();
         int GetLvCount(int lv) => ns.Count(n => lvs[n.i] == lv);
 
-        double maxCount = lvs.Max(GetLvCount);
+        double maxY = lvs.Max(GetLvCount);
+        int maxLv = lvs.Max();
 
         double GetY(N n)
         {
@@ -135,12 +145,12 @@ public class NModel
             var count = GetLvCount(lv);
             var i = ns.Where(nn => lvs[nn.i] == lv).TakeWhile(nn => nn != n).Count();
 
-            return maxCount - 0.5 * (maxCount - count) - i * (maxCount / (count + 1));
+            return maxLv * (maxY - 0.5 * (maxY - count) - i * (maxY / (count + 1)));
         }
 
         double GetX(N n)
         {
-            return lvs[n.i] * maxCount;
+            return lvs[n.i] * maxY;
         }
 
         var convexes = es.Select(e => new int[] { e.a.i, e.b.i }).ToArray();
@@ -173,7 +183,7 @@ public class NModel
         Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
 
         var lvs = GetLevels();
-        lvs.ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
+        lvs.Distinct().OrderBy(v => v).ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
         {
             Debug.WriteLine($"{lv}| {ns.Select(n => n.es.Any() ? $"{n.f:F5} ({n.es.SJoin(", ")})" : $"{n.f:F5}").SJoin(", ")}");
         }));
@@ -184,13 +194,29 @@ public class NModel
         Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
 
         var lvs = GetLevels();
-        lvs.ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
+        lvs.Distinct().OrderBy(v=>v).ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
         {
             Debug.WriteLine($"{lv}| {ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", ")}");
         }));
     }
 
     private Queue<N> computeQueue = new();
+
+    private void ComputeN(N n)
+    {
+        if (!n.isInput)
+        {
+            // compute output (f) from input (xx)
+            n.f = n.sigmoidFn(n.xx * options.PowerFactor);
+            n.f = n.dampingFn(n.f);
+            n.avgF += n.f;
+        }
+
+        // pass signal from output a to input b
+        n.es.ForEach(e => e.b.xx += e.w * n.f);
+
+        n.computed = true;
+    }
 
     public void ComputeOutputs(double[] vInput)
     {
@@ -208,19 +234,9 @@ public class NModel
 
             if (n.isInput || n.backEs.All(e => e.a.computed))
             {
-                if (!n.isInput)
-                {
-                    // apply signals activator
-                    n.f = n.sigmoidFn(n.xx * options.PowerFactor);
-                    n.f = n.dampingFn(n.f);
-                }
+                ComputeN(n);
 
-                n.computed = true;
-
-                // pass signal from a to b
-                n.es.ForEach(e => e.b.xx += e.w * n.f);
-
-                // compute b
+                // pass to compute b
                 n.es.ForEach(e => computeQueue.Enqueue(e.b));
             }
             else
