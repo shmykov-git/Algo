@@ -4,7 +4,7 @@ public class NOptions
 {
     public int Seed { get; set; } = 0;
     public double ShaffleFactor { get; set; } = 0.1;
-    public bool CleanupPrevTrain { get; set; } = false;
+    public bool CleanupTrainTails { get; set; } = false;
     public int NInput { get; set; } = 2;
     public (int n, int nLayers) NHidden { get; set; } = (5, 3);
     public int NOutput { get; set; } = 1;

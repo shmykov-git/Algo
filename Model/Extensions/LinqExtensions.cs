@@ -359,6 +359,8 @@ namespace Model.Extensions
             manyItems.SelectMany(v => v).ToArray();
         public static List<TItem> ToSingleList<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
             manyItems.SelectMany(v => v).ToList();
+        public static List<TItem> ToVerySingleList<TItem>(this IEnumerable<IEnumerable<IEnumerable<TItem>>> manyItems) =>
+            manyItems.SelectMany(v => v).SelectMany(v => v).ToList();
 
         public static IEnumerable<TItem> ReverseList<TItem>(this List<TItem> items) => ((IEnumerable<TItem>)items).Reverse();
 

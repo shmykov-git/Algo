@@ -52,40 +52,46 @@ public class NTrainer
 
         bool IsFilled(int i) => rnd.NextSingle() < options.FillFactor;
 
-        // brains
-        model.nns = new List<List<N>>[]
+        model.input = (options.NInput).Range(_ => CreateN()).ToArray();
+        var hidden = (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_ => CreateN()).ToArray()).ToArray();
+        model.output = (options.NOutput).Range(_ => CreateN()).ToArray();
+
+        var nns = new N[][][]
         {
-            [(options.NInput).Range(_=>CreateN()).ToList()],
-            (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_=>CreateN()).ToList()).ToList(),
-            [(options.NOutput).Range(_=>CreateN()).ToList()],
-        }.ToSingleList();
+            [model.input],
+            hidden,
+            [model.output],
+        }.ToSingleArray();
 
         bool IsLinked(N n) => rnd.NextSingle() < options.LinkFactor;
 
-        model.nns.SelectPair((aL, bL) => (aL, bL)).ForEach((p, lv) =>
+        nns.SelectPair((aL, bL) => (aL, bL)).ForEach((p, lv) =>
         {
             p.aL.ForEach(a =>
             {
                 a.es = p.bL.Where(IsLinked).Select(b => CreateE(a, b)).ToList();
 
                 if (a.es.Count == 0)
-                    a.es = [CreateE(a, p.bL[rnd.Next(p.bL.Count)])];
+                    a.es = [CreateE(a, p.bL[rnd.Next(p.bL.Length)])];
             });
 
             p.bL.Where(b => !p.aL.Any(a => a.es.Any(e => e.b == b))).ToArray()
                 .ForEach(b =>
                 {
-                    var a = p.aL[rnd.Next(p.aL.Count)];
+                    var a = p.aL[rnd.Next(p.aL.Length)];
                     var e = CreateE(a, b);
                     a.es = a.es.Concat([e]).ToList();
                 });
         });
 
+        model.ns = nns.ToSingleList();
+        model.RestoreBackEs();
+
         if (options.DuplicatorsCount.HasValue)
         {
             model.RestoreIndices();
 
-            string GetNUniqueKey(N n) => model.GetBackEs(n).Select(e => e.a.i).OrderBy(i => i).SJoin("|") + "|_|" + n.es.Select(e=>e.b.i).OrderBy(i => i).SJoin("|");
+            string GetNUniqueKey(N n) => n.backEs.Select(e => e.a.i).OrderBy(i => i).SJoin("|") + "|_|" + n.es.Select(e=>e.b.i).OrderBy(i => i).SJoin("|");
 
             var removeNs = model.ns
                 .GroupBy(GetNUniqueKey)
@@ -93,17 +99,11 @@ public class NTrainer
                 .SelectMany(gn => gn.Skip(options.DuplicatorsCount.Value))
                 .ToHashSet();
 
-            var removeEs = removeNs.SelectMany(n=>n.es.Concat(model.GetBackEs(n))).ToHashSet();
-
-            model.nns.Select((ns, i) => (ns, i))
-                .ToArray()
-                .ForEach(v => model.nns[v.i] = v.ns.Where(n => !removeNs.Contains(n)).ToList());
-
-            model.ns.ForEach(n => n.es = n.es.Where(e => !removeEs.Contains(e)).ToList());            
+            model.ns.Where(removeNs.Contains).ToArray().ForEach(model.RemoveN);
         }
-
-        model.RestoreBackEs();
     }
+
+    public void CleanupTrainTails() => model.es.ForEach(e => e.dw = 0);
 
     public double Train()
     {
@@ -112,8 +112,8 @@ public class NTrainer
         if (options.ShaffleFactor > 0)
             data.Shaffle((int)(options.ShaffleFactor * (3 * data.Length + 7)), rnd);
 
-        if (options.CleanupPrevTrain)
-            model.es.ForEach(e => e.dw = 0);
+        if (options.CleanupTrainTails)
+            CleanupTrainTails();
 
         var errs = data.Select(t => TrainCase(t.input, t.expected)).ToArray();
         var avgErr = errs.Average();
@@ -154,7 +154,9 @@ public class NTrainer
 
         model.ComputeOutputs(tInput);
 
+        // learn cleanup
         model.ns.ForEach(n => n.learned = false);
+
         model.output.ForEach(LearnBackPropagationOutput);
         model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
 

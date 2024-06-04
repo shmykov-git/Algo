@@ -16,7 +16,11 @@ public class N
     public NFunc sigmoidFn;   // activator func
     public NFunc dampingFn;   // damping func
 
+    public bool isInput => backEs.Length == 0;
+    public bool isOutput => es.Count == 0;
+
     public bool learned;
+    public bool computed;
 
     public override string ToString() => $"{i}:{f:F2}";
 }

@@ -104,7 +104,7 @@ partial class SceneMotion
         trainer.Init();
 
         NModel model = trainer.model.Clone();
-        Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
+        Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Length}->{model.output.Length})");
 
         Shape Topology() => 
             model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.25) + 
