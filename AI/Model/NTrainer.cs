@@ -6,7 +6,7 @@ using Model.Extensions;
 
 namespace AI.Model;
 
-public class NBrain
+public class NTrainer
 {
     private readonly NOptions options;
     private Random rnd;
@@ -16,7 +16,7 @@ public class NBrain
     
     public NModel model;
 
-    public NBrain(NOptions options)
+    public NTrainer(NOptions options)
     {
         this.options = options;
         this.alfa = options.Alfa;
@@ -101,6 +101,8 @@ public class NBrain
 
             model.ns.ForEach(n => n.es = n.es.Where(e => !removeEs.Contains(e)).ToList());            
         }
+
+        model.RestoreBackEs();
     }
 
     public double Train()
@@ -120,7 +122,8 @@ public class NBrain
         return avgErr;
     }
 
-    double[] prev = null;
+    private Queue<N> learnQueue = new();
+
     /// <summary>
     /// Метод обратного распространения ошибки
     /// https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%BE%D0%B3%D0%BE_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8
@@ -130,14 +133,13 @@ public class NBrain
         if (tExpected.Length != options.NOutput)
             throw new InvalidExpectedDataException();
 
-        model.ComputeOutputs(tInput);
-
-        model.output.ForEach((n, k) =>
+        void LearnBackPropagationOutput(N n, int k)
         {
             n.delta = -n.f * (1 - n.f) * (tExpected[k] - n.f);
-        });
+            n.learned = true;
+        }
 
-        model.nns.ReverseList().Skip(1).ForEach(ns => ns.ForEach(n =>
+        void LearnBackPropagation(N n)
         {
             n.delta = n.f * (1 - n.f) * n.es.Sum(e => e.b.delta * e.w);
 
@@ -146,18 +148,33 @@ public class NBrain
                 e.dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
                 e.w -= e.dw;
             });
-        }));
 
-        var output = model.output.Select(n => n.f).ToArray();
+            n.learned = true;
+        }
+
+        model.ComputeOutputs(tInput);
+
+        model.ns.ForEach(n => n.learned = false);
+        model.output.ForEach(LearnBackPropagationOutput);
+        model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
+
+        while (learnQueue.TryDequeue(out var n))
+        {
+            if (n.learned)
+                continue;
+
+            if (n.es.All(e => e.b.learned))
+            {
+                LearnBackPropagation(n);
+                n.backEs.Select(e => e.a).Distinct().ForEach(learnQueue.Enqueue);
+            }
+            else
+                learnQueue.Enqueue(n);
+        }
 
         var err = 0.5f * model.output.Select((n, i) => (tExpected[i] - n.f).Pow2()).Sum();
         model.error = err;
-        model.speed = model.ns.Average(n=>n.delta.Abs());
-
-        if (prev != null)
-            model.trainDeviation = output.Select((v, i) => (prev[i] - v).Pow2()).Sum();
-
-        prev = output;
+        model.avgDelta = model.ns.Average(n=>n.delta.Abs());
 
         return err;
     }

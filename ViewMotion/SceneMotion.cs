@@ -100,10 +100,10 @@ partial class SceneMotion
             .Select(v => (new double[] { v.x, v.y }, new double[] { v.z }))
             .ToArray();
 
-        var brain = new NBrain(options.With(o => o.Training = training));
-        brain.Init();
+        var trainer = new NTrainer(options.With(o => o.Training = training));
+        trainer.Init();
 
-        NModel model = brain.model.Clone();
+        NModel model = trainer.model.Clone();
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
 
         Shape Topology() => 
@@ -153,13 +153,13 @@ partial class SceneMotion
 
                 (nEpochPart).ForEach(_ =>
                 {
-                    var newErr = brain.Train();
+                    var newErr = trainer.Train();
 
                     if (newErr < err)
                     {
                         err = newErr;
                         errChanged = true;
-                        model = brain.model.Clone();
+                        model = trainer.model.Clone();
 
                         if (err < bestErr)
                         {

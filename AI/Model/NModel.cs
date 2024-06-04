@@ -10,8 +10,7 @@ public class NModel
     public double error;
     public double trainError;
     public (double, double) avgX;
-    public double speed;
-    public double trainDeviation;
+    public double avgDelta;
 
     public List<List<N>> nns;
     private readonly NOptions options;
@@ -29,6 +28,8 @@ public class NModel
     }
 
     public void RestoreIndices() => ns.ForEach((n, i) => n.i = i);
+    public void RestoreBackEs() => ns.ForEach(n => n.backEs = GetBackEs(n).ToArray());
+
 
     public NModel Clone()
     {
@@ -60,7 +61,7 @@ public class NModel
             error = error,
             trainError = trainError,
             avgX = avgX,
-            speed = speed
+            avgDelta = avgDelta
         };
     }
 
@@ -107,20 +108,21 @@ public class NModel
 
     public void ShowDebug()
     {
-        Debug.WriteLine($"===");
+        Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
 
-        nns.ForEach(ns =>
+        nns.ForEach((ns, lv) =>
         {
-            Debug.WriteLine(ns.Select(n => n.es.Any() ? $"{n}: ({n.es.SJoin(", ")})" : $"{n}").SJoin(", "));
+            Debug.WriteLine($"{lv}| {ns.Select(n => n.es.Any() ? $"{n.f:F5} ({n.es.SJoin(", ")})" : $"{n.f:F5}").SJoin(", ")}");
         });
     }
+
     public void ShowDebugE()
     {
-        Debug.WriteLine($"=== avg={avgX} speed={speed} ===");
+        Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
 
-        nns.ForEach(ns =>
-        {
-            Debug.WriteLine(ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", "));
+        nns.SkipLast(1).ForEach((ns, lv) =>
+        {            
+            Debug.WriteLine($"{lv}| {ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", ")}");
         });
     }
 

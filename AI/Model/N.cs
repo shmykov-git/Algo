@@ -11,9 +11,12 @@ public class N
 
     //public NGroup g;    // group
     public List<E> es = [];    // forward links
+    public E[] backEs = [];    // back links
 
     public NFunc sigmoidFn;   // activator func
     public NFunc dampingFn;   // damping func
+
+    public bool learned;
 
     public override string ToString() => $"{i}:{f:F2}";
 }
