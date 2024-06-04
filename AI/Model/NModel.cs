@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using AI.Exceptions;
+using AI.Libraries;
 using Model;
 using Model.Extensions;
 using Model.Graphs;
@@ -38,16 +39,44 @@ public class NModel
         n.es.ForEach(e => RestoreBackEs(e.b));
     }
 
+    public N CreateN() => new N()
+    {
+        dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
+        sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa),
+        //g = groups[0]
+    };
+
+    public E CreateE(N a, N b, double w) => new E
+    {
+        dw = 0,
+        w = w,
+        a = a,
+        b = b,
+    };
+
+    public void HorizontalSplit(N n)
+    {
+        var w = -Math.Log((1 - n.f) / n.f) / (2 * options.Alfa);
+
+        var clone = CloneN(n);
+        n.es.ForEach(e => e.a = clone);
+        var e = CreateE(n, clone, w);
+
+        (clone.es, n.es) = (n.es, [e]);
+    }
+
+    private N CloneN(N n) => new N()
+    {
+        i = n.i,   
+        f = n.f,
+        delta = n.delta,
+        sigmoidFn = n.sigmoidFn,
+        dampingFn = n.dampingFn,
+    };
+
     public NModel Clone()
     {
         RestoreIndices();
-
-        N CloneN(N n) => new N() 
-        { 
-            i = n.i,
-            sigmoidFn = n.sigmoidFn,
-            dampingFn = n.dampingFn,
-        };
 
         var newNs = ns.Select(CloneN).ToList();
 

@@ -23,6 +23,8 @@ public class NTrainer
         this.nu = options.Nu;
     }
 
+
+
     public void Init()
     {
         rnd = new Random(options.Seed);
@@ -35,26 +37,13 @@ public class NTrainer
 
         //groups = [CreateGroup(0)];
 
-        N CreateN() => new N()
-        {
-            dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
-            sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa),
-            //g = groups[0]
-        };
 
-        E CreateE(N a, N b) => new E
-        {
-            dw = 0,
-            w = getBaseWeightFn(rnd.NextSingle()),
-            a = a,
-            b = b,
-        };
 
-        bool IsFilled(int i) => rnd.NextSingle() < options.FillFactor;
+        bool IsFilled(int i) => rnd.NextDouble() < options.FillFactor;
 
-        model.input = (options.NInput).Range(_ => CreateN()).ToArray();
-        var hidden = (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_ => CreateN()).ToArray()).ToArray();
-        model.output = (options.NOutput).Range(_ => CreateN()).ToArray();
+        model.input = (options.NInput).Range(_ => model.CreateN()).ToArray();
+        var hidden = (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_ => model.CreateN()).ToArray()).ToArray();
+        model.output = (options.NOutput).Range(_ => model.CreateN()).ToArray();
 
         var nns = new N[][][]
         {
@@ -63,23 +52,23 @@ public class NTrainer
             [model.output],
         }.ToSingleArray();
 
-        bool IsLinked(N n) => rnd.NextSingle() < options.LinkFactor;
+        bool IsLinked(N n) => rnd.NextDouble() < options.LinkFactor;
 
         nns.SelectPair((aL, bL) => (aL, bL)).ForEach((p, lv) =>
         {
             p.aL.ForEach(a =>
             {
-                a.es = p.bL.Where(IsLinked).Select(b => CreateE(a, b)).ToList();
+                a.es = p.bL.Where(IsLinked).Select(b => model.CreateE(a, b, getBaseWeightFn(rnd.NextDouble()))).ToList();
 
                 if (a.es.Count == 0)
-                    a.es = [CreateE(a, p.bL[rnd.Next(p.bL.Length)])];
+                    a.es = [model.CreateE(a, p.bL[rnd.Next(p.bL.Length)], getBaseWeightFn(rnd.NextDouble()))];
             });
 
             p.bL.Where(b => !p.aL.Any(a => a.es.Any(e => e.b == b))).ToArray()
                 .ForEach(b =>
                 {
                     var a = p.aL[rnd.Next(p.aL.Length)];
-                    var e = CreateE(a, b);
+                    var e = model.CreateE(a, b, getBaseWeightFn(rnd.NextDouble()));
                     a.es = a.es.Concat([e]).ToList();
                 });
         });
