@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using AI.Exceptions;
 using AI.Libraries;
 using MathNet.Numerics.Random;
@@ -28,8 +29,8 @@ public class NTrainer
     public void Init()
     {
         rnd = new Random(options.Seed);
-        var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
-        model = new NModel(options);
+        var weightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
+        model = new NModel(options, rnd);
 
         //NGroup CreateGroup(int i) => new NGroup()
         //{
@@ -37,57 +38,129 @@ public class NTrainer
 
         //groups = [CreateGroup(0)];
 
-        bool IsFilled(int i) => rnd.NextDouble() < options.FillFactor;
+        var input = (options.NInput).Range(_ => model.CreateN(0)).ToList();
+        var hidden = (options.NHidden.Length).Range(i => (options.NHidden[i]).Range().Select(_ => model.CreateN(i + 1)).ToList()).ToList();
+        var output = (options.NOutput).Range(_ => model.CreateN(options.NHidden.Length + 1)).ToList();
 
-        model.input = (options.NInput).Range(_ => model.CreateN()).ToArray();
-        var hidden = (options.NHidden.nLayers).Range(_ => (options.NHidden.n).Range().Where(IsFilled).Select(_ => model.CreateN()).ToArray()).ToArray();
-        model.output = (options.NOutput).Range(_ => model.CreateN()).ToArray();
-
-        var nns = new N[][][]
+        var nns = new List<List<N>>[]
         {
             [model.input],
             hidden,
             [model.output],
-        }.ToSingleArray();
+        }.ToSingleList();
 
-        bool IsLinked(N n) => rnd.NextDouble() < options.LinkFactor;
-
-        nns.SelectPair((aL, bL) => (aL, bL)).ForEach((p, lv) =>
-        {
-            p.aL.ForEach(a =>
-            {
-                a.es = p.bL.Where(IsLinked).Select(b => model.CreateE(a, b, getBaseWeightFn(rnd.NextDouble()))).ToList();
-
-                if (a.es.Count == 0)
-                    a.es = [model.CreateE(a, p.bL[rnd.Next(p.bL.Length)], getBaseWeightFn(rnd.NextDouble()))];
-            });
-
-            p.bL.Where(b => !p.aL.Any(a => a.es.Any(e => e.b == b))).ToArray()
-                .ForEach(b =>
-                {
-                    var a = p.aL[rnd.Next(p.aL.Length)];
-                    var e = model.CreateE(a, b, getBaseWeightFn(rnd.NextDouble()));
-                    a.es = a.es.Concat([e]).ToList();
-                });
-        });
-
-        model.ns = nns.ToSingleList();
-        model.RestoreBackEs();
+        model.nns = nns;
         model.RestoreIndices();
 
-        if (options.DuplicatorsCount.HasValue)
+        var maxHidden = options.NHidden.Max();
+
+        nns.SelectPair((aL, bL) => (aL, bL)).ForEach(pair => 
         {
-            string GetNUniqueKey(N n) => n.backEs.Select(e => e.a.i).OrderBy(i => i).SJoin("|") + "|_|" + n.es.Select(e=>e.b.i).OrderBy(i => i).SJoin("|");
+            var (aL, bL) = pair;
 
-            var removeNs = model.ns
-                .GroupBy(GetNUniqueKey)
-                .Where(gn => gn.Count() > options.DuplicatorsCount.Value)
-                .SelectMany(gn => gn.Skip(options.DuplicatorsCount.Value))
-                .ToHashSet();
+            (Math.Max(aL.Count, bL.Count)).ForEach(i => 
+            {
+                var a = aL[i % aL.Count];
+                var b = bL[i % bL.Count];
+                a.es.Add(model.CreateE(a, b, weightFn(rnd.NextDouble())));
+            });
 
-            model.ns.Where(removeNs.Contains).ToArray().ForEach(model.RemoveN);
+            aL.ForEach(a => bL.ForEach(b =>
+            {
+                if (!a.IsLinked(b) && rnd.NextDouble() < options.LinkFactor)
+                    a.es.Add(model.CreateE(a, b, weightFn(rnd.NextDouble())));
+            }));
+        });
+
+        nns.SkipLast(2).ForEach((aL, i) => nns.Skip(i + 2).SkipLast(1).ForEach(bL =>
+        {
+            aL.ForEach(a => bL.ForEach(b =>
+            {
+                if (!a.IsLinked(b) && rnd.NextDouble() < options.CrossLinkFactor)
+                    a.es.Add(model.CreateE(a, b, weightFn(rnd.NextDouble())));
+            }));
+        }));
+       
+        model.RestoreBackEs();
+    }
+
+
+    public void GrowUp()
+    {
+        if (options.NHidden[0] > options.NHiddenUp[0] || options.NHidden.Length > options.NHiddenUp.Length)
+            throw new NotSupportedException("grow up only");
+
+        if (model.nns[1].Count < options.NHiddenUp[0])
+        {
+            var a = model.input[rnd.Next(model.input.Count)];
+            var b = model.output[rnd.Next(model.output.Count)];
+
+            //model.AddN(a, b, 1);
+        }
+
+        var destLv = options.NHiddenUp.Length + 2;
+        var curLv = model.maxLv;
+
+        if (destLv > curLv)
+        {
+
+        }
+        else
+        {
+
         }
     }
+
+    //public void GrowUp1()
+    //{
+    //    var lvs = model.GetLevels();
+    //    var max = lvs.Max();
+
+    //    N GetLevelN(int lv)
+    //    {
+    //        var ns = model.ns.Where(n => lvs[n.i] == lv).ToArray();
+    //        return ns[rnd.Next(ns.Length)];
+    //    }
+
+    //    int CountLv(int lv) => model.ns.Count(n => lvs[n.i] == lv);
+    //    bool IsLinked(N a, N b) => a.es.Any(e => e.b == b);
+
+    //    if (max == 2)
+    //    {
+    //        var a = GetLevelN(1);
+    //        var b = GetLevelN(2);
+    //        model.AddN(a, b, false);
+
+    //        return;
+    //    }
+
+    //    if (max == 3)
+    //    {
+    //        if (CountLv(1) != CountLv(2))
+    //        {
+    //            var a = GetLevelN(1);
+    //            var b = GetLevelN(3);
+    //            model.AddN(a, b, false);
+
+    //            return;
+    //        }
+    //        else
+    //        {
+    //            N a, b;
+    //            do
+    //            {
+    //                a = GetLevelN(1);
+    //                b = GetLevelN(2);
+    //            } while (IsLinked(a, b));
+
+    //            model.AddE(a, b);
+
+    //            return;
+    //        }
+    //    }
+
+    //    throw new NotSupportedException();
+    //}
 
     public void CleanupTrainTails() => model.es.ForEach(e => e.dw = 0);
 

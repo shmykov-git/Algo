@@ -15,21 +15,28 @@ public class NModel
     public double avgDelta;
 
     private readonly NOptions options;
+    private readonly Random rnd;
+    public List<List<N>> nns;
 
-    public List<N> ns = [];
-    public N[] input = [];
-    public N[] output = [];
+    public List<N> input => nns[0];
+    public List<N> output => nns[^1];
 
+    public IEnumerable<N> ns => nns.SelectMany(ns => ns);
     public IEnumerable<E> es => ns.SelectMany(n => n.es);
+
+    public int maxLv => ns.Max(n => n.lv);
+    public int size => es.Count() + ns.Count();
     public IEnumerable<E> GetBackEs(N n) => es.Where(e => e.b == n);
 
-    public NModel(NOptions options)
+    public NModel(NOptions options, Random rnd)
     {
         this.options = options;
+        this.rnd = rnd;
     }
 
-    public N CreateN() => new N()
+    public N CreateN(int lv) => new N()
     {
+        lv = lv,
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
         sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa),
         //g = groups[0]
@@ -50,30 +57,28 @@ public class NModel
     public void RemoveN(N n) 
     {
         n.backEs.ForEach(e => e.a.es.Remove(e));
-        ns.Remove(n);
+        nns[n.lv].Remove(n);
         n.es.ForEach(e => RestoreBackEs(e.b));
         RestoreIndices();
     }
 
-    public void HorizontalSplit(N n)
+    public void AddN(N a, N b)
     {
-        var w = -Math.Log((1 - n.avgF) / n.avgF) / (2 * options.Alfa * n.avgF * options.PowerFactor);
+        var lv = (a.lv + b.lv) / 2;
+        Debug.WriteLine($"+N:{a.i}-{b.i} ({lv})");
 
-        var clone = CloneN(n);
-        n.es.ForEach(e => e.a = clone);
-        var e = CreateE(n, clone, w);
-
-        (clone.es, n.es) = (n.es, [e]);
-        ns.Insert(n.i + 1, clone);
-        
-        RestoreBackEs(clone);
+        var c = CreateN(lv);
+        nns[lv].Add(c);
         RestoreIndices();
+        AddE(a, c);
+        AddE(c, b);
     }
 
     public void AddE(N a, N b)
     {
-        var w = a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
-        var e = CreateE(a, b, w);
+        Debug.WriteLine($"+E:{a.i}-{b.i}");
+
+        var e = CreateE(a, b, GetW());
         a.es.Add(e);
         RestoreBackEs(b);
     }
@@ -87,9 +92,26 @@ public class NModel
         dampingFn = n.dampingFn,
     };
 
+    private double GetW()
+    {
+        //var w = -Math.Log((1 - a.avgF) / a.avgF) / (2 * options.Alfa * a.avgF * options.PowerFactor);
+        var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
+
+        return getBaseWeightFn(rnd.NextDouble());
+
+        //var ws = a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Select(e => e.w).ToArray();
+        //var countPlus = ws.Count(w => w > 0);
+        //var countMinus = ws.Count(w => w <= 0);
+
+        //return countPlus > countMinus
+        //    ? ws.Where(w => w > 0).Average()
+        //    : ws.Where(w => w <= 0).Average();
+    }
+
     public NModel Clone()
     {
-        var newNs = ns.Select(CloneN).ToList();
+        var newNns = nns.Select(ns => ns.Select(CloneN).ToList()).ToList();
+        var newNs = newNns.ToSingleArray();
 
         E CloneE(E e) => new E() 
         { 
@@ -100,11 +122,9 @@ public class NModel
 
         es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(CloneE).ToList());
 
-        var model = new NModel(options)
+        var model = new NModel(options, rnd)
         {
-            ns = newNs,
-            input = input.Select(n => newNs[n.i]).ToArray(),
-            output = output.Select(n => newNs[n.i]).ToArray(),
+            nns = newNns,
             error = error,
             trainError = trainError,
             avgX = avgX,
@@ -117,40 +137,24 @@ public class NModel
         return model;
     }
 
-    public int[] GetLevels() 
-    {
-        var g = new Graph(es.Select(e => (e.a.i, e.b.i)));
-        var distances = input.Select(n => g.DistanceMap(n.i)).ToArray();
-        var lvs = (g.nodes.Count).Range(i => distances.Min(d => d[i])).ToArray();
-        
-        var max = lvs.Max();
-        
-        if (output.Any(n => lvs[n.i] != max) || output.Count(n => lvs[n.i] == max) < lvs.Count(l=>l == max))
-            output.ForEach(n => lvs[n.i] = max + 1);
-
-        return lvs;
-    }
-
     public Shape2 GetTopology()
     {
-        var lvs = GetLevels();
-        int GetLvCount(int lv) => ns.Count(n => lvs[n.i] == lv);
-
-        double maxY = lvs.Max(GetLvCount);
-        int maxLv = lvs.Max();
+        var maxLv = ns.Max(n=>n.lv);
+        double maxCount = ns.Max(n => nns[n.lv].Count);
 
         double GetY(N n)
         {
-            var lv = lvs[n.i];
-            var count = GetLvCount(lv);
-            var i = ns.Where(nn => lvs[nn.i] == lv).TakeWhile(nn => nn != n).Count();
+            double count = nns[n.lv].Count;
+            var i = ns.Where(nn => nn.lv == n.lv).TakeWhile(nn => nn != n).Count();
+            var step = maxCount / (count + 1);
+            var oddShift = n.lv % 2 == 0 ? step / 5 : 0;
 
-            return maxLv * (maxY - 0.5 * (maxY - count) - i * (maxY / (count + 1)));
+            return maxLv * step * (count - i) - oddShift;
         }
 
         double GetX(N n)
         {
-            return lvs[n.i] * maxY;
+            return n.lv * maxCount;
         }
 
         var convexes = es.Select(e => new int[] { e.a.i, e.b.i }).ToArray();
@@ -165,10 +169,10 @@ public class NModel
 
     public void SetInput(double[] vInput)
     {
-        if (vInput.Length != input.Length)
+        if (vInput.Length != input.Count)
             throw new InvalidInputDataException();
 
-        (input.Length).Range().ForEach(i => input[i].f = vInput[i]);
+        (input.Count).Range().ForEach(i => input[i].f = vInput[i]);
     }
 
     public double[] Predict(double[] vInput)
@@ -180,10 +184,9 @@ public class NModel
 
     public void ShowDebug()
     {
-        Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
+        ShowDebugInfo();
 
-        var lvs = GetLevels();
-        lvs.Distinct().OrderBy(v => v).ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
+        nns.ForEach(lv => ns.ForEach(n =>
         {
             Debug.WriteLine($"{lv}| {ns.Select(n => n.es.Any() ? $"{n.f:F5} ({n.es.SJoin(", ")})" : $"{n.f:F5}").SJoin(", ")}");
         }));
@@ -191,13 +194,17 @@ public class NModel
 
     public void ShowDebugE()
     {
-        Debug.WriteLine($"=== avg=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3}");
+        ShowDebugInfo();
 
-        var lvs = GetLevels();
-        lvs.Distinct().OrderBy(v=>v).ForEach(lv => ns.Where(n => lvs[n.i] == lv).ForEach(n =>
+        nns.ForEach(lv => ns.ForEach(n =>
         {
             Debug.WriteLine($"{lv}| {ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", ")}");
         }));
+    }
+
+    public void ShowDebugInfo()
+    {
+        Debug.WriteLine($"=== avgW=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3} [n={ns.Count()} e={es.Count()} ({input.Count}->{output.Count})]");
     }
 
     private Queue<N> computeQueue = new();

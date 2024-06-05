@@ -10,7 +10,8 @@ public class N
     // </static>
 
     // <dynamic>
-    public int i;
+    public int i;           // order number 
+    public int lv;          // level
     //public NGroup g;      // group
     public List<E> es = []; // forward links
     public E[] backEs = []; // back links
@@ -28,8 +29,10 @@ public class N
     public bool learned;    // pass throw ns while learn
     // </learn>
 
-    public bool isInput => backEs.Length == 0;
+    public bool isInput => lv == 0;
     public bool isOutput => es.Count == 0;
+
+    public bool IsLinked(N b) => es.Any(e => e.b == b);
 
     public override string ToString() => $"{i}:{f:F2}";
 }
