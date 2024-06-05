@@ -168,12 +168,8 @@ public class NTrainer
         if (options.CleanupTrainTails)
             CleanupTrainTails();
 
-        model.ns.ForEach(n => { n.avgF = 0; });
-
         var errs = data.Select(t => TrainCase(t.input, t.expected)).ToArray();
         
-        model.ns.ForEach(n => { n.avgF /= data.Length; });
-
         var avgErr = errs.Average();
         model.trainError = avgErr;
 

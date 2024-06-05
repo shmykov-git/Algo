@@ -80,33 +80,25 @@ public class NModel
         var c = CreateN(lv);
         nns[lv].Add(c);
         RestoreIndices();
-        AddE(a, c);
-        AddE(c, b);
+        AddE(a, c, GetW(a));
+        AddE(c, b, GetW(b));
     }
 
-    public void AddE(N a, N b)
+    public void AddE(N a, N b, double w)
     {
         Debug.WriteLine($"+E:{a.i}-{b.i}");
 
-        var e = CreateE(a, b, GetW());
+        var e = CreateE(a, b, w);
         a.es.Add(e);
         RestoreBackEs(b);
     }
 
-    private double GetW()
+    public double GetW(N n)
     {
-        //var w = -Math.Log((1 - a.avgF) / a.avgF) / (2 * options.Alfa * a.avgF * options.PowerFactor);
-        var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
+        return n.es.Concat(n.backEs).Average(e => e.w);
 
-        return getBaseWeightFn(rnd.NextDouble());
-
-        //var ws = a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Select(e => e.w).ToArray();
-        //var countPlus = ws.Count(w => w > 0);
-        //var countMinus = ws.Count(w => w <= 0);
-
-        //return countPlus > countMinus
-        //    ? ws.Where(w => w > 0).Average()
-        //    : ws.Where(w => w <= 0).Average();
+        //var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
+        //return getBaseWeightFn(rnd.NextDouble());
     }
 
     public NModel Clone()
@@ -217,7 +209,6 @@ public class NModel
             // compute output (f) from input (xx)
             n.f = n.sigmoidFn(n.xx * options.PowerFactor);
             n.f = n.dampingFn(n.f);
-            n.avgF += n.f;
         }
 
         // pass signal from output a to input b
