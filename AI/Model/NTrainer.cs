@@ -41,13 +41,7 @@ public class NTrainer
         var input = (options.NInput).Range(_ => model.CreateN(0)).ToList();
         var hidden = (options.NHidden.Length).Range(i => (options.NHidden[i]).Range().Select(_ => model.CreateN(i + 1)).ToList()).ToList();
         var output = (options.NOutput).Range(_ => model.CreateN(options.NHidden.Length + 1)).ToList();
-
-        var nns = new List<List<N>>[]
-        {
-            [model.input],
-            hidden,
-            [model.output],
-        }.ToSingleList();
+        var nns = new [] { [input], hidden, [output] }.ToSingleList();
 
         model.nns = nns;
         model.RestoreIndices();

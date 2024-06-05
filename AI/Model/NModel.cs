@@ -42,6 +42,16 @@ public class NModel
         //g = groups[0]
     };
 
+    private N CloneN(N n) => new N()
+    {
+        i = n.i,
+        f = n.f,
+        lv = n.lv,
+        delta = n.delta,
+        sigmoidFn = n.sigmoidFn,
+        dampingFn = n.dampingFn,
+    };
+
     public E CreateE(N a, N b, double w) => new E
     {
         dw = 0,
@@ -82,15 +92,6 @@ public class NModel
         a.es.Add(e);
         RestoreBackEs(b);
     }
-
-    private N CloneN(N n) => new N()
-    {
-        i = n.i,   
-        f = n.f,
-        delta = n.delta,
-        sigmoidFn = n.sigmoidFn,
-        dampingFn = n.dampingFn,
-    };
 
     private double GetW()
     {
