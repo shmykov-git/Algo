@@ -19,6 +19,7 @@ public class NModel
     public List<List<N>> nns;
 
     public List<N> input => nns[0];
+    public List<N>[] hidden => nns.Skip(1).SkipLast(1).ToArray();
     public List<N> output => nns[^1];
 
     public IEnumerable<N> ns => nns.SelectMany(ns => ns);
@@ -38,7 +39,7 @@ public class NModel
     {
         lv = lv,
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
-        sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa),
+        sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa * options.PowerFactor),
         //g = groups[0]
     };
 
@@ -80,26 +81,44 @@ public class NModel
         var c = CreateN(lv);
         nns[lv].Add(c);
         RestoreIndices();
-        AddE(a, c, GetW(a));
-        AddE(c, b, GetW(b));
+        AddE(a, c, GetAvgW(a));
+        AddE(c, b, GetAvgW(b));
     }
 
+    public void AddE(N a, N b) => AddE(a, b, GetAvgW(a, b));
     public void AddE(N a, N b, double w)
     {
         Debug.WriteLine($"+E:{a.i}-{b.i}");
+
+        if (a.IsLinked(b))
+            throw new Exception("cannot link twice");
 
         var e = CreateE(a, b, w);
         a.es.Add(e);
         RestoreBackEs(b);
     }
 
-    public double GetW(N n)
+    public void LevelUp()
     {
-        return n.es.Concat(n.backEs).Average(e => e.w);
-
-        //var getBaseWeightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
-        //return getBaseWeightFn(rnd.NextDouble());
+        nns.Insert(nns.Count - 1, new List<N>());
+        output.ForEach(n => n.lv++);
     }
+
+    public bool TryRemoveE(N a, N b)
+    {
+        var e = a.GetLink(b);
+        
+        if (e == null) 
+            return false;
+
+        a.es.Remove(e);
+        RestoreBackEs(b);
+
+        return true;
+    }
+
+    public double GetAvgW(N n) => n.es.Concat(n.backEs).Average(e => e.w);
+    public double GetAvgW(N a, N b) => a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
 
     public NModel Clone()
     {
@@ -130,6 +149,8 @@ public class NModel
         return model;
     }
 
+    public (int i, int j)[][] GetGraph() => nns.SkipLast(1).Select(ns => ns.SelectMany(n => n.es.Select(e => (e.a.i, e.b.i))).ToArray()).ToArray();
+
     public Shape2 GetTopology()
     {
         var maxLv = ns.Max(n=>n.lv);
@@ -140,7 +161,7 @@ public class NModel
             double count = nns[n.lv].Count;
             var i = ns.Where(nn => nn.lv == n.lv).TakeWhile(nn => nn != n).Count();
             var step = maxCount / (count + 1);
-            var oddShift = n.lv % 2 == 0 ? step / 5 : 0;
+            var oddShift = n.lv % 2 == 0 ? step / Math.Sqrt(31) : 0;
 
             return maxLv * step * (count - i) - oddShift;
         }
@@ -197,7 +218,7 @@ public class NModel
 
     public void ShowDebugInfo()
     {
-        Debug.WriteLine($"=== avgW=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3} [n={ns.Count()} e={es.Count()} ({input.Count}->{output.Count})]");
+        Debug.WriteLine($"=== avgW=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3} [lv={nns.Count} n={ns.Count()} e={es.Count()} ({input.Count}->{output.Count})]");
     }
 
     private Queue<N> computeQueue = new();
@@ -207,7 +228,7 @@ public class NModel
         if (!n.isInput)
         {
             // compute output (f) from input (xx)
-            n.f = n.sigmoidFn(n.xx * options.PowerFactor);
+            n.f = n.sigmoidFn(n.xx);
             n.f = n.dampingFn(n.f);
         }
 

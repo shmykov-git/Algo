@@ -48,6 +48,8 @@ namespace Model3D.Libraries
 
         public static SurfaceFunc APowerB => (a, b) => new Vector3(a, b, (a.Pow(b) - b.Pow(a)) / 10);
 
+        public static SurfaceFunc Polynom4 => (double u, double v) => new Vector3(u, v, 0.25 * (u - 2) * (u + 2) * u * u + v * v + 1);
+
         public static SurfaceFunc Paraboloid => (double u, double v) => new Vector3(u, v, u * u + v * v);
         public static SurfaceFunc Hyperboloid => (double u, double v) => new Vector3(u, v, u * u - v * v);
         public static SurfaceFunc Wave(double t, double w) => (double u, double v) => new Vector3(u, v, Math.Sin((t + (u * u + v * v).Sqrt()) * w));

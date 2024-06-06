@@ -48,15 +48,22 @@ using Mapster;
 using MapsterMapper;
 using AI.Model;
 using Shape = Model.Shape;
+using AI.Libraries;
 
 namespace ViewMotion;
+
+public enum NMode
+{
+    Topology,
+    Learn
+}
 
 partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        // оптимизация сети DuplicateFactor = 2
-        // положить куб в куб
+        // smart neuron strategy (1-3(2,1))
+        // learn any shape
         
         var m = 0.75f;
         //var external = 1.8f;
@@ -67,33 +74,39 @@ partial class SceneMotion
 
         var nEpoch = 500000;
         var nEpochPart = 200;
-        var planSpeed = 40;
+        var planSpeed = 10;
         var planI = 50;
+
+        var mode = NMode.Learn;
 
         var options = new NOptions()
         {
             Seed = 1,
+            //Graph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
+            Graph = N21Graphs.Moon,
             NInput = 2,
-            NHidden = [7],
-            NHiddenUp = [7, 7],
+            NHidden = [25],
+            NHiddenUp = [9,9],
             NOutput = 1,
-            Weight0 = (0.01, -0.005),
+            AllowGrowing = true,
+            PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
             Nu = 0.1,
-            PowerFactor = 100,
-            LinkFactor = 0.2,
-            CrossLinkFactor = 0,
-            GrowFactor = 0.5,
-            GrowCount = 50
+            Alfa = 0.5,
+            PowerFactor = 300,
+            LinkFactor = 0.15,
+            CrossLinkFactor = 0
         };
 
-
-
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
+        Func<double, double, Vector3> Join(Func<double, double, Vector3> fnA, Func<double, double, Vector3> fnB) => (u, v) => fnA(u, v) + fnB(u, v);
 
-        var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.25));
+        //var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.25));
         //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
         //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        var TrainFn = Boxed(SurfaceFuncs.Polynom4, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+
+
 
         //return (new Shape()
         //{
@@ -113,13 +126,13 @@ partial class SceneMotion
             trainer.model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.5) +
             trainer.model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue);
 
-
-        //return GetTopologyShape().ToMotion(3);
+        if (mode == NMode.Topology)
+            return GetTopologyShape().ToMotion(3);
 
         NModel model = trainer.model.Clone();
         var size0 = model.size;
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
-
+        Debug.WriteLine($"Graph: [{trainer.model.GetGraph().Select(es=>$"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");        
 
         Vector3 ModelFn(double xx, double yy)
         {
@@ -150,7 +163,7 @@ partial class SceneMotion
             Shapes.Cube.Mult(2).ToLines(Color.Black)
         }.ToSingleShape();
 
-        var planCount = 0;
+        var isGrowing = true;
 
         IEnumerable<Shape> Animate() 
         {
@@ -164,29 +177,21 @@ partial class SceneMotion
                 var errChanged = false;
                 var bestErrChanged = false;
 
-                //if (planI < k+3)
-                //{
-                //    if (planCount < options.GrowCount)
-                //    {
-                //        trainer.GrowUp();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        planI += planSpeed * size0 / model.size;
-                //    }
-                //    else if (planCount == options.GrowCount)
-                //    {
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //        yield return GetTopologyShape();
-                //    }
+                if (options.AllowGrowing && isGrowing && planI < k + 3)
+                {
+                    var res = trainer.GrowUp();
+                    planI += planSpeed * size0 / model.size;
 
-                //    planCount++;
-                //}
+                    if (res != isGrowing)
+                    {
+                        yield return GetTopologyShape();
+                        yield return GetTopologyShape();
+                        yield return GetTopologyShape();
+                        Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().Select(es => $"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");
+                    }
+
+                    isGrowing = res;
+                }
 
                 (nEpochPart).ForEach(_ =>
                 {

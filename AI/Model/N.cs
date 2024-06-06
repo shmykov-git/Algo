@@ -32,6 +32,7 @@ public class N
     public bool isOutput => es.Count == 0;
 
     public bool IsLinked(N b) => es.Any(e => e.b == b);
+    public E? GetLink(N b) => es.SingleOrDefault(e => e.b == b);
 
     public override string ToString() => $"{i}:{f:F2}";
 }

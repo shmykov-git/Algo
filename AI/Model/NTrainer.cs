@@ -29,30 +29,71 @@ public class NTrainer
     public void Init()
     {
         rnd = new Random(options.Seed);
-        var weightFn = NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
         model = new NModel(options, rnd);
 
-        //NGroup CreateGroup(int i) => new NGroup()
-        //{
-        //};
+        if (options.Graph is [])
+        {
+            CreateNetByTopology(model);
+        }
+        else
+        {
+            CreateNetByGraph(model);
+        }
 
-        //groups = [CreateGroup(0)];
+        model.RestoreBackEs();
+    }
+
+    private void CreateNetByGraph(NModel model)
+    {
+        var weightFn = options.PowerWeight0.HasValue
+            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.PowerFactor, options.PowerWeight0.Value.b / options.PowerFactor)
+            : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
+
+        var graph = options.Graph;
+        var gns = graph.SelectMany(l=>l.SelectMany(e=>new[] { e.i, e.j })).Distinct().ToArray();
+        var n = gns.Max() + 1;
+
+        if (gns.Length != n)
+            throw new ArgumentException("invalid graph");
+
+        // todo: cross graphs
+
+        var lvs = graph.SelectMany((l, lv) => l.Select(e => e.i).Distinct().Select(i => (i, lv))).
+            Concat(graph[^1].Select(e => e.j).Distinct().Select(i => (i, lv: graph.Length)))
+            .OrderBy(v => v.i)
+            .Select(v => v.lv)
+            .ToArray();
+        var maxLv = lvs.Max();
+
+        var ns = (n).Range(i => model.CreateN(lvs[i])).ToArray();
+        var nns = ns.GroupBy(n => n.lv).Select(gn => gn.ToList()).ToList();
+        model.nns = nns;
+        model.RestoreIndices();
+        ns.Where(n => n.lv != maxLv).ForEach(nI => nI.es = graph[nI.lv].Where(e => nI.i == e.i).Select(e => model.CreateE(nI, ns[e.j], weightFn(rnd.NextDouble()))).ToList());
+        model.RestoreBackEs();
+    }
+
+    private void CreateNetByTopology(NModel model)
+    {
+        var weightFn = options.PowerWeight0.HasValue
+            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.PowerFactor, options.PowerWeight0.Value.b / options.PowerFactor)
+            : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
         var input = (options.NInput).Range(_ => model.CreateN(0)).ToList();
         var hidden = (options.NHidden.Length).Range(i => (options.NHidden[i]).Range().Select(_ => model.CreateN(i + 1)).ToList()).ToList();
         var output = (options.NOutput).Range(_ => model.CreateN(options.NHidden.Length + 1)).ToList();
-        var nns = new [] { [input], hidden, [output] }.ToSingleList();
+        var nns = new[] { [input], hidden, [output] }.ToSingleList();
 
         model.nns = nns;
         model.RestoreIndices();
 
         var maxHidden = options.NHidden.Max();
 
-        nns.SelectPair((aL, bL) => (aL, bL)).ForEach(pair => 
+        nns.SelectPair((aL, bL) => (aL, bL)).ForEach(pair =>
         {
             var (aL, bL) = pair;
 
-            (Math.Max(aL.Count, bL.Count)).ForEach(i => 
+            (Math.Max(aL.Count, bL.Count)).ForEach(i =>
             {
                 var a = aL[i % aL.Count];
                 var b = bL[i % bL.Count];
@@ -74,87 +115,75 @@ public class NTrainer
                     a.es.Add(model.CreateE(a, b, weightFn(rnd.NextDouble())));
             }));
         }));
-       
-        model.RestoreBackEs();
     }
 
-
-    public void GrowUp()
+    public bool GrowUp()
     {
-        if (options.NHidden[0] > options.NHiddenUp[0] || options.NHidden.Length > options.NHiddenUp.Length)
+        if (!options.AllowGrowing)
+            throw new NotAllowedException(nameof(options.AllowGrowing));
+
+        if (model.nns[1].Count > options.NHiddenUp[0] || model.nns.Count-2 > options.NHiddenUp.Length)
             throw new NotSupportedException("grow up only");
 
-        if (model.nns[1].Count < options.NHiddenUp[0])
-        {
-            var a = model.input[rnd.Next(model.input.Count)];
-            var b = model.output[rnd.Next(model.output.Count)];
+        var nns = model.nns;
 
-            //model.AddN(a, b, 1);
+        int LevelLinkMinCount(int lv) => Math.Max(nns[lv - 1].Count, nns[lv].Count);
+        int LevelLinkCount(int lv) => nns[lv - 1].SelectMany(a => nns[lv].Where(b => a.IsLinked(b))).Count();
+        int LevelLinkMaxCount(int lv) => nns[lv - 1].Count * nns[lv].Count;
+        bool IsLevelLinked(int lv) => options.LinkFactor * (LevelLinkMaxCount(lv) - LevelLinkMinCount(lv)) < LevelLinkCount(lv) - LevelLinkMinCount(lv);
+        
+        (N, N) GetLevelPairE(int lv) 
+        {
+            N a, b;
+            do
+            {
+                (a, b) = (nns[lv - 1][rnd.Next(nns[lv - 1].Count)], nns[lv][rnd.Next(nns[lv].Count)]);
+            } while (a.IsLinked(b));
+
+            return (a, b);
+        };
+        
+        (N, N) GetLevelPairN(int lv)
+        {
+            var i = nns[lv].Count;
+
+            if (i < nns[lv - 1].Count)
+                return (nns[lv - 1][i], nns[lv + 1][rnd.Next(nns[lv + 1].Count)]);
+
+            return (nns[lv - 1][rnd.Next(nns[lv - 1].Count)], nns[lv + 1][rnd.Next(nns[lv + 1].Count)]); 
         }
 
-        var destLv = options.NHiddenUp.Length + 2;
-        var curLv = model.maxLv;
+        var lv = nns.Count - 2;
 
-        if (destLv > curLv)
+        while (lv < options.NHiddenUp.Length + 1)
         {
+            if (nns[lv].Count < options.NHiddenUp[lv - 1])
+            {
+                var (a, b) = GetLevelPairN(lv);                
+                model.TryRemoveE(a, b);
+                model.AddN(a, b);
 
-        }
-        else
-        {
+                return true;
+            }
 
+            if (!IsLevelLinked(lv))
+            {
+                var (a, b) = GetLevelPairE(lv);
+                model.AddE(a, b);
+
+                return true;
+            }
+
+            // todo: cross level linked
+
+            lv++;
+
+            if (lv < options.NHiddenUp.Length + 1)
+                model.LevelUp();
         }
+
+        return false;
     }
-
-    //public void GrowUp1()
-    //{
-    //    var lvs = model.GetLevels();
-    //    var max = lvs.Max();
-
-    //    N GetLevelN(int lv)
-    //    {
-    //        var ns = model.ns.Where(n => lvs[n.i] == lv).ToArray();
-    //        return ns[rnd.Next(ns.Length)];
-    //    }
-
-    //    int CountLv(int lv) => model.ns.Count(n => lvs[n.i] == lv);
-    //    bool IsLinked(N a, N b) => a.es.Any(e => e.b == b);
-
-    //    if (max == 2)
-    //    {
-    //        var a = GetLevelN(1);
-    //        var b = GetLevelN(2);
-    //        model.AddN(a, b, false);
-
-    //        return;
-    //    }
-
-    //    if (max == 3)
-    //    {
-    //        if (CountLv(1) != CountLv(2))
-    //        {
-    //            var a = GetLevelN(1);
-    //            var b = GetLevelN(3);
-    //            model.AddN(a, b, false);
-
-    //            return;
-    //        }
-    //        else
-    //        {
-    //            N a, b;
-    //            do
-    //            {
-    //                a = GetLevelN(1);
-    //                b = GetLevelN(2);
-    //            } while (IsLinked(a, b));
-
-    //            model.AddE(a, b);
-
-    //            return;
-    //        }
-    //    }
-
-    //    throw new NotSupportedException();
-    //}
 
     public void CleanupTrainTails() => model.es.ForEach(e => e.dw = 0);
 
