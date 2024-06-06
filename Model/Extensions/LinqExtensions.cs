@@ -9,6 +9,7 @@ using Meta;
 using Meta.Tools;
 using ThreadPool = Meta.Tools.ThreadPool;
 using System.Runtime.CompilerServices;
+using Model.Trees;
 
 namespace Model.Extensions
 {
@@ -345,6 +346,10 @@ namespace Model.Extensions
         {
             return Indexer.RemoveBi(items, removeItems);
         }
+
+        public static IEnumerable<(TItem a, TItem b)> SelectBoth<TItem>(this (TItem[] aItems, TItem[] bItems) items) => items.SelectBoth((a, b) => (a, b));
+        public static IEnumerable<TRes> SelectBoth<TItem, TRes>(this (TItem[] aItems, TItem[] bItems) items, Func<TItem, TItem, TRes> func) =>
+            items.aItems.Index().Select(i => func(items.aItems[i], items.bItems[i]));
 
         public static IEnumerable<(TItem a, TItem b)> CrossSelect<TItem>(this (TItem[] aItems, TItem[] bItems) items) =>
             items.CrossSelect((a, b) => (a, b));

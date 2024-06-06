@@ -74,8 +74,8 @@ partial class SceneMotion
 
         var nEpoch = 500000;
         var nEpochPart = 200;
-        var planSpeed = 10;
-        var planI = 50;
+        var planSpeed = 1;
+        var planI = 5;
 
         var mode = NMode.Learn;
 
@@ -83,7 +83,8 @@ partial class SceneMotion
         {
             Seed = 1,
             //Graph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
-            Graph = N21Graphs.Moon,
+            Graph = N21Graphs.Arrow,
+            UpGraph = N21Graphs.Venus,
             NInput = 2,
             NHidden = [25],
             NHiddenUp = [9,9],
@@ -180,6 +181,9 @@ partial class SceneMotion
                 if (options.AllowGrowing && isGrowing && planI < k + 3)
                 {
                     var res = trainer.GrowUp();
+                    yield return GetTopologyShape();
+                    yield return GetTopologyShape();
+                    yield return GetTopologyShape();
                     planI += planSpeed * size0 / model.size;
 
                     if (res != isGrowing)
