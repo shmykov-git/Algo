@@ -233,8 +233,8 @@ public class NTrainer
 
         (int, int) FindRv()
         {
-            var i = (graph[lv-1], upGraph[lv-1]).SelectBoth().First(v => !upGraph[lv-1].Contains(v.a)).a.j;
-            var j = (graph[lv-1], upGraph[lv-1]).SelectBoth().First(v => !graph[lv-1].Contains(v.b)).b.j;
+            var i = graph[lv-1].First(e => !upGraph[lv-1].Contains(e)).j;
+            var j = upGraph[lv-1].First(e => !graph[lv-1].Contains(e)).j;
 
             return (i, j);
         }
