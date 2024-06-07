@@ -242,7 +242,8 @@ public class NTrainer
         int[] GetReverses()
         {
             var aa = graph[lv-1].Select(v => v.j).Distinct().OrderBy(j => j).ToList();
-            var r = (9).Range().ToArray();
+            var lvCount = GetLvCount(graph, lv);
+            var r = (lvCount).Range().ToArray();
             var graphLv = graph[lv-1];
 
             while (!(graph[lv-1], upGraph[lv-1]).SelectBoth().All(v => v.a == v.b))
