@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AI\AI.csproj" />
     <ProjectReference Include="..\Model3D\Model3D.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>

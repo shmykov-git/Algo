@@ -132,95 +132,94 @@ public class NTrainer
     public bool GrowUpByGraph()
     {
         var upGraph = options.UpGraph.Select(l => l.OrderBy(v => v).ToArray()).ToArray();
-        var nns = model.nns;
+        var ns = model.ns.ToArray();
         var graph = model.GetGraph();
-        var lv = nns.Count - 2;
+        var lv = model.nns.Count - 2;
 
         int GetLvCount((int i, int j)[][] graph, int lv) => lv == 0 ? graph[lv].Select(v => v.i).Distinct().Count() : graph[lv - 1].Select(v => v.j).Distinct().Count();
 
-        (int i, int count)[] GetLvCounts((int i, int j)[][] graph, int lv) => lv == graph.Length
+        (int i, int count)[] GetLvCountsI((int i, int j)[][] graph, int lv) => lv == graph.Length
             ? throw new NotImplementedException()
-            : graph[lv].GroupBy(e => e.i).Select(gv => (gv.Key, c: gv.Count())).OrderBy(v => v.c).ToArray();             
+            : graph[lv].GroupBy(e => e.i).Select(gv => (i: gv.Key, c: gv.Count())).OrderBy(v => (v.i, v.c)).ToArray();
 
-        (int i, int count)[] GetBackLvCounts((int i, int j)[][] graph, int lv) => lv == 0
+        (int i, int count)[] GetLvCountsJ((int i, int j)[][] graph, int lv) => lv == 0
             ? throw new NotImplementedException()
-            : graph[lv - 1].GroupBy(e => e.j).Select(gv => (gv.Key, c: gv.Count())).OrderBy(v => v.c).ToArray();
+            : graph[lv - 1].GroupBy(e => e.j).Select(gv => (i: gv.Key, c: gv.Count())).OrderBy(v => (v.c, v.i)).ToArray();
 
-        (bool success, bool add, int i) FindDifA((int i, int count)[] cs, (int i, int count)[] upCs) => (cs, upCs).SelectBoth().Where(v => v.a.count != v.b.count).Select(v => (true, v.a.count < v.b.count, v.a.i)).FirstOrDefault();
+        (bool success, bool add, int i) FindDifI((int i, int count)[] cs, (int i, int count)[] upCs) => 
+            (cs, upCs).SelectBoth().Where(v => v.a.count != v.b.count && v.a.i == v.b.i).Select(v => (true, v.a.count < v.b.count, v.a.i)).FirstOrDefault();
 
-        (bool success, bool add, int i) GetLvInd(int lv, int upLv)
+        int FindDifJ(HashSet<int> except, (int i, int count)[] cs/*, (int i, int count)[] upCs*/) =>
+            cs.Where(v => !except.Contains(v.i)).Select(v => v.i).First();
+            //(cs, upCs).SelectBoth().Where(v => v.a.count != v.b.count && !except.Contains(v.a.i)).Select(v => (true, v.a.count < v.b.count, v.a.i)).FirstOrDefault();
+
+        (bool success, int i) GetLvI(int lv, int upLv)
         {
-            var cs = GetLvCounts(graph, lv);
-            var upCs = GetLvCounts(upGraph, upLv);
+            var cs = GetLvCountsI(graph, lv);
+            var upCs = GetLvCountsI(upGraph, upLv);
 
             if (cs.Length != upCs.Length)
                 throw new AlgorithmException("incorrect graph level counts");
 
-            return FindDifA(cs, upCs);
+            var (success, add, i) = FindDifI(cs, upCs);
+
+            if (success && !add)
+                throw new NotSupportedException("only grow up");
+
+            return (success, i);
         }
 
-        (bool success, bool add, int i) GetBackLvInd(int lv, int upLv)
+        int GetLvJ(int i, int lv)
         {
-            var cs = GetBackLvCounts(graph, lv);
-            var upCs = GetBackLvCounts(upGraph, upLv);
+            var cs = GetLvCountsJ(graph, lv);
 
-            if (cs.Length != upCs.Length)
-                throw new AlgorithmException("incorrect graph level counts");
-
-            return FindDifA(cs, upCs);
-        }
-
-        (int, int) GetReversePair(int lv)
-        {
-            var cs = GetBackLvCounts(graph, lv);
-            var upCs = GetBackLvCounts(upGraph, lv);
-
-            if (cs.Select(v => v.count).SJoin("|") != upCs.Select(v => v.count).SJoin("|"))
-                throw new AlgorithmException("level is not ready to reverse");
-
-            var a = (cs, upCs).SelectBoth().Where(v => v.a.count != v.b.count).First();
-            var b = (cs, upCs).SelectBoth().Where(v => v.a.count == a.b.count && v.b.count == a.a.count).First();
-
-            return (a.a.i, b.a.i);
+            return FindDifJ(graph[lv-1].Where(v=>v.i == i).Select(v=>v.j).ToHashSet(), cs);
         }
 
         (bool, N, N) GetLevelPairN(int lv)
         {
-            var (iSuccess, iAdd, i) = GetLvInd(lv - 1, lv - 1);
-            var (jSuccess, jAdd, j) = GetLvInd(graph.Length, upGraph.Length);
+            var (success, i) = GetLvI(lv - 1, lv - 1);
 
-            if (iSuccess != jSuccess || iAdd != jAdd)
-                throw new AlgorithmException("invalid graph or upGraph");
-
-            // todo: remove?
-            if (!iAdd)
-                throw new NotSupportedException("cannot remove n");
-
-            if (!iSuccess)
+            if (!success)
                 return (false, null!, null!);
 
-            var a = nns[lv - 1][i];
-            var b = nns[^1][j];
+            var j = GetLvJ(i, graph.Length);
 
-            return (true, a, b);
+            return (true, ns[i], ns[j]);
         }
 
-        (bool, bool, N, N) GetLevelPairE(int lv)
+        (bool, N, N) GetLevelPairE(int lv)
         {
-            var (iSuccess, iAdd, i) = GetLvInd(lv - 1, lv - 1);
-            var (jSuccess, jAdd, j) = GetLvInd(lv, lv);
+            var (success, i) = GetLvI(lv - 1, lv - 1);
 
-            if (iSuccess != jSuccess || iAdd != jAdd)
-                throw new AlgorithmException("invalid graph or upGraph");
+            if (!success)
+                return (false, null!, null!);
 
-            if (!iSuccess)
-                return (false, false, null!, null!);
+            var j = GetLvJ(i, lv);
 
-            var a = nns[lv - 1][i];
-            var b = nns[lv][j];
-
-            return (true, iAdd, a, b);
+            return (true, ns[i], ns[j]);
         };
+
+        void ReverseLevel(int lv)
+        {
+            var cs = GetLvCountsJ(graph, lv);
+            var upCs = GetLvCountsJ(upGraph, lv);
+
+            if (cs.Select(v => v.count).SJoin("|") != upCs.Select(v => v.count).SJoin("|"))
+                throw new AlgorithmException("level is not ready to reverse");
+
+            // todo: reverse 0 level (0 -- 1)
+
+            var reverses = GetReverses();
+            model.ReverseLevelNodes(lv, reverses);
+
+            var checkGraph = model.GetGraph();
+
+            if (!(checkGraph[lv - 1], graph[lv - 1]).SelectBoth().All(v => v.a == v.b))
+                throw new AlgorithmException("incorrect level items");
+
+            ns = model.ns.ToArray();
+        }
 
         bool AreGraphsSame() => graph.Length == upGraph.Length &&
             (graph.Length).Range().All(AreGraphsSameLine);
@@ -232,12 +231,45 @@ public class NTrainer
             ? throw new NotImplementedException()
             : AreGraphsSameLine(lv - 1);
 
+        (int, int) FindRv()
+        {
+            var i = (graph[lv-1], upGraph[lv-1]).SelectBoth().First(v => !upGraph[lv-1].Contains(v.a)).a.j;
+            var j = (graph[lv-1], upGraph[lv-1]).SelectBoth().First(v => !graph[lv-1].Contains(v.b)).b.j;
+
+            return (i, j);
+        }
+
+        int[] GetReverses()
+        {
+            var aa = graph[lv-1].Select(v => v.j).Distinct().OrderBy(j => j).ToList();
+            var r = (9).Range().ToArray();
+            var graphLv = graph[lv-1];
+
+            while (!(graph[lv-1], upGraph[lv-1]).SelectBoth().All(v => v.a == v.b))
+            {
+                var (i, j) = FindRv();
+
+                graphLv.Index().Where(k => graphLv[k].j == i).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, -1));
+                graphLv.Index().Where(k => graphLv[k].j == j).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, i));
+                graphLv.Index().Where(k => graphLv[k].j == -1).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, j));
+                graphLv = graphLv.OrderBy(v => v).ToArray();
+                graph[lv-1] = graphLv;
+
+                var ii = aa.IndexOf(i);
+                var jj = aa.IndexOf(j);
+                (r[ii], r[jj]) = (r[jj], r[ii]);
+            }
+
+            return r;
+        }
+
         while (true)
         {
             N a, b;
             var lvCount = GetLvCount(graph, lv);
             var lvUpCount = GetLvCount(upGraph, lv);
 
+            // add level nodes
             if (GetLvCount(graph, lv) < GetLvCount(upGraph, lv))
             {
                 (var canAddN, a, b) = GetLevelPairN(lv);
@@ -251,24 +283,18 @@ public class NTrainer
                 return true;
             }
 
-            (var canModify, var add, a, b) = GetLevelPairE(lv);
+            // add level edges
+            (var canAdd, a, b) = GetLevelPairE(lv);
 
-            if (canModify)
+            if (canAdd)
             {
-                if (add)
-                    model.AddE(a, b);
-                else
-                    model.TryRemoveE(a, b);
+                model.AddE(a, b);
 
                 return true;
             }
 
-            while(!AreGraphsSameLevel(lv))
-            {
-                var (i, j) = GetReversePair(lv);
-                model.ReverseLevelNodes(i, j);
-                graph = model.GetGraph();
-            }
+            // todo не работают, оправить venus потом (1, 4) -> (0, 4)
+            ReverseLevel(lv);
 
             // todo: cross level linked
 

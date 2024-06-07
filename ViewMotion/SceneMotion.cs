@@ -180,13 +180,13 @@ partial class SceneMotion
 
                 if (options.AllowGrowing && isGrowing && planI < k + 3)
                 {
-                    var res = trainer.GrowUp();
+                    var isStillGrowing = trainer.GrowUp();
                     yield return GetTopologyShape();
                     yield return GetTopologyShape();
                     yield return GetTopologyShape();
                     planI += planSpeed * size0 / model.size;
 
-                    if (res != isGrowing)
+                    if (isStillGrowing != isGrowing)
                     {
                         yield return GetTopologyShape();
                         yield return GetTopologyShape();
@@ -194,7 +194,7 @@ partial class SceneMotion
                         Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().Select(es => $"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");
                     }
 
-                    isGrowing = res;
+                    isGrowing = isStillGrowing;
                 }
 
                 (nEpochPart).ForEach(_ =>

@@ -104,18 +104,12 @@ public class NModel
         output.ForEach(n => n.lv++);
     }
 
-    public void ReverseLevelNodes(int ii, int jj)
+    public void ReverseLevelNodes(int lv, int[] reverses)
     {
-        var a = ns.Single(n => n.i == ii);
-        var b = ns.Single(n => n.i == jj);
+        var a = nns[lv].ToArray();
+        nns[lv] = nns[lv].ToArray().ReverseForward(reverses).ToList();
+        var b = nns[lv].ToArray();
 
-        var i = nns[a.lv].IndexOf(a);
-        var j = nns[a.lv].IndexOf(b);
-
-        if (i == -1 || j == -1)
-            throw new ArgumentException("cannot find ns on the level");
-
-        (nns[a.lv][i], nns[a.lv][j]) = (nns[a.lv][j], nns[a.lv][i]);
         RestoreIndices();
     }
 
