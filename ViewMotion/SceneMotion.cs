@@ -86,7 +86,7 @@ partial class SceneMotion
             Graph = N21Graphs.Moon,
             UpGraph = N21Graphs.Venus,
             NInput = 2,
-            NHidden = [25],
+            NHidden = [9],
             NHiddenUp = [9,9],
             NOutput = 1,
             AllowGrowing = true,
