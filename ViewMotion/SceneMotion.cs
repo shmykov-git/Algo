@@ -50,6 +50,7 @@ using AI.Model;
 using Shape = Model.Shape;
 using AI.Libraries;
 using AI.NBrain;
+using AI.Extensions;
 
 namespace ViewMotion;
 
@@ -133,7 +134,7 @@ partial class SceneMotion
         NModel model = trainer.model.Clone();
         var size0 = model.size;
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
-        Debug.WriteLine($"Graph: [{trainer.model.GetGraph().Select(es=>$"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");        
+        Debug.WriteLine($"Graph: {trainer.model.GetGraph().ToGraphString()}");        
 
         Vector3 ModelFn(double xx, double yy)
         {

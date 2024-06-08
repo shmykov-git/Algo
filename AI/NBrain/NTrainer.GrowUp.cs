@@ -1,4 +1,6 @@
-﻿using AI.Exceptions;
+﻿using System.Diagnostics;
+using AI.Exceptions;
+using AI.Extensions;
 using AI.Model;
 using Model.Extensions;
 
@@ -60,6 +62,7 @@ public partial class NTrainer
             return (success, i);
         }
 
+        // забрал output в level 2 - 17 оказался на уровне 2 и 3 одновременно
         // dif counts
         int GetLvNJ(int i, int lv)
         {
@@ -169,9 +172,22 @@ public partial class NTrainer
             var r = (lvCount).Range().ToArray();
             var graphLv = graph[lv - 1];
 
+            var counter = 10000;
+
             while (!(graph[lv - 1], upGraph[lv - 1]).SelectBoth().All(v => v.a == v.b))
             {
+                if (counter-- == 0)
+                {
+                    Debug.WriteLine($"Graph: {graph.ToGraphString()}");
+                    Debug.WriteLine($"UpGraph: {upGraph.ToGraphString()}");
+
+                    throw new AlgorithmException("reverses circle found, incorrect graphs");
+                }
+
                 var (i, j) = FindRv();
+
+                if (i == j)
+                    throw new AlgorithmException("cannot reverse same element");
 
                 graphLv.Index().Where(k => graphLv[k].j == i).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, -1));
                 graphLv.Index().Where(k => graphLv[k].j == j).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, i));
