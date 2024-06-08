@@ -7,10 +7,8 @@ public class NOptions
     public bool CleanupTrainTails { get; set; } = false;
     public (int i, int j)[][] Graph { get; set; } = [];
     public (int i, int j)[][] UpGraph { get; set; } = [];
-    public int NInput { get; set; } = 2;
-    public int[] NHidden { get; set; } = [5];
-    public int[] NHiddenUp { get; set; } = [5, 5];
-    public int NOutput { get; set; } = 1;
+    public int[] Topology { get; set; } = [2, 5, 1];
+    public int[] UpTopology { get; set; } = [2, 5, 5, 1];
     public bool AllowGrowing { get; set; } = false;
     public (double a, double b) Weight0 { get; set; } = (2, -1);
     public (double a, double b)? PowerWeight0 { get; set; } = null;

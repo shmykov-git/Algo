@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using AI.Exceptions;
 using AI.Libraries;
+using AI.Model;
 using Model;
 using Model.Extensions;
-using Model.Graphs;
 
-namespace AI.Model;
+namespace AI.NBrain;
 
 public class NModel
 {
@@ -65,7 +65,7 @@ public class NModel
     public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
     public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
 
-    public void RemoveN(N n) 
+    public void RemoveN(N n)
     {
         n.backEs.ForEach(e => e.a.es.Remove(e));
         nns[n.lv].Remove(n);
@@ -116,8 +116,8 @@ public class NModel
     public bool TryRemoveE(N a, N b)
     {
         var e = a.GetLink(b);
-        
-        if (e == null) 
+
+        if (e == null)
             return false;
 
         a.es.Remove(e);
@@ -134,11 +134,11 @@ public class NModel
         var newNns = nns.Select(ns => ns.Select(CloneN).ToList()).ToList();
         var newNs = newNns.ToSingleArray();
 
-        E CloneE(E e) => new E() 
-        { 
-            w = e.w, 
-            a = newNs[e.a.i], 
-            b = newNs[e.b.i] 
+        E CloneE(E e) => new E()
+        {
+            w = e.w,
+            a = newNs[e.a.i],
+            b = newNs[e.b.i]
         };
 
         es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(CloneE).ToList());
@@ -162,7 +162,7 @@ public class NModel
 
     public Shape2 GetTopology()
     {
-        var maxLv = ns.Max(n=>n.lv);
+        var maxLv = ns.Max(n => n.lv);
         double maxCount = ns.Max(n => nns[n.lv].Count);
 
         double GetY(N n)
@@ -195,11 +195,11 @@ public class NModel
         if (vInput.Length != input.Count)
             throw new InvalidInputDataException();
 
-        (input.Count).Range().ForEach(i => input[i].f = vInput[i]);
+        input.Count.Range().ForEach(i => input[i].f = vInput[i]);
     }
 
     public double[] Predict(double[] vInput)
-    {        
+    {
         ComputeOutputs(vInput);
 
         return output.Select(n => n.f).ToArray();
