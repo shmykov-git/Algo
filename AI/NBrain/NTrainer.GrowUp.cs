@@ -62,8 +62,6 @@ public partial class NTrainer
             return (success, i);
         }
 
-        // забрал output в level 2 - 17 оказался на уровне 2 и 3 одновременно
-        // dif counts
         int GetLvNJ(int i, int lv)
         {
             var cs = GetLvCountsNJ(graph, lv);
@@ -71,7 +69,8 @@ public partial class NTrainer
             if (cs.Length < model.output.Count)
                 return model.output.First(n => cs.All(c => c.i != n.i)).i;
 
-            var except = graph[lv - 1].Where(v => v.i == i).Select(v => v.j).ToHashSet();
+            var allow = model.output.Select(n => n.i).ToHashSet();
+            var except = graph[lv - 1].Where(v => v.i == i && !allow.Contains(v.j)).Select(v => v.j).ToHashSet();
 
             var j = FindDifNJ(except, cs);
 
@@ -121,6 +120,17 @@ public partial class NTrainer
                 throw new AlgorithmException("i and j always have pair");
 
             return (true, ns[i], ns[j]);
+        };
+
+        // cross level output link
+        (bool, N, N) GetLevelPairRemoveE(int lv)
+        {
+            var listI = graph[lv - 1].Select(e => e.i).Distinct().ToArray();
+            var listJ = graph[lv].Select(e => e.j).Distinct().ToArray();
+
+            var (success, a, b) = (listI, listJ).SelectCross().Select(v => (true, a: ns[v.a], b: ns[v.b])).Where(v => v.a.IsLinked(v.b)).FirstOrDefault();
+
+            return (success, a, b);
         };
 
         bool AreGraphsSame() => graph.Length == upGraph.Length &&
@@ -186,9 +196,6 @@ public partial class NTrainer
 
                 var (i, j) = FindRv();
 
-                if (i == j)
-                    throw new AlgorithmException("cannot reverse same element");
-
                 graphLv.Index().Where(k => graphLv[k].j == i).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, -1));
                 graphLv.Index().Where(k => graphLv[k].j == j).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, i));
                 graphLv.Index().Where(k => graphLv[k].j == -1).ToArray().ForEach(k => graphLv[k] = (graphLv[k].i, j));
@@ -205,7 +212,7 @@ public partial class NTrainer
 
         while (true)
         {
-            N a, b;
+            N a, b;            
             var lvCount = GetLvCount(graph, lv);
             var lvUpCount = GetLvCount(upGraph, lv);
 
@@ -217,9 +224,21 @@ public partial class NTrainer
                 if (!canAddN)
                     throw new AlgorithmException("cannot find n to add e");
 
-                model.TryRemoveE(a, b);
-                model.AddN(a, b);
+                var removed = model.TryRemoveE(a, b);
 
+                if (removed)
+                    Debug.WriteLine($"removedE:{a.i}-{b.i}");
+
+                model.AddN(a, b);
+                return true;
+            }
+
+            // remove cross level output links
+            (var canRemove, a, b) = GetLevelPairRemoveE(lv);
+
+            if (canRemove)
+            {
+                model.RemoveE(a, b);
                 return true;
             }
 
@@ -229,7 +248,6 @@ public partial class NTrainer
             if (canAdd)
             {
                 model.AddE(a, b);
-
                 return true;
             }
 

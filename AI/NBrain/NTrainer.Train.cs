@@ -1,4 +1,5 @@
-﻿using AI.Exceptions;
+﻿using System.Diagnostics.Metrics;
+using AI.Exceptions;
 using AI.Model;
 using Model.Extensions;
 
@@ -57,13 +58,19 @@ public partial class NTrainer
         model.ComputeOutputs(tInput);
 
         // learn cleanup
-        model.ns.ForEach(n => { n.learned = false; });
+        // skip no compute nodes to learn (to finish process)
+        model.ns.ForEach(n => { n.learned = n.es.Count == 0; }); // todo: fix isOutput
 
         model.output.ForEach(LearnBackPropagationOutput);
         model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
 
+        var counter = 10000;
+
         while (learnQueue.TryDequeue(out var n))
         {
+            if (counter-- == 0)
+                throw new AlgorithmException("cannot learn");
+
             if (n.learned)
                 continue;
 

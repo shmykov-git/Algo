@@ -126,6 +126,17 @@ public class NModel
         return true;
     }
 
+    public void RemoveE(N a, N b)
+    {
+        var e = a.GetLink(b);
+
+        if (e == null)
+            throw new ArgumentException("a and b are not linked");
+
+        a.es.Remove(e);
+        RestoreBackEs(b);
+    }
+
     public double GetAvgW(N n) => n.es.Concat(n.backEs).Average(e => e.w);
     public double GetAvgW(N a, N b) => a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
 
@@ -255,9 +266,14 @@ public class NModel
         ns.ForEach(n => { n.xx = 0; n.computed = false; });
 
         input.ForEach(computeQueue.Enqueue);
+        
+        var counter = 10000;
 
         while (computeQueue.TryDequeue(out var n))
         {
+            if (counter-- == 0)
+                throw new AlgorithmException("cannot compute");
+
             if (n.computed)
                 continue;
 
