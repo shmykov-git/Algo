@@ -226,7 +226,7 @@ partial class SceneMotion
                     model.ShowDebugInfo();
                 }
 
-                yield return GetShape(k % 100 < 50);
+                //yield return GetShape(k % 100 < 50);
             }
         }
 

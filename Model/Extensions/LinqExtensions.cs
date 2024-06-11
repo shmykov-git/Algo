@@ -347,6 +347,8 @@ namespace Model.Extensions
             return Indexer.RemoveBi(items, removeItems);
         }
 
+        public static IEnumerable<TItem> SelectMany<TItem>(this IEnumerable<IEnumerable<TItem>> items) => items.SelectMany(v => v);
+
         public static (TItem1 a, TItem2 b)[] ToBothArray<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items) => items.SelectBoth().ToArray();
 
         public static IEnumerable<(TItem1 a, TItem2 b)> SelectBoth<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items) => items.SelectBoth((a, b) => (a, b));

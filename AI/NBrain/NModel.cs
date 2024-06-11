@@ -28,6 +28,7 @@ public class NModel
     public int maxLv => ns.Max(n => n.lv);
     public int size => es.Count() + ns.Count();
     public IEnumerable<E> GetBackEs(N n) => es.Where(e => e.b == n);
+    public int[] GetNLevels() => ns.Select(n => n.lv).ToArray();
 
     public NModel(NOptions options, Random rnd)
     {
