@@ -269,21 +269,12 @@ public partial class NTrainer
                 if (!canAddN)
                     throw new AlgorithmException("cannot find n to add e");
 
-                var removed = model.TryRemoveE(a, b);
+                //var removed = model.TryRemoveE(a, b);
 
-                if (removed)
-                    Debug.WriteLine($"removedE:{a.i}-{b.i}");
+                //if (removed)
+                //    Debug.WriteLine($"removedE:{a.i}-{b.i}");
 
                 model.AddN(a, b);
-                return true;
-            }
-
-            // remove cross level output links
-            (var canRemove, a, b) = GetLevelPairRemoveE(lv);
-
-            if (canRemove)
-            {
-                model.RemoveE(a, b);
                 return true;
             }
 
@@ -296,14 +287,28 @@ public partial class NTrainer
                 return true;
             }
 
-            ReverseLevel(lv);
+            // remove cross level output links
+            (var canRemove, a, b) = GetLevelPairRemoveE(lv);
+
+            if (canRemove)
+            {
+                model.RemoveE(a, b);
+                return true;
+            }
+
+            // можно удалить это, если делать вставку нодов
+            if (lv == 1)
+                ReverseLevel(lv);
 
             // todo: cross level linked
 
-            if (graph.Equals(upGraph))
-                break;
+            //if (graph.Equals(upGraph))
+            //    break;
 
             lv++;
+
+            if (lv == upGraph.lvMax)
+                break;
 
             model.LevelUp();
             graph = GetGraphInfo(model.GetGraph(), model.GetNLevels());

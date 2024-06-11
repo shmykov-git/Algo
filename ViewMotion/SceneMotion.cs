@@ -76,8 +76,9 @@ partial class SceneMotion
 
         var nEpoch = 500000;
         var nEpochPart = 200;
-        var planSpeed = 1;
-        var planI = 5;
+        var planSpeed = 5;
+        var planI = 50;
+        var showTopology = true;
 
         var mode = NMode.Learn;
 
@@ -85,28 +86,30 @@ partial class SceneMotion
         {
             Seed = 1,
             //Graph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
-            Graph = N21Graphs.Moon,
-            //UpGraph = N21Graphs.Venus,
-            UpGraph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
-            Topology = [2, 9, 1],
+            //Graph = [[(0, 2), (0, 3), (0, 4), (0, 6), (0, 8), (0, 9), (0, 10), (0, 12), (0, 14), (0, 16), (0, 18), (0, 20), (0, 22), (0, 26), (1, 2), (1, 3), (1, 5), (1, 7), (1, 8), (1, 9), (1, 11), (1, 13), (1, 15), (1, 17), (1, 19), (1, 21), (1, 24)], [(2, 23), (3, 24), (3, 25), (3, 28), (4, 25), (4, 27), (5, 24), (5, 26), (6, 24), (6, 27), (7, 23), (7, 25), (8, 24), (8, 27), (9, 25), (10, 24), (10, 26), (11, 24), (11, 27), (12, 23), (13, 24), (14, 23), (14, 24), (14, 25), (14, 26), (15, 23), (15, 26), (16, 23), (16, 26), (16, 28), (16, 27), (17, 23), (17, 26), (18, 24), (18, 26), (19, 25), (19, 27), (20, 26), (21, 23), (21, 25), (21, 27), (22, 23)], [(23, 28), (24, 28), (25, 28), (26, 28), (27, 28)]],
+            Graph = N21Graphs.Arrow,
+            UpGraph = N21Graphs.Atlant,
+            //UpGraph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
+            Topology = [2, 21, 5, 1],
             UpTopology = [2, 9, 9, 1],
             AllowGrowing = true,
             PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
+            SymmetryFactor = 0,
             Nu = 0.1,
             Alfa = 0.5,
             PowerFactor = 300,
-            LinkFactor = 0.15,
+            LinkFactor = 0.2,
             CrossLinkFactor = 0
         };
 
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
         Func<double, double, Vector3> Join(Func<double, double, Vector3> fnA, Func<double, double, Vector3> fnB) => (u, v) => fnA(u, v) + fnB(u, v);
 
-        //var TrainFn = Boxed(SurfaceFuncs.Wave(0, 40), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.25));
+        var TrainFn = Boxed(SurfaceFuncs.Wave(0, 4), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.25));
         //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
         //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
-        var TrainFn = Boxed(SurfaceFuncs.Polynom4, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Polynom4, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
 
 
 
@@ -123,10 +126,12 @@ partial class SceneMotion
 
         var trainer = new NTrainer(options.With(o => o.Training = training));
         trainer.Init();
-        
-        Shape GetTopologyShape() =>
-            trainer.model.GetTopology().ToShape3().Perfecto(3).ToNumSpots3(0.5) +
-            trainer.model.GetTopology().ToShape3().Perfecto(3).ToMeta(Color.Red, Color.Blue);
+
+        Shape GetTopologyShape()
+        {
+            var topology = trainer.model.GetTopology().ToShape3().Perfecto(3);
+            return topology.ToNumSpots3(1).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, 2, 2);
+        }
 
         if (mode == NMode.Topology)
             return GetTopologyShape().ToMotion(3);
@@ -150,6 +155,9 @@ partial class SceneMotion
 
         Shape GetShape(bool withTrainModel) => new[]
         {
+            showTopology 
+            ? GetTopologyShape().Perfecto(1.8).MoveY(2)
+            : Shape.Empty,
             new Shape()
             {
                 Points3 = (modelN, modelN).SelectInterval(modelR.from, modelR.to, modelR.from, modelR.to, ModelFn).ToArray(),
@@ -169,7 +177,7 @@ partial class SceneMotion
 
         IEnumerable<Shape> Animate() 
         {
-            yield return GetTopologyShape();
+            //yield return GetTopologyShape();
 
             yield return GetShape(true);
 
@@ -182,16 +190,16 @@ partial class SceneMotion
                 if (options.AllowGrowing && isGrowing && planI < k + 3)
                 {
                     var isStillGrowing = trainer.GrowUp();
-                    yield return GetTopologyShape();
-                    yield return GetTopologyShape();
-                    yield return GetTopologyShape();
+                    //yield return GetTopologyShape();
+                    //yield return GetTopologyShape();
+                    //yield return GetTopologyShape();
                     planI += planSpeed * size0 / model.size;
 
                     if (isStillGrowing != isGrowing)
                     {
-                        yield return GetTopologyShape();
-                        yield return GetTopologyShape();
-                        yield return GetTopologyShape();
+                        //yield return GetTopologyShape();
+                        //yield return GetTopologyShape();
+                        //yield return GetTopologyShape();
                         Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().Select(es => $"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");
                     }
 
@@ -226,7 +234,7 @@ partial class SceneMotion
                     model.ShowDebugInfo();
                 }
 
-                //yield return GetShape(k % 100 < 50);
+                yield return GetShape(k % 100 < 50);
             }
         }
 

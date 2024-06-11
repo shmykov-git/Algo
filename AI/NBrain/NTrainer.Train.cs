@@ -11,13 +11,32 @@ public partial class NTrainer
     {
         var data = options.Training.ToArray();
 
+        var symmetryLen = (int)Math.Round(options.SymmetryFactor * data.Length);
+        
+        if (symmetryLen == 0)
+            symmetryLen = 1;
+
+        double Step((double[] input, double[] expected) t, int k)
+        {
+            if (k % symmetryLen == 0)
+            {
+                model.es.ForEach(e =>
+                {
+                    e.dw = e.sumDw / symmetryLen;
+                    e.sumDw = 0;
+                });
+            }
+
+            return TrainCase(t.input, t.expected);
+        }
+
         if (options.ShaffleFactor > 0)
             data.Shaffle((int)(options.ShaffleFactor * (3 * data.Length + 7)), rnd);
 
         if (options.CleanupTrainTails)
             CleanupTrainTails();
 
-        var errs = data.Select(t => TrainCase(t.input, t.expected)).ToArray();
+        var errs = data.Select(Step).ToArray();        
 
         var avgErr = errs.Average();
         model.trainError = avgErr;
@@ -48,8 +67,10 @@ public partial class NTrainer
 
             n.es.ForEach(e =>
             {
-                e.dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
-                e.w -= e.dw;
+                var dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
+                e.w -= dw;
+                e.sumDw += dw;
+                //e.dw = dw;
             });
 
             n.learned = true;

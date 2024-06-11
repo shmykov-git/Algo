@@ -8,9 +8,13 @@ public class E
     // </dynamic>
 
     // <learn>
-    public double dw;
     public double w;
     // </learn>
+
+    // <learn.avg>
+    public double dw;
+    public double sumDw;
+    // </learn.avg>
 
     public override string ToString() => $"{w:F2}";
 }
