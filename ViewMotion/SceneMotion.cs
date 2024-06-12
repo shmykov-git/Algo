@@ -158,6 +158,7 @@ partial class SceneMotion
             return GetTopologyShape().ToMotion(3);
 
         NModel model = trainer.model.Clone();
+        NModel bestModel = model;
         var size0 = model.size;
         Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
         Debug.WriteLine($"Graph: {trainer.model.GetGraph().ToGraphString()}");        
@@ -242,6 +243,7 @@ partial class SceneMotion
                         {
                             bestErr = err;
                             bestErrChanged = true;
+                            bestModel = model;
                         }
                     }
                 });
@@ -249,7 +251,10 @@ partial class SceneMotion
                 if (errChanged)
                 {
                     if (bestErrChanged)
+                    {
                         Debug.WriteLine($"bestErr: {err} [{k + 3}]");
+                        Debug.WriteLine($"BestState: {bestModel.GetState().ToStateString()}");
+                    }
                     else
                         Debug.WriteLine($"err: {err}");
 

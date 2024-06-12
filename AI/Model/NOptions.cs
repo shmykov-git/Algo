@@ -5,6 +5,7 @@ public class NOptions
     public int Seed { get; set; } = 0;
     public double ShaffleFactor { get; set; } = 0.1;
     public bool CleanupTrainTails { get; set; } = false;
+    public (int i, int j, double w)[][] State { get; set; } = [];
     public (int i, int j)[][] Graph { get; set; } = [];
     public (int i, int j)[][] UpGraph { get; set; } = [];
     public int[] Topology { get; set; } = [2, 5, 1];

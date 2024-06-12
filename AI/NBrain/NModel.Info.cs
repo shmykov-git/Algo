@@ -8,6 +8,7 @@ namespace AI.NBrain;
 public partial class NModel // Info
 {
     public (int i, int j)[][] GetGraph() => nns.SkipLast(1).Select(ns => ns.SelectMany(n => n.es.Select(e => (e.a.i, e.b.i))).OrderBy(v => v).ToArray()).ToArray();
+    public (int i, int j, double w)[][] GetState() => nns.SkipLast(1).Select(ns => ns.SelectMany(n => n.es.Select(e => (e.a.i, e.b.i, e.w))).OrderBy(v => v).ToArray()).ToArray();
 
     private Func<N, Vector3> TopologyPositionFn()
     {
