@@ -1,4 +1,5 @@
 ﻿using AI.Model;
+using Aspose.ThreeD.Utilities;
 using Model;
 using Model.Extensions;
 
@@ -8,7 +9,7 @@ public partial class NModel // Info
 {
     public (int i, int j)[][] GetGraph() => nns.SkipLast(1).Select(ns => ns.SelectMany(n => n.es.Select(e => (e.a.i, e.b.i))).OrderBy(v => v).ToArray()).ToArray();
 
-    public Shape GetTopology()
+    private Func<N, Vector3> TopologyPositionFn()
     {
         var maxLv = ns.Max(n => n.lv);
         double maxCount = ns.Max(n => nns[n.lv].Count);
@@ -25,16 +26,39 @@ public partial class NModel // Info
 
         double GetX(N n)
         {
-            return n.lv * maxCount;
+            return n.lv * maxCount - 0.5 * maxCount;
         }
 
-        var convexes = es.Select(e => new int[] { e.a.i, e.b.i }).ToArray();
-        var ps = ns.Select(n => new Vector2(GetX(n), GetY(n))).ToArray();
+        return n => new Vector3(GetX(n), GetY(n), 0) / (maxLv * maxCount);
+    }
+
+    public Shape GetTopologyWeights(double mult)
+    {
+        var positionFn = TopologyPositionFn();
+
+        var ps = ns.Select(positionFn).ToArray();
+        var n = ps.Length;
+        var minW = es.Min(e => e.w);
+        var maxW = es.Max(e => e.w);
+
+        var wightPs = es.Select(e => 0.5 * (ps[e.a.i] + ps[e.b.i]) + new Vector3(0, 0, 0.5 * e.w * mult / (maxW - minW))).ToArray();
+        var convexes = es.SelectMany((e, k) => new int[][] { [e.a.i, k + n], [k + n, e.b.i] }).ToArray();
 
         return new Shape()
         {
-            Points2 = ps,
+            Points3 = ps.Concat(wightPs).ToArray(),
             Convexes = convexes
+        };
+    }
+
+    public Shape GetTopology()
+    {
+        var positionFn = TopologyPositionFn();
+
+        return new Shape()
+        {
+            Points3 = ns.Select(positionFn).ToArray(),
+            Convexes = es.Select(e => new int[] { e.a.i, e.b.i }).ToArray()
         };
     }
 }

@@ -79,8 +79,10 @@ partial class SceneMotion
         var planSpeed = 5;
         var planI = 50;
         var showTopology = false;
+        var topologyWeightHeight = 50;
+        var showTopologyWeights = true;
 
-        var mode = NMode.Topology;
+        var mode = NMode.Learn;
 
         var options = new NOptions()
         {
@@ -106,9 +108,9 @@ partial class SceneMotion
         Func<double, double, Vector3> Boxed(SurfaceFunc fn, Vector3 move, Vector3 scale) => (u, v) => (fn(u, v) + move).MultC(scale) + new Vector3(0.5, 0.5, 0.5);
         Func<double, double, Vector3> Join(Func<double, double, Vector3> fnA, Func<double, double, Vector3> fnB) => (u, v) => fnA(u, v) + fnB(u, v);
 
-        var TrainFn = Boxed(SurfaceFuncs.Wave(0, 4), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
-        //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
         //var TrainFn = Boxed(SurfaceFuncs.Paraboloid, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        //var TrainFn = Boxed(SurfaceFuncs.Hyperboloid, new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
+        var TrainFn = Boxed(SurfaceFuncs.Wave(0, 4), new Vector3(0, 0, 0), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
         //var TrainFn = Boxed(SurfaceFuncs.Polynom4, new Vector3(0, 0, -4), m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125));
 
 
@@ -138,8 +140,18 @@ partial class SceneMotion
                 return lastTopology;
 
             var topology = trainer.model.GetTopology().Perfecto(3);
-            lastTopology = topology.ToNumSpots3(0.5*topMult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, topMult, topMult);
+            lastTopology = topology.ToNumSpots3(0.5 * topMult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, topMult, topMult);
             return lastTopology;
+        }
+
+        Shape GetTopologyWeightsShape()
+        {
+            return trainer.model
+                .GetTopologyWeights(topologyWeightHeight)
+                .ToOy()
+                .Mult(2)
+                .Move(2, 0, 1)
+                .ToMeta(Color.Red, Color.Blue, 3, 3);
         }
 
         if (mode == NMode.Topology)
@@ -164,8 +176,11 @@ partial class SceneMotion
 
         Shape GetShape(bool withTrainModel) => new[]
         {
-            showTopology 
+            showTopology
             ? GetTopologyShape().Perfecto(1.8).MoveY(2)
+            : Shape.Empty,
+            showTopologyWeights
+            ? GetTopologyWeightsShape() 
             : Shape.Empty,
             new Shape()
             {
