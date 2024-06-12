@@ -8,8 +8,15 @@ public static class NGraphExtensions
 {
     public static string ToGraphString(this (int i, int j)[][] graph) => 
         $"[{graph.Select(es => $"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]";
-    public static string ToStateString(this (int i, int j, double w)[][] graph) =>
-        $"[{graph.Select(es => $"[{es.Select(e => $"({e.i}, {e.j}, {e.w})").SJoin(", ")}]").SJoin(", ")}]";
+
+    public static string ToStateString(this (int i, int j, double w)[][] state) =>
+        $"[{state.Select(es => $"[{es.Select(e => $"({e.i}, {e.j}, {e.w})").SJoin(", ")}]").SJoin(", ")}]";
+
+    public static (int i, int j)[][] ToGraph(this (int i, int j, double w)[][] state) =>
+        state.Select(es => es.Select(e => (e.i, e.j)).ToArray()).ToArray();
+
+    public static Dictionary<(int i, int j), double> ToGraphWeights(this (int i, int j, double w)[][] state) =>
+        state.SelectMany().ToDictionary(e => (e.i, e.j), e => e.w);
 
     public static (int i, int j)[][] ToOrdered(this (int i, int j)[][] graph) => graph.Select(l => l.OrderBy(v => v).ToArray()).ToArray();
 

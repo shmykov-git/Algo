@@ -1,4 +1,5 @@
-﻿using AI.Libraries;
+﻿using AI.Extensions;
+using AI.Libraries;
 using AI.Model;
 using Model.Extensions;
 
@@ -26,13 +27,23 @@ public partial class NTrainer
         rnd = new Random(options.Seed);
         model = new NModel(options, rnd);
 
-        if (options.Graph is [])
+        if (options.Model is [])
         {
-            CreateNetByTopology(model);
+            if (options.Graph is [])
+            {
+                CreateNetByTopology(model);
+            }
+            else
+            {
+                CreateNetByGraph(model);
+            }
         }
         else
         {
+            options.Graph = options.Model.ToGraph();
             CreateNetByGraph(model);
+            var weights = options.Model.ToGraphWeights();
+            model.es.ForEach(e => e.w = weights[(e.a.i, e.b.i)]);
         }
 
         model.RestoreBackEs();
