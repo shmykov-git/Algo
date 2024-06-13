@@ -39,10 +39,8 @@ public partial class NModel // Info
 
         var ps = ns.Select(positionFn).ToArray();
         var n = ps.Length;
-        var minW = es.Min(e => e.w);
-        var maxW = es.Max(e => e.w);
 
-        var wightPs = es.Select(e => 0.5 * (ps[e.a.i] + ps[e.b.i]) + new Vector3(0, 0, 0.5 * e.w * mult / (maxW - minW))).ToArray();
+        var wightPs = es.Select(e => 0.5 * (ps[e.a.i] + ps[e.b.i]) + new Vector3(0, 0, 0.5 * e.w * mult)).ToArray();
         var convexes = es.SelectMany((e, k) => new int[][] { [e.a.i, k + n], [k + n, e.b.i] }).ToArray();
 
         return new Shape()

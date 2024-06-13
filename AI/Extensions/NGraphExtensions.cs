@@ -15,6 +15,9 @@ public static class NGraphExtensions
     public static (int i, int j)[][] ToGraph(this (int i, int j, double w)[][] state) =>
         state.Select(es => es.Select(e => (e.i, e.j)).ToArray()).ToArray();
 
+    public static (int i, int j, double w)[][] Except(this (int i, int j, double w)[][] state, params (int i, int j)[] except) =>
+        state.Select(es => es.Where(e => !except.Contains((e.i, e.j))).ToArray()).ToArray();
+
     public static Dictionary<(int i, int j), double> ToGraphWeights(this (int i, int j, double w)[][] state) =>
         state.SelectMany().ToDictionary(e => (e.i, e.j), e => e.w);
 
