@@ -40,14 +40,7 @@ public partial class NModel
         var newNns = nns.Select(ns => ns.Select(CloneN).ToList()).ToList();
         var newNs = newNns.ToSingleArray();
 
-        E CloneE(E e) => new E()
-        {
-            w = e.w,
-            a = newNs[e.a.i],
-            b = newNs[e.b.i]
-        };
-
-        es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(CloneE).ToList());
+        es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(e => CloneE(newNs, e)).ToList());
 
         var model = new NModel(options, rnd)
         {
@@ -63,14 +56,23 @@ public partial class NModel
 
         return model;
     }
+    
+    E CloneE(N[] ns, E e) => new E()
+    {
+        w = e.w,
+        dw = e.dw,
+        a = ns[e.a.i],
+        b = ns[e.b.i]
+    };
 
     private N CloneN(N n) => new N()
     {
         i = n.i,
-        f = n.f,
+        //f = n.f,
         lv = n.lv,
-        delta = n.delta,
-        sigmoidFn = n.sigmoidFn,
+        //delta = n.delta,
+        activatorFn = n.activatorFn,
+        activatorDerFFn = n.activatorDerFFn,
         dampingFn = n.dampingFn,
     };
 

@@ -15,6 +15,7 @@ public class NOptions
     public (double a, double b)? PowerWeight0 { get; set; } = null;
     public double PowerFactor { get; set; } = 100;
     public double SymmetryFactor { get; set; } = 0;
+    public int ParallelCount { get; set; } = 1;
     public double LinkFactor { get; set; } = 0.2;
     public double CrossLinkFactor { get; set; } = 0;
     public double DampingCoeff { get; set; } = 0;

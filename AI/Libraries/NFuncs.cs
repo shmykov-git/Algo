@@ -25,5 +25,10 @@ public static class NFuncs
         return x => 1 / (1 + Math.Exp(a * x));
     }
 
+    public static NFunc GetSigmoidDerFFn()
+    {
+        return f => f * (1 - f);
+    }
+
     public static NFunc GetBaseWeight(double a, double b) => x => a * x + b;
 }

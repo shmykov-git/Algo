@@ -5,8 +5,9 @@ namespace AI.Model;
 public class N
 {
     // <static>
-    public NFunc sigmoidFn; // activator func
+    public NFunc activatorFn; // activator func
     public NFunc dampingFn; // damping func
+    public NFunc activatorDerFFn; // activator derivative func by func value
     // </static>
 
     // <dynamic>

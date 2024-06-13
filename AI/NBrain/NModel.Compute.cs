@@ -29,7 +29,7 @@ public partial class NModel
         if (!n.isInput)
         {
             // compute output (f) from input (xx)
-            n.f = n.sigmoidFn(n.xx);
+            n.f = n.activatorFn(n.xx);
             n.f = n.dampingFn(n.f);
         }
 

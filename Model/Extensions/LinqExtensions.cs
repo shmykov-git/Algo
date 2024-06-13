@@ -374,6 +374,58 @@ namespace Model.Extensions
 
         public static IEnumerable<TItem> ReverseList<TItem>(this List<TItem> items) => ((IEnumerable<TItem>)items).Reverse();
 
+        public static async Task<TOut[]> SelectInParallelAsync<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
+        {
+            if (items.Length == 0)
+                return Array.Empty<TOut>();
+
+            var e = new TaskCompletionSource();
+            var allCompleted = false;
+            var results = new TOut[items.Length];
+
+            var n = threadPool.ThreadsCount < items.Length ? threadPool.ThreadsCount : items.Length;
+            var offset = 0;
+            var completed = new bool[n];
+
+            (n).ForEach(i =>
+            {
+                var m = items.Length / n + (i < items.Length % n ? 1 : 0);
+                var k = offset;
+                offset += m;
+
+                threadPool.Run(() =>
+                {
+                    (m).ForEach(j => results[k + j] = processFn(items[k + j]));
+                    completed[i] = true;
+
+                    if (completed.All(v => v))
+                    {
+                        if (allCompleted)
+                            return;
+
+                        Task.Run(() =>
+                        {
+                            if (allCompleted)
+                                return;
+                            
+                            lock (e)
+                            {
+                                if (allCompleted)
+                                    return;
+
+                                allCompleted = true;
+                                e.SetResult();
+                            }
+                        });
+                    }
+                });
+            });
+
+            await e.Task;
+
+            return results;
+        }
+
         public static TOut[] SelectInParallel<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
         {
             if (items.Length == 0)

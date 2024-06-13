@@ -11,7 +11,8 @@ public partial class NModel // Dynamic
     {
         lv = lv,
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
-        sigmoidFn = NFuncs.GetSigmoidFn(options.Alfa * options.PowerFactor),
+        activatorFn = NFuncs.GetSigmoidFn(options.Alfa * options.PowerFactor),
+        activatorDerFFn = NFuncs.GetSigmoidDerFFn(),
         //g = groups[0]
     };
 

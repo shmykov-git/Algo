@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model;
+using Model.Libraries;
 using Model3D.Actives;
 using Model3D.Extensions;
 using ViewMotion.Models;
@@ -37,9 +38,9 @@ static class MotionExtensions
         return Animate().ToMotion(options);
     }
 
-    public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) => 
+    public static Task<Motion> ToMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
         new[] { shape }.ToMotion(cameraDistance, startShape, stepDelay);
-    
+
     public static Task<Motion> ToMotion2D(this Shape shape, double cameraDistance) => new[] { shape }.ToMotion(new Vector3(0, 0, cameraDistance));
 
     public static Task<Motion> ToWorldMotion(this Shape shape, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null) =>
@@ -64,9 +65,35 @@ static class MotionExtensions
         });
     }
 
+    public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, Vector3 cameraPosition)
+    {
+        return ToMotion(shapes, new MotionOptions()
+        {
+            CameraMotionOptions = new CameraMotionOptions()
+            {
+                CameraStartOptions = new CameraOptions
+                {
+                    Position = cameraPosition,
+                    LookDirection = -cameraPosition.Normalize(),
+                    UpDirection = Vector3.YAxis,
+                }
+            },
+        });
+    }
+
     public static Task<Motion> ToMotion2D(this IEnumerable<Shape> shapes, double cameraDistance) => shapes.ToMotion(new Vector3(0, 0, cameraDistance));
 
     public static Task<Motion> ToMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
+    {
+        return ToMotion(shapes, new MotionOptions()
+        {
+            CameraDistance = cameraDistance,
+            StartShape = startShape,
+            StepDelay = stepDelay
+        });
+    }
+
+    public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
     {
         return ToMotion(shapes, new MotionOptions()
         {
@@ -132,6 +159,38 @@ static class MotionExtensions
 
         return world;
     }
+
+    public static IEnumerable<Shape> ToSync(this IAsyncEnumerable<Shape> shapes)
+    {
+        var e = shapes.GetAsyncEnumerator();
+
+        ConcurrentQueue<Shape> q = new();
+        var stop = false;
+
+        Task.Run(async () =>
+        {
+            while (await e.MoveNextAsync())
+            {
+                q.Enqueue(e.Current);
+                await Task.Delay(1);
+            }
+
+            stop = true;
+        });
+
+        while (!stop)
+        {
+            while (q.TryDequeue(out var s))
+            {
+                yield return s;
+            }
+
+            Thread.Sleep(1);
+        }
+    }
+
+    public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, MotionOptions options) =>
+        ToSync(shapes).ToMotion(options);
 
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)
     {
