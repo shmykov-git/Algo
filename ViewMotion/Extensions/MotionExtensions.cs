@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Aspose.ThreeD.Utilities;
 using Meta.Extensions;
 using Model;
+using Model.Extensions;
 using Model.Libraries;
 using Model3D.Actives;
 using Model3D.Extensions;
@@ -160,37 +161,8 @@ static class MotionExtensions
         return world;
     }
 
-    public static IEnumerable<Shape> ToSync(this IAsyncEnumerable<Shape> shapes)
-    {
-        var e = shapes.GetAsyncEnumerator();
-
-        ConcurrentQueue<Shape> q = new();
-        var stop = false;
-
-        Task.Run(async () =>
-        {
-            while (await e.MoveNextAsync())
-            {
-                q.Enqueue(e.Current);
-                await Task.Delay(1);
-            }
-
-            stop = true;
-        });
-
-        while (!stop)
-        {
-            while (q.TryDequeue(out var s))
-            {
-                yield return s;
-            }
-
-            Thread.Sleep(1);
-        }
-    }
-
     public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, MotionOptions options) =>
-        ToSync(shapes).ToMotion(options);
+        shapes.ToSync().ToMotion(options);
 
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)
     {

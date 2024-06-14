@@ -90,6 +90,11 @@ public partial class NTrainer
         var nns = (options.Topology.Length).Range(lv => (options.Topology[lv]).Range().Select(_ => model.CreateN(model, lv)).ToList()).ToList();
         model.nns = nns;
         model.RestoreIndices();
+        //nns.ForEach((n, lv, ii) => 
+        //{
+        //    if (ii % 2 == 1)
+        //        n.act = NAct.Sin.ToActivator(options);
+        //});
 
         var maxHidden = options.Topology.Max();
 

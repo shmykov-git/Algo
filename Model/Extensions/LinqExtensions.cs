@@ -10,6 +10,7 @@ using Meta.Tools;
 using ThreadPool = Meta.Tools.ThreadPool;
 using System.Runtime.CompilerServices;
 using Model.Trees;
+using System.Collections.Concurrent;
 
 namespace Model.Extensions
 {
@@ -53,6 +54,11 @@ namespace Model.Extensions
                         throw new NotImplementedException(state.ToString());
                 }
             } while (i < list.Count);
+        }
+
+        public static void ForEach<T>(this IEnumerable<IEnumerable<T>> list, Action<T, int, int> action)
+        {
+            list.ForEach((vs, i) => vs.ForEach((v, j) => action(v, i, j)));
         }
 
         public static void ForEach<T>(this IEnumerable<T> list, Action<T, int> action)
@@ -568,6 +574,37 @@ namespace Model.Extensions
                     yield return item;
                 else
                     break;
+            }
+        }
+
+        public static IEnumerable<T> ToSync<T>(this IAsyncEnumerable<T> values)
+        {
+            var e = values.GetAsyncEnumerator();
+
+            var hasCurrent = false;
+            var stop = false;
+
+            Task.Run(async () =>
+            {
+                while (await e.MoveNextAsync())
+                {
+                    hasCurrent = true;
+                    
+                    while(hasCurrent)
+                        await Task.Delay(1);
+                }
+
+                stop = true;
+            });
+
+            while (!stop)
+            {
+                while (!hasCurrent)
+                    Thread.Sleep(1);
+                
+                yield return e.Current;
+
+                hasCurrent = false;
             }
         }
     }
