@@ -1,15 +1,20 @@
 ﻿using AI.Libraries;
+using AI.NBrain;
 using AI.NBrain.Activators;
 
 namespace AI.Model;
 
 public class N
 {
+    // <static>
     public NActivator act;
+    public NModel model;
+    // <static>
 
     // <dynamic>
     public int i;           // order number 
     public int lv;          // level
+    public int ii;          // level order number
     //public NGroup g;      // group
     public List<E> es = []; // forward links
     public E[] backEs = []; // back links
@@ -22,12 +27,14 @@ public class N
     // </compute>
 
     // <learn>
+    public bool believed;               // no learn just believe
+    public Func<N, double> believedFn;  // believe to this truth
     public double delta;    // training changing value
     public bool learned;    // pass throw ns while learn
     // </learn>
 
     public bool isInput => lv == 0;
-    public bool isOutput => es.Count == 0; // todo: should be level depended (max lv)
+    public bool isOutput => model.maxLv == lv;
 
     public bool IsLinked(N b) => es.Any(e => e.b == b);
     public E? GetLink(N b) => es.SingleOrDefault(e => e.b == b);

@@ -13,20 +13,23 @@ public partial class NModel
     public double trainError;
     public (double, double) avgX;
     public double avgDelta;
+    public int blLv = 0;
+    public int upLv = 0;
 
     private readonly NOptions options;
     private readonly Random rnd;
     public List<List<N>> nns;
-    public NActivator activator;
 
     public List<N> input => nns[0];
     public List<N>[] hidden => nns.Skip(1).SkipLast(1).ToArray();
     public List<N> output => nns[^1];
 
+    public IEnumerable<N> unbelievedNs => nns.Skip(blLv).SelectMany(ns => ns.Where(n => !n.believed));
+    public int unbelievedCapacity => nns.Skip(blLv).Sum(ns => ns.Count);
     public IEnumerable<N> ns => nns.SelectMany(ns => ns);
     public IEnumerable<E> es => ns.SelectMany(n => n.es);
 
-    public int maxLv => ns.Max(n => n.lv);
+    public int maxLv => nns.Count - 1;
     public int size => es.Count() + ns.Count();
     public IEnumerable<E> GetBackEs(N n) => es.Where(e => e.b == n);
     public int[] GetNLevels() => ns.Select(n => n.lv).ToArray();
@@ -35,7 +38,16 @@ public partial class NModel
     {
         this.options = options;
         this.rnd = rnd;
-        this.activator = options.Activator.ToActivator(options);
+    }
+
+    public void MakeBelieved(int lv)
+    {
+        nns[lv].ForEach(n =>
+        {
+            n.believed = true;
+        });
+
+        blLv = lv;
     }
 
     public NModel Clone()
@@ -54,28 +66,13 @@ public partial class NModel
             avgDelta = avgDelta
         };
 
+        model.ns.ForEach(n => n.model = model);
+
         model.RestoreIndices();
         model.RestoreBackEs();
 
         return model;
     }
-    
-    E CloneE(N[] ns, E e) => new E()
-    {
-        w = e.w,
-        dw = e.dw,
-        a = ns[e.a.i],
-        b = ns[e.b.i]
-    };
-
-    private N CloneN(N n) => new N()
-    {
-        i = n.i,
-        //f = n.f,
-        lv = n.lv,
-        act = n.act,
-        //delta = n.delta,
-    };
 
     public void ShowDebug()
     {

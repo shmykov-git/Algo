@@ -10,12 +10,14 @@ namespace AI.NBrain;
 
 public partial class NTrainer
 {
-    public bool GrowUp()
+    public (bool ready, bool levelReady) GrowUp()
     {
         if (!options.AllowGrowing)
             throw new NotAllowedException(nameof(options.AllowGrowing));
 
-        return options.UpGraph is [] ? GrowUpByTopology() : GrowUpByGraph();
+        var (ready, levelReady) = options.UpGraph is [] ? GrowUpByTopology() : GrowUpByGraph();
+
+        return (ready, levelReady);
     }
 
     class GraphInfo
@@ -84,7 +86,7 @@ public partial class NTrainer
         };
     }
 
-    private bool GrowUpByGraph()
+    private (bool ready, bool levelReady) GrowUpByGraph()
     {
         var graph = GetGraphInfo(model.GetGraph(), model.GetNLevels());
         var upGraph = GetGraphInfo(options.UpGraph.ToOrdered(), options.UpGraph.GetNLevels());
@@ -256,7 +258,7 @@ public partial class NTrainer
 
         while (true)
         {
-            N a, b;            
+            N a, b;
 
             // fill level nodes
             if (graph.nns[lv].Length < upGraph.nns[lv].Length)
@@ -272,7 +274,7 @@ public partial class NTrainer
                 //    Debug.WriteLine($"removedE:{a.i}-{b.i}");
 
                 model.AddN(a, b);
-                return true;
+                return (false, false);
             }
 
             // fill level edges
@@ -281,7 +283,7 @@ public partial class NTrainer
             if (canAdd)
             {
                 model.AddE(a, b);
-                return true;
+                return (false, false);
             }
 
             // remove cross level output links
@@ -290,7 +292,7 @@ public partial class NTrainer
             if (canRemove)
             {
                 model.RemoveE(a, b);
-                return true;
+                return (false, false);
             }
 
             // можно удалить это, если делать вставку нодов
@@ -298,6 +300,12 @@ public partial class NTrainer
                 ReverseLevel(lv);
 
             // todo: cross level linked
+
+            if (model.upLv != lv)
+            {
+                model.upLv = lv;
+                return (false, true);
+            }
 
             //if (graph.Equals(upGraph))
             //    break;
@@ -312,10 +320,10 @@ public partial class NTrainer
             ns = model.ns.ToArray();
         }
 
-        return false;
+        return (true, true);
     }
 
-    private bool GrowUpByTopology()
+    private (bool ready, bool levelReady) GrowUpByTopology()
     {
         if (model.nns[1].Count > options.UpTopology[1] || model.nns.Count > options.UpTopology.Length)
             throw new NotSupportedException("grow up only");
@@ -361,7 +369,7 @@ public partial class NTrainer
                 model.TryRemoveE(a, b);
                 model.AddN(a, b);
 
-                return true;
+                return (false, false);
             }
 
             if (!IsLevelLinked(lv))
@@ -369,10 +377,16 @@ public partial class NTrainer
                 var (a, b) = GetLevelPairE(lv);
                 model.AddE(a, b);
 
-                return true;
+                return (false, false);
             }
 
             // todo: cross level linked
+
+            if (model.upLv != lv)
+            {
+                model.upLv = lv;
+                return (false, true);
+            }
 
             lv++;
 
@@ -380,6 +394,6 @@ public partial class NTrainer
                 model.LevelUp();
         }
 
-        return false;
+        return (true, true);
     }
 }

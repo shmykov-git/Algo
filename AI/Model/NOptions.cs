@@ -14,7 +14,8 @@ public class NOptions
     public bool AllowGrowing { get; set; } = false;
     public (double a, double b) Weight0 { get; set; } = (2, -1);
     public (double a, double b)? PowerWeight0 { get; set; } = null;
-    public NActivatorType Activator { get; set; } = NActivatorType.Sigmoid;
+    public NAct Act { get; set; } = NAct.Sigmoid;
+    public bool AllowBelieved { get; set; } = true;
     public double PowerFactor { get; set; } = 100;
     public double SymmetryFactor { get; set; } = 0;
     public int ParallelCount { get; set; } = 1;
@@ -25,5 +26,5 @@ public class NOptions
     public double Nu { get; set; } = 0.1;
     public double Alfa { get; set; } = 0.5;
 
-    public (double[] input, double[] expected)[] Training { get; set; }
+    public (int num, double[] input, double[] expected)[] Training { get; set; }
 }

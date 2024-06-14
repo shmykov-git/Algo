@@ -6,8 +6,33 @@ namespace AI.NBrain;
 
 public partial class NTrainer
 {
+    private double[][] trainLevelMatrix = null;
+    private int trainCaseNum = -1;
+
+    public void MakeBelieved()
+    {
+        if (!options.AllowBelieved)
+            throw new NotAllowedException("UseLayerBelief");
+
+        model.MakeBelieved(model.maxLv - 2);
+    }
+
+    private void InitTrainMatrix()
+    {
+        var lv = model.maxLv - 2;
+
+        if (trainLevelMatrix != null 
+            && model.nns[lv].Count == trainLevelMatrix[0].Length)
+            return;
+
+        trainLevelMatrix = (options.Training.Length).Range().Select(_ => (model.nns[lv].Count).Range(_ => 0.0).ToArray()).ToArray();
+    }
+
     public async Task<double> Train()
     {
+        if (options.AllowBelieved)
+            InitTrainMatrix();
+
         var data = options.Training.ToArray();
         var pN = options.ParallelCount;
         var pNs = (pN).Range().ToArray();
@@ -18,7 +43,7 @@ public partial class NTrainer
         if (symmetryLen == 0)
             symmetryLen = 1;
 
-        double ModelStep(int mI, (double[] input, double[] expected) t, int k)
+        double ModelStep(int mI, (int num, double[] input, double[] expected) t, int k)
         {
             if (mI != 0 && k % symmetryLen == 0)
             {
@@ -28,8 +53,10 @@ public partial class NTrainer
                     e.sumDw = 0;
                 });
             }
-
-            return TrainCase(models[mI], t.input, t.expected);
+            
+            return model.blLv > 0 
+                ? TrainCase(models[mI], t.num, trainLevelMatrix[t.num], t.expected)
+                : TrainCase(models[mI], t.num, t.input, t.expected);
         }
 
         if (options.ShaffleFactor > 0)
@@ -61,10 +88,11 @@ public partial class NTrainer
             }
             else
             {
-                // медленнее в 100!! раз
-                models = (pN).Range().Select(i => i == 0 ? model : model.Clone()).ToArray();
-                var errors = await pNs.SelectInParallelAsync(j => ModelStep(j, data[k * pN + j], k));
-                sumError += errors.Sum();
+                throw new NotImplementedException();
+                // медленнее в 100!! раз, todo: model of n for train matrix
+                //models = (pN).Range().Select(i => i == 0 ? model : model.Clone()).ToArray();
+                //var errors = await pNs.SelectInParallelAsync(j => ModelStep(j, data[k * pN + j], k));
+                //sumError += errors.Sum();
             }
         }
 
@@ -88,18 +116,21 @@ public partial class NTrainer
         });
     }
 
-    private double TrainCase(NModel model, double[] tInput, double[] tExpected)
+    private double TrainCase(NModel model, int num, double[] tLayerInput, double[] tExpected)
     {
         if (tExpected.Length != options.Topology[^1])
             throw new InvalidExpectedDataException();
 
-        model.ComputeOutputs(tInput);
-
+        model.ComputeTrainCase(tLayerInput);
+        
+        if (options.AllowBelieved)
+            model.nns[^3].ForEach(n => trainLevelMatrix[num][n.ii] = n.f);
+        
         // learn cleanup
-        Queue<N> learnQueue = new();
+        Queue<N> learnQueue = new Queue<N>(model.unbelievedCapacity);
 
         // skip no compute nodes to finish learn process in any cases
-        model.ns.ForEach(n => { n.learned = n.es.Count == 0; });
+        model.unbelievedNs.ForEach(n => { n.learned = n.es.Count == 0; });
 
         model.output.ForEach((n, i) => 
         {
@@ -116,7 +147,7 @@ public partial class NTrainer
             if (counter-- == 0)
                 throw new AlgorithmException("cannot learn");
 
-            if (n.learned)
+            if (n.learned || n.believed)
                 continue;
 
             if (n.es.All(e => e.b.learned))

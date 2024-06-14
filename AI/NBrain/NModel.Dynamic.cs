@@ -8,11 +8,21 @@ namespace AI.NBrain;
 
 public partial class NModel // Dynamic
 {
-    public N CreateN(int lv, NOptions o, NActivatorType t) => new N()
+    public N CreateN(NModel model, int lv) => new N()
     {
+        model = model,
         lv = lv,
-        act = t.ToActivator(o),
+        act = model.options.Act.ToActivator(model.options),
         //g = groups[0]
+    };
+
+    private N CloneN(N n) => new N()
+    {
+        i = n.i,
+        //f = n.f,
+        lv = n.lv,
+        act = n.act,
+        //delta = n.delta,
     };
 
     public E CreateE(N a, N b, double w) => new E
@@ -21,6 +31,14 @@ public partial class NModel // Dynamic
         w = w,
         a = a,
         b = b,
+    };
+
+    E CloneE(N[] ns, E e) => new E()
+    {
+        w = e.w,
+        dw = e.dw,
+        a = ns[e.a.i],
+        b = ns[e.b.i]
     };
 
     public void RemoveN(N n)
@@ -36,7 +54,7 @@ public partial class NModel // Dynamic
         var lv = (a.lv + b.lv) / 2;
         Debug.WriteLine($"+N:{a.i}-{b.i} ({lv})");
 
-        var c = CreateN(lv, options, ns.Count() % 2 == 0 ? NActivatorType.Sigmoid : NActivatorType.Sin);
+        var c = CreateN(this, lv);
         nns[lv].Add(c);
         RestoreIndices();
         AddE(a, c, GetAvgW(a));
@@ -95,7 +113,12 @@ public partial class NModel // Dynamic
         RestoreIndices();
     }
 
-    public void RestoreIndices() => ns.ForEach((n, i) => n.i = i);
+    public void RestoreIndices()
+    {
+        ns.ForEach((n, i) => n.i = i);
+        nns.ForEach(ns => ns.ForEach((n, ii) => n.ii = ii));
+    }
+
     public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
     public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
 

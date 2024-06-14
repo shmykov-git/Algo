@@ -39,6 +39,37 @@ public partial class NModel
         n.computed = true;
     }
 
+    public void ComputeTrainCase(double[] fs)
+    {
+        nns[blLv].ForEach(n => n.f = fs[n.ii]);
+
+        // compute cleanup
+        nns.Skip(blLv).ForEach(ns => ns.ForEach(n => { n.xx = 0; n.computed = false; }));
+
+        nns[blLv].ForEach(computeQueue.Enqueue);
+
+        var counter = 10000;
+
+        while (computeQueue.TryDequeue(out var n))
+        {
+            if (counter-- == 0)
+                throw new AlgorithmException("cannot compute");
+
+            if (n.computed)
+                continue;
+
+            if (n.lv == blLv || n.backEs.All(e => e.a.computed))
+            {
+                ComputeN(n);
+
+                // pass to compute b
+                n.es.ForEach(e => computeQueue.Enqueue(e.b));
+            }
+            else
+                computeQueue.Enqueue(n);
+        }
+    }
+
     public void ComputeOutputs(double[] vInput)
     {
         SetInput(vInput);
@@ -69,7 +100,7 @@ public partial class NModel
                 computeQueue.Enqueue(n);
         }
 
-        double Avg(Func<N, bool> predicate) => ns.Any(predicate) ? ns.Where(predicate).Average(n => n.f) : -1;
-        avgX = (Avg(n => !n.isInput && n.f > 0.5), Avg(n => !n.isInput && n.f < 0.5));
+        //double Avg(Func<N, bool> predicate) => ns.Any(predicate) ? ns.Where(predicate).Average(n => n.f) : -1;
+        //avgX = (Avg(n => !n.isInput && n.f > 0.5), Avg(n => !n.isInput && n.f < 0.5));
     }
 }

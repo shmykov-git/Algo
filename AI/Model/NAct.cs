@@ -1,7 +1,8 @@
 ﻿namespace AI.Model;
 
-public enum NActivatorType 
+public enum NAct 
 {
+    None,
     Sigmoid,
     Tanh,
     Sin

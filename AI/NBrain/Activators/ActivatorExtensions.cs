@@ -5,11 +5,12 @@ namespace AI.NBrain.Activators;
 
 public static class ActivatorExtensions
 {
-    public static NActivator ToActivator(this NActivatorType type, NOptions options) => type switch
+    public static NActivator ToActivator(this NAct act, NOptions options) => act switch
     {
-        NActivatorType.Sigmoid => new SigmoidActivator(options),
-        NActivatorType.Tanh => new TanhActivator(options),
-        NActivatorType.Sin => new SinActivator(options),
-        _ => throw new NotImplementedException(options.Activator.ToString())
+        NAct.None => new NoneActivator(options),
+        NAct.Sigmoid => new SigmoidActivator(options),
+        NAct.Tanh => new TanhActivator(options),
+        NAct.Sin => new SinActivator(options),
+        _ => throw new NotImplementedException(options.Act.ToString())
     };
 }
