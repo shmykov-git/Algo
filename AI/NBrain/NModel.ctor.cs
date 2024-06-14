@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using AI.Libraries;
 using AI.Model;
+using AI.NBrain.Activators;
 using Model;
 using Model.Extensions;
 
@@ -16,6 +17,7 @@ public partial class NModel
     private readonly NOptions options;
     private readonly Random rnd;
     public List<List<N>> nns;
+    public NActivator activator;
 
     public List<N> input => nns[0];
     public List<N>[] hidden => nns.Skip(1).SkipLast(1).ToArray();
@@ -33,6 +35,7 @@ public partial class NModel
     {
         this.options = options;
         this.rnd = rnd;
+        this.activator = options.Activator.ToActivator(options);
     }
 
     public NModel Clone()
@@ -70,10 +73,8 @@ public partial class NModel
         i = n.i,
         //f = n.f,
         lv = n.lv,
+        act = n.act,
         //delta = n.delta,
-        activatorFn = n.activatorFn,
-        activatorDerFFn = n.activatorDerFFn,
-        dampingFn = n.dampingFn,
     };
 
     public void ShowDebug()

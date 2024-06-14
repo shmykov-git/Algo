@@ -83,7 +83,7 @@ partial class SceneMotion
         var planSpeed = 5;
         var planI = 50;
         var showTopology = false;
-        var topologyWeightHeight = 10;
+        var topologyWeightHeight = 1;
         var topologyWeightNums = false;
         var showTopologyWeights = true;
 
@@ -104,10 +104,11 @@ partial class SceneMotion
             PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
+            Activator = NActivatorType.Sin,
             //ParallelCount =1,
             Nu = 0.1,
             Alfa = 0.5,
-            PowerFactor = 200,
+            PowerFactor = 2,
             LinkFactor = 0.2,
             CrossLinkFactor = 0.1
         };
@@ -117,9 +118,9 @@ partial class SceneMotion
 
         //var TrainFn = SurfaceFuncs.Paraboloid.MoveZ(-4).Boxed(boxScale, boxCenter);
         //var TrainFn = SurfaceFuncs.Hyperboloid.Boxed(boxScale, boxCenter);
-        //var TrainFn = SurfaceFuncs.Wave(0, 4).Boxed(boxScale, boxCenter);
+        var TrainFn = SurfaceFuncs.Wave(0, 4).Boxed(boxScale, boxCenter);
         //var TrainFn = SurfaceFuncs.Polynom4.MoveZ(-4).Boxed(boxScale, boxCenter);
-        var TrainFn = SurfaceFuncs.WaveXY(0, 4).Boxed(boxScale, boxCenter);
+        //var TrainFn = SurfaceFuncs.WaveXY(0, 4).Boxed(boxScale, boxCenter);
 
         //var TrainFn = SurfaceFuncs.WaveFi(0, 4).Boxed(boxScale, boxCenter);
 

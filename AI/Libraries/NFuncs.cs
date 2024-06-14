@@ -1,8 +1,10 @@
-﻿using Model.Tools;
+﻿using Aspose.ThreeD;
+using Model.Tools;
 
 namespace AI.Libraries;
 
 public delegate double NFunc(double x);
+public delegate double NDerFunc(double x, double f);
 
 public static class NFuncs
 {
@@ -25,9 +27,31 @@ public static class NFuncs
         return x => 1 / (1 + Math.Exp(a * x));
     }
 
-    public static NFunc GetSigmoidDerFFn()
+    public static NDerFunc GetDerSigmoidFn()
     {
-        return f => f * (1 - f);
+        return (_, f) => f * (1 - f);
+    }
+
+    public static NFunc GetTanhFn(double alfa)
+    {
+        return x => Math.Tanh(x / alfa);
+    }
+
+    public static NDerFunc GetDerTanhFn()
+    {
+        return (_, f) => (1 - f * f);
+    }
+
+    public static NFunc GetSinFn(double alfa, double power)
+    {
+        var a = alfa * power;
+        return x => Math.Sin(x * a);
+    }
+
+    public static NDerFunc GetDerSinFn(double alfa, double power)
+    {
+        var a = alfa * power;
+        return (x, _) => a * Math.Cos(x * a);
     }
 
     public static NFunc GetBaseWeight(double a, double b) => x => a * x + b;

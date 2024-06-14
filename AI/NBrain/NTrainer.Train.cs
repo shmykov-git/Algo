@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Diagnostics.Metrics;
-using AI.Exceptions;
+﻿using AI.Exceptions;
 using AI.Model;
 using Model.Extensions;
 
@@ -73,45 +71,42 @@ public partial class NTrainer
         return sumError / data.Length;
     }
 
-    /// <summary>
-    /// Метод обратного распространения ошибки
-    /// https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D1%82%D0%BE%D0%B4_%D0%BE%D0%B1%D1%80%D0%B0%D1%82%D0%BD%D0%BE%D0%B3%D0%BE_%D1%80%D0%B0%D1%81%D0%BF%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BE%D1%88%D0%B8%D0%B1%D0%BA%D0%B8
-    /// </summary>
+    public void LearnBackPropagationOutput(N n, double fExpected)
+    {
+        n.delta = -n.act.DerFunc(n.xx, n.f) * (fExpected - n.f);
+    }
+
+    public void LearnBackPropagation(N n)
+    {
+        n.delta = n.act.DerFunc(n.xx, n.f) * n.es.Sum(e => e.b.delta * e.w);
+
+        n.es.ForEach(e =>
+        {
+            var dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
+            e.w -= dw;
+            e.sumDw += dw; // e.dw = dw;
+        });
+    }
+
     private double TrainCase(NModel model, double[] tInput, double[] tExpected)
     {
         if (tExpected.Length != options.Topology[^1])
             throw new InvalidExpectedDataException();
-
-        void LearnBackPropagationOutput(N n, int k)
-        {
-            n.delta = -n.activatorDerFFn(n.f) * (tExpected[k] - n.f); // f * (1 - f)
-            n.learned = true;
-        }
-
-        void LearnBackPropagation(N n)
-        {
-            n.delta = n.activatorDerFFn(n.f) * n.es.Sum(e => e.b.delta * e.w);
-
-            n.es.ForEach(e =>
-            {
-                var dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
-                e.w -= dw;
-                e.sumDw += dw;
-                //e.dw = dw;
-            });
-
-            n.learned = true;
-        }
 
         model.ComputeOutputs(tInput);
 
         // learn cleanup
         Queue<N> learnQueue = new();
 
-        // skip no compute nodes to learn (to finish process)
-        model.ns.ForEach(n => { n.learned = n.es.Count == 0; }); // todo: fix isOutput
+        // skip no compute nodes to finish learn process in any cases
+        model.ns.ForEach(n => { n.learned = n.es.Count == 0; });
 
-        model.output.ForEach(LearnBackPropagationOutput);
+        model.output.ForEach((n, i) => 
+        {
+            LearnBackPropagationOutput(n, tExpected[i]);
+            n.learned = true;
+        });
+
         model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
 
         var counter = 10000;
@@ -127,6 +122,7 @@ public partial class NTrainer
             if (n.es.All(e => e.b.learned))
             {
                 LearnBackPropagation(n);
+                n.learned = true;
                 n.backEs.Select(e => e.a).ForEach(learnQueue.Enqueue);
             }
             else

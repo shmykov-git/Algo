@@ -1,14 +1,11 @@
 ﻿using AI.Libraries;
+using AI.NBrain.Activators;
 
 namespace AI.Model;
 
 public class N
 {
-    // <static>
-    public NFunc activatorFn; // activator func
-    public NFunc dampingFn; // damping func
-    public NFunc activatorDerFFn; // activator derivative func by func value
-    // </static>
+    public NActivator act;
 
     // <dynamic>
     public int i;           // order number 
@@ -30,7 +27,7 @@ public class N
     // </learn>
 
     public bool isInput => lv == 0;
-    public bool isOutput => es.Count == 0;
+    public bool isOutput => es.Count == 0; // todo: should be level depended (max lv)
 
     public bool IsLinked(N b) => es.Any(e => e.b == b);
     public E? GetLink(N b) => es.SingleOrDefault(e => e.b == b);

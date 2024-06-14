@@ -15,9 +15,6 @@ public partial class NTrainer
         if (!options.AllowGrowing)
             throw new NotAllowedException(nameof(options.AllowGrowing));
 
-        if (model.nns[1].Count > options.UpTopology[1] || model.nns.Count > options.UpTopology.Length)
-            throw new NotSupportedException("grow up only");
-
         return options.UpGraph is [] ? GrowUpByTopology() : GrowUpByGraph();
     }
 
@@ -320,6 +317,9 @@ public partial class NTrainer
 
     private bool GrowUpByTopology()
     {
+        if (model.nns[1].Count > options.UpTopology[1] || model.nns.Count > options.UpTopology.Length)
+            throw new NotSupportedException("grow up only");
+
         var nns = model.nns;
 
         int LevelLinkMinCount(int lv) => Math.Max(nns[lv - 1].Count, nns[lv].Count);

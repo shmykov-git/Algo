@@ -29,8 +29,8 @@ public partial class NModel
         if (!n.isInput)
         {
             // compute output (f) from input (xx)
-            n.f = n.activatorFn(n.xx);
-            n.f = n.dampingFn(n.f);
+            n.f = n.act.Func(n.xx);
+            n.f = n.act.dampingFn(n.f);
         }
 
         // pass signal from output a to input b

@@ -1,5 +1,6 @@
-﻿namespace AI.Model;
+﻿using AI.Libraries;
 
+namespace AI.Model;
 public class NOptions
 {
     public int Seed { get; set; } = 0;
@@ -13,6 +14,7 @@ public class NOptions
     public bool AllowGrowing { get; set; } = false;
     public (double a, double b) Weight0 { get; set; } = (2, -1);
     public (double a, double b)? PowerWeight0 { get; set; } = null;
+    public NActivatorType Activator { get; set; } = NActivatorType.Sigmoid;
     public double PowerFactor { get; set; } = 100;
     public double SymmetryFactor { get; set; } = 0;
     public int ParallelCount { get; set; } = 1;

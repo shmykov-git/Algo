@@ -71,7 +71,7 @@ public partial class NTrainer
             .ToArray();
         var maxLv = lvs.Max();
 
-        var ns = (n).Range(i => model.CreateN(lvs[i])).ToArray();
+        var ns = (n).Range(i => model.CreateN(lvs[i], options, i % 2 == 0 ? NActivatorType.Sigmoid : NActivatorType.Sin)).ToArray();
         var nns = ns.GroupBy(n => n.lv).Select(gn => gn.ToList()).ToList();
         model.nns = nns;
         model.RestoreIndices();
@@ -85,7 +85,8 @@ public partial class NTrainer
             ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.PowerFactor, options.PowerWeight0.Value.b / options.PowerFactor)
             : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
-        var nns = (options.Topology.Length).Range(lv => (options.Topology[lv]).Range().Select(_ => model.CreateN(lv)).ToList()).ToList();
+        var k = 0;
+        var nns = (options.Topology.Length).Range(lv => (options.Topology[lv]).Range().Select(_ => model.CreateN(lv, options, k++ % 2 == 0 ? NActivatorType.Sigmoid : NActivatorType.Sin)).ToList()).ToList();
         model.nns = nns;
         model.RestoreIndices();
 

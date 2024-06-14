@@ -1,5 +1,6 @@
 ﻿using AI.Libraries;
 using AI.Model;
+using AI.NBrain.Activators;
 using Model.Extensions;
 using System.Diagnostics;
 
@@ -7,12 +8,10 @@ namespace AI.NBrain;
 
 public partial class NModel // Dynamic
 {
-    public N CreateN(int lv) => new N()
+    public N CreateN(int lv, NOptions o, NActivatorType t) => new N()
     {
         lv = lv,
-        dampingFn = NFuncs.GetDampingFn(options.DampingCoeff),
-        activatorFn = NFuncs.GetSigmoidFn(options.Alfa * options.PowerFactor),
-        activatorDerFFn = NFuncs.GetSigmoidDerFFn(),
+        act = t.ToActivator(o),
         //g = groups[0]
     };
 
@@ -37,7 +36,7 @@ public partial class NModel // Dynamic
         var lv = (a.lv + b.lv) / 2;
         Debug.WriteLine($"+N:{a.i}-{b.i} ({lv})");
 
-        var c = CreateN(lv);
+        var c = CreateN(lv, options, ns.Count() % 2 == 0 ? NActivatorType.Sigmoid : NActivatorType.Sin);
         nns[lv].Add(c);
         RestoreIndices();
         AddE(a, c, GetAvgW(a));
