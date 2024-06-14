@@ -577,6 +577,39 @@ namespace Model.Extensions
             }
         }
 
+        public static IEnumerable<T> ToNoWaitSync<T>(this IAsyncEnumerable<T> values)
+        {
+            var e = values.GetAsyncEnumerator();
+
+            T current = default;
+            var hasCurrent = false;
+            var stop = false;
+
+            Task.Run(async () =>
+            {
+                while (await e.MoveNextAsync())
+                {
+                    while (hasCurrent)
+                        await Task.Delay(1);
+
+                    current = e.Current;
+                    hasCurrent = true;
+                }
+
+                stop = true;
+            });
+
+            while (!stop)
+            {
+                while (!hasCurrent)
+                    Thread.Sleep(1);
+
+                yield return current;
+
+                hasCurrent = false;
+            }
+        }
+
         public static IEnumerable<T> ToSync<T>(this IAsyncEnumerable<T> values)
         {
             var e = values.GetAsyncEnumerator();

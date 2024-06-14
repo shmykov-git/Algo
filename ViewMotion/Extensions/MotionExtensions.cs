@@ -162,7 +162,7 @@ static class MotionExtensions
     }
 
     public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, MotionOptions options) =>
-        shapes.ToSync().ToMotion(options);
+        shapes.ToNoWaitSync().ToMotion(options);
 
     public static async Task<Motion> ToMotion(this IEnumerable<Shape> shapes, MotionOptions options)
     {
