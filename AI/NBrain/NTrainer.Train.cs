@@ -3,7 +3,6 @@ using AI.Model;
 using Model.Extensions;
 
 namespace AI.NBrain;
-
 public partial class NTrainer
 {
     private double[][] trainLevelMatrix = null;
@@ -97,23 +96,6 @@ public partial class NTrainer
         }
 
         return sumError / data.Length;
-    }
-
-    public void LearnBackPropagationOutput(N n, double fExpected)
-    {
-        n.delta = -n.act.DerFunc(n.xx, n.f) * (fExpected - n.f);
-    }
-
-    public void LearnBackPropagation(N n)
-    {
-        n.delta = n.act.DerFunc(n.xx, n.f) * n.es.Sum(e => e.b.delta * e.w);
-
-        n.es.ForEach(e =>
-        {
-            var dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
-            e.w -= dw;
-            e.sumDw += dw; // e.dw = dw;
-        });
     }
 
     private double TrainCase(NModel model, int num, double[] tLayerInput, double[] tExpected)

@@ -184,14 +184,15 @@ public partial class NTrainer
             var nsI = graph.nns[lv - 1];
             var nsJ = graph.nns[lv + 1];
 
-            var (success, a, b) = (nsI, nsJ).SelectCross()
-                .Select(v => (true, a: ns[v.a], b: ns[v.b]))
-                .Where(v => v.a.IsLinked(v.b) && v.a.es.Count > 1) // having cross link and normal link
+            var (success, a, b, _) = (nsI, nsJ).SelectCross()
+                .Select(v => (true, a: ns[v.a], b: ns[v.b], e: ns[v.a].GetLink(ns[v.b])))
+                .Where(v => v.e != null && v.a.es.Count > 1 && v.e.canBeRemoved) // having cross link and normal link and ready to remove
                 .FirstOrDefault();
 
             return (success, a, b);
         };
-        
+
+        #region Reverses
         void ReverseLevel(int lv)
         {
             var csI = graph.csI[lv - 1];
@@ -255,6 +256,7 @@ public partial class NTrainer
 
             return r;
         }
+        #endregion
 
         while (true)
         {
@@ -268,11 +270,7 @@ public partial class NTrainer
                 if (!canAddN)
                     throw new AlgorithmException("cannot find n to add e");
 
-                //var removed = model.TryRemoveE(a, b);
-
-                //if (removed)
-                //    Debug.WriteLine($"removedE:{a.i}-{b.i}");
-
+                model.MarkUnwantedE(a, b);
                 model.AddN(a, b);
                 return (false, false);
             }
@@ -358,15 +356,18 @@ public partial class NTrainer
 
             return (a, b);
         };
-
+        
         var lv = nns.Count - 2;
 
         while (lv < options.UpTopology.Length - 1)
         {
+            model.es.Where(e => e.canBeRemoved)
+                .ToArray().ForEach(model.RemoveE);
+
             if (nns[lv].Count < options.UpTopology[lv])
             {
                 var (a, b) = GetLevelPairN(lv);
-                model.TryRemoveE(a, b);
+                model.MarkUnwantedE(a, b);
                 model.AddN(a, b);
 
                 return (false, false);

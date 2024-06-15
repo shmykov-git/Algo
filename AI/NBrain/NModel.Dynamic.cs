@@ -57,11 +57,11 @@ public partial class NModel // Dynamic
         var c = CreateN(this, lv);
         nns[lv].Add(c);
         RestoreIndices();
-        AddE(a, c, GetAvgW(a));
-        AddE(c, b, GetAvgW(b));
+        AddE(a, c, GetDynamicW0(a));
+        AddE(c, b, GetDynamicW0(b));
     }
 
-    public void AddE(N a, N b) => AddE(a, b, GetAvgW(a, b));
+    public void AddE(N a, N b) => AddE(a, b, GetDynamicW0(a, b));
     public void AddE(N a, N b, double w)
     {
         Debug.WriteLine($"+E:{a.i}-{b.i}");
@@ -94,8 +94,24 @@ public partial class NModel // Dynamic
         if (e == null)
             throw new ArgumentException("a and b are not linked");
 
-        a.es.Remove(e);
-        RestoreBackEs(b);
+        RemoveE(e);
+    }
+
+    public void RemoveE(E e)
+    {
+        e.a.es.Remove(e);
+        RestoreBackEs(e.b);
+    }
+
+    public void MarkUnwantedE(N a, N b)
+    { 
+        var e = a.GetLink(b);
+
+        if (e == null)
+            throw new ArgumentException("a and b are not linked");
+
+        e.unwanted = true;
+        e.uW0 = e.w;
     }
 
     public void LevelUp()
@@ -116,12 +132,12 @@ public partial class NModel // Dynamic
     public void RestoreIndices()
     {
         ns.ForEach((n, i) => n.i = i);
-        nns.ForEach(ns => ns.ForEach((n, ii) => n.ii = ii));
+        nns.ForEach((n, _, ii) => n.ii = ii);
     }
 
     public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
     public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
 
-    public double GetAvgW(N n) => n.es.Concat(n.backEs).Average(e => e.w);
-    public double GetAvgW(N a, N b) => a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
+    public double GetDynamicW0(N n) => 0.1 * n.es.Concat(n.backEs).Average(e => e.w);
+    public double GetDynamicW0(N a, N b) => 0.1 * a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
 }

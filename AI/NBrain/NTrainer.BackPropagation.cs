@@ -1,0 +1,47 @@
+﻿using AI.Model;
+using Model.Extensions;
+using Model.Libraries;
+
+namespace AI.NBrain;
+
+public partial class NTrainer 
+{
+    private void LearnBackPropagationOutput(N n, double fExpected)
+    {
+        n.delta = -n.act.DerFunc(n.xx, n.f) * (fExpected - n.f);
+    }
+
+    private void LearnBackPropagation(N n)
+    {
+        n.delta = n.act.DerFunc(n.xx, n.f) * n.es.Sum(e => e.b.delta * e.w);
+        n.es.ForEach(e =>
+        {
+            if (e.unwanted)
+                LearnBackPropagationUnwantedE(e);
+            else
+                LearnBackPropagationE(e);
+        });
+    }
+
+    private void LearnBackPropagationE(E e)
+    {
+        var dw = alfa * e.dw + (1 - alfa) * nu * e.b.delta * e.a.f;
+        e.w -= dw;
+        e.sumDw += dw; // e.dw = dw;
+    }
+
+    int unwantedCount = 80000 * 3;
+    private double NextUnwantedW(double w0, double w)
+    {
+        if (w.Abs() < Values.Epsilon9)
+            return 0;
+
+        return w - w0 / unwantedCount;
+    }
+
+    private void LearnBackPropagationUnwantedE(E e)
+    {
+        e.w = NextUnwantedW(e.uW0, e.w);
+    }
+
+}

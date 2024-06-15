@@ -65,25 +65,25 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        // smart neuron strategy (1-3(2,1))
-        // learn any shape
-        
+        // вести вес к нулевому значению, прежде чем удалить связь (дать весам выполнить компенсацию)
+        // тогда удаление безболезненно добавлять нейрон с нулевым весом (без влияния на картину)
+        // все переходы должны стать плавными
+
+        // вставка нода (убрать reverse)?
+        // сферические - тоже самое, что волна (WaveX)
+
         var m = 0.75f;
-        //var external = 1.8f;
         var trainN = 20;
         (double from, double to) trainR = (-2, 2);
         var modelN = 50;
         (double from, double to) modelR = (-2/m, 2/m);
-
-        //(double from, double to) trainRR = (0.2, 2);
-        //(double from, double to) modelRR = (0.2, 2/m);
 
         var nEpoch = 500000;
         var nEpochPart = 200;
         var npGrowSpeed = 5;
         var npLevelTrain = 30;
 
-        var showTopology = false;
+        var showTopology = true;
         var showTopologyWeights = true;
 
         var mode = NMode.Learn;
@@ -94,27 +94,26 @@ partial class SceneMotion
             //Graph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
             //Graph = [[(0, 2), (0, 3), (0, 4), (0, 6), (0, 8), (0, 9), (0, 10), (0, 12), (0, 14), (0, 16), (0, 18), (0, 20), (0, 22), (0, 26), (1, 2), (1, 3), (1, 5), (1, 7), (1, 8), (1, 9), (1, 11), (1, 13), (1, 15), (1, 17), (1, 19), (1, 21), (1, 24)], [(2, 23), (3, 24), (3, 25), (3, 28), (4, 25), (4, 27), (5, 24), (5, 26), (6, 24), (6, 27), (7, 23), (7, 25), (8, 24), (8, 27), (9, 25), (10, 24), (10, 26), (11, 24), (11, 27), (12, 23), (13, 24), (14, 23), (14, 24), (14, 25), (14, 26), (15, 23), (15, 26), (16, 23), (16, 26), (16, 28), (16, 27), (17, 23), (17, 26), (18, 24), (18, 26), (19, 25), (19, 27), (20, 26), (21, 23), (21, 25), (21, 27), (22, 23)], [(23, 28), (24, 28), (25, 28), (26, 28), (27, 28)]],
             //Model = N21Models.Socrates_Wave,
-            //Graph = N21Graphs.Mars,
+            Graph = N21Graphs.Mercury,
             //UpGraph = N21Graphs.Socrates,
             //UpGraph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
-            Topology = [2, 10, 10, 1],
-            UpTopology = [2, 17, 1],
-            AllowGrowing = false,
+            Topology = [2, 6, 6, 1],
+            UpTopology = [2, 6, 6, 6, 6, 1],
+            AllowGrowing = true,
             AllowBelieved = false, // todo: remove?
             PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.Sin,
+            Act = NAct.Sigmoid,
             Nu = 0.1,
             Alfa = 0.5,
-            PowerFactor = 2,
+            PowerFactor = 200,
             LinkFactor = 0.5,
             CrossLinkFactor = 0
         };
         
-        // все проверить внимательно AllowBelieved
-
         var topologyWeightHeight = options.Act switch { NAct.Sigmoid => 10, _ => 1 };
+        var topologyNums = false;
         var topologyWeightNums = false;
         var growI = npLevelTrain;
         Func<int, bool> showTrainDataFn = k => k % 100 < 50;
@@ -126,11 +125,9 @@ partial class SceneMotion
         //var TrainFn = SurfaceFuncs.Hyperboloid.Boxed(boxScale, boxCenter);
 
         var TrainFn = SurfaceFuncs.Wave(0, 4).Boxed(boxScale, boxCenter);
-        //var TrainFn = SurfaceFuncs.WaveXY(0, 4).Boxed(boxScale, boxCenter);
+        //var TrainFn = SurfaceFuncs.WaveX(0, 4).Boxed(boxScale, boxCenter);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
         //var TrainFn = SurfaceFuncs.Polynom4.MoveZ(-4).Boxed(boxScale, boxCenter);
-
-        //var TrainFn = SurfaceFuncs.WaveFi(0, 4).Boxed(boxScale, boxCenter);
 
 
         //return (new Shape()
@@ -144,28 +141,21 @@ partial class SceneMotion
             .Select((v, i) => (i, new double[] { v.x, v.y }, new double[] { v.z }))
             .ToArray();
 
-        //var training = (trainN, trainN)
-        //    .SelectInterval(trainR.from, trainR.to, 0, 2*Math.PI, (r, fi) => TrainFn(r, fi))
-        //    .Select(v => (new double[] { v.x, v.y }, new double[] { v.z }))
-        //    .ToArray();
-
         var trainer = new NTrainer(options.With(o => o.Training = training));
         trainer.Init();
 
         var isUpReady = false;
         var isLevelUp = false;
-        Shape lastTopology = null;
 
         var topMult = mode switch { NMode.Topology => 1, _ => 2 };
 
         Shape GetTopologyShape()
         {
-            if (!isUpReady && lastTopology != null)
-                return lastTopology;
-
             var topology = trainer.model.GetTopology().Perfecto(3);
-            lastTopology = topology.ToNumSpots3(0.5 * topMult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, topMult, topMult);
-            return lastTopology;
+
+            return topologyNums
+                ? topology.ToNumSpots3(0.5 * topMult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, topMult, topMult)
+                : topology.ToMeta(Color.Red, Color.Blue, topMult, topMult);
         }
 
         Shape GetTopologyWeightsShape()
@@ -196,21 +186,13 @@ partial class SceneMotion
             return new Vector3(x, y, z);
         }
 
-        //Vector3 ModelFiFn(double r, double fi)
-        //{
-        //    var v = TrainFn(r, fi);
-        //    var z = model!.Predict([r * m, fi])[0];
-
-        //    return new Vector3(v.x, v.y, z);
-        //}
-
 
         var bestErr = double.MaxValue;
 
         Shape GetShape(bool withTrainModel) => new[]
         {
             showTopology
-            ? GetTopologyShape().Perfecto(1.8).MoveY(2)
+            ? GetTopologyShape().Perfecto(1.8).MoveX(-2)
             : Shape.Empty,
             showTopologyWeights
             ? GetTopologyWeightsShape() 
@@ -218,14 +200,12 @@ partial class SceneMotion
             new Shape()
             {
                 Points3 = (modelN, modelN).SelectInterval(modelR.from, modelR.to, modelR.from, modelR.to, ModelFn).ToArray(),
-                //Points3 = (modelN, modelN).SelectInterval(modelRR.from, modelRR.to, 0, 2*Math.PI, ModelFiFn).ToArray(),
                 Convexes = Convexes.Squares(modelN, modelN)
             }.Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(Color.Red, 0.5),
             withTrainModel
                 ? new Shape()
                 {
                     Points3 = (trainN, trainN).SelectInterval(trainR.from, trainR.to, trainR.from, trainR.to, TrainFn).ToArray(),
-                    //Points3 = (trainN, trainN).SelectInterval(trainRR.from, trainRR.to, 0, 2*Math.PI, TrainFn).ToArray(),
                     Convexes = Convexes.Squares(trainN, trainN)
                 }.Move(-0.5, -0.5, -0.5).Mult(2).ToLines(Color.Blue)
                 : Shape.Empty,
