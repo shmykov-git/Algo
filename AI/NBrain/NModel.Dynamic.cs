@@ -1,6 +1,6 @@
-﻿using AI.Libraries;
+﻿using AI.Extensions;
+using AI.Libraries;
 using AI.Model;
-using AI.NBrain.Activators;
 using Model.Extensions;
 using System.Diagnostics;
 

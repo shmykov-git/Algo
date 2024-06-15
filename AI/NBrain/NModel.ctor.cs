@@ -14,7 +14,7 @@ public partial class NModel
     public (double, double) avgX;
     public double avgDelta;
     public int blLv = 0;
-    public int upLv = 0;
+    public int upLv = 0;  // check level up
 
     private readonly NOptions options;
     private readonly Random rnd;

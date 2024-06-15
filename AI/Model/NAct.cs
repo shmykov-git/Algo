@@ -5,5 +5,6 @@ public enum NAct
     None,
     Sigmoid,
     Tanh,
-    Sin
+    Sin,
+    SinC
 }

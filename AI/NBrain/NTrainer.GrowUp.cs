@@ -5,6 +5,7 @@ using AI.Extensions;
 using AI.Model;
 using meta.Extensions;
 using Model.Extensions;
+using Model.Graphs;
 
 namespace AI.NBrain;
 
@@ -291,10 +292,10 @@ public partial class NTrainer
                 return (false, false);
             }
 
-            (var canRemove, _) = GetLevelPairRemoveE(lv, false);
+            (var needRemove, _) = GetLevelPairRemoveE(lv, false);
 
             // wait for all unwated links removed
-            if (canRemove)
+            if (needRemove)
                 return (false, false);
 
             // можно удалить это, если делать вставку нодов
@@ -303,19 +304,22 @@ public partial class NTrainer
 
             // todo: cross level linked
 
+            // if level is ready then return True ones
             if (model.upLv != lv)
             {
                 model.upLv = lv;
                 return (false, true);
             }
 
-            //if (graph.Equals(upGraph))
-            //    break;
-
             lv++;
 
             if (lv == upGraph.lvMax)
+            {
+                if (!graph.Equals(upGraph))
+                    throw new AlgorithmException("graphs should be equals");
+
                 break;
+            }
 
             model.LevelUp();
             graph = GetGraphInfo(model.GetGraph(), model.GetNLevels());
@@ -350,9 +354,12 @@ public partial class NTrainer
             return (a, b);
         }
 
-        (bool found, N, N) GetLevelPairRemoveE(int lv)
+        (bool, E?) GetLevelPairRemoveE(int lv, bool mark)
         {
-            return (nns[lv-1], nns[lv+1]).SelectCross().Where(v=>v.a.IsLinked(v.b)).Select(v=>(true, v.a, v.b)).FirstOrDefault();
+            return (nns[lv - 1], nns[lv + 1]).SelectCross()
+                .Select(v => (true, e: v.a.GetLink(v.b)))
+                .Where(v => v.e != null && (!mark || !v.e.unwanted))
+                .FirstOrDefault();
         }
 
         (N, N) GetLevelPairE(int lv)
@@ -382,14 +389,6 @@ public partial class NTrainer
                 return (false, false);
             }
 
-            var (needRemove, aRm, bRm) = GetLevelPairRemoveE(lv);
-            
-            if (needRemove)
-            {
-                model.MarkUnwantedE(aRm, bRm);
-                return (false, false);
-            }
-
             if (!IsLevelLinked(lv))
             {
                 var (a, b) = GetLevelPairE(lv);
@@ -398,8 +397,24 @@ public partial class NTrainer
                 return (false, false);
             }
 
+            // mark links to remove as unwanted
+            var (needMark, e) = GetLevelPairRemoveE(lv, true);
+
+            if (needMark)
+            {
+                model.MarkUnwantedE(e);
+                return (false, false);
+            }
+
+            // wait for all unwanted links are removed
+            var (needRemove, _) = GetLevelPairRemoveE(lv, false);
+
+            if (needRemove)
+                return (false, false);
+
             // todo: cross level linked
 
+            // if level is ready then return True ones
             if (model.upLv != lv)
             {
                 model.upLv = lv;

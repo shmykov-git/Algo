@@ -15,6 +15,7 @@ public class NOptions
     public (double a, double b) Weight0 { get; set; } = (2, -1);
     public (double a, double b)? PowerWeight0 { get; set; } = null;
     public NAct Act { get; set; } = NAct.Sigmoid;
+    public double SinC { get; set; } = 0.01;
     public bool AllowBelieved { get; set; } = true; // todo: remove
     public double PowerFactor { get; set; } = 100;
     public double SymmetryFactor { get; set; } = 0;

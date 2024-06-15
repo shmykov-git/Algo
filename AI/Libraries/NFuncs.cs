@@ -45,7 +45,13 @@ public static class NFuncs
     public static NFunc GetSinFn(double alfa, double power)
     {
         var a = alfa * power;
-        return x => Math.Sin(x * a);
+        return x => 0.01 + Math.Sin(x * a);
+    }
+
+    public static NFunc GetSinCFn(double alfa, double power, double c)
+    {
+        var a = alfa * power;
+        return x => c + Math.Sin(x * a);
     }
 
     public static NDerFunc GetDerSinFn(double alfa, double power)
