@@ -80,8 +80,8 @@ partial class SceneMotion
 
         var nEpoch = 500000;
         var nEpochPart = 200;
-        var npGrowSpeed = 5;
-        var npLevelTrain = 30;
+        var growSpeedI = 5;
+        var levelTrainI = 30;
 
         var showTopology = true;
         var showTopologyWeights = true;
@@ -95,19 +95,19 @@ partial class SceneMotion
             //Graph = [[(0, 2), (0, 3), (0, 4), (0, 6), (0, 8), (0, 9), (0, 10), (0, 12), (0, 14), (0, 16), (0, 18), (0, 20), (0, 22), (0, 26), (1, 2), (1, 3), (1, 5), (1, 7), (1, 8), (1, 9), (1, 11), (1, 13), (1, 15), (1, 17), (1, 19), (1, 21), (1, 24)], [(2, 23), (3, 24), (3, 25), (3, 28), (4, 25), (4, 27), (5, 24), (5, 26), (6, 24), (6, 27), (7, 23), (7, 25), (8, 24), (8, 27), (9, 25), (10, 24), (10, 26), (11, 24), (11, 27), (12, 23), (13, 24), (14, 23), (14, 24), (14, 25), (14, 26), (15, 23), (15, 26), (16, 23), (16, 26), (16, 28), (16, 27), (17, 23), (17, 26), (18, 24), (18, 26), (19, 25), (19, 27), (20, 26), (21, 23), (21, 25), (21, 27), (22, 23)], [(23, 28), (24, 28), (25, 28), (26, 28), (27, 28)]],
             //Model = N21Models.Socrates_Wave,
             Graph = N21Graphs.Mercury,
-            //UpGraph = N21Graphs.Socrates,
+            UpGraph = N21Graphs.Tree,
             //UpGraph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
             Topology = [2, 6, 6, 1],
-            UpTopology = [2, 6, 6, 6, 6, 1],
+            UpTopology = [2, 6, 5, 4, 3, 1],
             AllowGrowing = true,
             AllowBelieved = false, // todo: remove?
             PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.Sigmoid,
+            Act = NAct.Sin,
             Nu = 0.1,
             Alfa = 0.5,
-            PowerFactor = 200,
+            PowerFactor = 2,
             LinkFactor = 0.5,
             CrossLinkFactor = 0
         };
@@ -115,16 +115,16 @@ partial class SceneMotion
         var topologyWeightHeight = options.Act switch { NAct.Sigmoid => 10, _ => 1 };
         var topologyNums = false;
         var topologyWeightNums = false;
-        var growI = npLevelTrain;
+        var growI = levelTrainI;
         Func<int, bool> showTrainDataFn = k => k % 100 < 50;
 
         var boxScale = m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125);
         var boxCenter = new Vector3(0.5, 0.5, 0.5);
 
-        //var TrainFn = SurfaceFuncs.Paraboloid.MoveZ(-4).Boxed(boxScale, boxCenter);
+        var TrainFn = SurfaceFuncs.Paraboloid.MoveZ(-4).Boxed(boxScale, boxCenter);
         //var TrainFn = SurfaceFuncs.Hyperboloid.Boxed(boxScale, boxCenter);
 
-        var TrainFn = SurfaceFuncs.Wave(0, 4).Boxed(boxScale, boxCenter);
+        //var TrainFn = SurfaceFuncs.Wave(0, 4).Boxed(boxScale, boxCenter);
         //var TrainFn = SurfaceFuncs.WaveX(0, 4).Boxed(boxScale, boxCenter);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
         //var TrainFn = SurfaceFuncs.Polynom4.MoveZ(-4).Boxed(boxScale, boxCenter);
@@ -230,8 +230,8 @@ partial class SceneMotion
                     (var isUp, isLevelUp) = trainer.GrowUp();
 
                     growI += isLevelUp 
-                        ? npLevelTrain
-                        : npGrowSpeed * size0 / model.size;
+                        ? levelTrainI
+                        : growSpeedI * size0 / model.size;
 
                     if (isUp != isUpReady)
                     {

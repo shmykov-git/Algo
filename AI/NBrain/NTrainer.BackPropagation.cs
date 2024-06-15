@@ -30,18 +30,19 @@ public partial class NTrainer
         e.sumDw += dw; // e.dw = dw;
     }
 
-    int unwantedCount = 80000 * 3;
-    private double NextUnwantedW(double w0, double w)
-    {
-        if (w.Abs() < Values.Epsilon9)
-            return 0;
-
-        return w - w0 / unwantedCount;
-    }
-
     private void LearnBackPropagationUnwantedE(E e)
     {
-        e.w = NextUnwantedW(e.uW0, e.w);
+        (e.w, var dw) = NextUnwantedW(e.uW0, e.w);
+        e.sumDw += dw;
     }
 
+    private (double w, double dw) NextUnwantedW(double w0, double w)
+    {
+        if (w.Abs() < Values.Epsilon9)
+            return (0, 0);
+
+        var dw = w0 / options.UnwantedCount;
+
+        return (w - dw, dw);
+    }
 }

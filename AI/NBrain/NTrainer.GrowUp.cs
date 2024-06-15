@@ -179,18 +179,13 @@ public partial class NTrainer
         }
 
         // cross level not single output link
-        (bool, N, N) GetLevelPairRemoveE(int lv)
+        (bool, E?) GetLevelPairRemoveE(int lv, bool mark)
         {
-            var nsI = graph.nns[lv - 1];
-            var nsJ = graph.nns[lv + 1];
-
-            var (success, a, b, _) = (nsI, nsJ).SelectCross()
-                .Select(v => (true, a: ns[v.a], b: ns[v.b], e: ns[v.a].GetLink(ns[v.b])))
-                .Where(v => v.e != null && v.a.es.Count > 1 && v.e.canBeRemoved) // having cross link and normal link and ready to remove
+            return (graph.nns[lv - 1], graph.nns[lv + 1]).SelectCross()
+                .Select(v => (true, e: ns[v.a].GetLink(ns[v.b])))
+                .Where(v => v.e != null && (!mark || !v.e.unwanted))
                 .FirstOrDefault();
-
-            return (success, a, b);
-        };
+        }
 
         #region Reverses
         void ReverseLevel(int lv)
@@ -260,11 +255,14 @@ public partial class NTrainer
 
         while (true)
         {
+            model.es.Where(e => e.canBeRemoved)
+                .ToArray().ForEach(model.RemoveE);
+
             N a, b;
 
             // fill level nodes
             if (graph.nns[lv].Length < upGraph.nns[lv].Length)
-            {
+            {                
                 (var canAddN, a, b) = GetLevelPairN(lv);
 
                 if (!canAddN)
@@ -285,13 +283,19 @@ public partial class NTrainer
             }
 
             // remove cross level output links
-            (var canRemove, a, b) = GetLevelPairRemoveE(lv);
+            (var canMark, var e) = GetLevelPairRemoveE(lv, true);
 
-            if (canRemove)
+            if (canMark)
             {
-                model.RemoveE(a, b);
+                model.MarkUnwantedE(e);
                 return (false, false);
             }
+
+            (var canRemove, _) = GetLevelPairRemoveE(lv, false);
+
+            // wait for all unwated links removed
+            if (canRemove)
+                return (false, false);
 
             // можно удалить это, если делать вставку нодов
             if (lv == 1)
@@ -346,6 +350,11 @@ public partial class NTrainer
             return (a, b);
         }
 
+        (bool found, N, N) GetLevelPairRemoveE(int lv)
+        {
+            return (nns[lv-1], nns[lv+1]).SelectCross().Where(v=>v.a.IsLinked(v.b)).Select(v=>(true, v.a, v.b)).FirstOrDefault();
+        }
+
         (N, N) GetLevelPairE(int lv)
         {
             N a, b;
@@ -370,6 +379,14 @@ public partial class NTrainer
                 model.MarkUnwantedE(a, b);
                 model.AddN(a, b);
 
+                return (false, false);
+            }
+
+            var (needRemove, aRm, bRm) = GetLevelPairRemoveE(lv);
+            
+            if (needRemove)
+            {
+                model.MarkUnwantedE(aRm, bRm);
                 return (false, false);
             }
 

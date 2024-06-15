@@ -26,5 +26,8 @@ public class NOptions
     public double Nu { get; set; } = 0.1;
     public double Alfa { get; set; } = 0.5;
 
+    public int UnwantedCount { get; set; } = 200000;
+    public double DynamicW0Factor { get; set; } = 0.1;
+
     public (int num, double[] input, double[] expected)[] Training { get; set; }
 }

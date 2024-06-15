@@ -104,11 +104,19 @@ public partial class NModel // Dynamic
     }
 
     public void MarkUnwantedE(N a, N b)
-    { 
+    {
         var e = a.GetLink(b);
 
         if (e == null)
             throw new ArgumentException("a and b are not linked");
+
+        MarkUnwantedE(e);
+    }
+
+    public void MarkUnwantedE(E e)
+    {
+        if (e.unwanted)
+            return;
 
         e.unwanted = true;
         e.uW0 = e.w;
@@ -138,6 +146,6 @@ public partial class NModel // Dynamic
     public void RestoreBackEs() => ns.ForEach(RestoreBackEs);
     public void RestoreBackEs(N n) => n.backEs = GetBackEs(n).ToArray();
 
-    public double GetDynamicW0(N n) => 0.1 * n.es.Concat(n.backEs).Average(e => e.w);
-    public double GetDynamicW0(N a, N b) => 0.1 * a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
+    public double GetDynamicW0(N n) => options.DynamicW0Factor * n.es.Concat(n.backEs).Average(e => e.w);
+    public double GetDynamicW0(N a, N b) => options.DynamicW0Factor * a.es.Concat(a.backEs).Concat(b.es).Concat(b.backEs).Average(e => e.w);
 }
