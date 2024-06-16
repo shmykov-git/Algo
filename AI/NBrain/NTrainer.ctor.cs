@@ -53,7 +53,7 @@ public partial class NTrainer
     private void CreateNetByGraph(NModel model)
     {
         var weightFn = options.PowerWeight0.HasValue
-            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.PowerFactor, options.PowerWeight0.Value.b / options.PowerFactor)
+            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.Power, options.PowerWeight0.Value.b / options.Power)
             : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
         var graph = options.Graph;
@@ -83,7 +83,7 @@ public partial class NTrainer
     private void CreateNetByTopology(NModel model)
     {
         var weightFn = options.PowerWeight0.HasValue
-            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.PowerFactor, options.PowerWeight0.Value.b / options.PowerFactor)
+            ? NFuncs.GetBaseWeight(options.PowerWeight0.Value.a / options.Power, options.PowerWeight0.Value.b / options.Power)
             : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
         var k = 0;

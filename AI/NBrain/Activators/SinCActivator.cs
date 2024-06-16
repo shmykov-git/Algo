@@ -3,11 +3,11 @@ using AI.Model;
 
 namespace AI.NBrain.Activators;
 
-public class SinCActivator : NActivator
+public class SincActivator : NActivator
 {
-    public SinCActivator(NOptions options) : base(options)
+    public SincActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetSinCFn(alfa, power, options.SinC);
-        DerFunc = NFuncs.GetDerSinFn(alfa, power);
+        Func = NFuncs.GetSincFn(alfa * power);
+        DerFunc = NFuncs.GetDerSincFn(alfa * power);
     }
 }

@@ -51,6 +51,7 @@ namespace ViewMotion
 
         private CameraMotionOptions? cameraMotionOptions;
         private CameraOptions defaultCameraOptions;
+        private Motion motion;
 
         private bool isAnimatePlaying => isPlaying && AnimationIndex > 0;
 
@@ -63,7 +64,7 @@ namespace ViewMotion
             persistState = GetPersistState();
             BackgroundColorState = persistState.BackgroundColorState;
 
-            var motion = scene.Scene().Result;
+            motion = scene.Scene().Result;
             cameraMotionOptions = motion.CameraMotionOptions;
 
             if (cameraMotionOptions?.CameraStartOptions != null)

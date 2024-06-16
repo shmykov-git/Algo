@@ -65,12 +65,8 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        // вести вес к нулевому значению, прежде чем удалить связь (дать весам выполнить компенсацию)
-        // тогда удаление безболезненно добавлять нейрон с нулевым весом (без влияния на картину)
-        // все переходы должны стать плавными
-
-        // вставка нода (убрать reverse)?
-        // сферические - тоже самое, что волна (WaveX)
+        // оформить growing
+        // сделать удобным использование нейронки
 
         var m = 0.75f;
         var trainN = 20;
@@ -81,32 +77,32 @@ partial class SceneMotion
         var nEpoch = 500000;
         var nEpochPart = 200;
         var growSpeedI = 5;
-        var levelTrainI = 30;
+        var levelTrainI = 50;
 
         var showTopology = true;
         var showTopologyWeights = true;
+        var showError = true;
+        var showTime = true;
 
         var mode = NMode.Learn;
 
         var options = new NOptions()
         {
             Seed = 1,
-            //Graph = [[(0, 2), (0, 4), (0, 6), (0, 8), (0, 3), (0, 5), (1, 3), (1, 5), (1, 7), (1, 9)], [(2, 10), (2, 12), (3, 11), (3, 13), (3, 16), (4, 12), (4, 10), (4, 13), (5, 13), (6, 14), (6, 10), (6, 13), (7, 15), (8, 16), (9, 17), (9, 15), (9, 13)], [(10, 18), (11, 18), (12, 18), (13, 18), (14, 18), (15, 18), (16, 18), (17, 18)]],
-            //Graph = [[(0, 2), (0, 3), (0, 4), (0, 6), (0, 8), (0, 9), (0, 10), (0, 12), (0, 14), (0, 16), (0, 18), (0, 20), (0, 22), (0, 26), (1, 2), (1, 3), (1, 5), (1, 7), (1, 8), (1, 9), (1, 11), (1, 13), (1, 15), (1, 17), (1, 19), (1, 21), (1, 24)], [(2, 23), (3, 24), (3, 25), (3, 28), (4, 25), (4, 27), (5, 24), (5, 26), (6, 24), (6, 27), (7, 23), (7, 25), (8, 24), (8, 27), (9, 25), (10, 24), (10, 26), (11, 24), (11, 27), (12, 23), (13, 24), (14, 23), (14, 24), (14, 25), (14, 26), (15, 23), (15, 26), (16, 23), (16, 26), (16, 28), (16, 27), (17, 23), (17, 26), (18, 24), (18, 26), (19, 25), (19, 27), (20, 26), (21, 23), (21, 25), (21, 27), (22, 23)], [(23, 28), (24, 28), (25, 28), (26, 28), (27, 28)]],
-            //Model = N21Models.Socrates_Wave,
             Graph = N21Graphs.Mercury,
             UpGraph = N21Graphs.TreeOnMercury,
             //Topology = [2, 6, 6, 1],
-            UpTopology = [2, 6, 6, 3, 1],
+            UpTopology = [2, 6, 5, 4, 3, 1],
             AllowGrowing = true,
-            AllowBelieved = false, // todo: remove?
+            AllowBelief = false, // todo: remove?
+            BeliefDeep = 3,
             PowerWeight0 = (0.1, -0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
             Act = NAct.Sin,
             Nu = 0.1,
             Alfa = 0.5,
-            PowerFactor = 2,
+            Power = 10,
             LinkFactor = 0.5,
             CrossLinkFactor = 0
         };
@@ -188,14 +184,39 @@ partial class SceneMotion
 
         var bestErr = double.MaxValue;
 
+        Shape GetErrorShape()
+        {
+            var len = bestErr < 1 ? -Math.Log(bestErr) - 5 : 0;
+            var n = 10;
+            var m = 50;
+            var mult = 0.5;
+
+            return Shapes.CylinderR(n, m: m).ToOx().Perfecto(mult).ScaleX(2 * len / (n * mult))
+                .AlignX(0).MoveX(-1)
+                .ApplyColorSphereRGradient(2, new Vector3(-1, 0, 0), Color.Black, Color.DarkRed, Color.DarkGreen, Color.Green, Color.Green, Color.LightGreen);
+        }
+
+        var t0 = DateTime.Now;
+
+        Shape GetTimeShape()
+        {
+            var len = (DateTime.Now - t0).TotalHours * 5;
+            var n = 10;
+            var m = 50;
+            var mult = 0.5;
+
+            return Shapes.CylinderR(n, m: m).ToOx().Perfecto(mult).ScaleX(2 * len / (n * mult))
+                .AlignX(0).MoveX(-1)
+                .ApplyColor(Color.Blue);
+
+        }
+
         Shape GetShape(bool withTrainModel) => new[]
         {
-            showTopology
-            ? GetTopologyShape().Perfecto(1.8).MoveX(-2)
-            : Shape.Empty,
-            showTopologyWeights
-            ? GetTopologyWeightsShape() 
-            : Shape.Empty,
+            showTime ? GetTimeShape().MoveY(-1.4) : Shape.Empty,
+            showError ? GetErrorShape().MoveY(-1.2) : Shape.Empty,
+            showTopology ? GetTopologyShape().Perfecto(1.8).MoveX(-2) : Shape.Empty,
+            showTopologyWeights ? GetTopologyWeightsShape() : Shape.Empty,
             new Shape()
             {
                 Points3 = (modelN, modelN).SelectInterval(modelR.from, modelR.to, modelR.from, modelR.to, ModelFn).ToArray(),
@@ -211,6 +232,11 @@ partial class SceneMotion
             Shapes.Cube.Mult(2).ToLines(Color.Black)
         }.ToSingleShape();
 
+        async Task BlowUp() 
+        {
+            model.BlowUp();
+        }
+
         async IAsyncEnumerable<Shape> Animate() 
         {
             yield return GetShape(showTrainDataFn(0));
@@ -223,7 +249,7 @@ partial class SceneMotion
 
                 if (options.AllowGrowing && !isUpReady && growI < k + 1)
                 {
-                    if (isLevelUp && options.AllowBelieved)
+                    if (isLevelUp && options.AllowBelief)
                         trainer.MakeBelieved();
 
                     (var isUp, isLevelUp) = trainer.GrowUp();
@@ -282,8 +308,9 @@ partial class SceneMotion
                 return GetShape(true).ToMotion(3);
 
             default:
-                return Animate().ToMotion(3);
+                return Animate().ToMotion(3, async (t, a) => { if (t == InteractType.MouseDblClick) await BlowUp(); });
         }
         
     }
+    
 }

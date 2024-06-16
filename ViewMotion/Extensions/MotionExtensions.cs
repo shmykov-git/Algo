@@ -94,14 +94,16 @@ static class MotionExtensions
         });
     }
 
-    public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
+    public static Task<Motion> ToMotion(this IAsyncEnumerable<Shape> shapes, double? cameraDistance = null, Func<InteractType, object, Task>? onInteract = null)
     {
-        return ToMotion(shapes, new MotionOptions()
+        var o = new MotionOptions()
         {
             CameraDistance = cameraDistance,
-            StartShape = startShape,
-            StepDelay = stepDelay
-        });
+        };
+
+        o.OnInteract += onInteract;
+
+        return ToMotion(shapes, o);
     }
 
     public static Task<Motion> ToWorldMotion(this IEnumerable<Shape> shapes, double? cameraDistance = null, Shape? startShape = null, TimeSpan? stepDelay = null)
@@ -236,6 +238,7 @@ static class MotionExtensions
 
         return new Motion
         {
+            Options = options,
             CameraMotionOptions= options.CameraMotionOptions,
             CameraDistance = options.CameraDistance,
             Shape = shape,

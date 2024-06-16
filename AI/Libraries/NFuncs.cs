@@ -1,4 +1,6 @@
 ﻿using Aspose.ThreeD;
+using Model.Extensions;
+using Model.Libraries;
 using Model.Tools;
 
 namespace AI.Libraries;
@@ -32,32 +34,49 @@ public static class NFuncs
         return (_, f) => f * (1 - f);
     }
 
-    public static NFunc GetTanhFn(double alfa)
+    public static NFunc GetTanhFn(double a)
     {
-        return x => Math.Tanh(x / alfa);
+        return x => Math.Tanh(x * a);
     }
 
-    public static NDerFunc GetDerTanhFn()
+    public static NDerFunc GetDerTanhFn(double a)
     {
-        return (_, f) => (1 - f * f);
+        return (_, f) => a * (1 - f * f);
     }
 
-    public static NFunc GetSinFn(double alfa, double power)
+    public static NFunc GetSinFn(double a)
     {
-        var a = alfa * power;
         return x => 0.01 + Math.Sin(x * a);
     }
 
-    public static NFunc GetSinCFn(double alfa, double power, double c)
+    public static NFunc GetSinAFn(double aa, double a)
     {
-        var a = alfa * power;
-        return x => c + Math.Sin(x * a);
+        return x => a + Math.Sin(x * aa);
     }
 
-    public static NDerFunc GetDerSinFn(double alfa, double power)
+    public static NDerFunc GetDerSinFn(double a)
     {
-        var a = alfa * power;
         return (x, _) => a * Math.Cos(x * a);
+    }
+
+    public static NFunc GetGaussianFn(double a)
+    {
+        return x => Math.Exp(-(x * a).Pow2());
+    }
+
+    public static NDerFunc GetDerGaussianFn(double a)
+    {
+        return (x, f) => -2 * x * a * f;
+    }
+
+    public static NFunc GetSincFn(double a)
+    {
+        return x => x.Abs() < Values.Epsilon6 ? 1 : Math.Sin(x * a) / (x * a);
+    }
+
+    public static NDerFunc GetDerSincFn(double a)
+    {
+        return (x, f) => x.Abs() < Values.Epsilon6 ? 0 : (Math.Cos(x * a) - f) / (x * a);
     }
 
     public static NFunc GetBaseWeight(double a, double b) => x => a * x + b;

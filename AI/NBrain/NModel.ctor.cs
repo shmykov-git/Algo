@@ -40,6 +40,11 @@ public partial class NModel
         this.rnd = rnd;
     }
 
+    public void BlowUp()
+    {
+        es.ForEach(e => e.w *= 0.9 + 0.2 * rnd.NextDouble());
+    }
+
     public void MakeBelieved(int lv)
     {
         nns[lv].ForEach(n =>

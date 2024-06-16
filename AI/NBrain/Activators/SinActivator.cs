@@ -7,7 +7,7 @@ public class SinActivator : NActivator
 {
     public SinActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetSinFn(alfa, power);
-        DerFunc = NFuncs.GetDerSinFn(alfa, power);
+        Func = NFuncs.GetSinFn(alfa * power);
+        DerFunc = NFuncs.GetDerSinFn(alfa * power);
     }
 }

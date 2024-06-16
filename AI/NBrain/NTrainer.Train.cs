@@ -5,31 +5,34 @@ using Model.Extensions;
 namespace AI.NBrain;
 public partial class NTrainer
 {
-    private double[][] trainLevelMatrix = null;
-    private int trainCaseNum = -1;
+    private double[][] blMatrix = null;
+    private bool needBlFill = false;
+    //private int trainCaseNum = -1;
 
     public void MakeBelieved()
     {
-        if (!options.AllowBelieved)
+        if (!options.AllowBelief)
             throw new NotAllowedException("UseLayerBelief");
 
-        model.MakeBelieved(model.maxLv - 2);
+        if (model.maxLv >= options.BeliefDeep)
+            model.MakeBelieved(model.maxLv - options.BeliefDeep);
     }
 
     private void InitTrainMatrix()
     {
-        var lv = model.maxLv - 2;
+        var lv = model.blLv;
 
-        if (trainLevelMatrix != null 
-            && model.nns[lv].Count == trainLevelMatrix[0].Length)
+        if (blMatrix != null 
+            && model.nns[lv].Count == blMatrix[0].Length)
             return;
 
-        trainLevelMatrix = (options.Training.Length).Range().Select(_ => (model.nns[lv].Count).Range(_ => 0.0).ToArray()).ToArray();
+        blMatrix = (options.Training.Length).Range().Select(_ => (model.nns[lv].Count).Range(_ => 0.0).ToArray()).ToArray();
+        needBlFill = true;
     }
 
     public async Task<double> Train()
     {
-        if (options.AllowBelieved)
+        if (options.AllowBelief)
             InitTrainMatrix();
 
         var data = options.Training.ToArray();
@@ -54,7 +57,7 @@ public partial class NTrainer
             }
             
             return model.blLv > 0 
-                ? TrainCase(models[mI], t.num, trainLevelMatrix[t.num], t.expected)
+                ? TrainCase(models[mI], t.num, blMatrix[t.num], t.expected)
                 : TrainCase(models[mI], t.num, t.input, t.expected);
         }
 
@@ -95,6 +98,8 @@ public partial class NTrainer
             }
         }
 
+        needBlFill = false;
+
         return sumError / data.Length;
     }
 
@@ -105,8 +110,8 @@ public partial class NTrainer
 
         model.ComputeTrainCase(tLayerInput);
         
-        if (options.AllowBelieved)
-            model.nns[^3].ForEach(n => trainLevelMatrix[num][n.ii] = n.f);
+        if (needBlFill && options.AllowBelief)
+            model.nns[model.blLv].ForEach(n => blMatrix[num][n.ii] = n.f);
         
         // learn cleanup
         Queue<N> learnQueue = new Queue<N>(model.unbelievedCapacity);

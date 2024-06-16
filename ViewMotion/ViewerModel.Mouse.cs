@@ -36,6 +36,13 @@ partial class ViewerModel
     public void MouseClick()
     {
         IsColorPickerVisible = false;
+        motion.Options.Interact(Models.InteractType.MouseClick);
+    }
+
+    public void MouseDblClick()
+    {
+        IsColorPickerVisible = false;
+        motion.Options.Interact(Models.InteractType.MouseDblClick);
     }
 
     public void Wheel(int delta)

@@ -113,8 +113,12 @@ namespace ViewMotion
         }
         private void DockPanel_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            viewerModel.MouseClick();
-            e.Handled = true;
+            if (e.ClickCount == 2)
+                viewerModel.MouseDblClick();
+            else
+                viewerModel.MouseClick();
+
+            e.Handled = true;            
         }
 
         private void Border_MouseDown(object sender, MouseButtonEventArgs e)

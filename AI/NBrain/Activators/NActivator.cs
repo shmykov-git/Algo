@@ -22,7 +22,7 @@ public class NActivator
     {
         alfa = options.Alfa;
         nu = options.Nu;
-        power = options.PowerFactor;
+        power = options.Power;
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff);
     }
 }
