@@ -85,27 +85,28 @@ partial class SceneMotion
         var options = new NOptions()
         {
             Seed = 0,
-            Graph = N21Graphs.Mercury,
+            //Graph = N21Graphs.Mercury,
             //UpGraph = N21Graphs.TreeOnMercury,
-            //Topology = [2, 6, 6, 1],
-            UpTopology = [2, 6, 6, 6, 6, 6, 1],
+            Topology = [2, 3, 4, 1],
+            UpTopology = [2, 3, 4, 5, 6, 1],
             //UpTopology = [2, 6, 5, 4, 3, 1],
             AllowGrowing = true,
-            AllowBelief = true,
+            AllowBelief = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.Sin,
-            DynamicW0Factor = 0.001,
+            Act = NAct.SinA,
+            DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
             Power = 1,
-            LinkFactor = 0.5,
+            LinkFactor = 0.7,
             CrossLinkFactor = 0,
             EpochPerTrain = 200,
-            EpochBeforeGrowing = 20_000,
-            EpochAfterLevelGrowUp = 20_000,
-            EpochAfterGrowUp = 1000
+            EpochBeforeGrowing = 10000,
+            EpochAfterLevelGrowUp = 10000,
+            EpochAfterGrowUp = 1000,
+            EpochUnwanted = 300,
         };
         
         var topologyWeightHeight = options.Act switch { NAct.Sigmoid => 10, _ => 1 };

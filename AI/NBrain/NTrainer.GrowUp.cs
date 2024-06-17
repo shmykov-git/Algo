@@ -386,7 +386,10 @@ public partial class NTrainer
             if (nns[lv].Count < options.UpTopology[lv])
             {
                 var (a, b) = GetLevelPairN(lv);
-                model.MarkUnwantedE(a, b);
+                
+                if (a.IsLinked(b))
+                    model.MarkUnwantedE(a, b);
+
                 model.AddN(a, b);
                 state.upLevelChangesCount += 3;
 

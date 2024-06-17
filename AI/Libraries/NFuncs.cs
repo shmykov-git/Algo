@@ -46,7 +46,7 @@ public static class NFuncs
 
     public static NFunc GetSinFn(double a)
     {
-        return x => 0.01 + Math.Sin(x * a);
+        return x => Math.Sin(x * a);
     }
 
     public static NFunc GetSinAFn(double aa, double a)
