@@ -74,11 +74,7 @@ partial class SceneMotion
         var modelN = 50;
         (double from, double to) modelR = (-2/m, 2/m);
 
-        var nEpoch = 500000;
-        var nEpochPart = 200;
-        var growSpeedI = 5;
-        var levelTrainI = 50;
-
+        var frames = 2000;
         var showTopology = true;
         var showTopologyWeights = true;
         var showError = true;
@@ -93,8 +89,9 @@ partial class SceneMotion
             UpGraph = N21Graphs.TreeOnMercury,
             //Topology = [2, 6, 6, 1],
             UpTopology = [2, 6, 5, 4, 3, 1],
-            AllowGrowing = false,
-            PowerWeight0 = (0.1, -0.05),
+            AllowGrowing = true,
+            AllowBelief = false,
+            PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
             Act = NAct.Sin,
@@ -102,14 +99,14 @@ partial class SceneMotion
             Alfa = 0.5,
             Power = 2,
             LinkFactor = 0.5,
-            CrossLinkFactor = 0
+            CrossLinkFactor = 0,
+            EpochPerTrain = 200,
         };
         
         var topologyWeightHeight = options.Act switch { NAct.Sigmoid => 10, _ => 1 };
         var topologyNums = false;
         var topologyWeightNums = false;
-        var growI = levelTrainI;
-        Func<int, bool> showTrainDataFn = k => k % 100 < 50;
+        Func<int, bool> withTrain = k => k % 100 < 50;
 
         var boxScale = m * new Vector3(1 / (trainR.to - trainR.from), 1 / (trainR.to - trainR.from), 0.125);
         var boxCenter = new Vector3(0.5, 0.5, 0.5);
@@ -129,21 +126,18 @@ partial class SceneMotion
         //    Convexes = Convexes.SquaresBoth(trainN, trainN)
         //}.ToMeta() + Shapes.NativeCube.ToLines()).ToMotion();
 
-        var training = (trainN, trainN)
+        var trainData = (trainN, trainN)
             .SelectInterval(trainR.from, trainR.to, trainR.from, trainR.to, (x, y) => TrainFn(x, y))
             .Select((v, i) => (i, new double[] { v.x, v.y }, new double[] { v.z }))
             .ToArray();
 
-        var trainer = new NTrainer(options.With(o => o.Training = training));
+        var trainer = new NTrainer(options.With(o => o.TrainData = trainData));
         trainer.Init();
 
-        var isUpReady = false;
-        var isLevelUp = false;
-
-        var topMult = mode switch { NMode.Topology => 1, _ => 2 };
 
         Shape GetTopologyShape()
         {
+            var topMult = mode switch { NMode.Topology => 1, _ => 2 };
             var topology = trainer.model.GetTopology().Perfecto(3);
 
             return topologyNums
@@ -164,41 +158,36 @@ partial class SceneMotion
         if (mode == NMode.Topology)
             return GetTopologyShape().ToMotion(3);
 
-        NModel model = trainer.model.Clone();
-        NModel bestModel = model;
-        var size0 = model.size;
-        Debug.WriteLine($"Brain: n={model.ns.Count()} e={model.es.Count()} ({model.input.Count}->{model.output.Count})");
-        Debug.WriteLine($"Graph: {trainer.model.GetGraph().ToGraphString()}");
+        TrainState state = new();
+        state.model = trainer.model.Clone();
+
+        Debug.WriteLine($"Topology: {state.model.TopologyInfo}");
+        Debug.WriteLine($"Graph: {state.model.GetGraph().ToGraphString()}");
 
         Vector3 ModelFn(double xx, double yy)
         {
             var x = (m * xx - trainR.from) / (trainR.to - trainR.from);
             var y = (m * yy - trainR.from) / (trainR.to - trainR.from);
-            var z = model!.Predict([x, y])[0];
+            var z = state.model!.Predict([x, y])[0];
 
             return new Vector3(x, y, z);
         }
 
-
-        var bestErr = double.MaxValue;
-
         Shape GetErrorShape()
         {
-            var len = bestErr < 1 ? -Math.Log(bestErr) - 5 : 0;
+            var len = state.bestError < 1 ? -Math.Log(state.bestError) - 5 : 0;
             var n = 10;
             var m = 50;
             var mult = 0.5;
 
-            return Shapes.CylinderR(n, m: m).ToOx().Perfecto(mult).ScaleX(2 * len / (n * mult))
+            return Shapes.CylinderR(n, m: m).ToOx().Perfecto(mult).ScaleX(3 * len / (n * mult))
                 .AlignX(0).MoveX(-1)
-                .ApplyColorSphereRGradient(2, new Vector3(-1, 0, 0), Color.Black, Color.DarkRed, Color.DarkGreen, Color.Green, Color.Green, Color.LightGreen);
+                .ApplyColorSphereRGradient(2, new Vector3(-1, 0, 0), Color.Black, Color.DarkRed, Color.DarkGreen, Color.Green, Color.Green, Color.LightGreen, Color.LightGreen);
         }
-
-        var t0 = DateTime.Now;
 
         Shape GetTimeShape()
         {
-            var len = (DateTime.Now - t0).TotalHours * 5;
+            var len = state.time.TotalHours * 5;
             var n = 10;
             var m = 50;
             var mult = 0.5;
@@ -206,7 +195,6 @@ partial class SceneMotion
             return Shapes.CylinderR(n, m: m).ToOx().Perfecto(mult).ScaleX(2 * len / (n * mult))
                 .AlignX(0).MoveX(-1)
                 .ApplyColor(Color.Blue);
-
         }
 
         Shape GetShape(bool withTrainModel) => new[]
@@ -230,73 +218,29 @@ partial class SceneMotion
             Shapes.Cube.Mult(2).ToLines(Color.Black)
         }.ToSingleShape();
 
-        async Task BlowUp() 
-        {
-            model.BlowUp();
-        }
-
         async IAsyncEnumerable<Shape> Animate() 
         {
-            yield return GetShape(showTrainDataFn(0));
+            yield return GetShape(withTrain(0));
 
-            for (var k = 0; k < nEpoch / nEpochPart; k++)
+            for (var k = 1; k < frames; k++)
             {
-                var err = double.MaxValue;
-                var errChanged = false;
-                var bestErrChanged = false;
+                state = await trainer.Train();
 
-                if (options.AllowGrowing && !isUpReady && growI < k + 1)
+                if (state.errorChanged)
                 {
-                    if (isLevelUp && options.AllowBelief)
-                        trainer.MakeBelieved();
-
-                    (var isUp, isLevelUp) = trainer.GrowUp();
-
-                    growI += isLevelUp 
-                        ? levelTrainI
-                        : growSpeedI * size0 / model.size;
-
-                    if (isUp != isUpReady)
+                    if (state.bestErrorChanged)
                     {
-                        Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().Select(es => $"[{es.Select(e => $"({e.i}, {e.j})").SJoin(", ")}]").SJoin(", ")}]");
-                    }
-
-                    isUpReady = isUp;
-                }
-
-                for(var ii = 0; ii < nEpochPart; ii++)
-                {
-                    var newErr = await trainer.Train();
-
-                    if (newErr < err)
-                    {
-                        err = newErr;
-                        errChanged = true;
-                        model = trainer.model.Clone();
-
-                        if (err < bestErr)
-                        {
-                            bestErr = err;
-                            bestErrChanged = true;
-                            bestModel = model;
-                        }
-                    }
-                }
-
-                if (errChanged)
-                {
-                    if (bestErrChanged)
-                    {
-                        Debug.WriteLine($"bestErr: {err} [{k + 3}]");
-                        Debug.WriteLine($"BestState: {bestModel.GetState().ToStateString()}");
+                        Debug.WriteLine($"BestError: {state.bestError:E1} [{state.trainCount}-{state.epoch}-{state.computeCount}] {state.bestModel.TopologyInfo}");
+                        Debug.WriteLine($"BestState: {state.bestModel.GetState().ToStateString()}\r\n");
                     }
                     else
-                        Debug.WriteLine($"err: {err}");
-
-                    model.ShowDebugInfo();
+                        Debug.WriteLine($"Error: {state.error:E1} [{state.trainCount}-{state.epoch}-{state.computeCount}] {state.bestModel.TopologyInfo}");
                 }
 
-                yield return GetShape(showTrainDataFn(k));
+                if (state.isUpChanged)
+                    Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().ToGraphString()}]");
+
+                yield return GetShape(withTrain(k));
             }
         }
 
@@ -306,9 +250,7 @@ partial class SceneMotion
                 return GetShape(true).ToMotion(3);
 
             default:
-                return Animate().ToMotion(3, async (t, a) => { if (t == InteractType.MouseDblClick) await BlowUp(); });
-        }
-        
-    }
-    
+                return Animate().ToMotion(3);
+        }        
+    }    
 }

@@ -79,5 +79,5 @@ public static class NFuncs
         return (x, f) => x.Abs() < Values.Epsilon6 ? 0 : (Math.Cos(x * a) - f) / (x * a);
     }
 
-    public static NFunc GetBaseWeight(double a, double b) => x => a * x + b;
+    public static NFunc GetBaseWeight(double a, double b) => x => a + x * (b - a);
 }

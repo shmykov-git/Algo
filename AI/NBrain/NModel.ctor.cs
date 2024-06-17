@@ -11,8 +11,6 @@ public partial class NModel
 {
     public double error;
     public double trainError;
-    public (double, double) avgX;
-    public double avgDelta;
     public int blLv = 0;
     public int upLv = 0;  // check level up
 
@@ -67,8 +65,6 @@ public partial class NModel
             nns = newNns,
             error = error,
             trainError = trainError,
-            avgX = avgX,
-            avgDelta = avgDelta
         };
 
         model.ns.ForEach(n => n.model = model);
@@ -79,28 +75,5 @@ public partial class NModel
         return model;
     }
 
-    public void ShowDebug()
-    {
-        ShowDebugInfo();
-
-        nns.ForEach(lv => ns.ForEach(n =>
-        {
-            Debug.WriteLine($"{lv}| {ns.Select(n => n.es.Any() ? $"{n.f:F5} ({n.es.SJoin(", ")})" : $"{n.f:F5}").SJoin(", ")}");
-        }));
-    }
-
-    public void ShowDebugE()
-    {
-        ShowDebugInfo();
-
-        nns.ForEach(lv => ns.ForEach(n =>
-        {
-            Debug.WriteLine($"{lv}| {ns.Select(n => $"({n.es.SJoin(", ")})").SJoin(", ")}");
-        }));
-    }
-
-    public void ShowDebugInfo()
-    {
-        Debug.WriteLine($"=== avgW=({avgX.Item1:F3}, {avgX.Item2:F3}) kDelta={avgDelta * 1000:F3} [lv={nns.Count} n={ns.Count()} e={es.Count()} ({input.Count}->{output.Count})]");
-    }
+    public string TopologyInfo => $"[lv={nns.Count} n={ns.Count()} e={es.Count()} ({input.Count}->{output.Count})]";
 }

@@ -12,7 +12,7 @@ public class NOptions
     public int[] Topology { get; set; } = [2, 5, 1];                    // start topology
     public int[] UpTopology { get; set; } = [2, 5, 5, 1];               // top topology to grow
     public bool AllowGrowing { get; set; } = false;                     // use net growing
-    public (double a, double b) Weight0 { get; set; } = (2, -1);        // N.w0 = a + rnd * (b - a)
+    public (double a, double b) Weight0 { get; set; } = (-0.05, 0.05);  // N.w0 = a + rnd * (b - a)
     public (double a, double b)? PowerWeight0 { get; set; } = null;     // N.w0 = (a + rnd * (b - a)) / power (default if set)
     public NAct Act { get; set; } = NAct.Sigmoid;       // activator function
     public double SinA { get; set; } = 0.01;            // SinA activator value
@@ -31,5 +31,9 @@ public class NOptions
     public int UnwantedCount { get; set; } = 200000;    // number of model computes to reach zero weight before remove it
     public double DynamicW0Factor { get; set; } = 0.1;  // set w when new E added as avg sibling E multiplicator
 
-    public (int num, double[] input, double[] expected)[] Training { get; set; }    // training data to learn
+    public (int num, double[] input, double[] expected)[] TrainData { get; set; }    // training data to learn
+    public int EpochPerTrain { get; set; } = 200;
+    public int EpochBeforeGrowing { get; set; } = 10_000;
+    public int EpochAfterLevelGrowUp { get; set; } = 10_000;
+    public int EpochAfterGrowUp { get; set; } = 1_000;
 }

@@ -11,7 +11,7 @@ namespace AI.NBrain;
 
 public partial class NTrainer
 {
-    public (bool ready, bool levelReady) GrowUp()
+    private (bool ready, bool levelReady) GrowUp()
     {
         if (!options.AllowGrowing)
             throw new NotAllowedException(nameof(options.AllowGrowing));
@@ -257,7 +257,7 @@ public partial class NTrainer
         while (true)
         {
             model.es.Where(e => e.canBeRemoved)
-                .ToArray().ForEach(model.RemoveE);
+                .ToArray().ForEach(e => { model.RemoveE(e); state.upLevelChangesCount++; });
 
             N a, b;
 
@@ -271,6 +271,7 @@ public partial class NTrainer
 
                 model.MarkUnwantedE(a, b);
                 model.AddN(a, b);
+                state.upLevelChangesCount += 3;
                 return (false, false);
             }
 
@@ -280,6 +281,7 @@ public partial class NTrainer
             if (canAdd)
             {
                 model.AddE(a, b);
+                state.upLevelChangesCount++;
                 return (false, false);
             }
 
@@ -312,6 +314,7 @@ public partial class NTrainer
             }
 
             lv++;
+            state.upLevelChangesCount = 0;
 
             if (lv == upGraph.lvMax)
             {
@@ -378,13 +381,14 @@ public partial class NTrainer
         while (lv < options.UpTopology.Length - 1)
         {
             model.es.Where(e => e.canBeRemoved)
-                .ToArray().ForEach(model.RemoveE);
+                .ToArray().ForEach(e => { model.RemoveE(e); state.upLevelChangesCount++; });
 
             if (nns[lv].Count < options.UpTopology[lv])
             {
                 var (a, b) = GetLevelPairN(lv);
                 model.MarkUnwantedE(a, b);
                 model.AddN(a, b);
+                state.upLevelChangesCount += 3;
 
                 return (false, false);
             }
@@ -393,6 +397,7 @@ public partial class NTrainer
             {
                 var (a, b) = GetLevelPairE(lv);
                 model.AddE(a, b);
+                state.upLevelChangesCount++;
 
                 return (false, false);
             }
@@ -422,6 +427,7 @@ public partial class NTrainer
             }
 
             lv++;
+            state.upLevelChangesCount = 0;
 
             if (lv < options.UpTopology.Length - 1)
                 model.LevelUp();
