@@ -58,7 +58,7 @@ public partial class NModel
             if (n.computed)
                 continue;
 
-            if (n.lv == blLv || n.backEs.All(e => e.a.computed))
+            if (n.backEs.All(e => e.a.computed || e.a.believed))
             {
                 ComputeN(n);
 

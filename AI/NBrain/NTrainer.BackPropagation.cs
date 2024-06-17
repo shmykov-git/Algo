@@ -41,7 +41,7 @@ public partial class NTrainer
         if (w.Abs() < Values.Epsilon9)
             return (0, 0);
 
-        var dw = w0 / options.UnwantedCount;
+        var dw = w0 / (options.EpochUnwanted * options.TrainData.Length);
 
         return (w - dw, dw);
     }

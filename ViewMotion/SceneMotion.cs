@@ -84,13 +84,13 @@ partial class SceneMotion
 
         var options = new NOptions()
         {
-            Seed = 1,
+            Seed = 0,
             Graph = N21Graphs.Mercury,
             UpGraph = N21Graphs.TreeOnMercury,
             //Topology = [2, 6, 6, 1],
             UpTopology = [2, 6, 5, 4, 3, 1],
             AllowGrowing = true,
-            AllowBelief = false,
+            AllowBelief = true,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
@@ -101,6 +101,9 @@ partial class SceneMotion
             LinkFactor = 0.5,
             CrossLinkFactor = 0,
             EpochPerTrain = 200,
+            EpochBeforeGrowing = 10_00,
+            EpochAfterLevelGrowUp = 10_00,
+            EpochAfterGrowUp = 100
         };
         
         var topologyWeightHeight = options.Act switch { NAct.Sigmoid => 10, _ => 1 };
@@ -230,11 +233,11 @@ partial class SceneMotion
                 {
                     if (state.bestErrorChanged)
                     {
-                        Debug.WriteLine($"BestError: {state.bestError:E1} [{state.trainCount}-{state.epoch}-{state.computeCount}] {state.bestModel.TopologyInfo}");
+                        Debug.WriteLine($"\r\n{state.BestModelInfo} {state.CountInfo} {state.bestModel.TopologyInfo}");
                         Debug.WriteLine($"BestState: {state.bestModel.GetState().ToStateString()}\r\n");
                     }
                     else
-                        Debug.WriteLine($"Error: {state.error:E1} [{state.trainCount}-{state.epoch}-{state.computeCount}] {state.bestModel.TopologyInfo}");
+                        Debug.WriteLine($"{state.ModelInfo} {state.CountInfo} {state.model.TopologyInfo}");
                 }
 
                 if (state.isUpChanged)

@@ -22,10 +22,11 @@ public class TrainState
     public int upLevelChangesCount;
     public int epochToGrowUp;
 
-    public bool isLevelBelieved;
-    public int epochToBelieved;
-
     public DateTime t0;
     public DateTime t;
     public TimeSpan time => t - t0;
+
+    public string CountInfo => $"[{trainCount}-{epoch}-{computeCount}]";
+    public string ModelInfo => $"Error: {error:E1}{(model.blLv > 0 ? $" bl={model.blLv}" : "")}";
+    public string BestModelInfo => $"BestError: {bestError:E1}";
 }

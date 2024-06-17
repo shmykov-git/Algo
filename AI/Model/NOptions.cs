@@ -28,12 +28,12 @@ public class NOptions
     public double Nu { get; set; } = 0.1;               // backpropagation parameter
     public double Alfa { get; set; } = 0.5;             // backpropagation and power multiplicator parameter
 
-    public int UnwantedCount { get; set; } = 200000;    // number of model computes to reach zero weight before remove it
     public double DynamicW0Factor { get; set; } = 0.1;  // set w when new E added as avg sibling E multiplicator
 
     public (int num, double[] input, double[] expected)[] TrainData { get; set; }    // training data to learn
-    public int EpochPerTrain { get; set; } = 200;
-    public int EpochBeforeGrowing { get; set; } = 10_000;
-    public int EpochAfterLevelGrowUp { get; set; } = 10_000;
-    public int EpochAfterGrowUp { get; set; } = 1_000;
+    public int EpochPerTrain { get; set; } = 200;               // number of epochs (train data calculation circles)
+    public int EpochUnwanted { get; set; } = 300;               // number of epochs to reach zero weight before remove it
+    public int EpochBeforeGrowing { get; set; } = 10_000;       // number of epochs before graph start to grow
+    public int EpochAfterLevelGrowUp { get; set; } = 10_000;    // number of epochs when graph reaches next level
+    public int EpochAfterGrowUp { get; set; } = 1_000;          // number of epochs when graph has any changes (new edge added)
 }

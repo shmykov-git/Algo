@@ -10,6 +10,7 @@ public partial class NTrainer
 {
     private double[][] blMatrix = null;
     private bool needBlFill = false;
+    bool isLevelUp;
     private TrainState state = new();
     
     public async Task<TrainState> Train()
@@ -22,14 +23,11 @@ public partial class NTrainer
         state.bestErrorChanged = false;
         state.isUpChanged = false;
         state.isLevelUp = false;
-
+        
         for (var i = 0; i < options.EpochPerTrain; i++)
         {
             if (options.AllowGrowing)
                 TrainWithGrowUp();
-
-            if (options.AllowBelief)
-                TrainWithBelief();
 
             var error = await TrainByTrainingData();
             state.epoch++;
@@ -75,7 +73,7 @@ public partial class NTrainer
     private void MakeLevelBelieved()
     {
         if (model.maxLv >= options.BeliefDeep)
-            model.MakeBelieved(model.maxLv - options.BeliefDeep);
+            model.MakeBelieved(model.maxLv - options.BeliefDeep + 1);
     }
 
     private void InitBeliefMatrix()
@@ -90,20 +88,6 @@ public partial class NTrainer
         needBlFill = true;
     }
 
-    private void TrainWithBelief()
-    {
-        state.isLevelBelieved = false;
-
-        if (state.isLevelUp)
-            state.epochToBelieved = options.EpochAfterLevelGrowUp;
-
-        if (state.epochToBelieved-- == 0)
-        {
-            MakeLevelBelieved();
-            state.isLevelBelieved = true;
-        }
-    }
-
     private void TrainWithGrowUp()
     {
         if (state.epoch == 0)
@@ -111,12 +95,15 @@ public partial class NTrainer
 
         if (state.epochToGrowUp-- == 0)
         {
-            var (isUp, isLevelUp) = GrowUp();
+            if (isLevelUp && options.AllowBelief)
+                MakeLevelBelieved();
+
+            (var isUp, isLevelUp) = GrowUp();
             
             state.epochToGrowUp = state.upLevelChangesCount > 0
                 ? (isLevelUp ? options.EpochAfterLevelGrowUp : options.EpochAfterGrowUp)
                 : 0;
-
+            
             if (isUp)
             {
                 state.isUp = true;

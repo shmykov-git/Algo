@@ -45,7 +45,7 @@ public partial class NModel
 
     public void MakeBelieved(int lv)
     {
-        nns[lv].ForEach(n =>
+        nns[lv - 1].ForEach(n =>
         {
             n.believed = true;
         });
@@ -65,6 +65,8 @@ public partial class NModel
             nns = newNns,
             error = error,
             trainError = trainError,
+            upLv = upLv,
+            blLv = blLv
         };
 
         model.ns.ForEach(n => n.model = model);
