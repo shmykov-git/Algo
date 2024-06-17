@@ -7,7 +7,7 @@ public class SigmoidActivator : NActivator
 {
     public SigmoidActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetSigmoidFn(alfa * power);
-        DerFunc = NFuncs.GetDerSigmoidFn();
+        Func = NFuncs.GetSigmoidFn(a);
+        DerFunc = NFuncs.GetDerSigmoidFn(a);
     }
 }

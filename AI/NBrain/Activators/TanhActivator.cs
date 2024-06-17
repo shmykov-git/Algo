@@ -7,7 +7,7 @@ public class TanhActivator : NActivator
 {
     public TanhActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetTanhFn(alfa * power);
-        DerFunc = NFuncs.GetDerTanhFn(alfa * power);
+        Func = NFuncs.GetTanhFn(a);
+        DerFunc = NFuncs.GetDerTanhFn(a);
     }
 }

@@ -17,12 +17,14 @@ public class NActivator
     protected double alfa;
     protected double nu;
     protected double power;
+    protected double a;
 
     public NActivator(NOptions options)
     {
         alfa = options.Alfa;
         nu = options.Nu;
         power = options.Power;
+        a = alfa * power;
         dampingFn = NFuncs.GetDampingFn(options.DampingCoeff);
     }
 }

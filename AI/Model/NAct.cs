@@ -2,7 +2,7 @@
 
 public enum NAct 
 {
-    None,
+    Line,
     Sigmoid,
     Tanh,
     Sin,

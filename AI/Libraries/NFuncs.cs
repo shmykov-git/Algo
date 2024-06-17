@@ -22,16 +22,16 @@ public static class NFuncs
         return x => x;
     }
 
-    public static NFunc GetSigmoidFn(double alfa)
+    public static NFunc GetSigmoidFn(double a)
     {
-        var a = -2 * alfa;
+        var aa = -2 * a;
 
-        return x => 1 / (1 + Math.Exp(a * x));
+        return x => 1 / (1 + Math.Exp(aa * x));
     }
 
-    public static NDerFunc GetDerSigmoidFn()
+    public static NDerFunc GetDerSigmoidFn(double a)
     {
-        return (_, f) => f * (1 - f);
+        return (_, f) => a * f * (1 - f);
     }
 
     public static NFunc GetTanhFn(double a)

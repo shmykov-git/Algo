@@ -7,7 +7,7 @@ public class GaussianActivator : NActivator
 {
     public GaussianActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetGaussianFn(alfa * power);
-        DerFunc = NFuncs.GetDerGaussianFn(alfa * power);
+        Func = NFuncs.GetGaussianFn(a);
+        DerFunc = NFuncs.GetDerGaussianFn(a);
     }
 }

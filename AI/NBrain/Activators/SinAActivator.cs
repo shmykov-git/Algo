@@ -7,7 +7,7 @@ public class SinAActivator : NActivator
 {
     public SinAActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetSinAFn(alfa * power, options.SinA);
-        DerFunc = NFuncs.GetDerSinFn(alfa * power);
+        Func = NFuncs.GetSinAFn(a, options.SinA);
+        DerFunc = NFuncs.GetDerSinFn(a);
     }
 }
