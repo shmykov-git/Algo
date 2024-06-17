@@ -12,7 +12,6 @@ public class NActivator
 {
     public NFunc Func;
     public NDerFunc DerFunc;
-    public NFunc dampingFn;
 
     protected double alfa;
     protected double nu;
@@ -25,6 +24,5 @@ public class NActivator
         nu = options.Nu;
         power = options.Power;
         a = alfa * power;
-        dampingFn = NFuncs.GetDampingFn(options.DampingCoeff);
     }
 }

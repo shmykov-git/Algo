@@ -23,7 +23,6 @@ public class NOptions
     public int ParallelCount { get; set; } = 1;         // not implemented, try to use parallel calculations
     public double LinkFactor { get; set; } = 0.2;       // percent of linked level edges
     public double CrossLinkFactor { get; set; } = 0;    // not implemented
-    public double DampingCoeff { get; set; } = 0;       // use damping for each calculation (not investigated)
 
     public double Nu { get; set; } = 0.1;               // backpropagation parameter
     public double Alfa { get; set; } = 0.5;             // backpropagation and power multiplicator parameter

@@ -30,7 +30,6 @@ public partial class NModel
         {
             // compute output (f) from input (xx)
             n.f = n.act.Func(n.xx);
-            n.f = n.act.dampingFn(n.f);
         }
 
         // pass signal from output a to input b

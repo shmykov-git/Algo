@@ -10,18 +10,6 @@ public delegate double NDerFunc(double x, double f);
 
 public static class NFuncs
 {
-    public static NFunc GetDampingFn(double c)
-    {
-        if (c > 0)
-        {
-            var a = (1 - c);
-
-            return x => a * x;
-        }
-
-        return x => x;
-    }
-
     public static NFunc GetSigmoidFn(double a)
     {
         var aa = -2 * a;
