@@ -47,7 +47,7 @@ partial class SceneMotion
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.SinA,
+            Act = NAct.SinB,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,

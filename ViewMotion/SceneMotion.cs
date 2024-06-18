@@ -63,10 +63,7 @@ partial class SceneMotion
     {
         var s = new[]
         {
-            Shapes.IcosahedronSp3.Perfecto(0.6).Move(-0.4, -0.4, 0),
-            Shapes.IcosahedronSp3.Perfecto(0.6).Move(-0.4, 0.4, 0),
-            Shapes.IcosahedronSp3.Perfecto(0.6).Move(0.4, 0.4, 0),
-            Shapes.IcosahedronSp3.Perfecto(0.6).Move(0.4, -0.4, 0),
+            Shapes.PlaneTorus(10, 32, 4).ToOx().Perfecto(0.9999),
         }.ToSingleShape();
 
 
@@ -76,13 +73,14 @@ partial class SceneMotion
 
         var mode = P2NMode.Learn;
         var m = 0.75;
+        var zN = 4;
 
         return new AIMotionPlatform().AI_Learn_2N(new AI2NOptions
         {
             m = m,
             trainN = 25,
             trainR = (from, to),
-            modelN = 50,
+            modelN = 25,
             modelR = (from / m, to / m),
 
             frames = 2000,
@@ -91,23 +89,23 @@ partial class SceneMotion
             showError = true,
             showTime = true,
             mode = mode,
-            learnShape = s,
-            zN = 2
+            learnShape = s, 
+            zN = zN
         },
         new NOptions
         {
-            Seed = 0,
+            Seed = 1,
             //Graph = N21Graphs.Mercury,
             //UpGraph = N21Graphs.TreeOnMercury,
-            Topology = [2, 4, 5, 2],
-            UpTopology = [2, 4, 5, 6, 8, 2],
+            Topology = [2, 4, 5, zN],
+            UpTopology = [2, 4, 5, 6, 8, zN],
             //UpTopology = [2, 6, 5, 4, 3, 1],
             AllowGrowing = true,
             AllowBelief = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.SinA,
+            Act = NAct.SinB,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,

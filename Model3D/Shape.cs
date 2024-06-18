@@ -288,6 +288,19 @@ namespace Model
             return x => x - n * (n.MultS(x - ps[2])/n.Length2);
         }
 
+        public Func<Vector3, Vector3, Vector3?> IntersectConvexFn(int iConvex)
+        {
+            var insideFn = IsInsideConvexFn(iConvex);
+            var ps = ConvexPoints(iConvex);
+            var intersectFn = new Plane(ps[0], ps[1], ps[2]).IntersectionFn;
+
+            return (a, b) =>
+            {
+                var p = intersectFn(a, b);
+                return p.HasValue && insideFn(p.Value) ? p : null;
+            };
+        }
+
         public Func<Vector3, bool> IsInsideConvexFn(int iConvex)
         {
             var ps = ConvexPoints(iConvex);

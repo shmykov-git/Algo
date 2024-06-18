@@ -32,36 +32,41 @@ internal class AIMotionPlatform
         var boxCenter = new Vector3(0.5, 0.5, 0.5);
 
         var boxedShape = o.learnShape.Boxed(boxScale, boxCenter);
-        var planes = o.learnShape.Planes.Select(p => new Plane(p[0], p[1], p[2])).ToArray();
+        var convexIntersectedFns = o.learnShape.Convexes.Index().Select(o.learnShape.IntersectConvexFn).ToArray();
 
         Vector3[] TrainPoints(double x, double y)
         {
             var a = new Vector3(x, y, 0);
             var b = new Vector3(x, y, 1);
 
-            var ps = planes
-                .Select(p => (p, point: p.IntersectionFn(a, b)))
-                .Where(v => v.point.HasValue && v.p.IsPointInsideFn(v.point.Value))
-                .Select(v => v.point.Value)
+            var ps = convexIntersectedFns
+                .Select(fn => fn(a, b))
+                .Where(p => p.HasValue)
+                .Select(p => p.Value)
                 .OrderBy(p => p.z)
+                .Select(p => p.Boxed(boxScale, boxCenter))
                 .ToArray();
+
+            // todo: [x0, x3, x1, x2]
 
             if (ps.Length == 0)
                 return [];
 
-            return [ps[0].Boxed(boxScale, boxCenter), ps[^1].Boxed(boxScale, boxCenter)];
+            var n = Math.Min(o.zN, ps.Length);
+            
+            return (o.zN).Range().Select(i => ps[i % n]).ToArray();
         }
 
         if (o.mode == P2NMode.Shape)
             return (new Shape()
             {
-                Points3 = (o.trainN, o.trainN).SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainPoints).Where(v => v.Length > 1).ToSingleArray(),
+                Points3 = (o.trainN, o.trainN).SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainPoints).Where(v => v.Length > 0).ToSingleArray(),
             }.ToPoints(0.5).ApplyColor(Color.Blue) + Shapes.NativeCube.ToLines() + boxedShape.ToLines(Color.Red, 0.5)).Centered().ToMotion();
 
         var trainData = (o.trainN, o.trainN)
             .SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainPoints)
-            .Where(v => v.Length > 1)
-            .Select((v, i) => (i, new double[] { v[0].x, v[0].y }, new double[] { v[0].z, v[1].z }))
+            .Where(v => v.Length > 0)
+            .Select((ps, i) => (i, new double[] { ps[0].x, ps[0].y }, ps.Select(p => p.z).ToArray()))
             .ToArray();
 
         var trainer = new NTrainer(nOptions.With(o => o.TrainData = trainData));
@@ -129,21 +134,28 @@ internal class AIMotionPlatform
                 .ApplyColor(Color.Blue);
         }
 
-        Shape GetShape(bool withTrainModel) => new[]
+        Shape GetShape(bool withTrainModel)
         {
-            o.showTime ? GetTimeShape().MoveY(-1.4) : Shape.Empty,
-            o.showError ? GetErrorShape().MoveY(-1.2) : Shape.Empty,
-            o.showTopology ? GetTopologyShape().Perfecto(1.8).MoveX(-2) : Shape.Empty,
-            o.showTopologyWeights ? GetTopologyWeightsShape() : Shape.Empty,
-            new Shape()
+            var pps = (o.modelN, o.modelN).SelectInterval(o.modelR.from, o.modelR.to, o.modelR.from, o.modelR.to, ModelPoints).ToArray();
+            var point = Shapes.Tetrahedron.Perfecto(1.5);
+
+            return new[]
             {
-                Points3 = (o.modelN, o.modelN).SelectInterval(o.modelR.from, o.modelR.to, o.modelR.from, o.modelR.to, ModelPoints).ToSingleArray(),
-            }.Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(Color.Red, 0.5),
-            withTrainModel
-                ? boxedShape.Move(-0.5, -0.5, -0.5).Mult(2).ToLines(Color.Blue)
-                : Shape.Empty,
-            Shapes.Cube.Mult(2).ToLines(Color.Black)
-        }.ToSingleShape();
+                o.showTime ? GetTimeShape().MoveY(-1.4) : Shape.Empty,
+                o.showError ? GetErrorShape().MoveY(-1.2) : Shape.Empty,
+                o.showTopology ? GetTopologyShape().Perfecto(1.8).MoveX(-2) : Shape.Empty,
+                o.showTopologyWeights ? GetTopologyWeightsShape() : Shape.Empty,
+                (o.zN).Range().Select(i => new Shape()
+                    {
+                        Points3 = pps.Select(ps=>ps[i]).ToArray(),
+                    }.ToPoints(o.colors[i%o.colors.Length], 0.5, point)
+                ).ToSingleShape().Move(-0.5, -0.5, -0.5).Mult(2),
+                withTrainModel
+                    ? boxedShape.Move(-0.5, -0.5, -0.5).Mult(2).ToLines(Color.Blue)
+                    : Shape.Empty,
+                Shapes.Cube.Mult(2).ToLines(Color.Black)
+            }.ToSingleShape();
+        }
 
         async IAsyncEnumerable<Shape> Animate()
         {

@@ -12,7 +12,7 @@ public static class ActivatorExtensions
         NAct.Sigmoid => new SigmoidActivator(options),
         NAct.Tanh => new TanhActivator(options),
         NAct.Sin => new SinActivator(options),
-        NAct.SinA => new SinAActivator(options),
+        NAct.SinB => new SinBActivator(options),
         NAct.Sinc => new SincActivator(options),
         NAct.Gaussian => new GaussianActivator(options),
         _ => throw new NotImplementedException(options.Act.ToString())

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using Model;
 using Model3D.Libraries;
 
@@ -36,4 +37,5 @@ public class AI2NOptions: AIOptions
     public P2NMode mode = P2NMode.Learn;
     public Shape learnShape;
     public int zN;
+    public Color[] colors = [Color.Red, Color.Maroon, Color.Navy, Color.Peru];
 }

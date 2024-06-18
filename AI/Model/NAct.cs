@@ -6,7 +6,7 @@ public enum NAct
     Sigmoid,
     Tanh,
     Sin,
-    SinA,
+    SinB,
     Sinc,
     Gaussian
 }
