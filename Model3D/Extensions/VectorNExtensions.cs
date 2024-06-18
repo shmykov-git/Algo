@@ -237,6 +237,8 @@ namespace Model3D.Extensions
             };
         }
 
+        public static Vector3 Boxed(this Vector3 a, Vector3 scale, Vector3 center) => a.Scale(scale) + center;
+
         public static Vector3 Scale(this Vector3 a, Vector3 aSize, Vector3 bSize)
         {
             return new Vector3

@@ -681,6 +681,7 @@ namespace Model3D.Extensions
         public static Shape ScaleY(this Shape shape, double mult) => Scale(shape, 1, mult, 1);
         public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
 
+        public static Shape Boxed(this Shape shape, Vector3 scale, Vector3 center) => shape.Scale(scale).Move(center);
         public static Shape BackScale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(1/v.x, 1/v.y, 1/v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(v.x, v.y, v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v) => shape.Scale(v.x, v.y, v.z);

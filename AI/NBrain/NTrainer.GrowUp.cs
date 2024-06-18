@@ -352,7 +352,9 @@ public partial class NTrainer
                 ? nns[lv - 1][i]
                 : nns[lv - 1][rnd.Next(nns[lv - 1].Count)];
 
-            var b = nns[lv + 1][rnd.Next(nns[lv + 1].Count)];
+            var b = i < nns[lv + 1].Count
+                ? nns[lv + 1][i]
+                : nns[lv + 1][rnd.Next(nns[lv + 1].Count)];
 
             return (a, b);
         }

@@ -66,13 +66,14 @@ namespace Model3D
             }
         }
 
+        // check, doesn`t work for cube
         public Func<Vector3, bool> IsPointInsideFn
         {
             get
             {
                 var n = NOne;
 
-                return x => points.SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == 3;
+                return x => points.SelectCirclePair((a, b) => (a - x + 0.001 * n).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == 3;
             }
         }
 
@@ -130,6 +131,7 @@ namespace Model3D
                 };
             }
         }
+
         public Func<Line3, Vector3?> LineIntersectionFn
         {
             get
