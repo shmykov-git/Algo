@@ -1,11 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using meta.Extensions;
+using Model.Tools;
 
 namespace Model.Extensions;
 
 public static class ArrayExtensions
 {
+    public static TItem?[] Stretch<TItem>(this TItem[] values, int len) where TItem : struct
+    {
+        var res = new TItem?[len];
+
+        if (values.Length == 0)
+            return res;
+
+        if (values.Length == 1)
+        {
+            res[len / 2] = values[0];
+            return res;
+        }
+
+        values.Select((v, i) => (v, j: (int)Math.Round((len - 1.0) * i/ (values.Length - 1))))
+        .ForEach(v => res[v.j] = v.v);
+
+        return res;
+    }
+
     public static void Shaffle<TItem>(this TItem[] values, Random rnd) => values.Shaffle(3 * values.Length + 7, rnd);
 
     public static void Shaffle<TItem>(this TItem[] values, int shaffleCount, Random rnd)

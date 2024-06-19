@@ -47,6 +47,9 @@ public partial class NTrainer
             }
         }
 
+        if (state.model == null)
+            state.model = model.Clone();
+
         state.trainCount++;
 
         return new TrainState
@@ -131,7 +134,7 @@ public partial class NTrainer
         if (symmetryLen == 0)
             symmetryLen = 1;
 
-        double ModelStep(int mI, (int num, double[] input, double[] expected) t, int k)
+        double ModelStep(int mI, (int num, double[] input, double?[] expected) t, int k)
         {
             if (mI != 0 && k % symmetryLen == 0)
             {
@@ -189,7 +192,7 @@ public partial class NTrainer
         return sumError / data.Length;
     }
 
-    private double TrainCase(NModel model, int num, double[] tLayerInput, double[] tExpected)
+    private double TrainCase(NModel model, int num, double[] tLayerInput, double?[] tExpected)
     {
         if (tExpected.Length != options.Topology[^1])
             throw new InvalidExpectedDataException();
@@ -208,7 +211,9 @@ public partial class NTrainer
 
         model.output.ForEach((n, i) => 
         {
-            LearnBackPropagationOutput(n, tExpected[i]);
+            if (tExpected[i].HasValue)
+                LearnBackPropagationOutput(n, tExpected[i].Value);
+            
             n.learned = true;
         });
 
@@ -234,7 +239,10 @@ public partial class NTrainer
                 learnQueue.Enqueue(n);
         }
 
-        var err = 0.5f * model.output.Select((n, i) => (tExpected[i] - n.f).Pow2()).Sum();
+        var err = tExpected.All(v=>v.HasValue) 
+            ? 0.5f * model.output.Select((n, i) => (n, i)).Select(v => (tExpected[v.i].Value - v.n.f).Pow2()).Sum()
+            : double.MaxValue;
+
         model.error = err;
 
         return err;

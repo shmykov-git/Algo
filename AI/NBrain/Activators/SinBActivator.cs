@@ -7,7 +7,7 @@ public class SinBActivator : NActivator
 {
     public SinBActivator(NOptions options) : base(options)
     {
-        Func = NFuncs.GetSinAFn(a, options.SinA);
+        Func = NFuncs.GetSinAFn(a, options.ActBias);
         DerFunc = NFuncs.GetDerSinFn(a);
     }
 }

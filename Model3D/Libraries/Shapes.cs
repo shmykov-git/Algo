@@ -597,7 +597,7 @@ namespace Model.Libraries
                 .Transform(TransformFuncs3.Sphere)
                 .Normalize();
 
-        public static Shape PlaneTorus(int m, int n, double centerRadius, ConvexFunc? convexesFn = null) =>
+        public static Shape PlaneTorus(int m, int n, double centerRadius = 2.5, ConvexFunc? convexesFn = null) =>
             Shapes.Plane(m, n, convexesFn, true, true)
                 .Scale(2 * Math.PI, 2 * Math.PI, 0)
                 .Transform(TransformFuncs3.Torus(centerRadius));

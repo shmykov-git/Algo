@@ -23,19 +23,21 @@ public class AIOptions : AIShowOptions
     public (double from, double to) trainR = (-2, 2);
     public int modelN = 50;
     public (double from, double to) modelR = (-2 / 0.75, 2 / 0.75);
-    public Func<int, bool> withTrain = k => k % 100 < 50;
 }
 
 public class AI21Options: AIOptions
 {
+    public Func<int, bool> withTrain = k => k % 100 < 50;
     public P21Mode mode = P21Mode.Learn;
     public SurfaceFunc learnFunc;
 }
 
 public class AI2NOptions: AIOptions
 {
+    public Func<int, int> shapeType = k => (k % 99) / 33;
     public P2NMode mode = P2NMode.Learn;
     public Shape learnShape;
     public int zN;
-    public Color[] colors = [Color.Red, Color.Maroon, Color.Navy, Color.Peru];
+    public bool AllowNullZ = true;
+    public Color[] colors = [Color.DarkSeaGreen, Color.Maroon, Color.DarkTurquoise, Color.DarkSalmon];
 }

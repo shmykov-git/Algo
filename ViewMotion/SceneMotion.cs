@@ -63,7 +63,7 @@ partial class SceneMotion
     {
         var s = new[]
         {
-            Shapes.PlaneTorus(10, 32, 4).ToOx().Perfecto(0.9999),
+            Shapes.PlaneTorus(20, 50, 4).ToOx().Perfecto(0.9999),
         }.ToSingleShape();
 
 
@@ -78,30 +78,27 @@ partial class SceneMotion
         return new AIMotionPlatform().AI_Learn_2N(new AI2NOptions
         {
             m = m,
-            trainN = 25,
+            trainN = 30,
             trainR = (from, to),
-            modelN = 25,
+            modelN = 30,
             modelR = (from / m, to / m),
 
-            frames = 2000,
-            showTopology = true,
-            showTopologyWeights = true,
+            frames = 1500,
+            showTopology = false,
+            showTopologyWeights = false,
             showError = true,
-            showTime = true,
+            showTime = false,
             mode = mode,
             learnShape = s, 
-            zN = zN
+            zN = zN,
+            AllowNullZ = false
         },
         new NOptions
         {
             Seed = 1,
-            //Graph = N21Graphs.Mercury,
-            //UpGraph = N21Graphs.TreeOnMercury,
-            Topology = [2, 4, 5, zN],
+            Topology = [2, 4, 5, 6, 8, zN],
             UpTopology = [2, 4, 5, 6, 8, zN],
-            //UpTopology = [2, 6, 5, 4, 3, 1],
-            AllowGrowing = true,
-            AllowBelief = false,
+            AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
@@ -109,7 +106,7 @@ partial class SceneMotion
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
-            Power = 1,
+            Power = 2,
             LinkFactor = 0.45,
             CrossLinkFactor = 0,
             EpochPerTrain = 200,

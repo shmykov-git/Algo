@@ -226,6 +226,14 @@ namespace Model3D.Extensions
             return vectors.Select(v => v - center).ToArray();
         }
 
+        public static Shape ToPointsShape(this IEnumerable<Vector3> vectors)
+        {
+            return new Shape
+            {
+                Points3 = vectors.ToArray(),
+            };
+        }
+
         public static Shape ToShape(this IEnumerable<Vector3> vectors, bool isClosed = true)
         {
             return new Shape
