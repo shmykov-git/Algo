@@ -1,20 +1,25 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using AI.Model;
+using AI.NBrain;
 using AI.NBrain.Activators;
 
 namespace AI.Extensions;
 
 public static class ActivatorExtensions
 {
-    public static NActivator ToActivator(this NAct act, NOptions options) => act switch
+    private static ConcurrentDictionary<(NModel, int), NActivator> layerActivators = new();
+
+    public static NActivator ToActivator(this NAct act, NModel model, int lv) => act switch
     {
-        NAct.Line => new LineActivator(options),
-        NAct.Sigmoid => new SigmoidActivator(options),
-        NAct.Tanh => new TanhActivator(options),
-        NAct.Sin => new SinActivator(options),
-        NAct.SinB => new SinBActivator(options),
-        NAct.Sinc => new SincActivator(options),
-        NAct.Gaussian => new GaussianActivator(options),
-        _ => throw new NotImplementedException(options.Act.ToString())
+        NAct.Line => new LineActivator(model),
+        NAct.Sigmoid => new SigmoidActivator(model),
+        NAct.Tanh => new TanhActivator(model),
+        NAct.Sin => new SinActivator(model),
+        NAct.SinB => new SinBActivator(model),
+        NAct.Sinc => new SincActivator(model),
+        NAct.Gaussian => new GaussianActivator(model),
+        NAct.Softmax => layerActivators.GetOrAdd((model, lv), _ => new SoftmaxActivator(lv, model)),
+        _ => throw new NotImplementedException(act.ToString())
     };
 }

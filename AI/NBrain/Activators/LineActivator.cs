@@ -4,9 +4,9 @@ namespace AI.NBrain.Activators;
 
 public class LineActivator : NActivator
 {
-    public LineActivator(NOptions options) : base(options)
+    public LineActivator(NModel model) : base(model)
     {
-        Func = x => a * x;
-        DerFunc = (_, _) => a;
+        Func = n => a * n.xx;
+        DerFunc = _ => a;
     }
 }

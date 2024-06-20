@@ -29,13 +29,24 @@ public partial class NModel
         if (!n.isInput)
         {
             // compute output (f) from input (xx)
-            n.f = n.act.Func(n.xx);
+            n.f = n.act.Func(n);
         }
 
         // pass signal from output a to input b
         n.es.ForEach(e => e.b.xx += e.w * n.f);
 
         n.computed = true;
+    }
+
+    private void PreComputeN(N n)
+    {
+        if (!n.isInput)
+        {
+            // pre compute output (ff) from input (xx)
+            n.ff = n.act.PreFunc(n);
+        }
+
+        n.preComputed = true;
     }
 
     public void ComputeTrainCase(double[] fs)
@@ -74,7 +85,7 @@ public partial class NModel
         SetInput(vInput);
 
         // compute cleanup
-        ns.ForEach(n => { n.xx = 0; n.computed = false; });
+        ns.ForEach(n => { n.xx = 0; n.computed = false; n.preComputed = !n.act.IsLayerActivator; });
 
         input.ForEach(computeQueue.Enqueue);
 
@@ -89,11 +100,29 @@ public partial class NModel
                 continue;
 
             if (n.isInput || n.backEs.All(e => e.a.computed))
-            {
-                ComputeN(n);
+            {                
+                if (n.act.IsLayerActivator)
+                {
+                    if (!n.preComputed)
+                        PreComputeN(n);
 
-                // pass to compute b
-                n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                    if (n.act.preComputed())
+                    {
+                        ComputeN(n);
+
+                        // pass to compute b
+                        n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                    }
+                    else
+                        computeQueue.Enqueue(n);
+                }
+                else
+                {
+                    ComputeN(n);
+
+                    // pass to compute b
+                    n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                }
             }
             else
                 computeQueue.Enqueue(n);
@@ -102,4 +131,5 @@ public partial class NModel
         //double Avg(Func<N, bool> predicate) => ns.Any(predicate) ? ns.Where(predicate).Average(n => n.f) : -1;
         //avgX = (Avg(n => !n.isInput && n.f > 0.5), Avg(n => !n.isInput && n.f < 0.5));
     }
+
 }

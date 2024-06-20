@@ -1,0 +1,75 @@
+﻿using System.Drawing;
+using AI.Images;
+using Model.Extensions;
+
+namespace AI.Extensions;
+
+public static class NImageExtensions
+{
+    public const int white = NImage.white;
+    public const int black = NImage.black;
+
+    public static NImage Smooth(this NImage image, int d = 3)
+    {
+        var s = (d - 1) / 2;
+        var ds = (d, d).SelectRange((i, j) => (i: i - s, j: j - s)).ToArray();
+
+        int Avg(IEnumerable<int> cs)
+        {
+            int m = 255;
+            int count = 0;
+
+            int b = 0;
+            int g = 0;
+            int r = 0;
+            int a = 0;
+
+            cs.ForEach(v =>
+            {
+                count++;
+                a += ((m << 24) & v) >> 24;
+                r += ((m << 16) & v) >> 16;
+                g += ((m << 8) & v) >> 8;
+                b += m & v;
+            });
+
+            a = (int)Math.Round((decimal)a / count);
+            r = (int)Math.Round((decimal)r / count);
+            g = (int)Math.Round((decimal)g / count);
+            b = (int)Math.Round((decimal)b / count);
+
+            return (a << 24) + (r << 16) + (g << 8) + b;
+        }
+
+        image.ForEachP((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
+
+        return image;
+    }
+
+    public static NImage AddBitNoise(this NImage image, Random rnd, double noiseFactor = 0.3)
+    {
+        image.ps.ForEach((_, i, j) =>
+        {
+            if (rnd.NextDouble() < noiseFactor)
+                image.ps[i][j] = black;
+        });
+
+        return image;
+    }
+
+    public static NImage AddBitmap(this NImage image, (int i, int j) p, Bitmap bitmap, int colorLevel = 200)
+    {
+        (bitmap.Height, bitmap.Width).Range().ForEach(v =>
+        {
+            var c = bitmap.GetPixel(v.j, v.i);
+            var isBlack = c.R < colorLevel && c.G < colorLevel && c.B < colorLevel;
+
+            if (isBlack && image.IsValid((v.i + p.i, v.j + p.j)))
+            {
+                image.ps[v.i + p.i][v.j + p.j] = black;
+            }
+        });
+
+        return image;
+    }
+}

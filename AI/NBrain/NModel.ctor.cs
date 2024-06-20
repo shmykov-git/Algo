@@ -9,12 +9,12 @@ namespace AI.NBrain;
 
 public partial class NModel
 {
+    public readonly NOptions options;
     public double error;
     public double trainError;
     public int blLv = 0;
     public int upLv = 0;  // check level up
 
-    private readonly NOptions options;
     private readonly Random rnd;
     public List<List<N>> nns;
 
@@ -55,19 +55,19 @@ public partial class NModel
 
     public NModel Clone()
     {
-        var newNns = nns.Select(ns => ns.Select(CloneN).ToList()).ToList();
-        var newNs = newNns.ToSingleArray();
-
-        es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(e => CloneE(newNs, e)).ToList());
-
         var model = new NModel(options, rnd)
         {
-            nns = newNns,
             error = error,
             trainError = trainError,
             upLv = upLv,
             blLv = blLv
         };
+
+        var newNns = nns.Select(ns => ns.Select(n => CloneN(model, n)).ToList()).ToList();
+        model.nns = newNns;
+        var newNs = newNns.ToSingleArray();
+
+        es.GroupBy(e => e.a.i).ForEach(gv => newNs[gv.Key].es = gv.Select(e => CloneE(newNs, e)).ToList());
 
         model.ns.ForEach(n => n.model = model);
 

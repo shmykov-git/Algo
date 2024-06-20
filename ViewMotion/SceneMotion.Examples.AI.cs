@@ -1,5 +1,8 @@
-﻿using AI.Model;
+﻿using Model3D.Extensions;
+using AI.Model;
+using Model.Libraries;
 using Model3D.Libraries;
+using System;
 using System.Threading.Tasks;
 using ViewMotion.Models;
 using ViewMotion.Platforms.AI;
@@ -61,4 +64,63 @@ partial class SceneMotion
             EpochUnwanted = 300,
         });
     }
+
+    public Task<Motion> AI2N_Example()
+    {
+        var s = new[]
+        {
+            Shapes.PlaneTorus(20, 50, 4).ToOx().Perfecto(0.9999),
+        }.ToSingleShape();
+
+
+        var b = s.GetBorders();
+        var (from, to) = (Math.Min(b.min.x, b.min.y), Math.Max(b.max.x, b.max.y));
+
+
+        var mode = P2NMode.Learn;
+        var m = 0.75;
+        var zN = 4;
+
+        return new AIMotionPlatform().AI_Learn_2N(new AI2NOptions
+        {
+            m = m,
+            trainN = 30,
+            trainR = (from, to),
+            modelN = 30,
+            modelR = (from / m, to / m),
+
+            frames = 1500,
+            showTopology = false,
+            showTopologyWeights = false,
+            showError = true,
+            showTime = false,
+            mode = mode,
+            learnShape = s,
+            zN = zN,
+            AllowNullZ = false // todo: не работает true
+        },
+        new NOptions
+        {
+            Seed = 1,
+            Topology = [2, 4, 5, 6, 8, zN],
+            UpTopology = [2, 4, 5, 6, 8, zN],
+            AllowGrowing = false,
+            PowerWeight0 = (-0.05, 0.05),
+            ShaffleFactor = 0.01,
+            SymmetryFactor = 0,
+            Act = NAct.SinB,
+            DynamicW0Factor = 0.01,
+            Nu = 0.1,
+            Alfa = 0.5,
+            Power = 2,
+            LinkFactor = 0.45,
+            CrossLinkFactor = 0,
+            EpochPerTrain = 200,
+            EpochBeforeGrowing = 10000,
+            EpochAfterLevelGrowUp = 10000,
+            EpochAfterGrowUp = 1000,
+            EpochUnwanted = 300,
+        });
+    }
+
 }

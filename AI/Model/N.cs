@@ -15,15 +15,16 @@ public class N
     public int i;           // order number 
     public int lv;          // level
     public int ii;          // level order number
-    //public NGroup g;      // group
     public List<E> es = []; // forward links
     public E[] backEs = []; // back links
     // </dynamic>
 
     // <compute>
     public double f;        // signals result func (output)
+    public double ff;       // signals result func for full layer f calculation (softmax for example)
     public double xx;       // signals sum (input)
     public bool computed;   // pass throw ns while compute
+    public bool preComputed;// need before compule
     // </compute>
 
     // <learn>

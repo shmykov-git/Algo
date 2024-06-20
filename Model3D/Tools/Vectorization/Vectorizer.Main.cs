@@ -806,7 +806,7 @@ public partial class Vectorizer
         return GetContentShape(bitmap, options);
     }
 
-    private Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
+    public Bitmap GetTextBitmap(string text, int fontSize = 50, string fontName = "Arial", double multY = 1, double multX = 1)
     {
         var lines = text.Split("\r\n").ToArray();
 

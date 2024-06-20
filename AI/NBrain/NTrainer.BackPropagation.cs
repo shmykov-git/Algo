@@ -8,12 +8,13 @@ public partial class NTrainer
 {
     private void LearnBackPropagationOutput(N n, double fExpected)
     {
-        n.delta = -n.act.DerFunc(n.xx, n.f) * (fExpected - n.f);
+        n.delta = -n.act.DerFunc(n) * (fExpected - n.f);
     }
 
     private void LearnBackPropagation(N n)
     {
-        n.delta = n.act.DerFunc(n.xx, n.f) * n.es.Sum(e => e.b.delta * e.w);
+        n.delta = n.act.DerFunc(n) * n.es.Sum(e => e.b.delta * e.w);
+
         n.es.ForEach(e =>
         {
             if (e.unwanted)

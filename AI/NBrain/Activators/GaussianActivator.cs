@@ -5,7 +5,7 @@ namespace AI.NBrain.Activators;
 
 public class GaussianActivator : NActivator
 {
-    public GaussianActivator(NOptions options) : base(options)
+    public GaussianActivator(NModel model) : base(model)
     {
         Func = NFuncs.GetGaussianFn(a);
         DerFunc = NFuncs.GetDerGaussianFn(a);

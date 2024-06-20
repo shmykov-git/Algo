@@ -5,9 +5,9 @@ namespace AI.NBrain.Activators;
 
 public class SinBActivator : NActivator
 {
-    public SinBActivator(NOptions options) : base(options)
+    public SinBActivator(NModel model) : base(model)
     {
-        Func = NFuncs.GetSinAFn(a, options.ActBias);
+        Func = NFuncs.GetSinBFn(a, model.options.ActBias);
         DerFunc = NFuncs.GetDerSinFn(a);
     }
 }

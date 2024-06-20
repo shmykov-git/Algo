@@ -12,17 +12,15 @@ public partial class NModel // Dynamic
     {
         model = model,
         lv = lv,
-        act = model.options.Act.ToActivator(model.options),
-        //g = groups[0]
+        act = model.options.Act.ToActivator(model, lv),
     };
 
-    private N CloneN(N n) => new N()
+    private N CloneN(NModel model, N n) => new N()
     {
+        model = model,
         i = n.i,
-        //f = n.f,
         lv = n.lv,
-        act = n.act,
-        //delta = n.delta,
+        act = n.act.act.ToActivator(model, n.lv),
     };
 
     public E CreateE(N a, N b, double w) => new E

@@ -8,5 +8,6 @@ public enum NAct
     Sin,
     SinB,
     Sinc,
-    Gaussian
+    Gaussian,
+    Softmax
 }

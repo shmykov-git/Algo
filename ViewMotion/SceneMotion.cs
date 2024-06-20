@@ -52,15 +52,25 @@ using AI.Libraries;
 using AI.NBrain;
 using AI.Extensions;
 using ViewMotion.Platforms.AI;
+using AI.Images;
+using System.Windows.Media;
 
 namespace ViewMotion;
 
 partial class SceneMotion
 {
-
-
     public Task<Motion> Scene()
     {
+        return AI2N_Example();
+        //var imgs = NImages.GetSmileNoiseImages(100, 64, 64, 25, 2, 0.1, vectorizer, rnd);
+        ////var imgs = NImages.GetNoiseImages(100, 64, 64, 0.1, rnd);
+
+        //imgs.ForEach(m => m.Smooth(3));
+        //imgs.ForEach((img, i) => img.SaveAsBitmap($@"d:\\tmp\test{i}.bmp"));
+
+
+
+
         var s = new[]
         {
             Shapes.PlaneTorus(20, 50, 4).ToOx().Perfecto(0.9999),
@@ -91,7 +101,7 @@ partial class SceneMotion
             mode = mode,
             learnShape = s, 
             zN = zN,
-            AllowNullZ = false
+            AllowNullZ = false // todo: не работает true
         },
         new NOptions
         {
