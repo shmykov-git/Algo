@@ -66,34 +66,39 @@ partial class SceneMotion
     public async Task<Motion> Scene()
     {
         var m = 0.75;
+        (int i, int j) imgSize = (64, 64);
+        int trainCount = 10000;
+        int checkCount = 100;
         var smileSize = 25;
         var rectSize = (21, 21);
-        double Boxed(int x, int closeMax) => 0.5 * (1 - m) + x * m / closeMax;
-        int Unboxed(double f, int closeMax) => (int)Math.Round((f - 0.5 * (1 - m)) * closeMax / m);
+        var errorScale = Math.Max(imgSize.i, imgSize.j) / m;
+        //double Boxed(int x, int ln) => 0.5 * (1 - m) + x * m / ln;
+        //int Unboxed(double f, int ln) => (int)Math.Round((f - 0.5 * (1 - m)) * ln / m);
 
         var epoch = 10000;
 
-        var testImageData = NImages.GetSmileNoiseImages(100, 64, 64, smileSize, -1, 0.1, vectorizer, new Random(77));
-        testImageData.images.ForEach(v => v.img.DrawRect(v.pos, rectSize, Color.Blue, 2));
-        var trainImageData = NImages.GetSmileNoiseImages(100, 64, 64, smileSize, -1, 0.1, vectorizer, rnd);
-        trainImageData.images.ForEach(v => v.img.DrawRect(v.pos, rectSize, Color.Blue, 2));
+        NBoxed[] GetBoxed(NImageData imgData) => imgData.images.Select(v => new NBoxed
+        {
+            i = v.i,
+            input = v.img.grayPixels.Select(c => NValues.Boxed(c, 255, m)).ToArray(),
+            expected = [NValues.Boxed(v.pos.i, imgData.m, m), NValues.Boxed(v.pos.j, imgData.n, m)]
+        }).ToArray();
 
-        (int i, double[] input, double?[] expected)[] GetBoxedData(NImageData imgData) => 
-            imgData.images.Select(v => (v.i, 
-                v.img.Smooth(1).grayPixels.Select(c => Boxed(c, 0xFF)).ToArray(),
-                new double?[] { Boxed(v.pos.i, imgData.m), Boxed(v.pos.j, imgData.n) })).ToArray();
-
-        var trainBoxedData = GetBoxedData(trainImageData);
+        var trainImageData = NImages.GetSmileNoiseImages(trainCount, imgSize.i, imgSize.j, smileSize, -1, 0.1, vectorizer, rnd);
+        var trainBoxedData = GetBoxed(trainImageData);
         var inputN = trainBoxedData[0].input.Length;
         var outputN = trainBoxedData[0].expected.Length;
+
+        var testImageData = NImages.GetSmileNoiseImages(checkCount, imgSize.i, imgSize.j, smileSize, -1, 0.1, vectorizer, new Random(77));
+        var testBoxedData = GetBoxed(testImageData);
 
         var options = new NOptions
         {
             Seed = 1,
-            Topology = [inputN, 50, 50, outputN],
+            Topology = [inputN, 30, 30, 30, outputN],
             //UpTopology = [2, 4, 5, 6, 8, zN],
             //Activators = [NAct.Softmax, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB],
-            LayerLinkFactors = [0.15, 0.9, 0.9, 0.9],
+            LayerLinkFactors = [0.3, 0.9, 0.9, 0.9],
             AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
@@ -105,7 +110,7 @@ partial class SceneMotion
             Power = 2,
             LinkFactor = 0.45,
             CrossLinkFactor = 0,
-            EpochPerTrain = 10,
+            EpochPerTrain = 1,
             EpochBeforeGrowing = 10000,
             EpochAfterLevelGrowUp = 10000,
             EpochAfterGrowUp = 1000,
@@ -115,39 +120,27 @@ partial class SceneMotion
         var trainer = new NTrainer(options.With(o=>o.TrainData = trainBoxedData));        
         trainer.Init();
 
-        var file = @$"d:\\train.txt";
-        File.AppendAllText(file, "\r\n\r\n\r\n\r\n\r\n==================\r\n");
+        var file = @$"d:\\ai\train.txt";
+        File.AppendAllText(file, "\r\n\r\n\r\n==================\r\n");
 
         void FileWriteLine(string message)
         {
             File.AppendAllText(file, $"{message}\r\n");
         }
 
-        void Test(NModel model)
+        void SaveImages(NImageData imageData, double[][] outputs, Color color, string file)
         {
-            var testData = GetBoxedData(testImageData);
-            var trData = testData.Select(t => t.input).ToArray();
-
-            void SaveCollection(double[][] data, string file)
-            {
-                data.Index().ForEach((k, num) =>
-                {
-                    var img = testImageData[k].img.Clone();
-                    model.ComputeOutputs(testData[k]);
-                    var p = (Unboxed(model.output[0].f, testImageData[k].img.m), Unboxed(model.output[1].f, testImageData[k].img.n));
-                    img.DrawRect(testImageData[k].p, rectSize, Color.Blue, 2);
-                    img.DrawRect(p, rectSize, Color.Red);
-                    img.SaveAsBitmap(string.Format(file, num));
-                    //img.SaveAsBitmap($@"d:\\testImg\test{num}.bmp");
-                });
-            }
-
-            SaveCollection(testData, @"d:\\testImg\test{0}.bmp");
-            SaveCollection(trData, @"d:\\trainImg\train{0}.bmp");
+            outputs.ForEach((output, i) =>
+            {                
+                var info = imageData.images[i];
+                var img = info.img.Clone();
+                var result = (NValues.Unboxed(outputs[info.i][0], imageData.m, m), NValues.Unboxed(outputs[info.i][1], imageData.n, m));
+                img.DrawRect(info.pos, rectSize, Color.Blue, 2);
+                img.DrawRect(result, rectSize, color, 1);
+                img.SaveAsBitmap(string.Format(file, info.i));
+            });
         }
-
-        Task? t = null;
-
+        
         for (var k = 1; k < epoch / options.EpochPerTrain; k++)
         {
             var state = await trainer.Train();
@@ -156,20 +149,19 @@ partial class SceneMotion
             {
                 if (state.bestErrorChanged)
                 {
-                    Debug.WriteLine($"\r\n{state.BestModelInfo} {state.CountInfo} {state.bestModel.TopologyInfo}");
-                    FileWriteLine($"\r\n{state.BestModelInfo} {state.CountInfo} {state.bestModel.TopologyInfo}");
-                    FileWriteLine($"BestState: {state.bestModel.GetState().ToStateString()}");
+                    var (avgError, avgDistance, trainOutputs) = state.ComputeBestModelDataset(trainBoxedData.Take(checkCount).ToArray(), errorScale);
+                    var (avgTestError, avgTestDistance, testOutputs) = state.ComputeBestModelDataset(testBoxedData.Take(checkCount).ToArray(), errorScale);
 
-                    if (t == null || t.IsCompleted)
-                    {
-                        var ep = state.epoch;
-                        t = Task.Run(() => Test(state.bestModel));
-                        Debug.WriteLine($"Start refresh images for epoch {ep}");
-                        _ = t.ContinueWith(_ => Debug.WriteLine($"End refresh images for epoch {ep}"));
-                    }
+                    var bestError = $"\r\nBestError: {state.bestError:E1} ({avgError:E1} - {avgTestError:E1}) ({avgDistance:F1}-{avgTestDistance:F1}) {state.CountInfo} {state.bestModel.TopologyInfo}";
+                    Debug.WriteLine(bestError);
+                    FileWriteLine(bestError);
+                    FileWriteLine($"BestState: {state.bestModel.GetState().ToStateString()}");
+                    SaveImages(trainImageData, trainOutputs, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
+                    SaveImages(testImageData, testOutputs, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
+                    Debug.WriteLine($"Images refreshed");                
                 }
                 else
-                    Debug.WriteLine($"{state.ModelInfo} {state.CountInfo} {state.model.TopologyInfo}");
+                    Debug.WriteLine($"Error: {state.bestError:E1} {state.CountInfo} {state.model.TopologyInfo}");
             }
 
             if (state.isUpChanged)

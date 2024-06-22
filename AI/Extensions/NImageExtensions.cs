@@ -55,23 +55,26 @@ public static class NImageExtensions
         return image;
     }
 
+    /// <summary>
+    /// draw outside border
+    /// </summary>
     public static NImage DrawRect(this NImage image, (int i, int j) p, (int i, int j) size, Color c, int thickness = 1)
     {
         var color = c.ToArgb();
-        var t = thickness - 1;
+        var t = thickness;
 
-        (size.i + 2 * t, thickness).Range().ForEach(v =>
+        (size.i + t, thickness).Range().ForEach(v =>
         {
-            var (i, th) = (v.i - t, v.j);
+            var (i, th) = (v.i - t, v.j + 1);
             image[(p.i + i, p.j - th)] = color;
-            image[(p.i + i, p.j + th + size.j)] = color;
+            image[(p.i + i + t, p.j + th + size.j - 1)] = color;
         });
 
-        (size.j + 2 * t, thickness).Range().ForEach(v =>
+        (size.j + t, thickness).Range().ForEach(v =>
         {
-            var (j, th) = (v.i - t, v.j);
-            image[(p.i - th, p.j + j)] = color;
-            image[(p.i + th + size.i, p.j + j)] = color;
+            var (j, th) = (v.i - t, v.j + 1);
+            image[(p.i - th, p.j + j + t)] = color;
+            image[(p.i + th + size.i - 1, p.j + j)] = color;
         });
 
         return image;

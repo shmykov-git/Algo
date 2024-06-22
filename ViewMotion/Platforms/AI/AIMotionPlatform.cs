@@ -32,7 +32,7 @@ internal class AIMotionPlatform
         var boxedShape = o.learnShape.Boxed(boxScale, boxCenter);
         var convexIntersectedFns = o.learnShape.Convexes.Index().Select(o.learnShape.IntersectConvexFn).ToArray();
 
-        Vector3?[] TrainPoints(double x, double y)
+        Vector3[] TrainPoints(double x, double y)
         {
             var a = new Vector3(x, y, 0);
             var b = new Vector3(x, y, 1);
@@ -45,19 +45,20 @@ internal class AIMotionPlatform
                 .Select(p => p.Boxed(boxScale, boxCenter))
                 .ToArray();
 
-            if (ps.Length == 0)
+            if (ps.Length != o.zN)
                 return [];
-            
-            return ps.Stretch(o.zN);
+
+            return ps;
         }
 
-        (int i, double[] input, double?[] expected)[] trainData = (o.trainN, o.trainN)
+        NBoxed[] trainData = (o.trainN, o.trainN)
             .SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainPoints)
             .Where(ps => ps.Length > 0)
-            .Select((ps, i) => (i, 
-                 input: new double[] { ps.Where(p => p.HasValue).First().Value.x, ps.Where(p => p.HasValue).First().Value.y }, 
-                 expected: ps.Select(p => p == null ? (double?)null : p.Value.z).ToArray()))
-            .Where(v => o.AllowNullZ || v.expected.All(z => z.HasValue))
+            .Select((ps, i) => new NBoxed
+            { i = i,
+                input = new double[] { ps[0].x, ps[0].y },
+                expected = ps.Select(p => p.z).ToArray()
+            })
             .ToArray();
 
         var trainer = new NTrainer(nOptions.With(o => o.TrainData = trainData));
@@ -91,7 +92,7 @@ internal class AIMotionPlatform
                 //Shapes.NativeCube.Move(1.05, 0, -1.05).ToLines(),
 
                 (o.zN).Range().Select(i =>
-                        trainData.Where(v=>v.expected[i].HasValue).Select(v=>new Vector3(v.input[0], v.input[1], v.expected[i].Value))
+                        trainData.Select(v=>new Vector3(v.input[0], v.input[1], v.expected[i]))
                             .ToArray().ToPointsShape().ToPoints(o.colors[i%o.colors.Length], 0.5)
                     ).ToSingleShape(),
                 Shapes.NativeCube.ToLines(),
@@ -116,7 +117,7 @@ internal class AIMotionPlatform
                     {
                         0 => boxedShape.ToLines(0.5),
                         1 => (o.zN).Range().Select(i =>
-                                trainData.Where(v=>v.expected[i].HasValue).Select(v=>new Vector3(v.input[0], v.input[1], v.expected[i].Value)).ToArray().ToPointsShape().ToPoints(o.colors[i%o.colors.Length], 0.5)
+                                trainData.Select(v=>new Vector3(v.input[0], v.input[1], v.expected[i])).ToArray().ToPointsShape().ToPoints(o.colors[i%o.colors.Length], 0.5)
                               ).ToSingleShape(),
                         _ => Shape.Empty,
                     }                   
@@ -179,7 +180,7 @@ internal class AIMotionPlatform
 
         var trainData = (o.trainN, o.trainN)
             .SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, (x, y) => TrainFn(x, y))
-            .Select((v, i) => (i, new double[] { v.x, v.y }, new double?[] { v.z }))
+            .Select((v, i) => new NBoxed(i, [v.x, v.y], [v.z]))
             .ToArray();
 
         var trainer = new NTrainer(nOptions.With(o => o.TrainData = trainData));

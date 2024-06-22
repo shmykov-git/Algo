@@ -1,7 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using AI.Exceptions;
+using AI.Extensions;
+using AI.Images;
 using AI.Model;
+using Aspose.ThreeD.Entities;
 using Model.Extensions;
 
 namespace AI.NBrain;
@@ -18,7 +22,7 @@ public partial class NTrainer
         if (state.epoch == 0)
             state.t0 = DateTime.Now;
 
-        state.error = double.MaxValue;
+        state.trainError = double.MaxValue;
         state.errorChanged = false;
         state.bestErrorChanged = false;
         state.isUpChanged = false;
@@ -29,18 +33,22 @@ public partial class NTrainer
             if (options.AllowGrowing)
                 TrainWithGrowUp();
 
-            var error = await TrainByTrainingData();
-            state.epoch++;
+            var (trainError, trainDistance) = await TrainByTrainingData();
+            model.trainError = trainError;
+            model.trainDistance = trainDistance;
 
-            if (error < state.error)
+            state.epoch++;
+            state.epochChanged = true;
+
+            if (trainError < state.trainError)
             {
-                state.error = error;
+                state.trainError = trainError;
                 state.errorChanged = true;
                 state.model = model.Clone();
 
-                if (error < state.bestError)
+                if (trainError < state.bestError)
                 {
-                    state.bestError = error;
+                    state.bestError = trainError;
                     state.bestErrorChanged = true;
                     state.bestModel = model;
                 }
@@ -57,7 +65,7 @@ public partial class NTrainer
             epoch = state.epoch,
             trainCount = state.trainCount,
             computeCount = state.computeCount,
-            error = state.error,
+            trainError = state.trainError,
             model = state.model,
             errorChanged = state.errorChanged,
             bestError = state.bestError,
@@ -119,7 +127,7 @@ public partial class NTrainer
         }
     }
 
-    private async Task<double> TrainByTrainingData()
+    private async Task<(double, double)> TrainByTrainingData()
     {
         if (options.AllowBelief)
             InitBeliefMatrix();
@@ -134,7 +142,7 @@ public partial class NTrainer
         if (symmetryLen == 0)
             symmetryLen = 1;
 
-        double ModelStep(int mI, (int num, double[] input, double?[] expected) t, int k)
+        (double, double) ModelStep(int mI, NBoxed t, int k)
         {
             if (mI != 0 && k % symmetryLen == 0)
             {
@@ -145,9 +153,13 @@ public partial class NTrainer
                 });
             }
             
-            return model.blLv > 0 
-                ? TrainCase(models[mI], t.num, blMatrix[t.num], t.expected)
-                : TrainCase(models[mI], t.num, t.input, t.expected);
+            var res = model.blLv > 0 
+                ? TrainCase(models[mI], t.i, blMatrix[t.i], t.expected)
+                : TrainCase(models[mI], t.i, t.input, t.expected);
+
+            state.epochChanged = false;
+
+            return res;
         }
 
         if (options.ShaffleFactor > 0)
@@ -161,8 +173,9 @@ public partial class NTrainer
 
 
         double sumError = 0;
+        double sumDistance = 0;
 
-        for(var k =0; k< data.Length / pN; k++)
+        for (var k =0; k< data.Length / pN; k++)
         {
             if (k % symmetryLen == 0)
             {
@@ -175,7 +188,9 @@ public partial class NTrainer
 
             if (pN == 1)
             {
-                sumError += ModelStep(0, data[k], k);
+                var (error, distance) = ModelStep(0, data[k], k);
+                sumError += error;
+                sumDistance += distance;
             }
             else
             {
@@ -189,15 +204,39 @@ public partial class NTrainer
 
         needBlFill = false;
 
-        return sumError / data.Length;
+        return (sumError / (data.Length * model.output.Count), sumDistance / (data.Length * model.output.Count));
     }
 
-    private double TrainCase(NModel model, int num, double[] tLayerInput, double?[] tExpected)
+    //private void ShowCheckImage(int k, double[] data, (double x, double y) pp)
+    //{
+    //    var m = 0.75;
+    //    int Unboxed(double f, int closeMax) => (int)Math.Round((f - 0.5 * (1 - m)) * closeMax / m);
+
+    //    var img = new NImage(64, 64);
+    //    (64, 64).Range().ForEach(v => 
+    //    {
+    //        img[(v.i, v.j)] = NImage.FromGray(Unboxed(data[v.i * 64 + v.j], 255));
+    //    });
+
+    //    var p = (Unboxed(pp.x, 64), Unboxed(pp.y, 64));
+    //    img.DrawRect(p, (21, 21), Color.Green, 1);
+    //    img.SaveAsBitmap(string.Format(@"d:\\ai\tmp\check{0}.bmp", k));
+    //}
+
+    private (double, double) TrainCase(NModel model, int num, double[] tLayerInput, double[] tExpected)
     {
         if (tExpected.Length != options.Topology[^1])
             throw new InvalidExpectedDataException();
 
         model.ComputeTrainCase(tLayerInput);
+        var trainError = model.output.Select(n => (tExpected[n.ii] - n.f).Pow2()).Sum();
+        var trainDistance = model.output.Select(n => (tExpected[n.ii] - n.f).Abs()).Sum();
+        
+        //if (state.epoch % 100 == 0)
+        //{
+        //    ShowCheckImage(num, tLayerInput, (model.output[0].f, model.output[1].f));
+        //}
+
         state.computeCount++;
 
         if (needBlFill && options.AllowBelief)
@@ -211,8 +250,7 @@ public partial class NTrainer
 
         model.output.ForEach((n, i) => 
         {
-            if (tExpected[i].HasValue)
-                LearnBackPropagationOutput(n, tExpected[i].Value);
+            LearnBackPropagationOutput(n, tExpected[i]);
             
             n.learned = true;
         });
@@ -239,12 +277,6 @@ public partial class NTrainer
                 learnQueue.Enqueue(n);
         }
 
-        var err = tExpected.All(v=>v.HasValue) 
-            ? 0.5f * model.output.Select((n, i) => (n, i)).Select(v => (tExpected[v.i].Value - v.n.f).Pow2()).Sum()
-            : double.MaxValue;
-
-        model.error = err;
-
-        return err;
+        return (trainError, trainDistance);
     }
 }

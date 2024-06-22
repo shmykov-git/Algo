@@ -10,8 +10,8 @@ namespace AI.NBrain;
 public partial class NModel
 {
     public readonly NOptions options;
-    public double error;
     public double trainError;
+    public double trainDistance;
     public int blLv = 0;
     public int upLv = 0;  // check level up
 
@@ -57,8 +57,8 @@ public partial class NModel
     {
         var model = new NModel(options, rnd)
         {
-            error = error,
             trainError = trainError,
+            trainDistance = trainDistance,
             upLv = upLv,
             blLv = blLv
         };

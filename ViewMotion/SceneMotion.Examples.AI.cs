@@ -99,7 +99,6 @@ partial class SceneMotion
             mode = mode,
             learnShape = s,
             zN = zN,
-            AllowNullZ = false // todo: не работает true
         },
         new NOptions
         {

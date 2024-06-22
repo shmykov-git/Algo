@@ -56,7 +56,7 @@ public partial class NModel
         nns[blLv].ForEach(n => n.f = fs[n.ii]);
 
         // compute cleanup
-        nns.Skip(blLv).ForEach(ns => ns.ForEach(n => { n.xx = 0; n.computed = false; }));
+        nns.Skip(blLv).ForEach(ns => ns.ForEach(n => { n.xx = 0; n.computed = false; n.preComputed = !n.act.IsLayerActivator; }));
 
         nns[blLv].ForEach(computeQueue.Enqueue);
 
@@ -70,7 +70,7 @@ public partial class NModel
             if (n.computed)
                 continue;
 
-            if (n.backEs.All(e => e.a.computed || e.a.believed))
+            if (n.isInput || n.backEs.All(e => e.a.computed || e.a.believed))
             {
                 if (n.act.IsLayerActivator)
                 {
@@ -100,8 +100,14 @@ public partial class NModel
         }
     }
 
+    private bool isComputing = false;
     public void ComputeOutputs(double[] vInput)
     {
+        if (isComputing)
+            throw new NotImplementedException("Cannot compute same model in parallel");
+        
+        isComputing = true;
+
         Queue<N> computeQueue = new();
         SetInput(vInput);
 
@@ -149,8 +155,6 @@ public partial class NModel
                 computeQueue.Enqueue(n);
         }
 
-        //double Avg(Func<N, bool> predicate) => ns.Any(predicate) ? ns.Where(predicate).Average(n => n.f) : -1;
-        //avgX = (Avg(n => !n.isInput && n.f > 0.5), Avg(n => !n.isInput && n.f < 0.5));
+        isComputing = false;
     }
-
 }

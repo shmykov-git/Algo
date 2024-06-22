@@ -31,7 +31,7 @@ public class NOptions
 
     public double DynamicW0Factor { get; set; } = 0.1;  // set w when new E added as avg sibling E multiplicator
 
-    public (int num, double[] input, double?[] expected)[] TrainData { get; set; }    // training data to learn
+    public NBoxed[] TrainData { get; set; }                     // training data to learn
     public int EpochPerTrain { get; set; } = 200;               // number of epochs (train data calculation circles)
     public int EpochUnwanted { get; set; } = 300;               // number of epochs to reach zero weight before remove it
     public int EpochBeforeGrowing { get; set; } = 10_000;       // number of epochs before graph start to grow

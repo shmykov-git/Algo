@@ -11,6 +11,5 @@ public class AI2NOptions : AIFuncOptions
     public P2NMode mode = P2NMode.Learn;
     public Shape learnShape;
     public int zN;
-    public bool AllowNullZ = true;
     public Color[] colors = [Color.DarkSeaGreen, Color.Maroon, Color.DarkTurquoise, Color.DarkSalmon];
 }

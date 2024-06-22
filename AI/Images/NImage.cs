@@ -8,6 +8,7 @@ namespace AI.Images;
 
 public class NImage
 {
+    public const int alfa = unchecked((int)0xFF000000);
     public const int white = unchecked((int)0xFFFFFFFF);
     public const int black = unchecked((int)0xFF000000);
     public const int red = unchecked((int)0xFF990000);
@@ -50,6 +51,11 @@ public class NImage
     {
         var (a, r, g, b) = ToArgb(c);
         return (r + g + b) / 3;
+    }
+
+    public static int FromGray(int gray)
+    {
+        return alfa + (gray << 16) + (gray << 8) + gray;
     }
 
     public static int ToColor((byte a, byte r, byte g, byte b) argb) => (argb.a << 24) + (argb.r << 16) + (argb.g << 8) + argb.b;
