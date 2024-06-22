@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using AI.Images;
 using Model.Extensions;
 
@@ -8,6 +9,7 @@ public static class NImageExtensions
 {
     public const int white = NImage.white;
     public const int black = NImage.black;
+    public const int red = NImage.red;
 
     public static NImage Smooth(this NImage image, int d = 3)
     {
@@ -16,21 +18,17 @@ public static class NImageExtensions
 
         int Avg(IEnumerable<int> cs)
         {
-            int m = 255;
             int count = 0;
-
-            int b = 0;
-            int g = 0;
-            int r = 0;
-            int a = 0;
+            (int a, int r, int g, int b) = (0, 0, 0, 0);
 
             cs.ForEach(v =>
             {
                 count++;
-                a += ((m << 24) & v) >> 24;
-                r += ((m << 16) & v) >> 16;
-                g += ((m << 8) & v) >> 8;
-                b += m & v;
+                var (aa, rr, gg, bb) = NImage.ToArgb(v);
+                a += aa;
+                r += rr;
+                g += gg;
+                b += bb;
             });
 
             a = (int)Math.Round((decimal)a / count);
@@ -38,7 +36,7 @@ public static class NImageExtensions
             g = (int)Math.Round((decimal)g / count);
             b = (int)Math.Round((decimal)b / count);
 
-            return (a << 24) + (r << 16) + (g << 8) + b;
+            return NImage.ToColor((a, r, g, b));
         }
 
         image.ForEachP((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
@@ -52,6 +50,28 @@ public static class NImageExtensions
         {
             if (rnd.NextDouble() < noiseFactor)
                 image.ps[i][j] = black;
+        });
+
+        return image;
+    }
+
+    public static NImage DrawRect(this NImage image, (int i, int j) p, (int i, int j) size, Color c, int thickness = 1)
+    {
+        var color = c.ToArgb();
+        var t = thickness - 1;
+
+        (size.i + 2 * t, thickness).Range().ForEach(v =>
+        {
+            var (i, th) = (v.i - t, v.j);
+            image[(p.i + i, p.j - th)] = color;
+            image[(p.i + i, p.j + th + size.j)] = color;
+        });
+
+        (size.j + 2 * t, thickness).Range().ForEach(v =>
+        {
+            var (j, th) = (v.i - t, v.j);
+            image[(p.i - th, p.j + j)] = color;
+            image[(p.i + th + size.i, p.j + j)] = color;
         });
 
         return image;

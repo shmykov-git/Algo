@@ -7,7 +7,7 @@ namespace AI.NBrain;
 
 public partial class NModel
 {
-    private Queue<N> computeQueue = new();
+    //private Queue<N> computeQueue = new();
 
     public double[] Predict(double[] vInput)
     {
@@ -51,6 +51,8 @@ public partial class NModel
 
     public void ComputeTrainCase(double[] fs)
     {
+        Queue<N> computeQueue = new();
+
         nns[blLv].ForEach(n => n.f = fs[n.ii]);
 
         // compute cleanup
@@ -58,7 +60,7 @@ public partial class NModel
 
         nns[blLv].ForEach(computeQueue.Enqueue);
 
-        var counter = 10000;
+        var counter = 10_000_000;
 
         while (computeQueue.TryDequeue(out var n))
         {
@@ -70,10 +72,28 @@ public partial class NModel
 
             if (n.backEs.All(e => e.a.computed || e.a.believed))
             {
-                ComputeN(n);
+                if (n.act.IsLayerActivator)
+                {
+                    if (!n.preComputed)
+                        PreComputeN(n);
 
-                // pass to compute b
-                n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                    if (n.act.layerPreComputed())
+                    {
+                        ComputeN(n);
+
+                        // pass to compute b
+                        n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                    }
+                    else
+                        computeQueue.Enqueue(n);
+                }
+                else
+                {
+                    ComputeN(n);
+
+                    // pass to compute b
+                    n.es.ForEach(e => computeQueue.Enqueue(e.b));
+                }
             }
             else
                 computeQueue.Enqueue(n);
@@ -82,6 +102,7 @@ public partial class NModel
 
     public void ComputeOutputs(double[] vInput)
     {
+        Queue<N> computeQueue = new();
         SetInput(vInput);
 
         // compute cleanup
@@ -89,7 +110,7 @@ public partial class NModel
 
         input.ForEach(computeQueue.Enqueue);
 
-        var counter = 10000;
+        var counter = 10_000_000;
 
         while (computeQueue.TryDequeue(out var n))
         {
@@ -106,7 +127,7 @@ public partial class NModel
                     if (!n.preComputed)
                         PreComputeN(n);
 
-                    if (n.act.preComputed())
+                    if (n.act.layerPreComputed())
                     {
                         ComputeN(n);
 

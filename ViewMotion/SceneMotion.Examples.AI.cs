@@ -6,6 +6,8 @@ using System;
 using System.Threading.Tasks;
 using ViewMotion.Models;
 using ViewMotion.Platforms.AI;
+using ViewMotion.Platforms.AI.Func.T21;
+using ViewMotion.Platforms.AI.Func.T2N;
 
 namespace ViewMotion;
 
@@ -50,7 +52,7 @@ partial class SceneMotion
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.SinB,
+            Activator = NAct.SinB,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
@@ -108,7 +110,7 @@ partial class SceneMotion
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Act = NAct.SinB,
+            Activator = NAct.SinB,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,

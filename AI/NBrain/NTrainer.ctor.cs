@@ -80,6 +80,8 @@ public partial class NTrainer
         model.RestoreBackEs();
     }
 
+    private double GetLinkFactor(int lv) => options.LayerLinkFactors.Length > 0 ? options.LayerLinkFactors[lv] : options.LinkFactor;
+
     private void CreateNetByTopology(NModel model)
     {
         var weightFn = options.PowerWeight0.HasValue
@@ -111,7 +113,7 @@ public partial class NTrainer
 
             aL.ForEach(a => bL.ForEach(b =>
             {
-                if (!a.IsLinked(b) && rnd.NextDouble() < options.LinkFactor)
+                if (!a.IsLinked(b) && rnd.NextDouble() < GetLinkFactor(a.lv))
                     a.es.Add(model.CreateE(a, b, weightFn(rnd.NextDouble())));
             }));
         });

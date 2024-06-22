@@ -17,6 +17,8 @@ using AI.NBrain;
 using AI.Extensions;
 using Model3D;
 using System.Windows;
+using ViewMotion.Platforms.AI.Func.T21;
+using ViewMotion.Platforms.AI.Func.T2N;
 
 namespace ViewMotion.Platforms.AI;
 
@@ -161,7 +163,7 @@ internal class AIMotionPlatform
 
     public Task<Motion> AI_Learn_21(AI21Options o, NOptions nOptions)
     {
-        var topologyWeightHeight = nOptions.Act switch { NAct.Sigmoid => 10, _ => 1 };
+        var topologyWeightHeight = nOptions.Activator switch { NAct.Sigmoid => 10, _ => 1 };
 
         var boxScale = o.m * new Vector3(1 / (o.trainR.to - o.trainR.from), 1 / (o.trainR.to - o.trainR.from), 0.125);
         var boxCenter = new Vector3(0.5, 0.5, 0.5);

@@ -342,7 +342,7 @@ public partial class NTrainer
         int LevelLinkMinCount(int lv) => Math.Max(nns[lv - 1].Count, nns[lv].Count);
         int LevelLinkCount(int lv) => nns[lv - 1].SelectMany(a => nns[lv].Where(b => a.IsLinked(b))).Count();
         int LevelLinkMaxCount(int lv) => nns[lv - 1].Count * nns[lv].Count;
-        bool IsLevelLinked(int lv) => options.LinkFactor * (LevelLinkMaxCount(lv) - LevelLinkMinCount(lv)) < LevelLinkCount(lv) - LevelLinkMinCount(lv);
+        bool IsLevelLinked(int lv) => GetLinkFactor(lv) * (LevelLinkMaxCount(lv) - LevelLinkMinCount(lv)) < LevelLinkCount(lv) - LevelLinkMinCount(lv);
 
         (N, N) GetLevelPairN(int lv)
         {

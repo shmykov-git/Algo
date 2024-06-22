@@ -12,7 +12,7 @@ public partial class NModel // Dynamic
     {
         model = model,
         lv = lv,
-        act = model.options.Act.ToActivator(model, lv),
+        act = model.options.ToActivator(model, lv),
     };
 
     private N CloneN(NModel model, N n) => new N()
@@ -20,7 +20,7 @@ public partial class NModel // Dynamic
         model = model,
         i = n.i,
         lv = n.lv,
-        act = n.act.act.ToActivator(model, n.lv),
+        act = model.options.ToActivator(model, n.lv),
     };
 
     public E CreateE(N a, N b, double w) => new E

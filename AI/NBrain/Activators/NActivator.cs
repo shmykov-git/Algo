@@ -15,8 +15,8 @@ public abstract class NActivator
     public bool IsLayerActivator = false;
     protected int lv;
     public NFunc PreFunc;
-    public Func<bool> preComputed = () => true;
-    public NAct act => model.options.Act;
+    public Func<bool> layerPreComputed = () => true;
+    public NAct act => model.options.Activator;
 
     public NFunc Func;
     public NFunc DerFunc;

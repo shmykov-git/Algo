@@ -20,11 +20,11 @@ public class N
     // </dynamic>
 
     // <compute>
-    public double f;        // signals result func (output)
-    public double ff;       // signals result func for full layer f calculation (softmax for example)
-    public double xx;       // signals sum (input)
-    public bool computed;   // pass throw ns while compute
-    public bool preComputed;// need before compule
+    public double f;        // output computed result
+    public double ff;       // output precomputed result
+    public double xx;       // input sum of computed signals
+    public bool computed;   // flag to compute topology graph
+    public bool preComputed;// flag to compute topology graph level
     // </compute>
 
     // <learn>

@@ -123,7 +123,7 @@ public partial class NTrainer
     {
         if (options.AllowBelief)
             InitBeliefMatrix();
-
+        
         var data = options.TrainData.ToArray();
         var pN = options.ParallelCount;
         var pNs = (pN).Range().ToArray();
@@ -219,7 +219,7 @@ public partial class NTrainer
 
         model.output.SelectMany(n => n.backEs.Select(e => e.a)).Distinct().ForEach(learnQueue.Enqueue);
 
-        var counter = 10000;
+        var counter = 10_000_000;
 
         while (learnQueue.TryDequeue(out var n))
         {

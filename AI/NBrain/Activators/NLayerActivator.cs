@@ -9,7 +9,7 @@ public abstract class NLayerActivator : NActivator
     public NLayerActivator(int lv, NModel model) : base(model)
     {
         IsLayerActivator = true;
-        preComputed = () => layer.All(n => n.preComputed);
+        layerPreComputed = () => layer.All(n => n.preComputed);
         this.lv = lv;
     }
 }
