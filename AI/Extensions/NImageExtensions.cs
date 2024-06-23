@@ -1,15 +1,34 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
 using AI.Images;
+using AI.Libraries;
+using AI.Model;
+using meta.Extensions;
+using Model;
 using Model.Extensions;
 
 namespace AI.Extensions;
 
 public static class NImageExtensions
 {
+    public const int alfa = NImage.alfa;
     public const int white = NImage.white;
     public const int black = NImage.black;
     public const int red = NImage.red;
+
+    public static NImage SwitchAlfa(this NImage image)
+    {
+        image.ForEachCij((c, i, j) => c ^ alfa);
+        return image;
+    }
+
+    public static NImage NormToGray(this NImage image)
+    {
+        var a = image.ps.SelectMany().Min();
+        var b = image.ps.SelectMany().Max();
+        image.ForEachCij((c, i, j) => NImage.FromGray((int)Math.Round(255.0*(c - a)/(b - a))));
+        return image;
+    }
 
     public static NImage Smooth(this NImage image, int d = 3)
     {
@@ -39,7 +58,7 @@ public static class NImageExtensions
             return NImage.ToColor((a, r, g, b));
         }
 
-        image.ForEachP((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
+        image.ForEachCij((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
 
         return image;
     }
@@ -94,5 +113,43 @@ public static class NImageExtensions
         });
 
         return image;
+    }
+
+
+    public static NImage ApplySobelFilter(this NImage image) =>
+        image.ApplyFilter(NValues.SobelMatix, i => i, i => true);
+
+    public static NImage Transform(this NImage image, Func<int, int> transformFn)
+    {
+        image.ForEachCij((c, i, j) => transformFn(c));
+        return image;
+    }
+
+    public static NImage ApplySumFilter(this NImage image, Func<int, int> transformFn) =>
+        image.ApplyFilter(NValues.SumMatrix3, transformFn, i => true);
+
+    public static NImage ApplyFilter(this NImage image, Matrix m, Func<int, int> transformFn, Func<int, bool>? takeFn = null)
+    {
+        var wFn = takeFn ?? (_ => true);
+        var sI = m.M / 2 - 1;
+        var sJ = m.N / 2 - 1;
+
+        var iis = (image.m).Range().Where(i => wFn(i)).Select((i, ii) => (ii, i)).ToArray();
+        var jjs = (image.m).Range().Where(j => wFn(j)).Select((j, jj) => (jj, j)).ToArray();
+
+        var img = new NImage(iis.Length, jjs.Length);
+
+        double PixelFn(int i, int j, int ii, int jj)
+        {
+            return m[ii][jj] * transformFn(image.MirrorPixel(i + ii - sI, j + jj - sJ));
+        }
+
+        (iis, jjs).ForCross((a, b) =>
+        {
+            var pixel = (m.M, m.N).SelectRange((ii, jj) => PixelFn(a.i, b.j, ii, jj)).Sum();
+            img[(a.ii, b.jj)] = (int)Math.Round(pixel);
+        });
+
+        return img;
     }
 }

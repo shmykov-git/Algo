@@ -357,17 +357,22 @@ namespace Model.Extensions
 
         public static (TItem1 a, TItem2 b)[] ToBothArray<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items) => items.SelectBoth().ToArray();
 
+        public static void ForBoth<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items, Action<TItem1, TItem2> action) => items.SelectBoth().ForEach(v => action(v.a, v.b));
+
         public static IEnumerable<(TItem1 a, TItem2 b)> SelectBoth<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items) => items.SelectBoth((a, b) => (a, b));
         public static IEnumerable<TRes> SelectBoth<TItem1, TItem2, TRes>(this (TItem1[] aItems, TItem2[] bItems) items, Func<TItem1, TItem2, TRes> func) =>
             items.aItems.Index().Select(i => func(items.aItems[i], items.bItems[i]));
 
         public static IEnumerable<(TItem a, TItem b)> SelectCross<TItem>(this (List<TItem> aItems, List<TItem> bItems) items) =>
             items.SelectCross((a, b) => (a, b));
+        
+        public static void ForCross<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items, Action<TItem1, TItem2> action) =>
+            items.SelectCross().ForEach(v => action(v.a, v.b));
 
-        public static IEnumerable<(TItem a, TItem b)> SelectCross<TItem>(this (TItem[] aItems, TItem[] bItems) items) =>
+        public static IEnumerable<(TItem1 a, TItem2 b)> SelectCross<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items) =>
             items.SelectCross((a, b) => (a, b));
 
-        public static IEnumerable<TRes> SelectCross<TItem, TRes>(this (TItem[] aItems, TItem[] bItems) items, Func<TItem, TItem, TRes> func) =>
+        public static IEnumerable<TRes> SelectCross<TItem1, TItem2, TRes>(this (TItem1[] aItems, TItem2[] bItems) items, Func<TItem1, TItem2, TRes> func) =>
             items.aItems.SelectMany(a => items.bItems.Select(b => func(a, b)));
 
         public static IEnumerable<TRes> SelectCross<TItem, TRes>(this (List<TItem> aItems, List<TItem> bItems) items, Func<TItem, TItem, TRes> func) =>

@@ -65,40 +65,44 @@ partial class SceneMotion
 {
     public async Task<Motion> Scene()
     {
+        //var data = NImages.GetSmileNoiseImages(100, 64, 64, 25, -1, 0.1, vectorizer, new Random(77));
+        //var vv = data.images.Select(img => img.img.ApplySumFilter(NImage.ToBit)).ToArray();
+        //vv.ForEach((v, i) => v.SaveAsBitmap(@$"d:\\ai\tmp\sobel{i}.png"));
+
         var m = 0.75;
-        (int i, int j) imgSize = (64, 64);
+        (int i, int j) imgSize0 = (64, 64);
         int trainCount = 10000;
         int checkCount = 100;
         var smileSize = 25;
         var rectSize = (21, 21);
-        var errorScale = Math.Max(imgSize.i, imgSize.j) / m;
-        //double Boxed(int x, int ln) => 0.5 * (1 - m) + x * m / ln;
-        //int Unboxed(double f, int ln) => (int)Math.Round((f - 0.5 * (1 - m)) * ln / m);
+        var errorScale = Math.Max(imgSize0.i, imgSize0.j) / m;
 
         var epoch = 10000;
 
+        var sumN = 8;
+        var compressN = 4;
         NBoxed[] GetBoxed(NImageData imgData) => imgData.images.Select(v => new NBoxed
         {
             i = v.i,
-            input = v.img.grayPixels.Select(c => NValues.Boxed(c, 255, m)).ToArray(),
+            input = v.img.ApplyFilter(NValues.SumMatrix(sumN), NImage.ToBit, NFuncs.EachN0(compressN)).pixels.Select(c => NValues.Boxed(c, NValues.SumMatrixBounds(sumN), m)).ToArray(),
             expected = [NValues.Boxed(v.pos.i, imgData.m, m), NValues.Boxed(v.pos.j, imgData.n, m)]
         }).ToArray();
 
-        var trainImageData = NImages.GetSmileNoiseImages(trainCount, imgSize.i, imgSize.j, smileSize, -1, 0.1, vectorizer, rnd);
+        var trainImageData = NImages.GetSmileNoiseImages(trainCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, rnd);
         var trainBoxedData = GetBoxed(trainImageData);
         var inputN = trainBoxedData[0].input.Length;
         var outputN = trainBoxedData[0].expected.Length;
 
-        var testImageData = NImages.GetSmileNoiseImages(checkCount, imgSize.i, imgSize.j, smileSize, -1, 0.1, vectorizer, new Random(77));
+        var testImageData = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, new Random(77));
         var testBoxedData = GetBoxed(testImageData);
 
         var options = new NOptions
         {
             Seed = 1,
-            Topology = [inputN, 30, 30, 30, outputN],
+            Topology = [inputN, 16, 16, 16, outputN],
             //UpTopology = [2, 4, 5, 6, 8, zN],
             //Activators = [NAct.Softmax, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB],
-            LayerLinkFactors = [0.3, 0.9, 0.9, 0.9],
+            LayerLinkFactors = [0.5, 0.9, 0.9, 0.9],
             AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,

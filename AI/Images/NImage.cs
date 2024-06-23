@@ -29,7 +29,9 @@ public class NImage
 
     public NImage Clone() => new NImage(this);
 
+    public IEnumerable<int> bitPixels => ps.SelectMany().Select(ToBit);
     public IEnumerable<int> grayPixels => ps.SelectMany().Select(ToGray);
+    public IEnumerable<int> pixels => ps.SelectMany();
 
     public int this[(int i, int j) v] 
     { 
@@ -39,6 +41,21 @@ public class NImage
             if (IsValid(v)) 
                 ps[v.i][v.j] = value; 
         }  
+    }
+
+    public int MirrorPixel(int i, int j)
+    {
+        if (i < 0)
+            i = -i;
+        else if (i >= m)
+            i = 2 * m - 2 - i;
+
+        if (j < 0)
+            j = -j;
+        else if (j >= n)
+            j = 2 * n - 2 - j;
+
+        return ps[i][j];
     }
 
     public static (byte a, byte r, byte g, byte b) ToArgb(int c) => 
@@ -51,6 +68,10 @@ public class NImage
     {
         var (a, r, g, b) = ToArgb(c);
         return (r + g + b) / 3;
+    }
+    public static int ToBit(int c)
+    {
+        return c == white ? 0 : 1;
     }
 
     public static int FromGray(int gray)
@@ -70,7 +91,7 @@ public class NImage
                0 <= p.j && p.j < n;
     }
 
-    public void ForEachP(Func<int, int, int, int> func)
+    public void ForEachCij(Func<int, int, int, int> func)
     {
         (m, n).Range().ForEach(v => ps[v.i][v.j] = func(ps[v.i][v.j], v.i, v.j));
     }

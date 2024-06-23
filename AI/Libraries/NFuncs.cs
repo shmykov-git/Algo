@@ -68,4 +68,8 @@ public static class NFuncs
     }
 
     public static Func<double, double> GetBaseWeight(double a, double b) => x => a + x * (b - a);
+
+    public static Func<int, bool> Evens => i => i % 2 == 0;
+    public static Func<int, bool> EachN0(int n) => i => i % n == 0;
+    public static Func<int, bool> None => _ => true;
 }
