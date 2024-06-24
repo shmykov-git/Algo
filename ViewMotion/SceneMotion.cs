@@ -71,7 +71,7 @@ partial class SceneMotion
 
         var m = 0.75;
         (int i, int j) imgSize0 = (400, 400);
-        int trainCount = 100;
+        int trainCount = 10000;
         int checkCount = 100;
         int saveCount = 3;
         var smileSize = 25;

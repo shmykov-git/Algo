@@ -1,10 +1,5 @@
-﻿using Aspose.ThreeD.Entities;
-using System.Drawing.Imaging;
-using System.Drawing;
-using Model.Extensions;
-using Model3D.Tools.Vectorization;
+﻿using System.Drawing;
 using System.Runtime.CompilerServices;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AI.Images;
 
