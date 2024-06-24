@@ -3,6 +3,8 @@ using System.Drawing.Imaging;
 using System.Drawing;
 using Model.Extensions;
 using Model3D.Tools.Vectorization;
+using System.Runtime.CompilerServices;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AI.Images;
 
@@ -13,93 +15,156 @@ public class NImage
     public const int black = unchecked((int)0xFF000000);
     public const int red = unchecked((int)0xFF990000);
 
-    public int[][] ps;
-    public int m => ps.Length;
-    public int n => ps[0].Length;
+    public int[,] ps;
+    public int m => ps.GetLength(0);
+    public int n => ps.GetLength(1);
 
-    public NImage(int m, int n)
+    public NImage(int m, int n, bool asWhite = true)
     {
-        ps = (m).Range(_ => (n).Range(_ => white).ToArray()).ToArray();
+        ps = new int[m, n];
+        
+        if (asWhite)
+        {
+            for (var i = 0; i < m; i++)
+                for (var j = 0; j < n; j++)
+                {
+                    ps[i, j] = white;
+                }
+        }
     }
 
-    protected NImage(NImage image) 
+    protected NImage(NImage image)
     {
-        ps = image.ps.Select(line => line.ToArray()).ToArray();
+        ps = new int[image.m, image.n];
+        image.ModifyEachCij((c, i, j) => ps[i, j] = c);
     }
 
     public NImage Clone() => new NImage(this);
 
-    public IEnumerable<int> bitPixels => ps.SelectMany().Select(ToBit);
-    public IEnumerable<int> grayPixels => ps.SelectMany().Select(ToGray);
-    public IEnumerable<int> pixels => ps.SelectMany();
+    public IEnumerable<int> bitPixels => pixels.Select(ToBit);
+    public IEnumerable<int> grayPixels => pixels.Select(ToGray);
+    public IEnumerable<int> pixels
+    {
+        get
+        {
+            for (var i = 0; i < m; i++)
+                for (var j = 0; j < n; j++)
+                {
+                    yield return ps[i, j];
+                }
+        }
+    }
+
+    public int this[int i, int j]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => ps[i, j];
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+            if (IsValid((i, j)))
+                ps[i, j] = value;
+        }
+    }
 
     public int this[(int i, int j) v] 
-    { 
-        get => ps[v.i][v.j]; 
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => ps[v.i,v.j];
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set 
         { 
             if (IsValid(v)) 
-                ps[v.i][v.j] = value; 
+                ps[v.i, v.j] = value; 
         }  
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int MirrorPixel(int i, int j)
     {
         if (i < 0)
             i = -i;
         else if (i >= m)
-            i = 2 * m - 2 - i;
+            i = m + m - 2 - i;
 
         if (j < 0)
             j = -j;
         else if (j >= n)
-            j = 2 * n - 2 - j;
+            j = n + n - 2 - j;
 
-        return ps[i][j];
+        return ps[i, j];
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (byte a, byte r, byte g, byte b) ToArgb(int c) => 
        ((byte)((0xFF000000 & c) >> 24), 
         (byte)((0xFF0000 & c) >> 16), 
         (byte)((0xFF00 & c) >> 8), 
         (byte)(0xFF & c));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToGray(int c)
     {
         var (a, r, g, b) = ToArgb(c);
         return (r + g + b) / 3;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToBit(int c)
     {
         return c == white ? 0 : 1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int AsIs(int c)
+    {
+        return c;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int FromGray(int gray)
     {
         return alfa + (gray << 16) + (gray << 8) + gray;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToColor((byte a, byte r, byte g, byte b) argb) => (argb.a << 24) + (argb.r << 16) + (argb.g << 8) + argb.b;
-    public static int ToColor((int a, int r, int g, int b) argb) => (argb.a << 24) + (argb.r << 16) + (argb.g << 8) + argb.b;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ToColor((int a, int r, int g, int b) argb) => (argb.a << 24) + (argb.r << 16) + (argb.g << 8) + argb.b;
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (int a, int r, int g, int b) GetColor((int i, int j) v) => ToArgb(this[v]);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetGray((int i, int j) v) => ToGray(this[v]);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsValid((int i, int j) p)
     {
         return 0 <= p.i && p.i < m &&
                0 <= p.j && p.j < n;
     }
 
-    public void ForEachCij(Func<int, int, int, int> func)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void ModifyEachCij(Func<int, int, int, int> getFn)
     {
-        (m, n).Range().ForEach(v => ps[v.i][v.j] = func(ps[v.i][v.j], v.i, v.j));
+        for (var i = 0; i < m; i++)
+            for (var j = 0; j < n; j++)
+                ps[i, j] = getFn(ps[i, j], i, j);
+    }
+
+    public void ForEachCij(Action<int, int, int> action)
+    {
+        for (var i = 0; i < m; i++)
+            for (var j = 0; j < n; j++)
+                action(ps[i, j], i, j);
     }
 
     public void SaveAsBitmap(string file)
     {
         using var bmp = new Bitmap(n, m);
-        ps.ForEach((c, i, j) => bmp.SetPixel(j, i, Color.FromArgb(c)));
+        ForEachCij((c, i, j) => bmp.SetPixel(j, i, Color.FromArgb(c)));
         bmp.Save(file);
     }
 }

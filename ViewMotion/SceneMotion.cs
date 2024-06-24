@@ -70,39 +70,57 @@ partial class SceneMotion
         //vv.ForEach((v, i) => v.SaveAsBitmap(@$"d:\\ai\tmp\sobel{i}.png"));
 
         var m = 0.75;
-        (int i, int j) imgSize0 = (64, 64);
-        int trainCount = 10000;
+        (int i, int j) imgSize0 = (400, 400);
+        int trainCount = 100;
         int checkCount = 100;
+        int saveCount = 3;
         var smileSize = 25;
         var rectSize = (21, 21);
         var errorScale = Math.Max(imgSize0.i, imgSize0.j) / m;
 
         var epoch = 10000;
 
-        var sumN = 8;
-        var compressN = 4;
-        NBoxed[] GetBoxed(NImageData imgData) => imgData.images.Select(v => new NBoxed
+        NBoxed[] GetBoxed(IEnumerable<NImageInfo> images, List<NImageInfo> list, int fillCount) => images.Select(v =>
         {
-            i = v.i,
-            input = v.img.ApplyFilter(NValues.SumMatrix(sumN), NImage.ToBit, NFuncs.EachN0(compressN)).pixels.Select(c => NValues.Boxed(c, NValues.SumMatrixBounds(sumN), m)).ToArray(),
-            expected = [NValues.Boxed(v.pos.i, imgData.m, m), NValues.Boxed(v.pos.j, imgData.n, m)]
+            if (fillCount-- > 0)
+            {
+                double[] expected = [NValues.Boxed(v.pos.i, v.img.m, m), NValues.Boxed(v.pos.j, v.img.n, m)];
+                list.Add(new NImageInfo { i = v.i, img = v.img.Clone(), pos = v.pos });
+            }
+
+            if (v.i % 100 == 0 && v.i > 0)
+                Debug.WriteLine($"Generated images: {v.i} | {DateTime.Now}");
+
+            return new NBoxed
+            {
+                i = v.i,
+                input = v.img
+                .ApplySumFilter(3, NImage.ToBit, NFuncs.EachN0(1))
+                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(1))
+                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(1))
+                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(8))
+                .pixels.Select(c => NValues.Boxed(c, 81, m)).ToArray(),
+                expected = [NValues.Boxed(v.pos.i, v.img.m, m), NValues.Boxed(v.pos.j, v.img.n, m)]
+            };
         }).ToArray();
 
-        var trainImageData = NImages.GetSmileNoiseImages(trainCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, rnd);
-        var trainBoxedData = GetBoxed(trainImageData);
+        Debug.WriteLine($"Start creating train images: {DateTime.Now}");
+        List<NImageInfo> trainSaveImages = new();
+        var trainImages = NImages.GetSmileNoiseImages(trainCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, rnd);
+        var trainBoxedData = GetBoxed(trainImages, trainSaveImages, saveCount);
         var inputN = trainBoxedData[0].input.Length;
         var outputN = trainBoxedData[0].expected.Length;
+        Debug.WriteLine($"End creating train images: {DateTime.Now}");
 
-        var testImageData = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, new Random(77));
-        var testBoxedData = GetBoxed(testImageData);
+        List<NImageInfo> testSaveImages = new();
+        var testImages = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, new Random(77));
+        var testBoxedData = GetBoxed(testImages, testSaveImages, saveCount);
 
         var options = new NOptions
         {
             Seed = 1,
             Topology = [inputN, 16, 16, 16, outputN],
-            //UpTopology = [2, 4, 5, 6, 8, zN],
-            //Activators = [NAct.Softmax, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB, NAct.SinB],
-            LayerLinkFactors = [0.5, 0.9, 0.9, 0.9],
+            LayerLinkFactors = [0.2, 0.9, 0.9, 0.9],
             AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
@@ -132,13 +150,13 @@ partial class SceneMotion
             File.AppendAllText(file, $"{message}\r\n");
         }
 
-        void SaveImages(NImageData imageData, double[][] outputs, Color color, string file)
+        void SaveImages(List<NImageInfo> images, double[][] outputs, Color color, string file)
         {
-            outputs.ForEach((output, i) =>
+            images.ForEach((info, i) =>
             {                
-                var info = imageData.images[i];
+                var output = outputs[i];
                 var img = info.img.Clone();
-                var result = (NValues.Unboxed(outputs[info.i][0], imageData.m, m), NValues.Unboxed(outputs[info.i][1], imageData.n, m));
+                var result = (NValues.Unboxed(outputs[info.i][0], info.img.m, m), NValues.Unboxed(outputs[info.i][1], info.img.n, m));
                 img.DrawRect(info.pos, rectSize, Color.Blue, 2);
                 img.DrawRect(result, rectSize, color, 1);
                 img.SaveAsBitmap(string.Format(file, info.i));
@@ -156,16 +174,16 @@ partial class SceneMotion
                     var (avgError, avgDistance, trainOutputs) = state.ComputeBestModelDataset(trainBoxedData.Take(checkCount).ToArray(), errorScale);
                     var (avgTestError, avgTestDistance, testOutputs) = state.ComputeBestModelDataset(testBoxedData.Take(checkCount).ToArray(), errorScale);
 
-                    var bestError = $"\r\nBestError: {state.bestError:E1} ({avgError:E1} - {avgTestError:E1}) ({avgDistance:F1}-{avgTestDistance:F1}) {state.CountInfo} {state.bestModel.TopologyInfo}";
+                    var bestError = $"\r\nBestError: {state.bestError:E1} ({avgError:E1} - {avgTestError:E1}) ({avgDistance:F1}-{avgTestDistance:F1}) {state.CountInfo} {state.bestModel.TopologyInfo} | {DateTime.Now}";
                     Debug.WriteLine(bestError);
                     FileWriteLine(bestError);
                     FileWriteLine($"BestState: {state.bestModel.GetState().ToStateString()}");
-                    SaveImages(trainImageData, trainOutputs, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
-                    SaveImages(testImageData, testOutputs, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
+                    SaveImages(trainSaveImages, trainOutputs, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
+                    SaveImages(testSaveImages, testOutputs, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
                     Debug.WriteLine($"Images refreshed");                
                 }
                 else
-                    Debug.WriteLine($"Error: {state.bestError:E1} {state.CountInfo} {state.model.TopologyInfo}");
+                    Debug.WriteLine($"Error: {state.bestError:E1} {state.CountInfo} {state.model.TopologyInfo} | {DateTime.Now}");
             }
 
             if (state.isUpChanged)

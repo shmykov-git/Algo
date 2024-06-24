@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using AI.Images;
 using AI.Libraries;
 using AI.Model;
@@ -18,15 +19,15 @@ public static class NImageExtensions
 
     public static NImage SwitchAlfa(this NImage image)
     {
-        image.ForEachCij((c, i, j) => c ^ alfa);
+        image.ModifyEachCij((c, i, j) => c ^ alfa);
         return image;
     }
 
     public static NImage NormToGray(this NImage image)
     {
-        var a = image.ps.SelectMany().Min();
-        var b = image.ps.SelectMany().Max();
-        image.ForEachCij((c, i, j) => NImage.FromGray((int)Math.Round(255.0*(c - a)/(b - a))));
+        var a = image.pixels.Min();
+        var b = image.pixels.Max();
+        image.ModifyEachCij((c, i, j) => NImage.FromGray((int)Math.Round(255.0*(c - a)/(b - a))));
         return image;
     }
 
@@ -58,17 +59,17 @@ public static class NImageExtensions
             return NImage.ToColor((a, r, g, b));
         }
 
-        image.ForEachCij((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
+        image.ModifyEachCij((c, i, j) => Avg(ds.Select(d => (i + d.i, j + d.j)).Where(image.IsValid).Select(v => image[v])));
 
         return image;
     }
 
     public static NImage AddBitNoise(this NImage image, Random rnd, double noiseFactor = 0.3)
     {
-        image.ps.ForEach((_, i, j) =>
+        image.ForEachCij((_, i, j) =>
         {
             if (rnd.NextDouble() < noiseFactor)
-                image.ps[i][j] = black;
+                image[i, j] = black;
         });
 
         return image;
@@ -108,7 +109,7 @@ public static class NImageExtensions
 
             if (isBlack && image.IsValid((v.i + p.i, v.j + p.j)))
             {
-                image.ps[v.i + p.i][v.j + p.j] = black;
+                image[v.i + p.i, v.j + p.j] = black;
             }
         });
 
@@ -121,7 +122,7 @@ public static class NImageExtensions
 
     public static NImage Transform(this NImage image, Func<int, int> transformFn)
     {
-        image.ForEachCij((c, i, j) => transformFn(c));
+        image.ModifyEachCij((c, i, j) => transformFn(c));
         return image;
     }
 
@@ -135,7 +136,7 @@ public static class NImageExtensions
         var sJ = m.N / 2 - 1;
 
         var iis = (image.m).Range().Where(i => wFn(i)).Select((i, ii) => (ii, i)).ToArray();
-        var jjs = (image.m).Range().Where(j => wFn(j)).Select((j, jj) => (jj, j)).ToArray();
+        var jjs = (image.n).Range().Where(j => wFn(j)).Select((j, jj) => (jj, j)).ToArray();
 
         var img = new NImage(iis.Length, jjs.Length);
 
@@ -151,5 +152,33 @@ public static class NImageExtensions
         });
 
         return img;
+    }
+
+    public static NImage ApplySumFilter(this NImage image, int n, Func<int, int> transformFn, Func<int, bool>? takeFn = null)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool TakeAll(int _) => true;
+
+        var wFn = takeFn ?? TakeAll;
+        var s = n / 2 - 1;
+
+        var imIs = (image.m).Range().Where(i => wFn(i)).ToArray();
+        var imJs = (image.n).Range().Where(j => wFn(j)).ToArray();
+
+        var resImg = new NImage(imIs.Length, imJs.Length, false);
+
+        for (var i = 0; i < imIs.Length; i++)
+            for (var j = 0; j < imJs.Length; j++)
+            {
+                int sum = 0;
+
+                for (var mI = 0; mI < n; mI++)
+                    for (var mJ = 0; mJ < n; mJ++)
+                        sum += transformFn(image.MirrorPixel(imIs[i] + mI - s, imJs[j] + mJ - s));
+
+                resImg.ps[i, j] = sum;
+            }
+
+        return resImg;
     }
 }

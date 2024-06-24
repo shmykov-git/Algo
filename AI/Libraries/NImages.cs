@@ -20,7 +20,7 @@ public static class NImages
         return (count).Range(_ => GetImage()).ToArray();
     }
 
-    public static NImageData GetSmileNoiseImages(int count, int m, int n, int smileN, int shiftN, double noiseFactor, Vectorizer vectorizer, Random rnd)
+    public static IEnumerable<NImageInfo> GetSmileNoiseImages(int count, int m, int n, int smileN, int shiftN, double noiseFactor, Vectorizer vectorizer, Random rnd)
     {
         using var bitmap = vectorizer.GetTextBitmap("☺", smileN, "Arial", multX: 1.5);
         var (shiftI, shiftJ) = (11, 12);
@@ -36,11 +36,9 @@ public static class NImages
             return new NImageInfo { i = k, pos = (i + shiftI, j + shiftJ), img = img};
         }
 
-        return new NImageData
+        for (int i = 0; i< count;i++)
         {
-            m = m,
-            n = n,
-            images = (count).Range(i => GetImage(i)).ToArray()
-        };
+            yield return GetImage(i);
+        }
     }
 }
