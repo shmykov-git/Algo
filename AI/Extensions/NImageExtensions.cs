@@ -69,7 +69,7 @@ public static class NImageExtensions
         image.ForEachCij((_, i, j) =>
         {
             if (rnd.NextDouble() < noiseFactor)
-                image[i, j] = black;
+                image[i, j] = 1;
         });
 
         return image;
@@ -109,7 +109,7 @@ public static class NImageExtensions
 
             if (isBlack && image.IsValid((v.i + p.i, v.j + p.j)))
             {
-                image[v.i + p.i, v.j + p.j] = black;
+                image[v.i + p.i, v.j + p.j] = 1;
             }
         });
 
@@ -154,7 +154,7 @@ public static class NImageExtensions
         return img;
     }
 
-    public static NImage ApplySumFilter(this NImage image, int n, Func<int, int> transformFn, Func<int, bool>? takeFn = null)
+    public static NImage ApplySumFilter(this NImage image, int n, Func<int, bool>? takeFn = null)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool TakeAll(int _) => true;
@@ -165,16 +165,18 @@ public static class NImageExtensions
         var imIs = (image.m).Range().Where(i => wFn(i)).ToArray();
         var imJs = (image.n).Range().Where(j => wFn(j)).ToArray();
 
-        var resImg = new NImage(imIs.Length, imJs.Length, false);
+        var resImg = new NImage(imIs.Length, imJs.Length);
 
         for (var i = 0; i < imIs.Length; i++)
             for (var j = 0; j < imJs.Length; j++)
             {
+                // todo: optimize to use matrix dimension over then 3
+
                 int sum = 0;
 
                 for (var mI = 0; mI < n; mI++)
                     for (var mJ = 0; mJ < n; mJ++)
-                        sum += transformFn(image.MirrorPixel(imIs[i] + mI - s, imJs[j] + mJ - s));
+                        sum += image.MirrorPixel(imIs[i] + mI - s, imJs[j] + mJ - s);
 
                 resImg.ps[i, j] = sum;
             }

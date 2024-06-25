@@ -42,7 +42,7 @@ public class TrainState
 
         var sumError = data.Select(t => (outputs[t.i], t.expected).SelectBoth((x1, x2) => (x2 - x1).Pow2()).Sum()).Sum();
         var sumDistance = data.Select(t => (outputs[t.i], t.expected).SelectBoth((x1, x2) => (x2 - x1).Abs()).Sum()).Sum();
-        var avgError = sumDistance / (data.Length * bestModel.output.Count);
+        var avgError = sumError / (data.Length * bestModel.output.Count);
         var avgDistance = distanceScale * sumDistance / (data.Length * bestModel.output.Count);
 
         return (avgError, avgDistance, outputs);

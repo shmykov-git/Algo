@@ -1,5 +1,9 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Text;
+using Model.Extensions;
+using Model3D.Libraries;
 
 namespace AI.Images;
 
@@ -14,27 +18,37 @@ public class NImage
     public int m => ps.GetLength(0);
     public int n => ps.GetLength(1);
 
-    public NImage(int m, int n, bool asWhite = true)
+    public NImage((int m, int n) size, int color = 0) : this(size.m, size.n, color)
+    {
+    }
+
+    public NImage(int m, int n, int color = 0)
     {
         ps = new int[m, n];
         
-        if (asWhite)
+        if (color != 0)
         {
             for (var i = 0; i < m; i++)
                 for (var j = 0; j < n; j++)
                 {
-                    ps[i, j] = white;
+                    ps[i, j] = color;
                 }
         }
     }
 
-    protected NImage(NImage image)
+    protected NImage(NImage image, Func<int, int>? transformFn)
     {
+        transformFn ??= (i => i);
         ps = new int[image.m, image.n];
-        image.ModifyEachCij((c, i, j) => ps[i, j] = c);
+
+        for (var i = 0; i < m; i++)
+            for (var j = 0; j < n; j++)
+            {
+                ps[i, j] = transformFn(image.ps[i, j]);
+            }
     }
 
-    public NImage Clone() => new NImage(this);
+    public NImage Clone(Func<int, int>? transformFn = null) => new NImage(this, transformFn);
 
     public IEnumerable<int> bitPixels => pixels.Select(ToBit);
     public IEnumerable<int> grayPixels => pixels.Select(ToGray);
@@ -111,6 +125,12 @@ public class NImage
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int FromBit(int c)
+    {
+        return c == 1 ? black : white;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int AsIs(int c)
     {
         return c;
@@ -161,5 +181,26 @@ public class NImage
         using var bmp = new Bitmap(n, m);
         ForEachCij((c, i, j) => bmp.SetPixel(j, i, Color.FromArgb(c)));
         bmp.Save(file);
+    }
+
+    public NImage DebugShow()
+    {
+        var min = pixels.Min().Abs();
+        var max = pixels.Max().Abs();
+        var padLeft = Math.Max(min.ToString().Length, max.ToString().Length);
+
+        var s = new StringBuilder();
+
+        for (var i = 0; i < m; i++)
+        {
+            s.AppendLine();
+
+            for (var j = 0; j < n; j++)
+                s.Append($" {ps[i, j].ToString().PadLeft(padLeft)}");
+        }
+
+        Debug.WriteLine(s.ToString());
+
+        return this;
     }
 }

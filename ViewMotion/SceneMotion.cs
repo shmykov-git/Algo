@@ -70,57 +70,63 @@ partial class SceneMotion
         //vv.ForEach((v, i) => v.SaveAsBitmap(@$"d:\\ai\tmp\sobel{i}.png"));
 
         var m = 0.75;
-        (int i, int j) imgSize0 = (400, 400);
-        int trainCount = 10000;
+        var smile = "◼"; // "☺"
+        (int i, int j) imgSize0 = (100, 100);
+        (int i, int j) trainCount = (100, 100);
         int checkCount = 100;
-        int saveCount = 3;
+        int saveCount = 20;
         var smileSize = 25;
         var rectSize = (21, 21);
-        var errorScale = Math.Max(imgSize0.i, imgSize0.j) / m;
-
+        double imgS0 = Math.Max(imgSize0.i, imgSize0.j);
+        var distanceScale = imgS0 / m;
         var epoch = 10000;
 
-        NBoxed[] GetBoxed(IEnumerable<NImageInfo> images, List<NImageInfo> list, int fillCount) => images.Select(v =>
+        NBoxed[] GetBoxed(IEnumerable<NImageInfo> images, List<NImageInfo> showList, int fillCount) => images.Select(v =>
         {
             if (fillCount-- > 0)
             {
                 double[] expected = [NValues.Boxed(v.pos.i, v.img.m, m), NValues.Boxed(v.pos.j, v.img.n, m)];
-                list.Add(new NImageInfo { i = v.i, img = v.img.Clone(), pos = v.pos });
+                showList.Add(new NImageInfo { i = v.i, img = v.img.Clone(NImage.FromBit), pos = v.pos });
             }
 
-            if (v.i % 100 == 0 && v.i > 0)
-                Debug.WriteLine($"Generated images: {v.i} | {DateTime.Now}");
-
-            return new NBoxed
+            var res = new NBoxed
             {
                 i = v.i,
                 input = v.img
-                .ApplySumFilter(3, NImage.ToBit, NFuncs.EachN0(1))
-                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(1))
-                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(1))
-                .ApplySumFilter(3, NImage.AsIs, NFuncs.EachN0(8))
-                .pixels.Select(c => NValues.Boxed(c, 81, m)).ToArray(),
-                expected = [NValues.Boxed(v.pos.i, v.img.m, m), NValues.Boxed(v.pos.j, v.img.n, m)]
+                .ApplySumFilter(9, NFuncs.EachN0(3))
+                .pixels
+                .Select(c => NValues.Boxed(c, 81, m))
+                .ToArray(),
+                expected = [NValues.Boxed(v.pos.i, imgSize0.i - smileSize, m), NValues.Boxed(v.pos.j, imgSize0.j - smileSize, m)]
             };
+
+            if (v.i % 100 == 99)
+                Debug.WriteLine($"Generated images: {v.i + 1} | {DateTime.Now}");
+
+            return res;
         }).ToArray();
 
         Debug.WriteLine($"Start creating train images: {DateTime.Now}");
         List<NImageInfo> trainSaveImages = new();
-        var trainImages = NImages.GetSmileNoiseImages(trainCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, rnd);
+        var trainImages = NImages.GetSmileNoiseNetImages(trainCount, imgSize0, smile, smileSize, 4, 0.1, vectorizer, rnd);
         var trainBoxedData = GetBoxed(trainImages, trainSaveImages, saveCount);
         var inputN = trainBoxedData[0].input.Length;
         var outputN = trainBoxedData[0].expected.Length;
         Debug.WriteLine($"End creating train images: {DateTime.Now}");
 
         List<NImageInfo> testSaveImages = new();
-        var testImages = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smileSize, -1, 0.1, vectorizer, new Random(77));
+        var testImages = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smile, smileSize, -1, 0.1, vectorizer, new Random(77));
         var testBoxedData = GetBoxed(testImages, testSaveImages, saveCount);
+
+        SaveImages(trainSaveImages, null, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
+        SaveImages(testSaveImages, null, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
+        Debug.WriteLine($"Images created");
 
         var options = new NOptions
         {
             Seed = 1,
             Topology = [inputN, 16, 16, 16, outputN],
-            LayerLinkFactors = [0.2, 0.9, 0.9, 0.9],
+            LayerLinkFactors = [0.25, 0.95, 0.95, 0.95],
             AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
@@ -150,46 +156,78 @@ partial class SceneMotion
             File.AppendAllText(file, $"{message}\r\n");
         }
 
-        void SaveImages(List<NImageInfo> images, double[][] outputs, Color color, string file)
+        void SaveImages(List<NImageInfo> images, double[][]? outputs, Color color, string file)
         {
             images.ForEach((info, i) =>
             {                
-                var output = outputs[i];
                 var img = info.img.Clone();
-                var result = (NValues.Unboxed(outputs[info.i][0], info.img.m, m), NValues.Unboxed(outputs[info.i][1], info.img.n, m));
                 img.DrawRect(info.pos, rectSize, Color.Blue, 2);
-                img.DrawRect(result, rectSize, color, 1);
+
+                if (outputs != null)
+                {
+                    var output = outputs[i];
+                    var result = (NValues.Unboxed(outputs[info.i][0], info.img.m - smileSize, m), NValues.Unboxed(outputs[info.i][1], info.img.n - smileSize, m));
+                    img.DrawRect(result, rectSize, color, 1);
+                }
+
                 img.SaveAsBitmap(string.Format(file, info.i));
             });
         }
-        
-        for (var k = 1; k < epoch / options.EpochPerTrain; k++)
+
+        var center = new Vector3(-0.5, -0.5, -0.5);
+        Shape GetShape(double[][] trainOutputs, double[][] testOutputs)
         {
-            var state = await trainer.Train();
+            double TrainD(int i) => Math.Sqrt((trainBoxedData[i].expected[0] - trainOutputs[i][0]).Pow2() + (trainBoxedData[i].expected[1] - trainOutputs[i][1]).Pow2());
+            double TestD(int i) => Math.Sqrt((testBoxedData[i].expected[0] - testOutputs[i][0]).Pow2() + (testBoxedData[i].expected[1] - testOutputs[i][1]).Pow2());
 
-            if (state.errorChanged)
+            return new[]
             {
-                if (state.bestErrorChanged)
-                {
-                    var (avgError, avgDistance, trainOutputs) = state.ComputeBestModelDataset(trainBoxedData.Take(checkCount).ToArray(), errorScale);
-                    var (avgTestError, avgTestDistance, testOutputs) = state.ComputeBestModelDataset(testBoxedData.Take(checkCount).ToArray(), errorScale);
+                trainBoxedData.Select(d => new Vector3(d.expected[0], d.expected[1], 0)).ToPointsShape().Move(center).ToPoints(0.2, Color.Blue),
+                trainBoxedData.Select((d, i) => new Vector3(d.expected[0], d.expected[1], TrainD(i))).ToPointsShape().Move(center).ToPoints(0.2, Color.Red),
+                //trainOutputs.Select((o,i)=>new Vector3(o[0], o[1], TrainD(i))).ToPointsShape().Move(center).ToPoints(0.2, Color.Red),
 
-                    var bestError = $"\r\nBestError: {state.bestError:E1} ({avgError:E1} - {avgTestError:E1}) ({avgDistance:F1}-{avgTestDistance:F1}) {state.CountInfo} {state.bestModel.TopologyInfo} | {DateTime.Now}";
-                    Debug.WriteLine(bestError);
-                    FileWriteLine(bestError);
-                    FileWriteLine($"BestState: {state.bestModel.GetState().ToStateString()}");
-                    SaveImages(trainSaveImages, trainOutputs, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
-                    SaveImages(testSaveImages, testOutputs, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
-                    Debug.WriteLine($"Images refreshed");                
-                }
-                else
-                    Debug.WriteLine($"Error: {state.bestError:E1} {state.CountInfo} {state.model.TopologyInfo} | {DateTime.Now}");
-            }
+                testBoxedData.Select(d => new Vector3(d.expected[0], d.expected[1], 1)).ToPointsShape().Move(center).ToOx().ToPoints(0.2, Color.Blue),
+                testBoxedData.Select((d, i) => new Vector3(d.expected[0], d.expected[1], 1-TestD(i))).ToPointsShape().Move(center).ToOx().ToPoints(0.2, Color.Red),
+                //testOutputs.Select((o,i)=>new Vector3(o[0], o[1], 1-TestD(i))).ToPointsShape().Move(center).ToOx().ToPoints(0.2, Color.Red),
 
-            if (state.isUpChanged)
-                Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().ToGraphString()}]");
+                Shapes.Cube.ToLines(0.5, Color.Black)
+            }.ToSingleShape();
         }
 
-        return await Shapes.Cube.ToMotion();
+        async IAsyncEnumerable<Shape> Animate()
+        {
+            for (var k = 1; k < epoch / options.EpochPerTrain; k++)
+            {
+                var state = await trainer.Train();
+
+                if (state.errorChanged)
+                {
+                    if (state.bestErrorChanged)
+                    {
+                        var (avgError, avgDistance, trainOutputs) = state.ComputeBestModelDataset(trainBoxedData, distanceScale);
+                        var (avgTestError, avgTestDistance, testOutputs) = state.ComputeBestModelDataset(testBoxedData, distanceScale);
+
+                        yield return GetShape(trainOutputs, testOutputs);
+
+                        var bestError = $"\r\nBestError: {state.bestError:E1} ({avgError:E1} - {avgTestError:E1}) ({avgDistance:F1}-{avgTestDistance:F1}) {state.CountInfo} {state.bestModel.TopologyInfo} | {DateTime.Now}";
+                        Debug.WriteLine(bestError);
+                        FileWriteLine(bestError);
+                        FileWriteLine($"BestState: {state.bestModel.GetState().ToStateString()}");
+
+                        //SaveImages(trainSaveImages, trainOutputs, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
+                        //SaveImages(testSaveImages, testOutputs, Color.Red, @"d:\\ai\testImg\test{0}.bmp");
+                        //Debug.WriteLine($"Images refreshed");
+                    }
+                    else
+                        Debug.WriteLine($"Error: {state.bestError:E1} {state.CountInfo} {state.model.TopologyInfo} | {DateTime.Now}");
+                }
+
+                if (state.isUpChanged)
+                    Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().ToGraphString()}]");
+            }
+
+        }
+
+        return await Animate().ToMotion(3);
     }    
 }
