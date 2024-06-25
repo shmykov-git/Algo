@@ -69,11 +69,13 @@ partial class SceneMotion
         //var vv = data.images.Select(img => img.img.ApplySumFilter(NImage.ToBit)).ToArray();
         //vv.ForEach((v, i) => v.SaveAsBitmap(@$"d:\\ai\tmp\sobel{i}.png"));
 
-        var m = 0.75;
-        var smile = "◼"; // "☺"
-        (int i, int j) imgSize0 = (100, 100);
-        (int i, int j) trainCount = (100, 100);
-        int checkCount = 100;
+        var m = 0.9;
+        var noise = 0.1;
+        var smile = "☺"; // "◼"; // "☺"
+        var smileBorderShift = 3;
+        (int i, int j) imgSize0 = (200, 200);
+        (int i, int j) trainCount = (50, 50);
+        int checkCount = 2000;
         int saveCount = 20;
         var smileSize = 25;
         var rectSize = (21, 21);
@@ -83,6 +85,8 @@ partial class SceneMotion
 
         NBoxed[] GetBoxed(IEnumerable<NImageInfo> images, List<NImageInfo> showList, int fillCount) => images.Select(v =>
         {
+            v.img.options.BoxM = m;
+
             if (fillCount-- > 0)
             {
                 double[] expected = [NValues.Boxed(v.pos.i, v.img.m, m), NValues.Boxed(v.pos.j, v.img.n, m)];
@@ -93,10 +97,13 @@ partial class SceneMotion
             {
                 i = v.i,
                 input = v.img
-                .ApplySumFilter(9, NFuncs.EachN0(3))
-                .pixels
-                .Select(c => NValues.Boxed(c, 81, m))
-                .ToArray(),
+                .ApplySumFilter(3)
+                .ApplyTopFilter(7)
+                .ApplyMaxPooling(10)
+                .ApplyBorder(NImageBorderType.Mirror)
+                .boxedPixels,
+                //.Select(c => NValues.Boxed(c, 81, m))
+                //.ToArray(),
                 expected = [NValues.Boxed(v.pos.i, imgSize0.i - smileSize, m), NValues.Boxed(v.pos.j, imgSize0.j - smileSize, m)]
             };
 
@@ -108,14 +115,14 @@ partial class SceneMotion
 
         Debug.WriteLine($"Start creating train images: {DateTime.Now}");
         List<NImageInfo> trainSaveImages = new();
-        var trainImages = NImages.GetSmileNoiseNetImages(trainCount, imgSize0, smile, smileSize, 4, 0.1, vectorizer, rnd);
+        var trainImages = NImages.GetSmileNoiseNetImages(trainCount, imgSize0, smile, smileSize, smileBorderShift, noise, vectorizer, rnd);
         var trainBoxedData = GetBoxed(trainImages, trainSaveImages, saveCount);
         var inputN = trainBoxedData[0].input.Length;
         var outputN = trainBoxedData[0].expected.Length;
         Debug.WriteLine($"End creating train images: {DateTime.Now}");
 
         List<NImageInfo> testSaveImages = new();
-        var testImages = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smile, smileSize, -1, 0.1, vectorizer, new Random(77));
+        var testImages = NImages.GetSmileNoiseImages(checkCount, imgSize0.i, imgSize0.j, smile, smileSize, smileBorderShift, noise, vectorizer, new Random(77));
         var testBoxedData = GetBoxed(testImages, testSaveImages, saveCount);
 
         SaveImages(trainSaveImages, null, Color.DarkGreen, @"d:\\ai\trainImg\train{0}.bmp");
@@ -128,7 +135,7 @@ partial class SceneMotion
             Topology = [inputN, 16, 16, 16, outputN],
             LayerLinkFactors = [0.25, 0.95, 0.95, 0.95],
             AllowGrowing = false,
-            PowerWeight0 = (-0.05, 0.05),
+            PowerWeight0 = (-0.5, 0.5),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
             Activator = NAct.SinB,

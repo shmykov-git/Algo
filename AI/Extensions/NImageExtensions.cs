@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using AI.Images;
 using AI.Libraries;
 using AI.Model;
+using MathNet.Numerics.Distributions;
 using meta.Extensions;
 using Model;
 using Model.Extensions;
@@ -117,66 +118,124 @@ public static class NImageExtensions
     }
 
 
-    public static NImage ApplySobelFilter(this NImage image) =>
-        image.ApplyFilter(NValues.SobelMatix, i => i, i => true);
-
     public static NImage Transform(this NImage image, Func<int, int> transformFn)
     {
         image.ModifyEachCij((c, i, j) => transformFn(c));
         return image;
     }
 
-    public static NImage ApplySumFilter(this NImage image, Func<int, int> transformFn) =>
-        image.ApplyFilter(NValues.SumMatrix3, transformFn, i => true);
+    public static NImage ApplyAvgFilter(this NImage image, int[][] matrix) => 
+        ApplyFilter(image, matrix, matrix.AbsSum());
 
-    public static NImage ApplyFilter(this NImage image, Matrix m, Func<int, int> transformFn, Func<int, bool>? takeFn = null)
+    public static NImage ApplyFilter(this NImage image, int[][] matrix, int divisor = 1)
     {
-        var wFn = takeFn ?? (_ => true);
-        var sI = m.M / 2 - 1;
-        var sJ = m.N / 2 - 1;
-
-        var iis = (image.m).Range().Where(i => wFn(i)).Select((i, ii) => (ii, i)).ToArray();
-        var jjs = (image.n).Range().Where(j => wFn(j)).Select((j, jj) => (jj, j)).ToArray();
-
-        var img = new NImage(iis.Length, jjs.Length);
-
-        double PixelFn(int i, int j, int ii, int jj)
-        {
-            return m[ii][jj] * transformFn(image.MirrorPixel(i + ii - sI, j + jj - sJ));
-        }
-
-        (iis, jjs).ForCross((a, b) =>
-        {
-            var pixel = (m.M, m.N).SelectRange((ii, jj) => PixelFn(a.i, b.j, ii, jj)).Sum();
-            img[(a.ii, b.jj)] = (int)Math.Round(pixel);
-        });
-
-        return img;
-    }
-
-    public static NImage ApplySumFilter(this NImage image, int n, Func<int, bool>? takeFn = null)
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool TakeAll(int _) => true;
-
-        var wFn = takeFn ?? TakeAll;
+        var n = matrix.Length;
         var s = n / 2 - 1;
+        var pixelFn = image.pixelFn;
+        var maxValue = (n, n).SelectRange((i, j) => matrix[i][j].Abs()).Sum() / divisor;
+        var hasSign = (n, n).Range().Any(v => matrix[v.i][v.j] < 0);
 
-        var imIs = (image.m).Range().Where(i => wFn(i)).ToArray();
-        var imJs = (image.n).Range().Where(j => wFn(j)).ToArray();
+        var resImg = new NImage(image.m, image.n, image.options.With(o=> { o.MaxValue *= maxValue; o.HasSign |= hasSign; }));
 
-        var resImg = new NImage(imIs.Length, imJs.Length);
-
-        for (var i = 0; i < imIs.Length; i++)
-            for (var j = 0; j < imJs.Length; j++)
+        for (var i = 0; i < image.m; i++)
+            for (var j = 0; j < image.n; j++)
             {
-                // todo: optimize to use matrix dimension over then 3
-
                 int sum = 0;
 
                 for (var mI = 0; mI < n; mI++)
                     for (var mJ = 0; mJ < n; mJ++)
-                        sum += image.MirrorPixel(imIs[i] + mI - s, imJs[j] + mJ - s);
+                        sum += matrix[mI][mJ] * pixelFn(i + mI - s, j + mJ - s);
+
+                resImg.ps[i, j] = sum / divisor;
+            }
+
+        return resImg;
+    }
+
+    public static NImage ApplyBorder(this NImage image, NImageBorderType borderType)
+    {
+        image.options.BorderType = borderType;
+        return image;
+    }
+
+    public static NImage ApplyMaxPooling(this NImage image, int n) => ApplyMaxPooling(image, (n, 1));
+
+    public static NImage ApplyMaxPooling(this NImage image, (int n, int m) s)
+    {
+        var resM = image.m * s.m / s.n + ((image.m * s.m) % s.n > 0 ? s.m : 0);
+        var resN = image.n * s.m / s.n + ((image.n * s.m) % s.n > 0 ? s.m : 0);
+        var resImg = new NImage(resM, resN, image.options);
+        var pixelFn = image.pixelFn;
+        
+        for (var (sI, ssI) = (0, 0); sI < image.m; (sI, ssI) = (sI + s.n, ssI + 1))
+            for (var (sJ, ssJ) = (0, 0); sJ < image.n; (sJ, ssJ) = (sJ + s.n, ssJ + 1))
+            {
+                var maxJs = (s.n).Range().Select(j => (j, max: (s.n).Range().Max(i => pixelFn(sI + i, sJ + j)))).OrderByDescending(v => v.max).Take(s.m).Select(v => v.j).ToArray();
+                var maxIs = (s.n).Range().Select(i => (i, max: (s.n).Range().Max(j => pixelFn(sI + i, sJ + j)))).OrderByDescending(v => v.max).Take(s.m).Select(v => v.i).ToArray();
+
+                for (var i = 0; i < s.m; i++)
+                    for (var j = 0; j < s.m; j++)
+                    {
+                        resImg.ps[ssI + i, ssJ + j] = pixelFn(sI + maxIs[i], sJ + maxJs[j]);
+                    }
+            }
+
+        return resImg;
+    }
+
+    public static NImage ApplyPooling(this NImage image, int n) => image.ApplyPooling((n, 1));
+
+    public static NImage ApplyPooling(this NImage image, (int n, int m) s)
+    {
+        var resM = image.m * s.m / s.n + ((image.m * s.m) % s.n > 0 ? s.m : 0);
+        var resN = image.n * s.m / s.n + ((image.n * s.m) % s.n > 0 ? s.m : 0);
+        var resImg = new NImage(resM, resN, image.options);
+        var pixelFn = image.pixelFn;
+
+        var ss = (s.m).Range(i => (int)Math.Round(1.0 * i * (s.n - 1) / (s.m - 1))).ToArray();
+
+        for (var (sI, ssI) = (0, 0); sI < image.m; (sI, ssI) = (sI + s.n, ssI + 1))
+            for (var (sJ, ssJ) = (0, 0); sJ < image.n; (sJ, ssJ) = (sJ + s.n, ssJ + 1))
+            {
+                for (var i = 0; i < s.m; i++)
+                    for (var j = 0; j < s.m; j++)
+                    {
+                        resImg.ps[ssI + i, ssJ + j] = pixelFn(sI + ss[i], sJ + ss[j]);
+                    }
+            }
+
+        return resImg;
+    }
+
+    public static NImage ApplyTopFilter(this NImage image, int top)
+    {
+        var resImg = new NImage(image.m, image.n, image.options.With(o => o.MaxValue -= top - 1));
+
+        for (var i = 0; i < image.m; i++)
+            for (var j = 0; j < image.n; j++)
+            {
+                resImg.ps[i, j] = image.ps[i, j] >= top ? image.ps[i, j] - top + 1 : 0;
+            }
+
+        return resImg;
+    }
+
+    public static NImage ApplySumFilter(this NImage image, int n)
+    {
+        var pixelFn = image.pixelFn;
+        var s = n / 2 - 1;
+
+        var resImg = new NImage(image.m, image.n, image.options.With(o => o.MaxValue = o.MaxValue * n * n));
+
+        for (var i = 0; i < image.m; i++)
+            for (var j = 0; j < image.n; j++)
+            {
+                // todo: optimize to use matrix dimension over then 3 
+                int sum = 0;
+
+                for (var mI = 0; mI < n; mI++)
+                    for (var mJ = 0; mJ < n; mJ++)
+                        sum += pixelFn(i + mI - s, j + mJ - s);
 
                 resImg.ps[i, j] = sum;
             }

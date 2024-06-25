@@ -27,7 +27,7 @@ public static class NImages
 
         NImageInfo GetImage(int i, int j)
         {
-            var img = new NImage(size);
+            var img = new NImage(size, new NImageOptions() { MaxValue = 1 });
             img.AddBitNoise(rnd, noiseFactor);
             var iSmile = i * (size.m - smileN - 2 * shiftN) / (count.m - 1) - shiftI + shiftN;
             var jSmile = j * (size.n - smileN - 2 * shiftN) / (count.n - 1) - shiftJ + shiftN;

@@ -2,8 +2,9 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AI.Libraries;
+using Mapster;
 using Model.Extensions;
-using Model3D.Libraries;
 
 namespace AI.Images;
 
@@ -14,16 +15,19 @@ public class NImage
     public const int black = unchecked((int)0xFF000000);
     public const int red = unchecked((int)0xFF990000);
 
+    public NImageOptions options;
     public int[,] ps;
+
     public int m => ps.GetLength(0);
     public int n => ps.GetLength(1);
 
-    public NImage((int m, int n) size, int color = 0) : this(size.m, size.n, color)
+    public NImage((int m, int n) size, NImageOptions? options = null, int color = 0) : this(size.m, size.n, options, color)
     {
     }
 
-    public NImage(int m, int n, int color = 0)
+    public NImage(int m, int n, NImageOptions? options = null, int color = 0)
     {
+        this.options = options?.Adapt<NImageOptions>() ?? new();
         ps = new int[m, n];
         
         if (color != 0)
@@ -38,20 +42,23 @@ public class NImage
 
     protected NImage(NImage image, Func<int, int>? transformFn)
     {
-        transformFn ??= (i => i);
+        var fn = transformFn ?? (i => i);
+        options = image.options.Adapt<NImageOptions>();
         ps = new int[image.m, image.n];
 
         for (var i = 0; i < m; i++)
             for (var j = 0; j < n; j++)
             {
-                ps[i, j] = transformFn(image.ps[i, j]);
+                ps[i, j] = fn(image.ps[i, j]);
             }
     }
 
+    public double[] boxedPixels => pixels.Select(p => options.HasSign
+        ? NValues.Boxed(p + options.MaxValue, options.MaxValue + options.MaxValue, options.BoxM)
+        : NValues.Boxed(p, options.MaxValue, options.BoxM)).ToArray();
+
     public NImage Clone(Func<int, int>? transformFn = null) => new NImage(this, transformFn);
 
-    public IEnumerable<int> bitPixels => pixels.Select(ToBit);
-    public IEnumerable<int> grayPixels => pixels.Select(ToGray);
     public IEnumerable<int> pixels
     {
         get
@@ -88,6 +95,13 @@ public class NImage
         }  
     }
 
+    public Func<int, int, int> pixelFn => options.BorderType switch
+    {
+        NImageBorderType.Mirror => MirrorPixel,
+        NImageBorderType.Padding => PaddingPixel,
+        _ => throw new NotImplementedException()
+    };
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int MirrorPixel(int i, int j)
     {
@@ -103,6 +117,9 @@ public class NImage
 
         return ps[i, j];
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int PaddingPixel(int i, int j) => 0 <= i && i < m && 0 <= j && j < n ? ps[i, j] : 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static (byte a, byte r, byte g, byte b) ToArgb(int c) => 
