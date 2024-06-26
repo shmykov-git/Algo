@@ -8,6 +8,7 @@ using MathNet.Numerics.Distributions;
 using meta.Extensions;
 using Model;
 using Model.Extensions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AI.Extensions;
 
@@ -130,7 +131,7 @@ public static class NImageExtensions
     public static NImage ApplyFilter(this NImage image, int[][] matrix, int divisor = 1)
     {
         var n = matrix.Length;
-        var s = n / 2 - 1;
+        var s = (n - 1) / 2;
         var pixelFn = image.pixelFn;
         var maxValue = (n, n).SelectRange((i, j) => matrix[i][j].Abs()).Sum() / divisor;
         var hasSign = (n, n).Range().Any(v => matrix[v.i][v.j] < 0);
@@ -207,36 +208,73 @@ public static class NImageExtensions
         return resImg;
     }
 
-    public static NImage ApplyTopFilter(this NImage image, int top)
+    public static NImage ApplyBitFilter(this NImage image)
     {
-        var resImg = new NImage(image.m, image.n, image.options.With(o => o.MaxValue -= top - 1));
+        image.options.MaxValue = 1;
 
         for (var i = 0; i < image.m; i++)
             for (var j = 0; j < image.n; j++)
             {
-                resImg.ps[i, j] = image.ps[i, j] >= top ? image.ps[i, j] - top + 1 : 0;
+                image.ps[i, j] = image.ps[i, j] > 0 ? 1 : 0;
             }
 
-        return resImg;
+        return image;
+    }
+
+    public static NImage ApplyTopFilter(this NImage image, int top)
+    {
+        image.options.MaxValue -= top - 1;
+
+        for (var i = 0; i < image.m; i++)
+            for (var j = 0; j < image.n; j++)
+            {
+                image.ps[i, j] = image.ps[i, j] >= top ? image.ps[i, j] - top + 1 : 0;
+            }
+
+        return image;
     }
 
     public static NImage ApplySumFilter(this NImage image, int n)
     {
         var pixelFn = image.pixelFn;
-        var s = n / 2 - 1;
+        var s = (n - 1) / 2;
 
         var resImg = new NImage(image.m, image.n, image.options.With(o => o.MaxValue = o.MaxValue * n * n));
 
         for (var i = 0; i < image.m; i++)
             for (var j = 0; j < image.n; j++)
             {
-                // todo: optimize to use matrix dimension over then 3 
                 int sum = 0;
 
-                for (var mI = 0; mI < n; mI++)
-                    for (var mJ = 0; mJ < n; mJ++)
-                        sum += pixelFn(i + mI - s, j + mJ - s);
-
+                if (i == 0 || j == 0)
+                {
+                    for (var mI = 0; mI < n; mI++)
+                        for (var mJ = 0; mJ < n; mJ++)
+                            sum += pixelFn(i + mI - s, j + mJ - s);
+                }
+                else if (i == 0)
+                {
+                    // b = M + a;
+                    var (i00, j00) = (i - s - 1, j - s - 1);
+                    var M = (n).SelectRange(mJ => -pixelFn(i00, j00 + mJ) + pixelFn(i00 + n, j00 + mJ)).Sum();
+                    sum = M + resImg.ps[i - 1, j - 1];
+                }
+                else if (j == 0)
+                {
+                    // c = M + a
+                    var (i00, j00) = (i - s - 1, j - s - 1);
+                    var M = (n).SelectRange(mI => -pixelFn(i00 + mI, j00) + pixelFn(i00 + mI, j00 + n)).Sum();
+                    sum = M + resImg.ps[i - 1, j - 1];
+                }
+                else
+                {
+                    // d = M - a + b + c
+                    var (i00, j00) = (i - s - 1, j - s - 1);
+                    var (a00, a0n) = (pixelFn(i00, j00), -pixelFn(i00, j00 + n));
+                    var (an0, ann) = (-pixelFn(i00 + n, j00), pixelFn(i00 + n, j00 + n));
+                    var M = a00 + ann + a0n + an0;
+                    sum = M - resImg.ps[i - 1, j - 1] + resImg.ps[i - 1, j] + resImg.ps[i, j - 1];
+                }
                 resImg.ps[i, j] = sum;
             }
 

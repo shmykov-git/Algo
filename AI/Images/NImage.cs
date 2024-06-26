@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AI.Extensions;
 using AI.Libraries;
 using Mapster;
 using Model.Extensions;
@@ -23,6 +24,20 @@ public class NImage
 
     public NImage((int m, int n) size, NImageOptions? options = null, int color = 0) : this(size.m, size.n, options, color)
     {
+    }
+
+    public NImage(int[][] values)
+    {
+        this.options = new() { MaxValue = values.AbsSum() };
+        var m = values.Length;
+        var n = values[0].Length;
+        ps = new int[m, n];
+        
+        for (var i = 0; i < m; i++)
+            for (var j = 0; j < n; j++)
+            {
+                ps[i, j] = values[i][j];
+            }
     }
 
     public NImage(int m, int n, NImageOptions? options = null, int color = 0)

@@ -19,7 +19,7 @@ public class NOptions
     public double ActBias { get; set; } = 0.01;                         // SinA activator value
     public bool AllowBelief { get; set; } = false;      // use maximum number of top levels to learn
     public int BeliefDeep { get; set; } = 3;            // maximum number of top levels to learn
-    public double Power { get; set; } = 100;            // use 'x * power' instead of x
+    public double Power { get; set; } = 1;              // use 'x * power' instead of x
     public double SymmetryFactor { get; set; } = 0;     // 0 - off, 1 - e.dw should be avg for all training data
     public int ParallelCount { get; set; } = 1;         // not implemented, try to use parallel calculations
     public double LinkFactor { get; set; } = 0.2;       // percent of linked level edges

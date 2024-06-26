@@ -65,13 +65,11 @@ partial class SceneMotion
 {
     public async Task<Motion> Scene()
     {
-        //var data = NImages.GetSmileNoiseImages(100, 64, 64, 25, -1, 0.1, vectorizer, new Random(77));
-        //var vv = data.images.Select(img => img.img.ApplySumFilter(NImage.ToBit)).ToArray();
-        //vv.ForEach((v, i) => v.SaveAsBitmap(@$"d:\\ai\tmp\sobel{i}.png"));
+        return await AI_Detector_Example();
 
         var m = 0.9;
         var noise = 0.1;
-        var smile = "☺"; // "◼"; // "☺"
+        var smile = "☺"; // "◼";
         var smileBorderShift = 3;
         (int i, int j) imgSize0 = (200, 200);
         (int i, int j) trainCount = (50, 50);
@@ -97,13 +95,12 @@ partial class SceneMotion
             {
                 i = v.i,
                 input = v.img
-                .ApplySumFilter(3)
-                .ApplyTopFilter(7)
-                .ApplyMaxPooling(10)
-                .ApplyBorder(NImageBorderType.Mirror)
-                .boxedPixels,
-                //.Select(c => NValues.Boxed(c, 81, m))
-                //.ToArray(),
+                    .ApplySumFilter(20)
+                    .ApplyMaxPooling(10)
+                    .ApplyTopFilter(90)
+                    .ApplyBitFilter()
+                    .ApplyBorder(NImageBorderType.Mirror)
+                    .boxedPixels,
                 expected = [NValues.Boxed(v.pos.i, imgSize0.i - smileSize, m), NValues.Boxed(v.pos.j, imgSize0.j - smileSize, m)]
             };
 
@@ -133,7 +130,7 @@ partial class SceneMotion
         {
             Seed = 1,
             Topology = [inputN, 16, 16, 16, outputN],
-            LayerLinkFactors = [0.25, 0.95, 0.95, 0.95],
+            LayerLinkFactors = [0.5, 0.95, 0.95, 0.95],
             AllowGrowing = false,
             PowerWeight0 = (-0.5, 0.5),
             ShaffleFactor = 0.01,
@@ -152,7 +149,7 @@ partial class SceneMotion
             EpochUnwanted = 300,
         };
 
-        var trainer = new NTrainer(options.With(o=>o.TrainData = trainBoxedData));        
+        var trainer = new NTrainer(options.With(o => o.TrainData = trainBoxedData));
         trainer.Init();
 
         var file = @$"d:\\ai\train.txt";
@@ -166,7 +163,7 @@ partial class SceneMotion
         void SaveImages(List<NImageInfo> images, double[][]? outputs, Color color, string file)
         {
             images.ForEach((info, i) =>
-            {                
+            {
                 var img = info.img.Clone();
                 img.DrawRect(info.pos, rectSize, Color.Blue, 2);
 
@@ -236,5 +233,5 @@ partial class SceneMotion
         }
 
         return await Animate().ToMotion(3);
-    }    
+    }
 }
