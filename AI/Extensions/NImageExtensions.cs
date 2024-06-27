@@ -221,6 +221,19 @@ public static class NImageExtensions
         return image;
     }
 
+    public static NImage ApplyTopBitFilter(this NImage image, int top)
+    {
+        image.options.MaxValue = 1;
+
+        for (var i = 0; i < image.m; i++)
+            for (var j = 0; j < image.n; j++)
+            {
+                image.ps[i, j] = image.ps[i, j] >= top ? 1 : 0;
+            }
+
+        return image;
+    }
+
     public static NImage ApplyTopFilter(this NImage image, int top)
     {
         image.options.MaxValue -= top - 1;

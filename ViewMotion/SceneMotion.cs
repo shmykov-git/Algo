@@ -97,9 +97,7 @@ partial class SceneMotion
                 input = v.img
                     .ApplySumFilter(20)
                     .ApplyMaxPooling(10)
-                    .ApplyTopFilter(90)
-                    .ApplyBitFilter()
-                    .ApplyBorder(NImageBorderType.Mirror)
+                    .ApplyTopBitFilter(90)
                     .boxedPixels,
                 expected = [NValues.Boxed(v.pos.i, imgSize0.i - smileSize, m), NValues.Boxed(v.pos.j, imgSize0.j - smileSize, m)]
             };
