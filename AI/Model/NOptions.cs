@@ -16,7 +16,9 @@ public class NOptions
     public (double a, double b)? PowerWeight0 { get; set; } = null;     // N.w0 = (a + rnd * (b - a)) / power (default if set)
     public NAct Activator { get; set; } = NAct.Sigmoid;                       // activator function
     public NAct[] Activators { get; set; } = [];                         // layer activator functions
-    public double ActBias { get; set; } = 0.01;                         // SinA activator value
+    public double SinBias { get; set; } = 0.01;                         // SinA activator bias value
+    public double ReLUBias { get; set; } = 0;                           // ReLU and LReLU activator bias value
+    public double LReLUAlfa { get; set; } = 0.01;                      // ReLU and LReLU activator bias value
     public bool AllowBelief { get; set; } = false;      // use maximum number of top levels to learn
     public int BeliefDeep { get; set; } = 3;            // maximum number of top levels to learn
     public double Power { get; set; } = 1;              // use 'x * power' instead of x

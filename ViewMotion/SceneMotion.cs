@@ -65,14 +65,12 @@ partial class SceneMotion
 {
     public async Task<Motion> Scene()
     {
-        return await AI_Detector_Example();
-
         var m = 0.9;
         var noise = 0.1;
         var smile = "☺"; // "◼";
         var smileBorderShift = 3;
-        (int i, int j) imgSize0 = (200, 200);
-        (int i, int j) trainCount = (50, 50);
+        (int i, int j) imgSize0 = (100, 100);
+        (int i, int j) trainCount = (75, 75);
         int checkCount = 2000;
         int saveCount = 20;
         var smileSize = 25;
@@ -95,9 +93,8 @@ partial class SceneMotion
             {
                 i = v.i,
                 input = v.img
-                    .ApplySumFilter(20)
-                    .ApplyMaxPooling(10)
-                    .ApplyTopBitFilter(90)
+                    .ApplySumFilter(8)
+                    .ApplyMaxPooling(4)
                     .boxedPixels,
                 expected = [NValues.Boxed(v.pos.i, imgSize0.i - smileSize, m), NValues.Boxed(v.pos.j, imgSize0.j - smileSize, m)]
             };
@@ -127,13 +124,14 @@ partial class SceneMotion
         var options = new NOptions
         {
             Seed = 1,
-            Topology = [inputN, 16, 16, 16, outputN],
-            LayerLinkFactors = [0.5, 0.95, 0.95, 0.95],
+            Topology = [inputN, 50, 50, outputN],
+            LayerLinkFactors = [0.3, 0.95, 0.95, 0.95],
             AllowGrowing = false,
             PowerWeight0 = (-0.5, 0.5),
-            ShaffleFactor = 0.01,
+            ShaffleFactor = 0.5,
             SymmetryFactor = 0,
-            Activator = NAct.SinB,
+            Activator = NAct.ReLU,
+            ReLUBias = 0.01,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,

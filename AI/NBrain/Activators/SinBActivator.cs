@@ -7,7 +7,7 @@ public class SinBActivator : NActivator
 {
     public SinBActivator(NModel model) : base(model)
     {
-        Func = NFuncs.GetSinBFn(a, model.options.ActBias);
+        Func = NFuncs.GetSinBFn(a, model.options.SinBias);
         DerFunc = NFuncs.GetDerSinFn(a);
     }
 }

@@ -9,5 +9,7 @@ public enum NAct
     SinB,
     Sinc,
     Gaussian,
-    Softmax
+    Softmax, // todo: check
+    ReLU,
+    LReLU
 }

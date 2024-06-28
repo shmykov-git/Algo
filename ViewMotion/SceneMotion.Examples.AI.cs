@@ -220,7 +220,7 @@ partial class SceneMotion
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
-            Power = 1,
+            Power = 2,
             LinkFactor = 0.7,
             CrossLinkFactor = 0,
             EpochPerTrain = 200,
@@ -235,7 +235,8 @@ partial class SceneMotion
     {
         var s = new[]
         {
-            Shapes.PlaneTorus(20, 50, 4).ToOx().Perfecto(0.9999),
+            Shapes.Cube.Perfecto().Rotate(3,1,2),
+            //Shapes.PlaneTorus(20, 50, 4).ToOx().Perfecto(0.9999),
         }.ToSingleShape();
 
 
@@ -245,7 +246,7 @@ partial class SceneMotion
 
         var mode = P2NMode.Learn;
         var m = 0.75;
-        var zN = 4;
+        var zN = 2;
 
         return new AIMotionPlatform().AI_Learn_2N(new AI2NOptions
         {
@@ -267,18 +268,19 @@ partial class SceneMotion
         new NOptions
         {
             Seed = 1,
-            Topology = [2, 4, 5, 6, 8, zN],
+            Topology = [2, 8, 8, 8, 8, zN],
             UpTopology = [2, 4, 5, 6, 8, zN],
             AllowGrowing = false,
             PowerWeight0 = (-0.05, 0.05),
             ShaffleFactor = 0.01,
             SymmetryFactor = 0,
-            Activator = NAct.SinB,
+            Activator = NAct.LReLU,
+            ReLUBias = 0.01,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
             Power = 2,
-            LinkFactor = 0.45,
+            LinkFactor = 0.75,
             CrossLinkFactor = 0,
             EpochPerTrain = 200,
             EpochBeforeGrowing = 10000,

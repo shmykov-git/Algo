@@ -23,7 +23,9 @@ public static class ActivatorExtensions
             NAct.SinB => new SinBActivator(model),
             NAct.Sinc => new SincActivator(model),
             NAct.Gaussian => new GaussianActivator(model),
-            NAct.Softmax => layerActivators.GetOrAdd((model, lv), _ => new SoftmaxActivator(lv, model)),
+            NAct.Softmax => layerActivators.GetOrAdd((model, lv), _ => new SoftmaxActivator(lv, model)), // todo: check
+            NAct.ReLU => new ReLUActivator(model),
+            NAct.LReLU => new LReLUActivator(model),
             _ => throw new NotImplementedException(act.ToString())
         };
     }
