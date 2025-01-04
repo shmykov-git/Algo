@@ -124,14 +124,14 @@ partial class SceneMotion
         var options = new NOptions
         {
             Seed = 1,
-            Topology = [inputN, 50, 50, outputN],
-            LayerLinkFactors = [0.3, 0.95, 0.95, 0.95],
+            Topology = [inputN, 75, 25, outputN],
+            LayerLinkFactors = [0.25, 0.95, 0.95, 0.95],
             AllowGrowing = false,
             PowerWeight0 = (-0.5, 0.5),
             ShaffleFactor = 0.5,
             SymmetryFactor = 0,
             Activator = NAct.ReLU,
-            ReLUBias = 0.01,
+            ReLUBias = 0.0,
             DynamicW0Factor = 0.01,
             Nu = 0.1,
             Alfa = 0.5,
