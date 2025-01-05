@@ -31,4 +31,10 @@
     <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="HtmlTemplates\RotationTemplate.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

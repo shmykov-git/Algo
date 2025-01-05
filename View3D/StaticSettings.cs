@@ -10,7 +10,8 @@ namespace View3D
         //public FileFormat Format => FileFormat.FBX7700Binary;
         public FileFormat Format => FileFormat.GLTF2_Binary;
 
-        public string FileName => $"scene3d.{exts[Format]}";
+        public string FileName3D => $"scene3d.{exts[Format]}";
+        public string FileNameHtml => $"scene3d.html";
 
         private static Dictionary<FileFormat, string> exts = new Dictionary<FileFormat, string>
         {
@@ -25,7 +26,10 @@ namespace View3D
 
         public string OutputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Scene");
         public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Content");
-        public string FullFileName => Path.Combine(OutputDirectory, FileName);
+        public string InputHtmlDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"HtmlTemplates");
+
+        public string FullFileName3D => Path.Combine(OutputDirectory, FileName3D);
+        public string FullFileNameHtml => Path.Combine(OutputDirectory, FileNameHtml);
         public bool AddNormalsWhenNoMaterial => false;
         public string GetContentFileName(string fileName) => Path.Combine(InputDirectory, fileName);
     }

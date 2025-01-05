@@ -169,13 +169,26 @@ namespace ViewMotion
         public bool IsAutoReplay { get; set; } = true;
         public bool IsReverseReplay { get; set; } = false;
 
-        public string ExportName => "⇒ Export";
+        public string ExportName => "⇒ Export 3D";
         public ICommand ExportCommand => new Command(() =>
         {
             var frameShape = GetShapeFromViewState(lastViewState);
             var staticScene = staticRender.CreateScene(frameShape);
-            staticScene.Save(staticSettings.FullFileName, staticSettings.Format);
-            ShowStaticScene(staticSettings.FullFileName);
+            staticScene.Save(staticSettings.FullFileName3D, staticSettings.Format);
+            ShowStaticScene(staticSettings.FullFileName3D);
+        }, () => lastViewState != null, SaveRefresh);
+
+
+        public string[] HtmlTemplates => ["Rotation"];
+        public int HtmlIndex { get; set; }
+
+        public string ExportHtmlName => "⇒ Export html";
+        public ICommand ExportHtmlCommand => new Command(() =>
+        {
+            var frameShape = GetShapeFromViewState(lastViewState).Perfecto();
+            var sceneHtmlFileName = Path.Combine(staticSettings.InputHtmlDirectory, $"{HtmlTemplates[HtmlIndex]}Template.html");
+            frameShape.CreateHtml(sceneHtmlFileName, staticSettings.FullFileNameHtml);
+            ShowStaticScene(staticSettings.FullFileNameHtml);
         }, () => lastViewState != null, SaveRefresh);
 
         private void ShowStaticScene(string fullFileName)

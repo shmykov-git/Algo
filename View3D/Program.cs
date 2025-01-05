@@ -39,11 +39,11 @@ namespace View3D
 
                 Console.WriteLine($"Scene generation time {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}");
 
-                meshedScene.Save(settings.FullFileName, settings.Format);
+                meshedScene.Save(settings.FullFileName3D, settings.Format);
 
                 var process = new Process();
                 process.StartInfo.UseShellExecute = true;
-                process.StartInfo.FileName = settings.FullFileName;
+                process.StartInfo.FileName = settings.FullFileName3D;
                 process.Start();
             }
             catch(PolygonFillException)

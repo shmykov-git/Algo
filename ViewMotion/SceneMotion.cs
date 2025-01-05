@@ -63,7 +63,17 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
-    public async Task<Motion> Scene()
+
+    public Task<Motion> Scene()
+    {
+        return Waterfall();
+        var s = new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.Red);
+        //var s = WaterSystem.IllBeBack().Perfecto();
+
+        return s.ToMotion();
+    }
+
+    public async Task<Motion> Scene1()
     {
         var m = 0.9;
         var noise = 0.1;

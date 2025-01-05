@@ -21,6 +21,7 @@ using Model3D.Actives;
 using System.Runtime.CompilerServices;
 using static Model3D.ShapeTreeFractal;
 using Model3D.Tools.Vectorization;
+using System.Text;
 
 namespace Model3D.Extensions
 {
