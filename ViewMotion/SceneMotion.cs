@@ -66,7 +66,7 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Waterfall();
+        return Shapes.Cube.ToMotion();
         var s = new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.Red);
         //var s = WaterSystem.IllBeBack().Perfecto();
 

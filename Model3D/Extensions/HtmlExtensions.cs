@@ -13,7 +13,7 @@ public static class HtmlExtensions
     {
         var html = File.ReadAllText(templateFilePath);
         var get_scene_group = Get_get_scene_group(shape);
-        html = html.Replace("function get_scene_group() {}", get_scene_group);
+        html = html.Replace("function get_scene_group() { }", get_scene_group);
         File.WriteAllText(htmlFilePath, html);
     }
 
@@ -38,7 +38,7 @@ public static class HtmlExtensions
 
         string GetShapeScript(Shape mShape, int k)
         {
-            var c = mShape.Materials?[0].Color ?? defaultColor ?? Color.LightGreen;
+            var c = mShape.Materials?[0]?.Color ?? (defaultColor ?? Color.Black);
             var ps = mShape.Points3.Select(p => p.ToFloat()).SelectMany(p => new[] { p.x, p.y, p.z }).Select(CutFloat).ToArray();
             var indices = mShape.Triangles.ToArray();
 
