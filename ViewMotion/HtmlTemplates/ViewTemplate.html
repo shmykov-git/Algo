@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+            "OrbitControls": "https://unpkg.com/three@0.158.0/examples/jsm/controls/OrbitControls.js"
+          }
+        }
+    </script>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three'
+        import { OrbitControls } from 'OrbitControls'
+    
+        let canvas = document.querySelector('canvas')
+        if (canvas) canvas.outerHTML = ''
+
+        const scene = new THREE.Scene()
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        document.body.appendChild(renderer.domElement)
+
+        const scene_group = get_scene_group()
+        scene.add(scene_group)
+        scene.background = new THREE.Color(0x1a1a1a)
+
+        camera.position.z = 1
+
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.dampingFactor = 0.05
+        controls.screenSpacePanning = false
+        controls.minDistance = 0.1
+        controls.maxDistance = 5
+
+        function animate() {
+            requestAnimationFrame(animate)
+            controls.update()
+            renderer.render(scene, camera)
+        }
+
+        animate()
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight
+            camera.updateProjectionMatrix()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+        })
+
+        // <generation>
+        function get_scene_group() { }
+        // </generation>
+    </script>
+</body>
+</html>
+
+

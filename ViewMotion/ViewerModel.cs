@@ -179,7 +179,7 @@ namespace ViewMotion
         }, () => lastViewState != null, SaveRefresh);
 
 
-        public string[] HtmlTemplates => ["Rotation"];
+        public string[] HtmlTemplates => ["Rotation", "View"];
         public int HtmlIndex { get; set; }
 
         public string ExportHtmlName => "⇒ Export html";
