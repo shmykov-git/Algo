@@ -10,23 +10,41 @@ using Model3D.Libraries;
 
 namespace Model3D.Extensions;
 
+public class HtmlOptions
+{
+    public string TemplateFilePath { get; set; }
+    public string HtmlFilePath { get; set; }
+
+    public Color Background { get; set; } = Color.FromArgb(0x1a1a1a);
+}
+
 public static class HtmlExtensions
 {
-    public static void CreateShapedHtml(this IEnumerable<Shape> shapes, string templateFilePath, string htmlFilePath)
+    public static void CreateHtml(this IEnumerable<Shape> shapes, string templateFilePath, string htmlFilePath) =>
+        shapes.CreateHtml(new HtmlOptions
+        {
+            TemplateFilePath = templateFilePath,
+            HtmlFilePath = htmlFilePath
+        });
+
+    public static void CreateHtml(this Shape shape, HtmlOptions options) => new[] { shape }.CreateHtml(options);
+
+    public static void CreateHtml(this IEnumerable<Shape> shapes, HtmlOptions options)
     {
-        var html = File.ReadAllText(templateFilePath);
+        var html = File.ReadAllText(options.TemplateFilePath);
         var get_scene_meshes = shapes.Select((shape, n) => Get_get_shape_n_mesh(shape, n)).ToArray();
         var get_scene_group = Get_get_scene_group(get_scene_meshes);
-        html = html.Replace("// <generated vars/>", Get_generated_vars());
+        html = html.Replace("// <generated vars/>", Get_generated_vars(options));
         html = html.Replace("function get_scene_group() { }", get_scene_group);
-        File.WriteAllText(htmlFilePath, html);
+        File.WriteAllText(options.HtmlFilePath, html);
     }
 
     public static void CreateHtml(this Shape shape, string templateFilePath, string htmlFilePath) =>
-        new[] { shape }.CreateShapedHtml(templateFilePath, htmlFilePath);
+        new[] { shape }.CreateHtml(templateFilePath, htmlFilePath);
 
-    private static string Get_generated_vars() => @"
+    private static string Get_generated_vars(HtmlOptions options) => @$"
         const scene_meshes = []
+        scene.background = new THREE.Color({GetColorStr(options.Background)})
 ";
 
     private static string Get_get_scene_group(string[] shapeMeshScripts)
@@ -42,9 +60,10 @@ function get_scene_group() {{
 ";
     }
 
+    private static string GetColorStr(Color c) => $"0x{c.R:X2}{c.G:X2}{c.B:X2}";
+
     private static string Get_get_shape_n_mesh(Shape shape, int n, Color? defaultColor = default, bool wireframe = false, float cutFloat = 1E4f)
-    {
-        string GetColorStr(Color c) => $"0x{c.R:X2}{c.G:X2}{c.B:X2}";
+    {        
         string CutFloat(float f)
         {
             var s = (MathF.Round(f * cutFloat) / cutFloat).ToString();
@@ -86,16 +105,10 @@ function get_scene_group() {{
         var ps = shape.Points3.Select(p => p.ToFloat()).SelectMany(p => new[] { p.x, p.y, p.z }).Select(CutFloat).ToArray();
         var indices = materialIndices.SelectMany(m=>m.ts).ToArray();
             
-        string GetMaterial(Color c)
-        {
-            //return $"new THREE.MeshBasicMaterial({{color: {GetColorStr(c)}, transparent: true, opacity: {((float)c.A) / byte.MaxValue}, wireframe: {wireframe.ToString().ToLower()} }})";
-            return $"new THREE.MeshStandardMaterial({{color: {GetColorStr(c)}, flatShading: false }})";
-        }
-
         return $@"  
 function get_shape_{n}_mesh() {{
   const materials = []
-  {materials.Select(m => $"  materials.push({GetMaterial(m.Color)})").SJoin("\r\n")}
+  {materials.Select(m => $"  materials.push(get_mesh_material({GetColorStr(m.Color)}, {(m.Color.A != 255).ToString().ToLower()}, {((float)m.Color.A) / byte.MaxValue}))").SJoin("\r\n")}
   const vertices = new Float32Array([{ps.SJoin(",")}])
   const materialIndices = [{materialIndices.Select(m => $"[{m.mI},[{m.ts.SJoin(",")}]]").SJoin(",")}]
   const indices = new Uint16Array(materialIndices.flatMap(m => m[1]))

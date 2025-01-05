@@ -179,7 +179,7 @@ namespace ViewMotion
         }, () => lastViewState != null, SaveRefresh);
 
 
-        public string[] HtmlTemplates => ["Rotation", "View"];
+        public string[] HtmlTemplates => ["View", "ViewSimple", "Wire", "Rotation"];
         public int HtmlIndex { get; set; }
 
         public string ExportHtmlName => "⇒ Export html";
@@ -187,7 +187,14 @@ namespace ViewMotion
         {
             var frameShape = GetShapeFromViewState(lastViewState).Perfecto();
             var sceneHtmlFileName = Path.Combine(staticSettings.InputHtmlDirectory, $"{HtmlTemplates[HtmlIndex]}Template.html");
-            frameShape.CreateHtml(sceneHtmlFileName, staticSettings.FullFileNameHtml);
+            
+            frameShape.CreateHtml(new HtmlOptions()
+            {
+                TemplateFilePath = sceneHtmlFileName,
+                HtmlFilePath = staticSettings.FullFileNameHtml,
+                Background = BackgroundColor.ToDColor()
+            });
+            
             ShowStaticScene(staticSettings.FullFileNameHtml);
         }, () => lastViewState != null, SaveRefresh);
 

@@ -18,7 +18,7 @@ public static class HtmlExtensions
     {
         var settings = DI.Get<StaticSettings>();
         var sceneHtmlFileName = Path.Combine(settings.InputHtmlDirectory, "ViewTemplate.html");
-        shapes.CreateShapedHtml(sceneHtmlFileName, settings.FullFileNameHtml);
+        shapes.CreateHtml(sceneHtmlFileName, settings.FullFileNameHtml);
         ShowStaticScene(settings.FullFileNameHtml);
     }
 
