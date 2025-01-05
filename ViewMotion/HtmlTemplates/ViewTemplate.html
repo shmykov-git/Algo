@@ -35,11 +35,19 @@
         renderer.setSize(window.innerWidth, window.innerHeight)
         document.body.appendChild(renderer.domElement)
 
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 1)
+        scene.add(ambientLight)
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Белый свет
+        directionalLight.position.set(5, 5, 5); // Направление света
+        scene.add(directionalLight);
+
+// <generated vars/>
         const scene_group = get_scene_group()
         scene.add(scene_group)
         scene.background = new THREE.Color(0x1a1a1a)
 
-        camera.position.z = 1
+        camera.position.z = 3
 
         const controls = new OrbitControls(camera, renderer.domElement)
         controls.enableDamping = true

@@ -66,11 +66,18 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return TwoBallFallingToNetMotion();
-        var s = new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.Red);
-        //var s = WaterSystem.IllBeBack().Perfecto();
+        //var s = new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.Red);
+        return WaterSystem.BigDee().Perfecto().ToMotion();
 
-        return s.ToMotion();
+        var ss = new[]
+        {
+            Shapes.IcosahedronSp2.Perfecto().MoveX(-1).ApplyColorGradientY(Color.Red, Color.Red, Color.Red, Color.White, Color.White, Color.White),
+            Shapes.IcosahedronSp2.Perfecto().MoveX(1).ApplyColorGradientX(Color.Green, Color.Green, Color.Green, Color.White, Color.White, Color.White)
+        };
+
+        //ss.ShowShapedHtml();
+
+        return ss.ToSingleShape().ToMotion();
     }
 
     public async Task<Motion> Scene1()

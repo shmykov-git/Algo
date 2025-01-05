@@ -82,6 +82,11 @@ namespace Model
             .Select(v => (0, v.a, v.b));
 
         public IEnumerable<int> Triangles => Convexes.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
+        public (Material m, int[] ts)[] TrianglesWithMaterials => Convexes
+            .Select((c, cI) => (t: TriangleSchemaList(c.Length).Select(i => c[i]).ToArray(), m: Materials[cI]))
+            .GroupBy(v => v.m)
+            .Select(gv => (gv.Key, gv.SelectMany(v=>v.t).ToArray()))
+            .ToArray();
 
         public IEnumerable<Vector2> TriangleTexturePoints => TexturePoints?.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
 
