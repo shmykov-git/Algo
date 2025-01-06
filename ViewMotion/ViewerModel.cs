@@ -305,21 +305,23 @@ namespace ViewMotion
             if (materials.TryGetValue(m, out Material? material))
                 return material;
 
-            material = new MaterialGroup()
-            {
-                Children =
-                {
-                    new DiffuseMaterial
-                    {
-                        Brush = new SolidColorBrush(color)
-                    },
-                    new SpecularMaterial()
-                    {
-                        Brush = new SolidColorBrush(color) {Opacity = 0.5},
-                        SpecularPower = 24
-                    }
-                }
-            };
+            material = new DiffuseMaterial(new SolidColorBrush(color));
+
+            //material = new MaterialGroup()
+            //{
+            //    Children =
+            //    {
+            //        new DiffuseMaterial
+            //        {
+            //            Brush = new SolidColorBrush(color),
+            //        },
+            //        new SpecularMaterial()
+            //        {
+            //            Brush = new SolidColorBrush(color) {Opacity = 0.5},
+            //            SpecularPower = 24
+            //        }
+            //    }
+            //};
 
             materials.Add(m, material);
 

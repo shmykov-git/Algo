@@ -652,8 +652,6 @@ namespace Model3D.Extensions
             }
         }
 
-
-
         public static Shape AddNormalVolume(this Shape shape, double distance)
         {
             var up = distance > 0;

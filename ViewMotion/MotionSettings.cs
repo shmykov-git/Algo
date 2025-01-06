@@ -49,7 +49,7 @@ class MotionSettings : IDirSettings
         new()
         {
             LightType = LightType.Ambient,
-            Color = Color.FromRgb(64, 64, 64)
+            Color = Color.FromRgb(255, 255, 255)
         }
     };
 

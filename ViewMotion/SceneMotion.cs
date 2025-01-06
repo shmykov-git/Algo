@@ -66,19 +66,41 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.Ball.Perfecto().ApplyColor(Color.Blue).ToMotion();
-        return new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.FromArgb(100, Color.Red)).ToMotion();
-        //return WaterSystem.BigDee().Perfecto().ToMotion();
+        var baseS = Shapes.Cube.Perfecto(20);
+        var s = baseS.AddNormalVolume(-0.5).ApplyColor(Color.FromArgb(50, Color.Blue));
 
-        var ss = new[]
+        s.Convexes = s.ConvexTriangles;
+
+        var l = s.Convexes.Length / 2;
+        var sss = (l/2).Range().Select(i => new Shape
         {
-            Shapes.IcosahedronSp2.Perfecto().MoveX(-1).ApplyColorGradientY(Color.Red, Color.Red, Color.Red, Color.White, Color.White, Color.White),
-            Shapes.IcosahedronSp2.Perfecto().MoveX(1).ApplyColorGradientX(Color.Green, Color.Green, Color.Green, Color.White, Color.White, Color.White)
-        };
+            Points = s.Points,
+            Convexes = new[] { s.Convexes[2*i], s.Convexes[2 * i+1], s.Convexes[2*i+l], s.Convexes[2 * i + l + 1] }
+        }).Skip(1).First().Perfecto();
 
-        //ss.ShowShapedHtml();
+        return sss.ToMeta().ToMotion();
 
-        return ss.ToSingleShape().ToMotion();
+        //var ss = baseS.SplitByConvexes().Select(s => s.AddNormalVolume(-0.5));
+
+        Debug.WriteLine($"vertices: [{s.Points3.Select(p => $"[{p.x},{p.y},{p.z}]").SJoin(",")}],");
+        Debug.WriteLine($"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],");
+
+        return (s.Perfecto().MovePlanes(0.05).ToDirectLines()).ToMotion(2);
+
+
+        //return Shapes.Ball.Perfecto().ApplyColor(Color.Blue).ToMotion();
+        //return new Fr[] { (-11, 1, 0.1), (-9, 1), (-6, 2, 0.15), (-3, 2), (-1, 13), (1, 1), (2, -2), (4, 3), (9, -1) }.ToShape().ApplyColor(Color.FromArgb(100, Color.Red)).ToMotion();
+        ////return WaterSystem.BigDee().Perfecto().ToMotion();
+
+        //var ss = new[]
+        //{
+        //    Shapes.IcosahedronSp2.Perfecto().MoveX(-1).ApplyColorGradientY(Color.Red, Color.Red, Color.Red, Color.White, Color.White, Color.White),
+        //    Shapes.IcosahedronSp2.Perfecto().MoveX(1).ApplyColorGradientX(Color.Green, Color.Green, Color.Green, Color.White, Color.White, Color.White)
+        //};
+
+        ////ss.ShowShapedHtml();
+
+        //return ss.ToSingleShape().ToMotion();
     }
 
     public async Task<Motion> Scene1()
