@@ -6,6 +6,7 @@ using Model3D.Extensions;
 using System.Linq;
 using Model.Graphs;
 using Model3D.Libraries;
+using System;
 
 namespace Model3D
 {
@@ -29,14 +30,14 @@ namespace Model3D
             };
         }
 
-        public static Shape CreateNet3MazeBox(int m, int n, int l, int seed = 0)
+        public static Shape CreateNet3MazeBox(int m, int n, int l, bool closed, (int i, int j, int k)[] outHoles = null, int seed = 0)
         {
             var (graph, nodes) = Graphs.Net3Graph(m, n, l);
-            var points = nodes.Select(v => new Vector3(v.i, v.j, v.k)).ToArray().Centered();
+            var points = nodes.Select(v => new Vector3(v.i, v.j, v.k)).ToArray();
 
             var g = new Graph(graph.nodes.SelectMany(n => n.edges.Select(e => e.e)).Distinct());
-            var holes = g.VisitEdges(seed, GraphVisitStrateges.SimpleRandom(seed)).Select(e => e.e.OrderedEdge())
-                .ToHashSet();
+            //var holes = g.FindPath(0, g.nodes.Count - 1).SelectPair((a, b) => a.ToEdge(b)).Select(e => e.e.OrderedEdge()).ToHashSet();
+            var holes = g.VisitEdges(seed, GraphVisitStrateges.SimpleRandom(seed)).Select(e => e.e.OrderedEdge()).ToHashSet();
 
             var mult = 0.8;
 
@@ -56,6 +57,19 @@ namespace Model3D
 
             var brick = Shapes.Cube;
             var shape = edges.Select(e => GetWall(points[e.i], points[e.j], brick)).Aggregate((a, b) => a + b);
+
+            if (closed)
+            {
+                var hs = outHoles ?? Array.Empty<(int, int, int)>();
+
+                var wallL1 = (m, n).SelectRange((i, j) => hs.Contains((i, j, -1)) ? Shape.Empty : GetWall(new Vector3(i, j, 0), new Vector3(i, j, -1), brick)).Aggregate((a, b) => a + b);
+                var wallL2 = (m, n).SelectRange((i, j) => hs.Contains((i, j, l)) ? Shape.Empty : GetWall(new Vector3(i, j, l - 1), new Vector3(i, j, l), brick)).Aggregate((a, b) => a + b);
+                var wallN1 = (m, l).SelectRange((i, k) => hs.Contains((i, -1, k)) ? Shape.Empty : GetWall(new Vector3(i, 0, k), new Vector3(i, -1, k), brick)).Aggregate((a, b) => a + b);
+                var wallN2 = (m, l).SelectRange((i, k) => hs.Contains((i, n, k)) ? Shape.Empty : GetWall(new Vector3(i, n - 1, k), new Vector3(i, n, k), brick)).Aggregate((a, b) => a + b);
+                var wallM1 = (n, l).SelectRange((j, k) => hs.Contains((-1, j, k)) ? Shape.Empty : GetWall(new Vector3(0, j, k), new Vector3(-1, j, k), brick)).Aggregate((a, b) => a + b);
+                var wallM2 = (n, l).SelectRange((j, k) => hs.Contains((m, j, k)) ? Shape.Empty : GetWall(new Vector3(m - 1, j, k), new Vector3(m, j, k), brick)).Aggregate((a, b) => a + b);
+                shape = shape + (wallL1 + wallL2 + wallN1 + wallN2 + wallM1 + wallM2);
+            }
 
             return shape;
         }

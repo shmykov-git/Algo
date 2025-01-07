@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 using Mapster.Utils;
-using MathNet.Numerics;
 using Meta;
 using Model;
 using Model.Extensions;
@@ -66,26 +65,38 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var baseS = Shapes.Cube.Perfecto(20);
-        var s = baseS.AddNormalVolume(-0.5).ApplyColor(Color.FromArgb(50, Color.Blue));
+        var n = 4;
+        var s = Mazes.CreateNet3MazeBox(n, n, n, true, new[] {(1, -1, 1), (n-2, n, n-2)}).Perfecto().ApplyColor(Color.FromArgb(50, Color.Blue));
 
-        s.Convexes = s.ConvexTriangles;
+        Debug.WriteLine($"vertices: [{s.Points3.Select(p => $"[{p.x.Round(5)},{p.y.Round(5)},{p.z.Round(5)}]").SJoin(",")}],");
+        Debug.WriteLine($"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],");
+        //var g = s.EdgeGraph;
 
-        var l = s.Convexes.Length / 2;
-        var sss = (l/2).Range().Select(i => new Shape
-        {
-            Points = s.Points,
-            Convexes = new[] { s.Convexes[2*i], s.Convexes[2 * i+1], s.Convexes[2*i+l], s.Convexes[2 * i + l + 1] }
-        }).Skip(1).First().Perfecto();
+        return s.ToMotion();
 
-        return sss.ToMeta().ToMotion();
+        //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();
+
+        //var baseS = Shapes.Cube.Perfecto(20);
+        //var s = baseS.AddNormalVolume(-0.5).ApplyColor(Color.FromArgb(50, Color.Blue));
+
+        //s.Convexes = s.ConvexTriangles;
+
+        //var l = s.Convexes.Length / 2;
+        //var sss = (l/2).Range().Select(i => new Shape
+        //{
+        //    Points = s.Points,
+        //    Convexes = new[] { s.Convexes[2*i], s.Convexes[2 * i+1], s.Convexes[2*i+l], s.Convexes[2 * i + l + 1] }
+        //}).Skip(1).First().Perfecto();
+
+        //return sss.ToMeta().ToMotion();
 
         //var ss = baseS.SplitByConvexes().Select(s => s.AddNormalVolume(-0.5));
 
-        Debug.WriteLine($"vertices: [{s.Points3.Select(p => $"[{p.x},{p.y},{p.z}]").SJoin(",")}],");
-        Debug.WriteLine($"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],");
+        //var s = Shapes.IcosahedronSp1.Perfecto();
 
-        return (s.Perfecto().MovePlanes(0.05).ToDirectLines()).ToMotion(2);
+
+
+        //return s.ToMotion(2);
 
 
         //return Shapes.Ball.Perfecto().ApplyColor(Color.Blue).ToMotion();
