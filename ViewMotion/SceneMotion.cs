@@ -66,13 +66,17 @@ partial class SceneMotion
     public Task<Motion> Scene()
     {
         var n = 4;
-        var s = Mazes.CreateNet3MazeBox(n, n, n, true, new[] {(1, -1, 1), (n-2, n, n-2)}).Perfecto().ApplyColor(Color.FromArgb(50, Color.Blue));
+        var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (1, -1, 1), (n - 2, n, n - 2) }, 1);
+        var center = 0.5 * new Vector3(n - 1, n - 1, n - 1);
+        var s = maze.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(5, Color.Blue));
+        var sH = holes.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Green));
+        var sP = path.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Red));
 
         Debug.WriteLine($"vertices: [{s.Points3.Select(p => $"[{p.x.Round(5)},{p.y.Round(5)},{p.z.Round(5)}]").SJoin(",")}],");
         Debug.WriteLine($"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],");
         //var g = s.EdgeGraph;
 
-        return s.ToMotion();
+        return (s.ToLines(0.2, Color.Blue)+sH+sP.ToLines(0.4, Color.Red)).ToMotion();
 
         //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();
 
