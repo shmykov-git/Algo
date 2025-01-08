@@ -67,6 +67,7 @@ partial class SceneMotion
     {
         var n = 4;
         var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (1, -1, 1), (n - 2, n, n - 2) }, 1);
+        //var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (0, 0, n), (n - 2, n, n - 2) }, 1);
         var center = 0.5 * new Vector3(n - 1, n - 1, n - 1);
         var s = maze.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(5, Color.Blue));
         var sH = holes.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Green));
