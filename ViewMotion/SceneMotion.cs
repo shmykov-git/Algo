@@ -73,8 +73,7 @@ partial class SceneMotion
         var sH = holes.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Green));
         var sP = path.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Red));
 
-        Debug.WriteLine($"vertices: [{s.Points3.Select(p => $"[{p.x.Round(5)},{p.y.Round(5)},{p.z.Round(5)}]").SJoin(",")}],");
-        Debug.WriteLine($"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],");
+        Debug.WriteLine($"\r\n=== <js>\r\n{s.Get_js_object_data()}\r\n=== </js>\r\n");
         //var g = s.EdgeGraph;
 
         return (s.ToLines(0.2, Color.Blue)+sH+sP.ToLines(0.4, Color.Red)).ToMotion();
