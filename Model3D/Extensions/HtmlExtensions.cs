@@ -63,24 +63,26 @@ function get_scene_group() {{
 
     private static string GetColorStr(Color c) => $"0x{c.R:X2}{c.G:X2}{c.B:X2}";
 
-    private static string Get_get_shape_n_mesh(Shape shape, int n, Color? defaultColor = default, bool wireframe = false, float cutFloat = 1E4f)
+    private static string CutFloat(float f, float exp) => CutFloat((double)f, (double)exp);
+
+    private static string CutFloat(double f, double exp)
+    {
+        var s = (Math.Round(f * exp) / exp).ToString();
+
+        if (s == "0" || s == "-0")
+            return "0";
+
+        if (s.StartsWith("0"))
+            return s[1..];
+
+        if (s.StartsWith("-0"))
+            return $"-{s[2..]}";
+
+        return s;
+    }
+
+    private static string Get_get_shape_n_mesh(Shape shape, int n, Color? defaultColor = default, bool wireframe = false, float exp = 1E4f)
     {        
-        string CutFloat(float f)
-        {
-            var s = (MathF.Round(f * cutFloat) / cutFloat).ToString();
-
-            if (s == "0" || s == "-0")
-                return "0";
-
-            if (s.StartsWith("0"))
-                return s[1..];
-
-            if (s.StartsWith("-0"))
-                return $"-{s[2..]}";
-
-            return s;
-        }
-
         List<Material> materials;
         (int mI, int[] ts)[] materialIndices;
         var hasMaterial = shape.Materials?.Any(m => m != null) ?? false;
@@ -103,7 +105,7 @@ function get_scene_group() {{
             materialIndices = [(0, nomIndices)];
         }
 
-        var ps = shape.Points3.Select(p => p.ToFloat()).SelectMany(p => new[] { p.x, p.y, p.z }).Select(CutFloat).ToArray();
+        var ps = shape.Points3.Select(p => p.ToFloat()).SelectMany(p => new[] { p.x, p.y, p.z }).Select(v => CutFloat(v, exp)).ToArray();
         var indices = materialIndices.SelectMany(m=>m.ts).ToArray();
             
         return $@"  
@@ -128,9 +130,10 @@ function get_shape_{n}_mesh() {{
 
     public static string Get_js_object_data(this Shape s)
     {
-        var vertices = $"vertices: [{s.Points3.Select(p => $"[{p.x.Round(5)},{p.y.Round(5)},{p.z.Round(5)}]").SJoin(",")}]";
-        var faces = $"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}]";
+        var exp = 1E4;
+        var vertices = $"vertices: [{s.Points3.Select(p => $"[{CutFloat(p.x, exp)},{CutFloat(p.y, exp)},{CutFloat(p.z, exp)}]").SJoin(",")}],";
+        var faces = $"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],";
 
-        return new[] { vertices, faces }.SJoin(",\r\n");
+        return new[] { vertices, faces }.SJoin("\r\n");
     }
 }

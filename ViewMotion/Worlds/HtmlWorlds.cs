@@ -14,16 +14,29 @@ internal static class HtmlWorlds
     public static Task<Motion> CubeMazeWorld()
     {
         var n = 4;
-        var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (1, -1, 1), (n - 2, n, n - 2) }, 1);
+        var nScale = 4;
+        var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (n/2 - 1, -1, n / 2 - 1), (n / 2, n, n / 2) }, 1);
         //var (maze, holes, path) = Mazes.CreateNet3MazeBox(n, n, n, true, new[] { (0, 0, n), (n - 2, n, n - 2) }, 1);
+
         var center = 0.5 * new Vector3(n - 1, n - 1, n - 1);
-        var s = maze.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(5, Color.Blue));
-        var sH = holes.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Green));
-        var sP = path.Move(-center).Mult(1.0 / n).ApplyColor(Color.FromArgb(255, Color.Red));
+        var sMaze = maze.Move(-center).Mult(1.0 / nScale);
+        var sHoles = holes.Move(-center).Mult(1.0 / nScale);
+        var sPath = path.Move(-center).Mult(1.0 / nScale);
 
-        Debug.WriteLine($"\r\n=== <js>\r\n{s.Get_js_object_data()}\r\n=== </js>\r\n");
-        //var g = s.EdgeGraph;
+        Debug.WriteLine($"\r\n=== <js>\r\n{sMaze.Get_js_object_data()}\r\n=== </js>\r\n");
 
-        return (s.ToLines(0.2, Color.Blue) + sH + sP.ToLines(0.4, Color.Red)).ToMotion();
+        return new[]
+        {
+            sMaze.ApplyColor(Color.FromArgb(50, Color.Blue)),
+            sHoles.ApplyColor(Color.Green),
+            sPath.ApplyColor(Color.Red),
+        }.ToSingleShape().ToMotion();
+
+        return new[]
+        {
+            sMaze.ToLines(0.2, Color.Blue),
+            sHoles.ApplyColor(Color.Green),
+            sPath.ToLines(0.4, Color.Red)
+        }.ToSingleShape().ToMotion();
     }
 }

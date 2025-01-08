@@ -51,7 +51,7 @@ namespace Model3D
 
             var wallScale = new Vector3(1, 1, 0.1);
             var holeScale = new Vector3(0.1, 0.1, 1);
-            var pathScale = new Vector3(0.101, 0.101, 1.01);
+            var pathScale = new Vector3(0.105, 0.105, 1.05);
             Shape GetWall(Vector3 a, Vector3 b, Shape shape, Vector3 scale)
             {
                 var n = (b - a).Normalize();
