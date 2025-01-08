@@ -353,7 +353,11 @@
             new PShere({ id: "ball", radius: ballSize, mass: 1, position: [3, 12, 3], color: 0xff0000, pMaterial: pItemMaterial}),
         ];
 
+        
+        
+        document.addEventListener("keydown", event => { if (event.code === "Space") jump() });
         document.getElementById('btnJump').addEventListener('click', jump);
+        
         function jump() {
             var ball = objects.find(o => o.id === "ball")
             if (!ball.canJamp) return;
