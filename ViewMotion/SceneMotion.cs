@@ -58,6 +58,7 @@ using System.IO;
 using Color = System.Drawing.Color;
 using static Model3D.Actives.ActiveWorld;
 using ViewMotion.Worlds;
+using Meta.Extensions;
 
 namespace ViewMotion;
 
@@ -65,7 +66,7 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return HtmlWorlds.CubeMazeWorld();
+        return (100).SelectInterval(Math.PI, fi => Shapes.ConvexEllipsoid(10, 2, fi).ToMeta()).ToMotion();
 
         //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();
 

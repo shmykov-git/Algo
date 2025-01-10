@@ -14,6 +14,9 @@ using System.Diagnostics;
 using Aspose.ThreeD.Entities;
 using System.Security.Cryptography;
 using Model3D.Tools.Vectorization;
+using Model.Tools;
+using Model3D.Libraries.Functions;
+using System.Net.Security;
 
 namespace Model.Libraries
 {
@@ -429,17 +432,6 @@ namespace Model.Libraries
 
             var dirs = (n).SelectRange(_ => rnd.NextCenteredV3().Normalize()).ToArray();
 
-            Shape GetStoneShape(int stoneQuality) =>
-                stoneQuality switch
-                {
-                    1 => Shapes.Icosahedron,
-                    2 => Shapes.IcosahedronSp2,
-                    3 => Shapes.IcosahedronSp3,
-                    4 => Shapes.IcosahedronSp4,
-                    5 => Shapes.Ball,
-                    _ => throw new NotSupportedException(stoneQuality.ToString())
-                };
-
             Vector3 TransformFn(Vector3 v)
             {
                 return v + power * dirs.Select(dir =>
@@ -453,7 +445,7 @@ namespace Model.Libraries
                 }).Sum();
             }
 
-            return GetStoneShape(quality).Scale(scale.Value).TransformPoints(TransformFn).Perfecto();
+            return Shapes.IcosahedronQ(quality).Scale(scale.Value).TransformPoints(TransformFn).Perfecto();
         }
 
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
@@ -666,5 +658,26 @@ namespace Model.Libraries
             };
         }
 
+        public static Shape IcosahedronQ(int quality) =>
+            quality switch
+            {
+                1 => Shapes.Icosahedron,
+                2 => Shapes.IcosahedronSp2,
+                3 => Shapes.IcosahedronSp3,
+                4 => Shapes.IcosahedronSp4,
+                5 => Shapes.Ball,
+                _ => throw new NotSupportedException(quality.ToString())
+            };
+
+        public static Shape ConvexEllipsoid(double power = 8, int quality = 4, double fi = 0) => Convex(Funcs_3.Ellipsoid(power), quality, fi);
+
+        public static Shape Convex(Func_3 fn, int quality = 4, double fi = 0)
+        {
+            var s = IcosahedronQ(quality).Perfecto(2).RotateOy(fi);
+            var ss = s.Copy();
+            var ps = s.Points3.Select(p => p * Minimizer.Gold(1, 0.01, 0.00001, x => fn(p * x).Abs(), 0.01).Last().x).ToArray();
+            ss.Points3 = ps;
+            return ss.Perfecto();
+        }
     }
 }
