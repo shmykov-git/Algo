@@ -66,7 +66,7 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return (100).SelectInterval(Math.PI, fi => Shapes.ConvexEllipsoid(10, 2, fi).ToMeta()).ToMotion();
+        return (100).SelectInterval(0, Math.PI/2, fi => Shapes.ConvexEllipsoid(8, 3, fi).ToMeta()).ToMotion();
 
         //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();
 
