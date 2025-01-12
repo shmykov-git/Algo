@@ -652,7 +652,7 @@ namespace Model3D.Extensions
             }
         }
 
-        public static Shape AddNormalVolume(this Shape shape, double distance)
+        public static Shape AddNormalVolume(this Shape shape, double distance, Color? fromColor = null, Color? toColor = null, Color? borderColor = null)
         {
             var up = distance > 0;
             var ln = shape.Points.Length;
@@ -663,6 +663,15 @@ namespace Model3D.Extensions
                 .SelectMany(c => c.SelectCirclePair((i, j) => (e: (i, j), oe: (i, j).OrderedEdge())))
                 .GroupBy(v => v.oe).Where(gv => gv.Count() == 1).Select(gv => gv.First()).ToArray();
 
+            Material[] materials = null;
+            if (fromColor.HasValue || toColor.HasValue || borderColor.HasValue)
+                materials = new[]
+                {
+                    (shape.Convexes.Length).Range(_ => fromColor.HasValue ? Materials.GetByColor(fromColor.Value) : null),
+                    (shape.Convexes.Length).Range(_ => toColor.HasValue ? Materials.GetByColor(toColor.Value) : null),
+                    (edges.Length).Range(_ => borderColor.HasValue ? Materials.GetByColor(borderColor.Value) : null),
+                }.ToSingleArray();
+
             return new Shape()
             {
                 Points = shape.Points.Concat(sizedShape.Points).ToArray(),
@@ -671,7 +680,8 @@ namespace Model3D.Extensions
                     shape.Convexes.ReverseConvexes(up),
                     sizedShape.Convexes.Transform(i => i + ln).ReverseConvexes(!up),
                     edges.Select(e => new[] {e.e.i, e.e.j, e.e.j + ln, e.e.i + ln}).ReverseConvexes(!up)
-                }.ManyToArray()
+                }.ManyToArray(),
+                Materials = materials
             };
         }
 

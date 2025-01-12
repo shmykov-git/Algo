@@ -66,6 +66,28 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
+        return HtmlWorlds.CubeMazeWorld();
+
+        return Shapes.Cube.Perfecto(20).AddNormalVolume(0.5, Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green)).ToMotion();
+
+        //return Shapes.PerfectCube.Mult(40).AddNormalVolume(1, Color.Red, Color.Green).Perfecto().ToMotion();
+
+        Debug.WriteLine(Shapes.Cube.Perfecto(20).AddNormalVolume(0.5).Get_js_object_data());
+
+        var s = Shapes.ConvexEllipsoid(20, 2).Rotate(0.1).PutOn(0.5);
+        //Debug.WriteLine(s.Get_js_object_data());
+        var ashapes = (5).SelectRange(i => s.MoveY(1.2 * i).MoveX((i%2)*0.5)
+            .ToActiveShape(o=> 
+            {
+                o.MaterialPower = 20;
+                o.Skeleton.Power = 20;
+            })).ToArray();
+
+        return ashapes.ToWorld(o =>
+        {
+            o.Interaction.ParticleForce = 10;
+        }).ToMotion();
+
         return (100).SelectInterval(0, Math.PI/2, fi => Shapes.ConvexEllipsoid(8, 3, fi).ToMeta()).ToMotion();
 
         //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();

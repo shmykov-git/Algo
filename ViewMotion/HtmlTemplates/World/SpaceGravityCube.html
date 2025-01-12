@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js",
+                "OrbitControls": "https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/controls/OrbitControls.js",
+                "cannon": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+            }
+        }
+    </script>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'OrbitControls';
+        import * as CANNON from 'cannon';
+        // import { GLTFLoader } from 'GLTFLoader'; не работает
+        import("https://cdn.jsdelivr.net/npm/three@0.137.5/examples/jsm/loaders/GLTFLoader.js")
+
+        // Set up the scene, camera, and renderer
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Physics world
+        const sceneRadius = 20;
+
+        const ballSize = 1;
+        const gravityPower = 9.82;
+        const world = new CANNON.World();
+        world.gravity.set(0, -gravityPower, 0); // Gravity pointing downwards
+
+        const ambientLight = new THREE.AmbientLight(0xFFFFFF, 5)
+        scene.add(ambientLight)
+
+        const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 5)
+        directionalLight.position.set(-5, -5, 5)
+        scene.add(directionalLight)
+
+        function getMeshNoneMaterial(color) {
+            return new THREE.MeshStandardMaterial({ color: color, flatShading: false, opacity: 0, transparent: true });
+        }
+
+        function getMeshTransparentMaterial(color) {
+            return new THREE.MeshStandardMaterial({ color: color, flatShading: false, opacity: 0.2, transparent: true });
+        }
+
+        function getMeshWireMaterial(color) {
+            return new THREE.MeshBasicMaterial({ color: color, wireframe: true });
+        }
+
+        // физический материал для всех Polyhedron
+        const pPolyhedronMaterial = new CANNON.Material('Polyhedron');
+
+        // все Polyhedron одинакого взаимодействуют друг с другом
+        const contactPolyhedronMaterial = new CANNON.ContactMaterial(pPolyhedronMaterial, pPolyhedronMaterial, {
+            friction: 0.5, // Коэффициент трения
+            restitution: 0.7, // Коэффициент упругости
+        });
+        world.addContactMaterial(contactPolyhedronMaterial);  
+
+        // физический материал для всех шаров сцены
+        const pItemMaterial = new CANNON.Material('sphere');
+        
+        // все Sphere одинакого взаимодействуют друг с другом
+        const contactSphereMaterial = new CANNON.ContactMaterial(pItemMaterial, pItemMaterial, {
+            friction: 0.5, // Коэффициент трения
+            restitution: 0.7, // Коэффициент упругости
+        });
+        world.addContactMaterial(contactSphereMaterial);  
+
+        // все Sphere одинакого взаимодействуют с Polyhedron
+        const contactSpherePolyhedronMaterial = new CANNON.ContactMaterial(pItemMaterial, pPolyhedronMaterial, {
+            friction: 0.5, // Коэффициент трения
+            restitution: 0.7, // Коэффициент упругости
+        });
+        world.addContactMaterial(contactSpherePolyhedronMaterial);  
+
+        // Функция для ограничения радиуса
+        function enforceMaxRadius(body, maxRadius) {
+            const distance = body.position.length();
+            if (distance < maxRadius) return;
+
+            // Нормализуем вектор направления
+            const scale = maxRadius / distance;
+            body.position.x *= scale;
+            body.position.y *= scale;
+            body.position.z *= scale;
+        }
+
+        class PObject {
+            constructor(args, pShapes, mesh) {
+                this.id = args.id
+
+                // Создание физического тела
+
+                this.bodies = [...pShapes.map(shape => new CANNON.Body({
+                    mass: args.mass / pShapes.length, // Масса объекта
+                    position: new CANNON.Vec3(...args.position), // Начальная позиция
+                    shape: shape
+                }))];
+
+                this.body = this.bodies[0];
+
+                // Добавление тела в мир
+                this.bodies.forEach(body => {
+                    if (args.static)
+                        body.type = CANNON.Body.STATIC // Устанавливаем тип статического тела
+
+                    body.material = args.pMaterial;
+                    body.angularDamping = 0.5; // Damping to reduce spinning over time
+                    world.addBody(body);                    
+                });
+
+                // Добавляем изображение на сцену
+                this.mesh = mesh;
+                scene.add(mesh);
+            }
+
+            update() {
+                if (this.bodies.length > 1)
+                    return;
+                
+                enforceMaxRadius(this.body, sceneRadius);
+
+                let p = this.body.position;
+                let q = this.body.quaternion;
+                // меняем позицию mesh в соответствии с world body
+                this.mesh.position.set(p.x, p.y, p.z);
+                // вращаем mesh в соответствии с вращением world body
+                this.mesh.quaternion.set(q.x, q.y, q.z, q.w);
+            }            
+        }
+
+        function normalizeShape(faces0, vertices0) {
+            let faces = [...new Set(faces0.flatMap(f => f))].sort((a, b) => a - b)
+            let nVertices = [...faces.map(i => vertices0[i])]
+            let bi = Object.fromEntries(faces.map((i, j) => [i, j]));
+            let nFaces = [...faces0.map(f => [bi[f[0]], bi[f[1]], bi[f[2]]])]
+            return [nFaces, nVertices]
+        }
+
+        class PPolyhedron extends PObject {
+            constructor(args) {
+                let pShapes = []
+                
+                if (args.scale) {
+                    args.vertices = [...args.vertices.map(v => [args.scale[0] * v[0], args.scale[1] * v[1], args.scale[2] * v[2]])];
+                }
+
+                // Создаем многогранник (Polyhedron) в мире
+                if (args.complex) {
+                    if (args.complexStrategy == "NormalVolume") {
+                        // todo: CANNON.Trimesh - можно невыпуклые формы
+                        // структура faces: [[],[]... (l), [],[]... (l)]
+                        let n = args.faces.length / 2;
+                        let bodiesFaces = [...Array(n/2).keys().map(i => [args.faces[2*i], args.faces[2*i+1], args.faces[2*i+n], args.faces[2*i+1+n]])];
+                        // todo: скопировал первую точку во все точки, которых нет в faces
+                        pShapes = bodiesFaces.map(bFaces => {
+                            let [nFaces, nVertices] = normalizeShape(bFaces, args.vertices)
+                            return new CANNON.ConvexPolyhedron({
+                                vertices: [...nVertices.map(p => new CANNON.Vec3(...p))],
+                                faces: nFaces
+                            })
+                        });                    
+                    }
+                    if (args.complexStrategy == "ManyCubes")
+                    {
+                        let m = 12;
+                        let n = args.faces.length / m;
+                        let bodiesFaces = Array(n).keys().map(i => args.faces.slice(m*i, m*i+m))
+                        pShapes = bodiesFaces.map(bFaces => {
+                            let [nFaces, nVertices] = normalizeShape(bFaces, args.vertices)
+                            return new CANNON.ConvexPolyhedron({
+                                vertices: [...nVertices.map(p => new CANNON.Vec3(...p))],
+                                faces: nFaces
+                            })
+                        });
+                    }
+                } else {
+                    let pShape = new CANNON.ConvexPolyhedron({
+                        vertices: [...args.vertices.map(p => new CANNON.Vec3(...p))],
+                        faces: args.faces
+                    })
+                    pShapes = [pShape]
+                }
+
+                // Создаем представление многогранника на сцене
+                const gVertices = new Float32Array(args.vertices.flatMap(v => v))
+                const gIndices = new Uint16Array(args.faces.flatMap(fs => fs.flatMap(i => i)))
+                const geometry = new THREE.BufferGeometry()
+                geometry.setAttribute('position', new THREE.BufferAttribute(gVertices, 3))
+                geometry.setIndex(new THREE.BufferAttribute(gIndices, 1))
+                const material = args.meshMaterialFn ? args.meshMaterialFn(args.color) : getMeshWireMaterial(args.color);
+                const mesh = new THREE.Mesh(geometry, material);
+
+                super(args, pShapes, mesh)
+            }
+        }
+
+        // Class to handle physics and visual representation of shpere
+        class PShere extends PObject {
+            constructor(args) {
+                // Create physics body
+                const pShape = new CANNON.Sphere(args.radius);
+ 
+                // Create visual representation
+                const geometry = new THREE.IcosahedronGeometry(args.radius, 2);
+
+                const material = args.meshMaterialFn ? args.meshMaterialFn(args.color) : getMeshWireMaterial(args.color);
+                const mesh = new THREE.Mesh(geometry, material);
+
+                super(args, [pShape], mesh)
+
+                this.canJamp = false;
+                this.collideCount = 0;
+                this.body.addEventListener("collide", event => {
+                    this.canJamp = true;
+                }); 
+
+                if (args.model) {
+                    this.loadModel(args.model).then(model =>{
+
+                    })
+                } 
+            }
+
+            async loadModel(modelPath) {
+                // Загрузчик модели
+                let model = null;
+                const loader = new THREE.GLTFLoader();
+                await loader.load(
+                    args.model, // Путь к модели
+                    (gltf) => {
+                        model = gltf.scene; // Достаем сцену из модели
+                        model.scale.set(0.5, 0.5, 0.5); // Масштабируем модель, если она слишком большая
+                        model.position.set(0, 0, 0); // Устанавливаем позицию модели
+                        // scene.add(model); // Добавляем модель в сцену
+                    },
+                    (xhr) => {
+                        console.log((xhr.loaded / xhr.total) * 100 + '% загружено'); // Прогресс загрузки
+                    },
+                    (error) => {
+                        console.error('Ошибка при загрузке модели:', error);
+                    }
+                );
+                return model;
+            }
+        }
+
+        // Class to handle physics and visual representation of Cylinder
+        class PCylinder extends PObject {
+            constructor(args) {
+                // Create physics body
+                const pShape = new CANNON.Cylinder(args.radiusTop, args.radiusBottom, args.height, 5);
+ 
+                // Create visual representation
+                const geometry = new THREE.CylinderGeometry(args.radiusTop, args.radiusBottom, args.height, 5);
+
+                const material = args.meshMaterialFn ? args.meshMaterialFn(args.color) : getMeshWireMaterial(args.color);
+                const mesh = new THREE.Mesh(geometry, material);
+
+                super(args, [pShape], mesh)
+            }
+        }
+
+        // Class to handle physics and visual representation of Cylinder
+        class PBox extends PObject {
+            constructor(args) {
+                const halfExtents = new CANNON.Vec3(args.size[0], args.size[1], args.size[2]);
+                // Create physics body
+                const pShape = new CANNON.Box(halfExtents);
+ 
+                // Create visual representation
+                const geometry = new THREE.BoxGeometry(args.size[0], args.size[1], args.size[2]);;
+
+                const material = args.meshMaterialFn ? args.meshMaterialFn(args.color) : getMeshWireMaterial(args.color);
+                const mesh = new THREE.Mesh(geometry, material);
+
+                super(args, [pShape], mesh)
+            }
+        }
+
+        function inverseFaces(faces) {
+            return faces.map(f => [f[0], f[2], f[1]])
+        }
+
+        function multPoints(mult, points) {
+            return points.map(p => [mult * p[0], mult * p[1], mult * p[2]])
+        }
+
+        function addPoints(v, points) {
+            return points.map(p => [v + p[0], v + p[1], v + p[2]])
+        }
+        
+        // <generated spheres/>
+
+        // Create multiple objects
+        const objects = [
+            new PPolyhedron({
+                vertices: [[-10,-10,-10],[10,-10,-10],[10,10,-10],[-10,10,-10],[-10,-10,10],[10,-10,10],[10,10,10],[-10,10,10],[-10.5,-10.5,-10.5],[10.5,-10.5,-10.5],[10.5,10.5,-10.5],[-10.5,10.5,-10.5],[-10.5,-10.5,10.5],[10.5,-10.5,10.5],[10.5,10.5,10.5],[-10.5,10.5,10.5]], 
+                faces: [[1,2,3],[1,3,0],[4,5,1],[4,1,0],[3,7,4],[3,4,0],[2,1,5],[2,5,6],[7,3,2],[7,2,6],[5,4,7],[5,7,6],[8,11,10],[8,10,9],[8,9,13],[8,13,12],[8,12,15],[8,15,11],[14,13,9],[14,9,10],[14,10,11],[14,11,15],[14,15,12],[14,12,13]], 
+                mass: 0,
+                static: true,
+                position: [0, 0, 0],
+                color: 0x0000ff,
+                pMaterial: pPolyhedronMaterial,
+                meshMaterialFn: getMeshTransparentMaterial,
+                color: 0x00ff00,
+                complex: true,
+                complexStrategy: "NormalVolume"
+            }),
+
+            // new PPolyhedron({
+            //     vertices: [[.4987,.3082,0],[.4987,-.3082,0],[-.4987,-.3082,0],[-.4987,.3082,0],[0,.4987,.3082],[0,-.4987,.3082],[0,-.4987,-.3082],[0,.4987,-.3082],[.3082,0,.4987],[.3082,0,-.4987],[-.3082,0,-.4987],[-.3082,0,.4987],[.191,.5,0],[-.191,.5,0],[-.4358,.4358,-.4358],[0,.191,-.5],[.4358,.4358,-.4358],[0,-.191,.5],[-.4358,-.4358,.4358],[-.191,-.5,0],[.191,-.5,0],[.4358,-.4358,.4358],[.4358,.4358,.4358],[0,.191,.5],[-.4358,.4358,.4358],[-.5,0,.191],[-.5,0,-.191],[-.4358,-.4358,-.4358],[0,-.191,-.5],[.4358,-.4358,-.4358],[.5,0,-.191],[.5,0,.191],[.422,.4817,-.1365],[.4998,.2334,-.1977],[.5,.0967,0],[.4998,.2334,.1977],[.422,.4817,.1365],[.422,-.4817,.1365],[.4998,-.2334,.1977],[.5,-.0967,0],[.4998,-.2334,-.1977],[.422,-.4817,-.1365],[-.422,-.4817,.1365],[-.422,-.4817,-.1365],[-.4998,-.2334,-.1977],[-.5,-.0967,0],[-.4998,-.2334,.1977],[-.422,.4817,-.1365],[-.4998,.2334,-.1977],[-.5,.0967,0],[-.4998,.2334,.1977],[-.422,.4817,.1365],[0,.5,.0967],[-.1977,.4998,.2334],[-.1365,.422,.4817],[.1365,.422,.4817],[.1977,.4998,.2334],[-.1365,-.422,.4817],[-.1977,-.4998,.2334],[0,-.5,.0967],[.1977,-.4998,.2334],[.1365,-.422,.4817],[0,-.5,-.0967],[.1977,-.4998,-.2334],[.1365,-.422,-.4817],[-.1365,-.422,-.4817],[-.1977,-.4998,-.2334],[0,.5,-.0967],[-.1977,.4998,-.2334],[-.1365,.422,-.4817],[.1365,.422,-.4817],[.1977,.4998,-.2334],[.2334,-.1977,.4998],[.4817,-.1365,.422],[.4817,.1365,.422],[.2334,.1977,.4998],[.0967,0,.5],[.2334,.1977,-.4998],[.4817,.1365,-.422],[.4817,-.1365,-.422],[.2334,-.1977,-.4998],[.0967,0,-.5],[-.2334,.1977,-.4998],[-.0967,0,-.5],[-.2334,-.1977,-.4998],[-.4817,-.1365,-.422],[-.4817,.1365,-.422],[-.2334,-.1977,.4998],[-.4817,-.1365,.422],[-.4817,.1365,.422],[-.2334,.1977,.4998],[-.0967,0,.5],[.4962,.3507,-.1153],[.4999,.2074,-.0628],[.4999,.2074,.0628],[.4962,.3507,.1153],[.4724,.4409,0],[.4962,-.3507,.1153],[.4999,-.2074,.0628],[.4999,-.2074,-.0628],[.4962,-.3507,-.1153],[.4724,-.4409,0],[-.4724,-.4409,0],[-.4962,-.3507,-.1153],[-.4999,-.2074,-.0628],[-.4999,-.2074,.0628],[-.4962,-.3507,.1153],[-.4962,.3507,-.1153],[-.4999,.2074,-.0628],[-.4999,.2074,.0628],[-.4962,.3507,.1153],[-.4724,.4409,0],[-.0628,.4999,.2074],[-.1153,.4962,.3507],[0,.4724,.4409],[.1153,.4962,.3507],[.0628,.4999,.2074],[-.1153,-.4962,.3507],[-.0628,-.4999,.2074],[.0628,-.4999,.2074],[.1153,-.4962,.3507],[0,-.4724,.4409],[.0628,-.4999,-.2074],[.1153,-.4962,-.3507],[0,-.4724,-.4409],[-.1153,-.4962,-.3507],[-.0628,-.4999,-.2074],[-.0628,.4999,-.2074],[-.1153,.4962,-.3507],[0,.4724,-.4409],[.1153,.4962,-.3507],[.0628,.4999,-.2074],[.3507,-.1153,.4962],[.4409,0,.4724],[.3507,.1153,.4962],[.2074,.0628,.4999],[.2074,-.0628,.4999],[.3507,.1153,-.4962],[.4409,0,-.4724],[.3507,-.1153,-.4962],[.2074,-.0628,-.4999],[.2074,.0628,-.4999],[-.2074,.0628,-.4999],[-.2074,-.0628,-.4999],[-.3507,-.1153,-.4962],[-.4409,0,-.4724],[-.3507,.1153,-.4962],[-.3507,-.1153,.4962],[-.4409,0,.4724],[-.3507,.1153,.4962],[-.2074,.0628,.4999],[-.2074,-.0628,.4999],[.3401,.4971,0],[.2651,.4996,.1202],[.1253,.5,.1062],[.0616,.5,0],[.1253,.5,-.1062],[.2651,.4996,-.1202],[-.3401,.4971,0],[-.2651,.4996,.1202],[-.1253,.5,.1062],[-.0616,.5,0],[-.1253,.5,-.1062],[-.2651,.4996,-.1202],[-.4876,.4022,-.264],[-.4952,.2707,-.3565],[-.4022,.264,-.4876],[-.2707,.3565,-.4952],[-.264,.4876,-.4022],[-.3565,.4952,-.2707],[0,.3401,-.4971],[.1202,.2651,-.4996],[.1062,.1253,-.5],[0,.0616,-.5],[-.1062,.1253,-.5],[-.1202,.2651,-.4996],[.4876,.4022,-.264],[.4952,.2707,-.3565],[.4022,.264,-.4876],[.2707,.3565,-.4952],[.264,.4876,-.4022],[.3565,.4952,-.2707],[0,-.3401,.4971],[.1202,-.2651,.4996],[.1062,-.1253,.5],[0,-.0616,.5],[-.1062,-.1253,.5],[-.1202,-.2651,.4996],[-.4876,-.4022,.264],[-.4952,-.2707,.3565],[-.4022,-.264,.4876],[-.2707,-.3565,.4952],[-.264,-.4876,.4022],[-.3565,-.4952,.2707],[-.3401,-.4971,0],[-.2651,-.4996,-.1202],[-.1253,-.5,-.1062],[-.0616,-.5,0],[-.1253,-.5,.1062],[-.2651,-.4996,.1202],[.3401,-.4971,0],[.2651,-.4996,-.1202],[.1253,-.5,-.1062],[.0616,-.5,0],[.1253,-.5,.1062],[.2651,-.4996,.1202],[.4876,-.4022,.264],[.4952,-.2707,.3565],[.4022,-.264,.4876],[.2707,-.3565,.4952],[.264,-.4876,.4022],[.3565,-.4952,.2707],[.4876,.4022,.264],[.3565,.4952,.2707],[.264,.4876,.4022],[.2707,.3565,.4952],[.4022,.264,.4876],[.4952,.2707,.3565],[0,.3401,.4971],[.1202,.2651,.4996],[.1062,.1253,.5],[0,.0616,.5],[-.1062,.1253,.5],[-.1202,.2651,.4996],[-.4876,.4022,.264],[-.3565,.4952,.2707],[-.264,.4876,.4022],[-.2707,.3565,.4952],[-.4022,.264,.4876],[-.4952,.2707,.3565],[-.5,-.1062,.1253],[-.4996,-.1202,.2651],[-.4971,0,.3401],[-.4996,.1202,.2651],[-.5,.1062,.1253],[-.5,0,.0616],[-.5,-.1062,-.1253],[-.5,0,-.0616],[-.5,.1062,-.1253],[-.4996,.1202,-.2651],[-.4971,0,-.3401],[-.4996,-.1202,-.2651],[-.4876,-.4022,-.264],[-.4952,-.2707,-.3565],[-.4022,-.264,-.4876],[-.2707,-.3565,-.4952],[-.264,-.4876,-.4022],[-.3565,-.4952,-.2707],[0,-.3401,-.4971],[-.1202,-.2651,-.4996],[-.1062,-.1253,-.5],[0,-.0616,-.5],[.1062,-.1253,-.5],[.1202,-.2651,-.4996],[.4876,-.4022,-.264],[.3565,-.4952,-.2707],[.264,-.4876,-.4022],[.2707,-.3565,-.4952],[.4022,-.264,-.4876],[.4952,-.2707,-.3565],[.5,.1062,-.1253],[.5,0,-.0616],[.5,-.1062,-.1253],[.4996,-.1202,-.2651],[.4971,0,-.3401],[.4996,.1202,-.2651],[.5,.1062,.1253],[.4996,.1202,.2651],[.4971,0,.3401],[.4996,-.1202,.2651],[.5,-.1062,.1253],[.5,0,.0616]],
+            //     faces: [[92,0,93],[93,0,94],[94,0,95],[95,0,96],[96,0,92],[97,1,98],[98,1,99],[99,1,100],[100,1,101],[101,1,97],[102,2,103],[103,2,104],[104,2,105],[105,2,106],[106,2,102],[3,107,108],[3,108,109],[3,109,110],[3,110,111],[3,111,107],[4,112,113],[4,113,114],[4,114,115],[4,115,116],[4,116,112],[5,117,118],[5,118,119],[5,119,120],[5,120,121],[5,121,117],[122,6,123],[123,6,124],[124,6,125],[125,6,126],[126,6,122],[127,7,128],[128,7,129],[129,7,130],[130,7,131],[131,7,127],[8,132,133],[8,133,134],[8,134,135],[8,135,136],[8,136,132],[9,137,138],[9,138,139],[9,139,140],[9,140,141],[9,141,137],[10,142,143],[10,143,144],[10,144,145],[10,145,146],[10,146,142],[147,11,148],[148,11,149],[149,11,150],[150,11,151],[151,11,147],[152,12,153],[153,12,154],[154,12,155],[155,12,156],[156,12,157],[157,12,152],[13,158,159],[13,159,160],[13,160,161],[13,161,162],[13,162,163],[13,163,158],[164,14,165],[165,14,166],[166,14,167],[167,14,168],[168,14,169],[169,14,164],[15,170,171],[15,171,172],[15,172,173],[15,173,174],[15,174,175],[15,175,170],[16,176,177],[16,177,178],[16,178,179],[16,179,180],[16,180,181],[16,181,176],[17,182,183],[17,183,184],[17,184,185],[17,185,186],[17,186,187],[17,187,182],[188,18,189],[189,18,190],[190,18,191],[191,18,192],[192,18,193],[193,18,188],[19,194,195],[19,195,196],[19,196,197],[19,197,198],[19,198,199],[19,199,194],[200,20,201],[201,20,202],[202,20,203],[203,20,204],[204,20,205],[205,20,200],[21,206,207],[21,207,208],[21,208,209],[21,209,210],[21,210,211],[21,211,206],[22,212,213],[22,213,214],[22,214,215],[22,215,216],[22,216,217],[22,217,212],[218,23,219],[219,23,220],[220,23,221],[221,23,222],[222,23,223],[223,23,218],[224,24,225],[225,24,226],[226,24,227],[227,24,228],[228,24,229],[229,24,224],[25,230,231],[25,231,232],[25,232,233],[25,233,234],[25,234,235],[25,235,230],[26,236,237],[26,237,238],[26,238,239],[26,239,240],[26,240,241],[26,241,236],[27,242,243],[27,243,244],[27,244,245],[27,245,246],[27,246,247],[27,247,242],[28,248,249],[28,249,250],[28,250,251],[28,251,252],[28,252,253],[28,253,248],[29,254,255],[29,255,256],[29,256,257],[29,257,258],[29,258,259],[29,259,254],[30,260,261],[30,261,262],[30,262,263],[30,263,264],[30,264,265],[30,265,260],[31,266,267],[31,267,268],[31,268,269],[31,269,270],[31,270,271],[31,271,266],[92,32,96],[96,32,152],[152,32,157],[157,32,181],[181,32,176],[176,32,92],[33,92,93],[33,93,260],[33,260,265],[33,265,177],[33,177,176],[33,176,92],[34,93,94],[34,94,266],[34,266,271],[34,271,261],[34,261,260],[34,260,93],[35,94,95],[35,95,212],[35,212,217],[35,217,267],[35,267,266],[35,266,94],[36,95,96],[36,96,152],[36,152,153],[36,153,213],[36,213,212],[36,212,95],[97,37,101],[101,37,200],[200,37,205],[205,37,211],[211,37,206],[206,37,97],[38,97,98],[38,98,270],[38,270,269],[38,269,207],[38,207,206],[38,206,97],[39,98,99],[39,99,262],[39,262,261],[39,261,271],[39,271,270],[39,270,98],[40,99,100],[40,100,254],[40,254,259],[40,259,263],[40,263,262],[40,262,99],[41,100,101],[41,101,200],[41,200,201],[41,201,255],[41,255,254],[41,254,100],[102,42,106],[106,42,188],[188,42,193],[193,42,199],[199,42,194],[194,42,102],[43,102,103],[43,103,242],[43,242,247],[43,247,195],[43,195,194],[43,194,102],[44,103,104],[44,104,236],[44,236,241],[44,241,243],[44,243,242],[44,242,103],[45,104,105],[45,105,230],[45,230,235],[45,235,237],[45,237,236],[45,236,104],[46,105,106],[46,106,188],[46,188,189],[46,189,231],[46,231,230],[46,230,105],[47,107,111],[47,111,158],[47,158,163],[47,163,169],[47,169,164],[47,164,107],[107,48,108],[108,48,238],[238,48,239],[239,48,165],[165,48,164],[164,48,107],[108,49,109],[109,49,234],[234,49,235],[235,49,237],[237,49,238],[238,49,108],[109,50,110],[110,50,224],[224,50,229],[229,50,233],[233,50,234],[234,50,109],[110,51,111],[111,51,158],[158,51,159],[159,51,225],[225,51,224],[224,51,110],[52,112,116],[52,116,154],[52,154,155],[52,155,161],[52,161,160],[52,160,112],[112,53,113],[113,53,226],[226,53,225],[225,53,159],[159,53,160],[160,53,112],[113,54,114],[114,54,218],[218,54,223],[223,54,227],[227,54,226],[226,54,113],[114,55,115],[115,55,214],[214,55,215],[215,55,219],[219,55,218],[218,55,114],[115,56,116],[116,56,154],[154,56,153],[153,56,213],[213,56,214],[214,56,115],[57,117,121],[57,121,182],[57,182,187],[57,187,191],[57,191,192],[57,192,117],[117,58,118],[118,58,198],[198,58,199],[199,58,193],[193,58,192],[192,58,117],[118,59,119],[119,59,204],[204,59,203],[203,59,197],[197,59,198],[198,59,118],[119,60,120],[120,60,210],[210,60,211],[211,60,205],[205,60,204],[204,60,119],[120,61,121],[121,61,182],[182,61,183],[183,61,209],[209,61,210],[210,61,120],[122,62,126],[126,62,196],[196,62,197],[197,62,203],[203,62,202],[202,62,122],[63,122,123],[63,123,256],[63,256,255],[63,255,201],[63,201,202],[63,202,122],[64,123,124],[64,124,248],[64,248,253],[64,253,257],[64,257,256],[64,256,123],[65,124,125],[65,125,246],[65,246,245],[65,245,249],[65,249,248],[65,248,124],[66,125,126],[66,126,196],[66,196,195],[66,195,247],[66,247,246],[66,246,125],[127,67,131],[131,67,156],[156,67,155],[155,67,161],[161,67,162],[162,67,127],[68,127,128],[68,128,168],[68,168,169],[68,169,163],[68,163,162],[68,162,127],[69,128,129],[69,129,170],[69,170,175],[69,175,167],[69,167,168],[69,168,128],[70,129,130],[70,130,180],[70,180,179],[70,179,171],[70,171,170],[70,170,129],[71,130,131],[71,131,156],[71,156,157],[71,157,181],[71,181,180],[71,180,130],[72,132,136],[72,136,184],[72,184,183],[72,183,209],[72,209,208],[72,208,132],[132,73,133],[133,73,268],[268,73,269],[269,73,207],[207,73,208],[208,73,132],[133,74,134],[134,74,216],[216,74,217],[217,74,267],[267,74,268],[268,74,133],[134,75,135],[135,75,220],[220,75,219],[219,75,215],[215,75,216],[216,75,134],[135,76,136],[136,76,184],[184,76,185],[185,76,221],[221,76,220],[220,76,135],[77,137,141],[77,141,172],[77,172,171],[77,171,179],[77,179,178],[77,178,137],[137,78,138],[138,78,264],[264,78,265],[265,78,177],[177,78,178],[178,78,137],[138,79,139],[139,79,258],[258,79,259],[259,79,263],[263,79,264],[264,79,138],[139,80,140],[140,80,252],[252,80,253],[253,80,257],[257,80,258],[258,80,139],[140,81,141],[141,81,172],[172,81,173],[173,81,251],[251,81,252],[252,81,140],[82,142,146],[82,146,166],[82,166,167],[82,167,175],[82,175,174],[82,174,142],[142,83,143],[143,83,250],[250,83,251],[251,83,173],[173,83,174],[174,83,142],[143,84,144],[144,84,244],[244,84,245],[245,84,249],[249,84,250],[250,84,143],[144,85,145],[145,85,240],[240,85,241],[241,85,243],[243,85,244],[244,85,144],[145,86,146],[146,86,166],[166,86,165],[165,86,239],[239,86,240],[240,86,145],[147,87,151],[151,87,186],[186,87,187],[187,87,191],[191,87,190],[190,87,147],[88,147,148],[88,148,232],[88,232,231],[88,231,189],[88,189,190],[88,190,147],[89,148,149],[89,149,228],[89,228,229],[89,229,233],[89,233,232],[89,232,148],[90,149,150],[90,150,222],[90,222,223],[90,223,227],[90,227,228],[90,228,149],[91,150,151],[91,151,186],[91,186,185],[91,185,221],[91,221,222],[91,222,150]],
+            //     mass: 1,
+            //     position: [0, 0, 0],
+            //     scale: [3, 3, 3],
+            //     color: 0x0000ff,
+            //     pMaterial: pItemMaterial,
+            //     color: 0xffff00
+            // }),
+
+            new PShere({ id: "ball", radius: ballSize, mass: 1, position: [2.5, 3, 2.5], color: 0xff0000, pMaterial: pItemMaterial }),
+        ];
+
+        // Set camera position
+        camera.position.z = 50;
+        camera.position.y = 0;
+        camera.lookAt(0, 0, 0);        
+
+        // возможность вращать сцену
+        const controls = new OrbitControls(camera, renderer.domElement)
+        controls.enableDamping = true
+        controls.dampingFactor = 0.1
+        controls.screenSpacePanning = false
+        controls.minDistance = 1
+        controls.maxDistance = 100
+        // controls.minPolarAngle = 2*Math.PI
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Step the physics world
+            world.step(1 / 60);
+
+            // Sync Three.js mesh with Cannon.js body
+            objects.forEach(obj => obj.update());
+            controls.update()
+            // updateCameraUp()
+            updateGravity()
+            // Render the scene
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        function getOrtDown(a, b) {
+            const ab = new THREE.Vector3();
+            ab.copy(b).cross(a);
+            const aba = new THREE.Vector3();
+            aba.copy(ab).cross(a);
+            return aba.normalize();
+        }
+
+        function updateCameraUp() {
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction); // Получаем направление камеры
+            const up = getOrtDown(direction, camera.up).multiplyScalar(-1)
+            camera.up.set(up.x, up.y, up.z)
+        }
+
+        function updateGravity() {
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction); // Получаем направление камеры
+            const gravity = getOrtDown(direction, camera.up).multiplyScalar(gravityPower)
+            world.gravity.set(gravity.x, gravity.y, gravity.z)
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
