@@ -66,29 +66,40 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return HtmlWorlds.CubeMazeWorld();
+        return (Shapes.ArrowR(30, 1, 0.2, 0.7, 0.3).Perfecto().DebugJs() + Shapes.CoodsWithText()).ToMotion();
 
-        return Shapes.Cube.Perfecto(20).AddNormalVolume(0.5, Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green)).ToMotion();
+        var baseS = Surfaces.SphereAngle2(50, 10, Math.PI / 2 - Math.PI / 8, Math.PI / 2 + Math.PI / 8);
+        var s = baseS.AddNormalVolume(0.05, Color.FromArgb(100, Color.Green), Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green));
+
+        var s1 = s.DebugJs("1");
+        var s2 = s.Mult(0.95).ToOy().DebugJs("2");
+        var s3 = s.Mult(0.95*0.95).ToOx().DebugJs("3");
+
+        return (100).SelectClosedInterval(Math.PI*2, f => s1 + s2.RotateOx(f) + s3.RotateOz(f)).ToMotion();
+
+        //return HtmlWorlds.CubeMazeWorld();
+
+        //return Shapes.Cube.Perfecto(20).AddNormalVolume(0.5, Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green)).ToMotion();
 
         //return Shapes.PerfectCube.Mult(40).AddNormalVolume(1, Color.Red, Color.Green).Perfecto().ToMotion();
 
-        Debug.WriteLine(Shapes.Cube.Perfecto(20).AddNormalVolume(0.5).Get_js_object_data());
+        //Debug.WriteLine(Shapes.Cube.Perfecto(20).AddNormalVolume(0.5).Get_js_object_data());
 
-        var s = Shapes.ConvexEllipsoid(20, 2).Rotate(0.1).PutOn(0.5);
-        //Debug.WriteLine(s.Get_js_object_data());
-        var ashapes = (5).SelectRange(i => s.MoveY(1.2 * i).MoveX((i%2)*0.5)
-            .ToActiveShape(o=> 
-            {
-                o.MaterialPower = 20;
-                o.Skeleton.Power = 20;
-            })).ToArray();
+        //var s = Shapes.ConvexEllipsoid(20, 2).Rotate(0.1).PutOn(0.5);
+        ////Debug.WriteLine(s.Get_js_object_data());
+        //var ashapes = (5).SelectRange(i => s.MoveY(1.2 * i).MoveX((i%2)*0.5)
+        //    .ToActiveShape(o=> 
+        //    {
+        //        o.MaterialPower = 20;
+        //        o.Skeleton.Power = 20;
+        //    })).ToArray();
 
-        return ashapes.ToWorld(o =>
-        {
-            o.Interaction.ParticleForce = 10;
-        }).ToMotion();
+        //return ashapes.ToWorld(o =>
+        //{
+        //    o.Interaction.ParticleForce = 10;
+        //}).ToMotion();
 
-        return (100).SelectInterval(0, Math.PI/2, fi => Shapes.ConvexEllipsoid(8, 3, fi).ToMeta()).ToMotion();
+        //return (100).SelectInterval(0, Math.PI/2, fi => Shapes.ConvexEllipsoid(8, 3, fi).ToMeta()).ToMotion();
 
         //return Shapes.IcosahedronSp1.Perfecto().ToMeta().ToMotion();
 

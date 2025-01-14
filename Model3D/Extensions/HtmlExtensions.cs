@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Meta;
 using Model3D.Libraries;
 using System.Diagnostics;
+using Model.Libraries;
 
 namespace Model3D.Extensions;
 
@@ -135,5 +136,13 @@ function get_shape_{n}_mesh() {{
         var faces = $"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],";
 
         return new[] { vertices, faces }.SJoin("\r\n");
+    }
+
+    public static Shape DebugJs(this Shape s, string? name = null)
+    {
+        var tag = name == null ? "js" : $"js_{name}";
+        Debug.WriteLine($"\r\n=== <{tag}>\r\n{s.Get_js_object_data()}\r\n=== </{tag}>\r\n");
+
+        return s;
     }
 }
