@@ -96,6 +96,15 @@ namespace Model.Extensions
             return polygon.Transform(p => p * k);
         }
 
+        public static Polygon Perfecto(this Polygon polygon, double mult = 1) => polygon.Centered().Adjust(mult);
+
+        public static Polygon Adjust(this Polygon polygon, double size = 1)
+        {
+            var s = polygon.Size;
+
+            return polygon.Mult(size / new[] { s.x, s.y }.Max());
+        }
+
         public static Polygon MirrorY(this Polygon polygon, Vector2 s)
         {
             return polygon.Transform(p => (p.x, s.y - p.y));

@@ -66,16 +66,48 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return (Shapes.ArrowR(30, 1, 0.2, 0.7, 0.3).Perfecto().DebugJs() + Shapes.CoodsWithText()).ToMotion();
+        //var s = Shapes.IcosahedronSp1.Normalize().Perfecto(20);
+        int n = 138;
+        double r = 100;
 
-        var baseS = Surfaces.SphereAngle2(50, 10, Math.PI / 2 - Math.PI / 8, Math.PI / 2 + Math.PI / 8);
-        var s = baseS.AddNormalVolume(0.05, Color.FromArgb(100, Color.Green), Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green));
+        var polygon = new Fr[] { (-4, 3), (-1, 10), (2, -14), (20, 1) }.ToPolygon(n).SmoothOutFar(1, 5).Perfecto(1.5);
+        //var polygon = new Fr[] { (-1, 10), (5, 5) }.ToPolygon(n).Perfecto();
+        //var polygon = new Fr[] { (-7, 1), (-3, 2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }.ToPolygon(n).SmoothOut(10).Perfecto(1.71);
 
-        var s1 = s.DebugJs("1");
-        var s2 = s.Mult(0.95).ToOy().DebugJs("2");
-        var s3 = s.Mult(0.95*0.95).ToOx().DebugJs("3");
+        IEnumerable<(int i, Vector2 p)> iterator = polygon.Select((p, i) => (i, p));
 
-        return (100).SelectClosedInterval(Math.PI*2, f => s1 + s2.RotateOx(f) + s3.RotateOz(f)).ToMotion();
+        ((int x, int y, int z) size, (double x, double y, double z) center, Quaternion q)[] data =
+            iterator.SelectCircleTriple((a, b, c) => (a, b, c))
+                .Select(v => (v.b.i, v.b.p, l: v.c.p - v.a.p))
+                .Select(v => ((2, 15, 1), (r*v.p.x, 7.5, r*v.p.y), Quaternion.FromRotation(Vector3.ZAxis, new Vector3(v.l.x, 0, v.l.y).Normalize()))).ToArray();
+
+        var s = data.Select(v => 
+            Shapes.PerfectCube
+                .Centered()
+                .Scale(v.size.x, v.size.y, v.size.z)
+                .Rotate(v.q)
+                .Move(v.center.x, v.center.y, v.center.z)).ToSingleShape();
+
+        var str = data.Select(v => $"[[{v.size.x}, {v.size.y}, {v.size.z}], [{v.center.x}, {v.center.y}, {v.center.z}], [{v.q.x}, {v.q.y}, {v.q.z}, {v.q.w}]]").SJoin(", ");
+        Debug.WriteLine($"[{str}]");
+
+        return s.ApplyColor(Color.Blue).ToMotion(50);
+        //var s = Shapes.PlaneParaboloid(10, 20, 1);
+        //Debug.WriteLine($"NUM: {s.Convexes.Select(c => c.Length - 2).Sum()}");
+        //var ss = s.AddNormalVolume(0.05, Color.Red, Color.Blue, Color.Green).Perfecto(20).ToOy().DebugJs();
+        
+        //return ss.ToMotion(30);
+
+        //return (Shapes.ArrowR(30, 1, 0.2, 0.7, 0.3).Perfecto().DebugJs() + Shapes.CoodsWithText()).ToMotion();
+
+        //var baseS = Surfaces.SphereAngle2(50, 10, Math.PI / 2 - Math.PI / 8, Math.PI / 2 + Math.PI / 8);
+        //var s = baseS.AddNormalVolume(0.05, Color.FromArgb(100, Color.Green), Color.FromArgb(100, Color.Red), Color.FromArgb(100, Color.Green));
+
+        //var s1 = s.DebugJs("1");
+        //var s2 = s.Mult(0.95).ToOy().DebugJs("2");
+        //var s3 = s.Mult(0.95*0.95).ToOx().DebugJs("3");
+
+        //return (100).SelectClosedInterval(Math.PI*2, f => s1 + s2.RotateOx(f) + s3.RotateOz(f)).ToMotion();
 
         //return HtmlWorlds.CubeMazeWorld();
 
