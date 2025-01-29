@@ -1262,7 +1262,8 @@ namespace Model3D.Extensions
             Points3 = shape.Points
                 .Select(p => new { fXY = fn(p.x, p.y), f1 = fn(p.x + dxy, p.y), f2 = fn(p.x, p.y + dxy), z = p.z })
                 .Select(v => v.fXY + new Plane(v.f1, v.f2, v.fXY).Normal.ToLen(v.z)).ToArray(),
-            Convexes = shape.Convexes
+            Convexes = shape.Convexes,
+            Materials = shape.Materials
         };
 
         public static Shape PullOnSurface90(this Shape shape, SurfaceFunc fn, double dxy = 0.0001) => new Shape
@@ -1270,7 +1271,8 @@ namespace Model3D.Extensions
             Points3 = shape.Points
                 .Select(p => new { fXY = fn(p.y, p.x), f1 = fn(p.y + dxy, p.x), f2 = fn(p.y, p.x + dxy), z = p.z })
                 .Select(v => v.fXY + new Plane(v.f1, v.f2, v.fXY).Normal.ToLen(v.z)).ToArray(),
-            Convexes = shape.Convexes
+            Convexes = shape.Convexes,
+            Materials = shape.Materials
         };
 
         // todo: менять плохие треугольники на хорошие
