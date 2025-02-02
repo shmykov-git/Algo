@@ -32,6 +32,52 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion
 {
+    public Task<Motion> DominoJs()
+    {
+        int n = 138;
+        double r = 100;
+
+        var polygon = new Fr[] { (-4, 3), (-1, 10), (2, -14), (20, 1) }.ToPolygon(n).SmoothOutFar(1, 5).Perfecto(1.5);
+        //var polygon = new Fr[] { (-1, 10), (5, 5) }.ToPolygon(n).Perfecto();
+        //var polygon = new Fr[] { (-7, 1), (-3, 2), (-11, 1), (-6, 2), (-9, 1), (4, 2), (-1, 10) }.ToPolygon(n).SmoothOut(10).Perfecto(1.71);
+
+        IEnumerable<(int i, Vector2 p)> iterator = polygon.Select((p, i) => (i, p));
+
+        ((int x, int y, int z) size, (double x, double y, double z) center, Quaternion q)[] data =
+            iterator.SelectCircleTriple((a, b, c) => (a, b, c))
+                .Select(v => (v.b.i, v.b.p, l: v.c.p - v.a.p))
+                .Select(v => ((2, 15, 1), (r * v.p.x, 7.5, r * v.p.y), Quaternion.FromRotation(Vector3.ZAxis, new Vector3(v.l.x, 0, v.l.y).Normalize()))).ToArray();
+
+        var s = data.Select(v =>
+            Shapes.PerfectCube
+                .Centered()
+                .Scale(v.size.x, v.size.y, v.size.z)
+                .Rotate(v.q)
+                .Move(v.center.x, v.center.y, v.center.z)).ToSingleShape();
+
+        var str = data.Select(v => $"[[{v.size.x}, {v.size.y}, {v.size.z}], [{v.center.x}, {v.center.y}, {v.center.z}], [{v.q.x}, {v.q.y}, {v.q.z}, {v.q.w}]]").SJoin(", ");
+        Debug.WriteLine($"[{str}]");
+
+        return s.ApplyColor(Color.Blue).ToMotion(50);
+    }
+
+    public Task<Motion> SpiralShapeJs()
+    {
+        var n = 6;
+        var zK = 5;
+        return Shapes.Plane(5 * n * zK, 16, Convexes.ChessSquares, false, true)
+            .Scale(2 * Math.PI, n * 2 * 3.1 / Math.PI, 1)
+            .PullOnSurface(SurfaceFuncs.Cylinder)
+            .ToOx()
+            .MoveY(zK)
+            .PullOnSurface(SurfaceFuncs.Spiral.Scale(1, 1, 0.7))
+            .ToOy().ApplyColor(Color.Red)
+            //.AddNormalVolume(-0.05, Color.Red, Color.Green, Color.Black)
+            .DebugJs()
+            //.ToMeta()
+            .ToMotion();
+    }
+
     public Task<Motion> BezierText()
     {
         return (1).SelectInterval(10, 200, x =>

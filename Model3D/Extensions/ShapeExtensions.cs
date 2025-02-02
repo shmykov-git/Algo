@@ -547,12 +547,14 @@ namespace Model3D.Extensions
             var ps = shape.Points3;
 
             Vector3 GetN(int[] c) => new Plane(ps[c[0]], ps[c[1]], ps[c[2]]).NOne;
-            Vector3 GetNP(IEnumerable<Vector3> vs) => vs.Center().ToLenWithCheck(ln => distance / ln);
+            Vector3 GetNP(IEnumerable<Vector3> vs) => vs.Sum().ToLenWithCheck(distance);
 
-            var psMoves = shape.Convexes.Select((c, i) => (c, i)).SelectMany(v => v.c.Select(i => (i, v.c, ind: v.i))).GroupBy(v => v.i).Select(gv =>
-                    (i: gv.Key,
-                        n: GetNP(gv.Select(v => GetN(v.c)))))
-                /*.OrderBy(voxel => voxel.gi)*/.ToDictionary(v => v.i, v => v.n); // todo: check
+            var psMoves = shape.Convexes
+                .Select((c, i) => (c, i))
+                .SelectMany(v => v.c.Select(i => (i, v.c, ind: v.i)))
+                .GroupBy(v => v.i)
+                .Select(gv => (i: gv.Key, n: GetNP(gv.Select(v => GetN(v.c)))))
+                .ToDictionary(v => v.i, v => v.n);
 
             return new Shape()
             {

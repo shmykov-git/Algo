@@ -165,11 +165,20 @@ namespace Model3D.Extensions
             return v * (len / v.Length);
         }
 
-        public static Vector3 ToLenWithCheck(this Vector3 v, double len, double epsilon = Values.Epsilon9)
+        public static Vector3 ToLenWithCheck(this Vector3 v, double len, double epsilon = Values.Epsilon9, bool debugCheck = false)
         {
             var len0 = v.Length;
+            var check = len0.Abs() < epsilon;
 
-            return len0.Abs() < epsilon ? Vector3.Origin : v * (len / len0);
+            if (check)
+            {
+                if (debugCheck)
+                    Debug.WriteLine("ToLenWithCheck zero detected");
+
+                return Vector3.Origin;
+            }
+
+            return v * (len / len0);
         }
 
         public static Vector3 ToLen(this Vector3 v, Func<double, double> lenFn)

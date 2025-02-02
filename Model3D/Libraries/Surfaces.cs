@@ -274,6 +274,21 @@ public static class Surfaces
         Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
     }.ModifyIf(normalize, s=>s.Normalize());
 
+    public static Shape ShellC(int m, int n, int nToSpins = 2, ConvexFunc? convexesFn = null, bool mClosed = false, bool nClosed = false, bool normalize = true) => new Shape
+    {
+        Points3 = new SurfaceFuncInfo
+        {
+            Fn = SurfaceFuncs.Shell,
+            UFrom = 0,
+            UTo = nToSpins * 2 * Math.PI,
+            UN = n,
+            VFrom = -Math.PI,
+            VTo = Math.PI,
+            VN = m,
+        }.GetPoints(),
+        Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
+    }.Mult(1.0/m).ModifyIf(normalize, s => s.Normalize());
+   
     public static Shape Shell2(int un, int vn, double vFromSpin = -0.5, double vToSpin = 0.5, double uFromSpins = 0, double uToSpins = 2, bool triangulate = false) => new Shape
     {
         Points3 = new SurfaceFuncInfo
@@ -303,6 +318,21 @@ public static class Surfaces
         }.GetPoints(),
         Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un, bothFaces)
     }.Normalize();
+
+    public static Shape DiniSurfaceC(int m, int n, double alfa = 2, ConvexFunc? convexesFn = null, bool mClosed = false, bool nClosed = false, bool bothFaces = false) => new Shape
+    {
+        Points3 = new SurfaceFuncInfo
+        {
+            Fn = SurfaceFuncs.DiniSurface,
+            UFrom = 0,
+            UTo = 4 * Math.PI,
+            UN = n,
+            VFrom = 0.005,
+            VTo = alfa,
+            VN = m,
+        }.GetPoints(),
+        Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
+    }.Normalize().Centered().Mult(0.25);
 
     public static Shape MobiusStrip(int un, int vn, bool triangulate = false, bool bothFaces = false) => new Shape
     {
