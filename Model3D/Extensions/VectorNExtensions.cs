@@ -11,6 +11,8 @@ using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
 using Model.Libraries;
 using Model.Hashes;
+using MathNet.Numerics.LinearAlgebra.Solvers;
+using System.Drawing;
 
 namespace Model3D.Extensions
 {
@@ -308,6 +310,6 @@ namespace Model3D.Extensions
         public static Vector3 GetPlaneNormal(this Vector3 center, Vector3 a, Vector3 b) => (a - center).MultV(b - center);
         public static double GetVolume0(this Vector3 c, Vector3 a, Vector3 b) => c.MultS(c.GetPlaneNormal(a, b));
 
-        public static Hashed<Vector3> ToHashed(this Vector3 v, double equalityRadius = Values.Epsilon9) => new Hashed<Vector3>(v, a => a.GetHashCode(), (a, b) => (b - a).Length2 < equalityRadius * equalityRadius);
+        public static Hashed<Vector3> ToHashed(this Vector3 v, double equalityRadius = Values.Epsilon9) => new Hashed<Vector3>(v, a => a.GetHashCode(), (a, b) => (b - a).Length2 < equalityRadius * equalityRadius);    
     }
 }

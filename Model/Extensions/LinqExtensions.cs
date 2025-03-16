@@ -311,7 +311,7 @@ namespace Model.Extensions
             }
         }
 
-        public static IEnumerable<TRes> SelectByPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func)
+        public static IEnumerable<TRes> SelectByPair<T, TRes>(this IEnumerable<T> list, Func<T, T, TRes> func, T lastPairItem = default)
         {
             var i = 0;
             var enumerator = list.GetEnumerator();
@@ -327,7 +327,7 @@ namespace Model.Extensions
                 }
 
             if (i % 2 == 1)
-                yield return func(prev, default);
+                yield return func(prev, lastPairItem);
         }
 
         public static IEnumerable<T> OrderSafeDistinct<T>(this IEnumerable<T> list) where T : IEquatable<T>
@@ -384,6 +384,9 @@ namespace Model.Extensions
             manyItems.SelectMany(v => v).ToArray();
         public static List<TItem> ToSingleList<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
             manyItems.SelectMany(v => v).ToList();
+        public static IEnumerable<TItem> ToSingle<TItem>(this IEnumerable<IEnumerable<TItem>> manyItems) =>
+            manyItems.SelectMany(v => v);
+
         public static List<TItem> ToVerySingleList<TItem>(this IEnumerable<IEnumerable<IEnumerable<TItem>>> manyItems) =>
             manyItems.SelectMany(v => v).SelectMany(v => v).ToList();
 

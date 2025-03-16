@@ -9,6 +9,7 @@ using Meta;
 using Model3D.Libraries;
 using System.Diagnostics;
 using Model.Libraries;
+using Aspose.ThreeD.Utilities;
 
 namespace Model3D.Extensions;
 
@@ -129,20 +130,61 @@ function get_shape_{n}_mesh() {{
 ";
     }
 
-    public static string Get_js_object_data(this Shape s)
+    public static string Get_js_object_data(this Shape s, double exp)
     {
-        var exp = 1E4;
         var vertices = $"vertices: [{s.Points3.Select(p => $"[{CutFloat(p.x, exp)},{CutFloat(p.y, exp)},{CutFloat(p.z, exp)}]").SJoin(",")}],";
         var faces = $"faces: [{s.ConvexTriangles.Select(t => $"[{t[0]},{t[1]},{t[2]}]").SJoin(",")}],";
 
         return new[] { vertices, faces }.SJoin("\r\n");
     }
 
-    public static Shape DebugJs(this Shape s, string? name = null)
+    public static Shape DebugJs(this Shape s, string? name = null, double exp = 1E4)
     {
         var tag = name == null ? "js" : $"js_{name}";
-        Debug.WriteLine($"\r\n=== <{tag}>\r\n{s.Get_js_object_data()}\r\n=== </{tag}>\r\n");
+        Debug.WriteLine($"\r\n=== <{tag}>\r\n{s.Get_js_object_data(exp)}\r\n=== </{tag}>\r\n");
 
         return s;
+    }
+
+    private static bool IsEqualsQ(Quaternion a, Quaternion b, double tolerance = 1E-5) =>
+        Math.Abs(a.x - b.x) < tolerance &&
+        Math.Abs(a.y - b.y) < tolerance &&
+        Math.Abs(a.z - b.z) < tolerance &&
+        Math.Abs(a.w - b.w) < tolerance;
+
+    public static Shape DebugComposeJs(this IEnumerable<Vector3> values, bool rotate = true, Vector3? cubeSize = null, double exp = 1E4)
+    {
+        var cube = cubeSize ?? new Vector3(1, 1, 1);
+        var vs = values.ToArray();
+
+        (Vector3 size, (double x, double y, double z) center, Quaternion q)[] data =
+            vs.Select((p, i) => (p, i))
+            .SelectCircleTriple((a, b, c) => (a, b, c))
+                .Select(v => (v.b.i, v.b.p, l: v.c.p - v.a.p))
+                .Select(v => (cube, (v.p.x, v.p.y, v.p.z), Quaternion.FromRotation(Vector3.ZAxis, new Vector3(v.l.x, 0, v.l.z).Normalize()))).ToArray();
+
+        var checkShape = data.Select(v =>
+            Shapes.PerfectCube
+                .Centered()
+                .Scale(v.size.x, v.size.y, v.size.z)
+                .ModifyIf(rotate, s=> s.Rotate(v.q))
+                .Move(v.center.x, v.center.y, v.center.z)
+                ).ToSingleShape();
+
+        string GetItem((Vector3 size, (double x, double y, double z) center, Quaternion q) v)
+        {
+            var cutSize = $"[{CutFloat(v.size.x, exp)}, {CutFloat(v.size.y, exp)}, {CutFloat(v.size.z, exp)}]";
+            var cutCenter = $"[{CutFloat(v.center.x, exp)}, {CutFloat(v.center.y, exp)}, {CutFloat(v.center.z, exp)}]";
+            var cutQ = $"[{CutFloat(v.q.x, exp)}, {CutFloat(v.q.y, exp)}, {CutFloat(v.q.z, exp)}, {CutFloat(v.q.w, exp)}]";
+
+            if (rotate && !IsEqualsQ(Quaternion.Identity, v.q))
+                return $"[{cutSize}, {cutCenter}, {cutQ}]";
+            else
+                return $"[{cutSize}, {cutCenter}]";
+        }
+        
+        Debug.WriteLine($"[{data.Select(GetItem).SJoin(", ")}]");
+
+        return checkShape;
     }
 }

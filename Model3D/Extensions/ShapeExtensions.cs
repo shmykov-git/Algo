@@ -290,7 +290,7 @@ namespace Model3D.Extensions
 
             while (shapes.Length > 1)
             {
-                shapes = shapes.SelectByPair((a, b) => (a, b: b ?? Shape.Empty))
+                shapes = shapes.SelectByPair((a, b) => (a, b), Shape.Empty)
                     .ToArray().SelectInParallel(v => v.a + v.b);
             }
 
