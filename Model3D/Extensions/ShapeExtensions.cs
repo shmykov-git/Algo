@@ -696,6 +696,7 @@ namespace Model3D.Extensions
         public static Shape BackScale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(1/v.x, 1/v.y, 1/v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(v.x, v.y, v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v) => shape.Scale(v.x, v.y, v.z);
+        public static Shape ScaleToCenter(this Shape shape, Vector3 v) => shape.Scale(v, shape.PointCenter);
         public static Shape Scale(this Shape shape, double x, double y, double z)
         {
             return new Shape
