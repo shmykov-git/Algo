@@ -1,4 +1,4 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using Model3D.AsposeModel;
 using Model.Extensions;
 using Model3D.Extensions;
 using System;
@@ -11,7 +11,6 @@ using Model3D.Tools.Model;
 using View3D.Libraries;
 using Model.Fourier;
 using System.Diagnostics;
-using Aspose.ThreeD.Entities;
 using System.Security.Cryptography;
 using Model3D.Tools.Vectorization;
 using Model.Tools;

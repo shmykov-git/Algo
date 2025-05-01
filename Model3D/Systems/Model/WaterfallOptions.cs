@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 
 namespace Model3D.Systems.Model
 {

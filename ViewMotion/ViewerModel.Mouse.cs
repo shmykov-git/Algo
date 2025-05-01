@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows.Input;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Model.Extensions;
 using Model3D.Extensions;
 

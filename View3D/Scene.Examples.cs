@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using MathNet.Numerics;
 using Model;
 using Model.Extensions;
@@ -194,7 +194,7 @@ namespace View3D
                     : GetNativePowerPoint(gravityPower, gravityPoint, point, iterationsCount);
 
                 if (useRotation)
-                    s = s.Move(-center).Rotate(Aspose.ThreeD.Utilities.Quaternion.FromEulerAngle(rot)).Move(center);
+                    s = s.Move(-center).Rotate(Model3D.AsposeModel.Quaternion.FromEulerAngle(rot)).Move(center);
 
                 return s.Move(powerPoint - dir);
             }

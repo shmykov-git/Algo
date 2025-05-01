@@ -7,7 +7,7 @@ using Model.Extensions;
 using Model3D.Extensions;
 using static Model.Graphs.Graph;
 using static Model3D.Actives.ActiveWorld;
-using Vector3 = Aspose.ThreeD.Utilities.Vector3;
+using Vector3 = Model3D.AsposeModel.Vector3;
 
 namespace Model3D.Voxels;
 

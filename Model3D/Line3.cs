@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Model3D.Extensions;
 
 namespace Model3D

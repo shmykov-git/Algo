@@ -6,18 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Aspose.ThreeD.Entities;
 using MathNet.Numerics;
-using Meta.Model;
 using Model.Graphs;
-using Model.Interfaces;
 using Model3D.Tools.Model;
 using Shape = Model.Shape;
+using System.Drawing.Imaging;
 
 namespace Model3D.Tools.Vectorization;
 

@@ -1,12 +1,12 @@
 ﻿using System.Numerics;
 using Model3D.Systems;
-using Vector3 = Aspose.ThreeD.Utilities.Vector3;
+using Vector3 = Model3D.AsposeModel.Vector3;
 
 namespace Model3D
 {
     // todo: Интеграция Aspose с Mirosoft пока Aspose не сделают нужное мне умножение кватернионов
     // todo: мне нужна возможность накапливать кватернион поворота: v2 = q * (q * v0), v2 = (q*q) * v0. q2 = q*q, v2 = q2 * v0
-    // todo: Для кватерниона System.Numerics это валидная операция, а для Aspose.ThreeD.Utilities нет.
+    // todo: Для кватерниона System.Numerics это валидная операция, а для Model3D.AsposeModel нет.
     // todo: есть отличия в реализации операций умножений кватернионов или кватернионов на вектор, q2 = q*q - невалидная операция в библиотеке Aspose
     public struct ExQuaternion
     {
@@ -14,7 +14,7 @@ namespace Model3D
         
         private Quaternion q;
 
-        public Aspose.ThreeD.Utilities.Quaternion Q => new(q.W, q.X, q.Y, q.Z);
+        public Model3D.AsposeModel.Quaternion Q => new(q.W, q.X, q.Y, q.Z);
 
         private ExQuaternion(Quaternion q)
         {
@@ -56,9 +56,9 @@ namespace Model3D
             return ToV3(System.Numerics.Vector3.Transform(ToNV3(v), q.q));
         }
 
-        public static implicit operator Aspose.ThreeD.Utilities.Quaternion(ExQuaternion q)
+        public static implicit operator Model3D.AsposeModel.Quaternion(ExQuaternion q)
         {
-            return new Aspose.ThreeD.Utilities.Quaternion(q.q.W, q.q.X, q.q.Y, q.q.Z);
+            return new Model3D.AsposeModel.Quaternion(q.q.W, q.q.X, q.q.Y, q.q.Z);
         }
 
         public override string ToString() => q.ToString();

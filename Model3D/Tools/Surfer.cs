@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
 using Model.Graphs;

@@ -1,4 +1,4 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using Model3D.AsposeModel;
 using Model;
 
 namespace View3D.Libraries

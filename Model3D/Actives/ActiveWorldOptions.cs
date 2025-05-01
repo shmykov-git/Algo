@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using MessagePack;
 using Meta.Extensions;
 using Model;

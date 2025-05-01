@@ -2,7 +2,6 @@
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
-using meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
@@ -10,6 +9,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using View3D.Extensions;
 using AsposeScene = Aspose.ThreeD.Scene;
 using Shape = Model.Shape;
 
@@ -117,7 +117,7 @@ namespace View3D.Tools
         private Mesh CreateMesh(Shape shape, bool addNormals)
         {
             var mesh = new Mesh();
-            mesh.ControlPoints.AddRange(shape.Points);
+            mesh.ControlPoints.AddRange(shape.Points.ToAspose());
 
             if (addNormals)
             {

@@ -1,4 +1,4 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using Model3D.AsposeModel;
 using Model.Extensions;
 using Model3D.Libraries;
 using System.Linq;

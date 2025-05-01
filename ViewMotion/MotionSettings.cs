@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Media;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Model.Extensions;
 using Model.Interfaces;
 using Model3D.Extensions;

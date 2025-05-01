@@ -1,18 +1,14 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Model3D.Tools.Model;
 using Vector2 = Model.Vector2;
+using Vector3 = Model3D.AsposeModel.Vector3;
 using Model.Libraries;
 using Model.Hashes;
-using MathNet.Numerics.LinearAlgebra.Solvers;
-using System.Drawing;
 
 namespace Model3D.Extensions
 {

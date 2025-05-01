@@ -4,7 +4,7 @@ using Model;
 using Model.Graphs;
 using Model.Tools;
 using Model3D.Libraries;
-using Vector3 = Aspose.ThreeD.Utilities.Vector3;
+using Vector3 = Model3D.AsposeModel.Vector3;
 
 namespace Model3D.Tools
 {

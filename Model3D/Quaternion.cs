@@ -13,7 +13,7 @@ public struct Quaternion
     public double y => A.Imaginary;
     public double z => B.Real;
     public double w => B.Imaginary;
-    public Aspose.ThreeD.Utilities.Vector3 V3 => new(x, y, z);
+    public Model3D.AsposeModel.Vector3 V3 => new(x, y, z);
 
     public Quaternion(double x, double y, double z, double w)
     {

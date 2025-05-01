@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 
 namespace ViewMotion.Extensions
 {

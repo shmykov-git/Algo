@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Meta.Extensions;
 using Model;
 using Model.Extensions;

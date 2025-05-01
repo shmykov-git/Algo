@@ -1,4 +1,4 @@
-﻿using Aspose.ThreeD.Utilities;
+﻿using Model3D.AsposeModel;
 
 namespace ViewMotion.Models;
 

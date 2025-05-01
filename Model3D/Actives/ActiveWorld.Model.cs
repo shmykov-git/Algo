@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Model.Extensions;
 using Model.Hashes;
 using Model.Libraries;

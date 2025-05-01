@@ -12,8 +12,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using Aspose.ThreeD.Entities;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using ColorPicker;
 using ColorPicker.Models;
 using meta.Extensions;
@@ -30,7 +29,7 @@ using ViewMotion.Libraries;
 using ViewMotion.Models;
 using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
-using Quaternion = Aspose.ThreeD.Utilities.Quaternion;
+using Quaternion = Model3D.AsposeModel.Quaternion;
 using Shape = Model.Shape;
 
 namespace ViewMotion

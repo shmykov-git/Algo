@@ -1,4 +1,4 @@
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using FluentAssertions;
 using Model3D;
 using Model3D.Extensions;

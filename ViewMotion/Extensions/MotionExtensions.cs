@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using Meta.Extensions;
 using Model;
 using Model.Extensions;

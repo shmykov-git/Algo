@@ -1,5 +1,4 @@
 ﻿using AI.Model;
-using Aspose.ThreeD;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;

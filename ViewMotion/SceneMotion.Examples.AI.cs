@@ -6,7 +6,7 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Aspose.ThreeD.Utilities.Vector3;
+using Vector3 = Model3D.AsposeModel.Vector3;
 using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using Aspose.ThreeD.Utilities;
+using Model3D.AsposeModel;
 using MessagePack;
 using Model;
 using Model.Extensions;

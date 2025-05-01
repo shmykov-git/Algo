@@ -8,7 +8,13 @@ public struct Vector3
     public double y;
     public double z;
 
+    public double Length2 => x * x + y * y + z * z;
+    public double Length => Math.Sqrt(Length2);
+
     public static readonly Vector3 Origin = new Vector3(0, 0, 0);
+    public static readonly Vector3 XAxis = new Vector3(1, 0, 0);
+    public static readonly Vector3 YAxis = new Vector3(0, 1, 0);
+    public static readonly Vector3 ZAxis = new Vector3(0, 0, 1);
 
     public Vector3(double x, double y, double z)
     {
@@ -24,22 +30,21 @@ public struct Vector3
         this.z = z;
     }
 
-    public void Normalize()
-    {
-        double length = Math.Sqrt(x * x + y * y + z * z);
-        if (length > 1e-6)
-        {
-            x /= length;
-            y /= length;
-            z /= length;
-        }
-    }
+    public Vector3 Normalize() => this / Length;
 
     public static double Dot(Vector3 a, Vector3 b)
     {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
+    public static Vector3 Cross(Vector3 a, Vector3 b)
+    {
+        return new Vector3(
+            a.y * b.z - a.z * b.y,
+            a.z * b.x - a.x * b.z,
+            a.x * b.y - a.y * b.x
+        );
+    }
     public override bool Equals(object obj)
     {
         if (obj is Vector3 v)
@@ -57,6 +62,12 @@ public struct Vector3
     public override string ToString()
     {
         return $"Vector3({x}, {y}, {z})";
+    }
+
+
+    public static Vector3 operator -(Vector3 v)
+    {
+        return new Vector3(-v.x, -v.y, -v.z);
     }
 
     public static Vector3 operator +(Vector3 a, Vector3 b)
