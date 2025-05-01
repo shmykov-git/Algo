@@ -26,9 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspose.3D" Version="23.3.0" />
+    <PackageReference Include="Aspose.3D" Version="25.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.1" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2" />
   </ItemGroup>
 
   <ItemGroup>

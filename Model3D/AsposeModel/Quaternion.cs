@@ -4,6 +4,10 @@ namespace Model3D.AsposeModel;
 
 public struct Quaternion
 {
+    private const double epsilon = 1e-9;
+    private const double epsilonPow2 = epsilon * epsilon;
+    private const double epsilon1 = 1 - epsilon;
+
     public double x;
     public double y;
     public double z;
@@ -19,21 +23,18 @@ public struct Quaternion
         this.w = w;
     }
 
-    public double Length
-    {
-        get
-        {
-            return Math.Sqrt(x * x + y * y + z * z + w * w);
-        }
-    }
+    public double Length2 => x * x + y * y + z * z + w * w;
+    public double Length => Math.Sqrt(Length2);
 
     public Quaternion Normalize()
     {
         double length = Length;
-        if (length > 1e-6)
+
+        if (length > epsilon)
         {
             return new Quaternion(x / length, y / length, z / length, w / length);
         }
+
         return this;
     }
 
@@ -48,6 +49,7 @@ public struct Quaternion
         double halfAngle = angle * 0.5;
         double sinHalfAngle = Math.Sin(halfAngle);
         double cosHalfAngle = Math.Cos(halfAngle);
+
         return new Quaternion(
             axis.x * sinHalfAngle,
             axis.y * sinHalfAngle,
@@ -56,6 +58,7 @@ public struct Quaternion
         );
     }
 
+    // same as Aspose, checked
     public static Quaternion FromRotation(Vector3 from, Vector3 to)
     {
         Vector3 f = from;
@@ -69,15 +72,17 @@ public struct Quaternion
             return Identity;
         }
 
-        if (dot < -0.999999)
+        if (dot < -epsilon1)
         {
             Vector3 orthogonal = new Vector3(1, 0, 0);
             orthogonal = Vector3.Cross(f, orthogonal);
-            if (orthogonal.Length < 1e-6)
+            
+            if (orthogonal.Length < epsilon)
             {
                 orthogonal = new Vector3(0, 1, 0);
                 orthogonal = Vector3.Cross(f, orthogonal);
             }
+
             orthogonal.Normalize();
             return FromAngleAxis(Math.PI, orthogonal);
         }
@@ -122,12 +127,15 @@ public struct Quaternion
 
     public Quaternion Inverse()
     {
-        double lengthSq = x * x + y * y + z * z + w * w;
-        if (lengthSq > 1e-6)
+        double lengthSq = Length2;
+
+        if (lengthSq > epsilonPow2)
         {
             double invLengthSq = 1.0 / lengthSq;
+            
             return new Quaternion(-x * invLengthSq, -y * invLengthSq, -z * invLengthSq, w * invLengthSq);
         }
+
         return this;
     }
 
@@ -142,6 +150,7 @@ public struct Quaternion
         {
             return x == q.x && y == q.y && z == q.z && w == q.w;
         }
+
         return false;
     }
 
@@ -190,50 +199,50 @@ public struct Quaternion
         return !a.Equals(b);
     }
 
-    public static Vector3 operator *(Quaternion rotation, Vector3 point)
-    {
-        // Кватернион-представление вектора (с w = 0)
-        Quaternion v = new Quaternion(point.x, point.y, point.z, 0);
-
-        // q * v * q⁻¹
-        Quaternion q = rotation;
-        Quaternion qInv = rotation.Inverse();
-
-        Quaternion result = q * v * qInv;
-        return new Vector3(result.x, result.y, result.z);
-    }
-
-    public static Quaternion operator *(Quaternion a, Quaternion b)
-    {
-        return new Quaternion(
+    public static Quaternion operator *(Quaternion a, Quaternion b) =>
+        new Quaternion(
             a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
             a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
             a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
             a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z
         );
-    }
 
     public static Vector4 operator *(Quaternion rotation, Vector4 v)
     {
         // Представляем вектор как кватернион с w = 0
-        Quaternion q = new Quaternion(v.x, v.y, v.z, 0);
+        var q = new Quaternion(v.x, v.y, v.z, 0);
 
         // q * v * q⁻¹
-        Quaternion qInv = rotation.Inverse();
+        Quaternion result = rotation * q * rotation.Inverse();
 
-        Quaternion result = rotation * q * qInv;
         return new Vector4(result.x, result.y, result.z, v.w); // сохраняем w компоненты
     }
 
-    public static Vector3 operator *(Vector3 v, Quaternion rotation)
+    // q * v * q⁻¹, optimized
+    public static Vector3 operator *(Quaternion q, Vector3 v)
     {
-        // Представляем вектор как кватернион с w = 0
-        Quaternion q = new Quaternion(v.x, v.y, v.z, 0);
+        double vx = v.x, vy = v.y, vz = v.z;
+        double qx = q.x, qy = q.y, qz = q.z, qw = q.w;
 
-        // v * q = q * v * q⁻¹ (используем кватернион с обратным умножением)
-        Quaternion qInv = rotation.Inverse();
+        double num = qx * 2.0;
+        double num2 = qy * 2.0;
+        double num3 = qz * 2.0;
+        double num4 = qx * num;
+        double num5 = qy * num2;
+        double num6 = qz * num3;
+        double num7 = qx * num2;
+        double num8 = qx * num3;
+        double num9 = qy * num3;
+        double num10 = qw * num;
+        double num11 = qw * num2;
+        double num12 = qw * num3;
 
-        Quaternion result = q * rotation * qInv;
-        return new Vector3(result.x, result.y, result.z);
+        return new Vector3(
+            (1.0 - (num5 + num6)) * vx + (num7 - num12) * vy + (num8 + num11) * vz,
+            (num7 + num12) * vx + (1.0 - (num4 + num6)) * vy + (num9 - num10) * vz,
+            (num8 - num11) * vx + (num9 + num10) * vy + (1.0 - (num4 + num5)) * vz
+        );
     }
+
+    public static Vector3 operator *(Vector3 v, Quaternion q) => q.Inverse() * v;
 }

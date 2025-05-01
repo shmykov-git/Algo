@@ -5,7 +5,7 @@ using Shape = Model.Shape;
 
 namespace View3D;
 
-partial class Scene
+public partial class Scene
 {
     #region ctor
 

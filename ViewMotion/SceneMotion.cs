@@ -59,6 +59,7 @@ using Color = System.Drawing.Color;
 using static Model3D.Actives.ActiveWorld;
 using ViewMotion.Worlds;
 using Meta.Extensions;
+using View3D;
 
 namespace ViewMotion;
 
@@ -66,6 +67,8 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return TwoBallFallingToNetMotion();
+        var s = new View3D.Scene(new StaticSettings(), vectorizer);
+
+        return s.BlackHole().Perfecto().ToMotion();
     }
 }

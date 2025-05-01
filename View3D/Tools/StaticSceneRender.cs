@@ -44,7 +44,7 @@ namespace View3D.Tools
                 MetallicFactor = staticSettings.MetallicFactor,
                 //RoughnessFactor = 1,
                 //OcclusionTexture = t,
-                EmissiveColor = new Vector3(m.Color),
+                EmissiveColor = new Vector3(new Model3D.AsposeModel.Vector4(m.Color).ToAspose()),
             };
         }
 
@@ -102,7 +102,7 @@ namespace View3D.Tools
                 MetallicFactor = staticSettings.MetallicFactor,
                 //RoughnessFactor = 1,
                 //OcclusionTexture = t,
-                EmissiveColor = new Vector3(m.Color),
+                EmissiveColor = new Vector3(new Model3D.AsposeModel.Vector4(m.Color).ToAspose()),
             };
 
             //main.Material = new PhongMaterial()

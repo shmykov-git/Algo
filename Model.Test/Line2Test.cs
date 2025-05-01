@@ -20,8 +20,8 @@ namespace Model.Test
 
             Line2 l = (a, b);
 
-            Assert.AreEqual(0, l.Fn(a));
-            Assert.AreEqual(0, l.Fn(b));
+            Assert.Equals(0, l.Fn(a));
+            Assert.Equals(0, l.Fn(b));
         }
 
         [Test]
@@ -37,8 +37,8 @@ namespace Model.Test
             Line2 l2 = (c, d);
             Line2 l3 = (e, d);
 
-            Assert.AreEqual(true, l1.IsSectionIntersectedBy(l2));
-            Assert.AreEqual(false, l1.IsSectionIntersectedBy(l3));
+            Assert.Equals(true, l1.IsSectionIntersectedBy(l2));
+            Assert.Equals(false, l1.IsSectionIntersectedBy(l3));
         }
 
         [Test]

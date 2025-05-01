@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Model3D.AsposeModel;
 using Model.Extensions;
 using Model3D.Extensions;
+using View3D.Extensions;
 
 namespace ViewMotion;
 
@@ -74,7 +75,6 @@ partial class ViewerModel
 
         RefreshCamera();
     }
-
 
     public void Move(double x, double y)
     {
