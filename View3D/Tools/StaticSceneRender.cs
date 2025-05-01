@@ -2,12 +2,16 @@
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
+using meta.Extensions;
+using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using AsposeScene = Aspose.ThreeD.Scene;
+using Shape = Model.Shape;
 
 namespace View3D.Tools
 {
@@ -20,9 +24,51 @@ namespace View3D.Tools
             this.staticSettings = staticSettings;
         }
 
-        public Aspose.ThreeD.Scene CreateScene(Model.Shape shape)
+        public AsposeScene CreateScene(Shape[] shapes)
         {
-            Aspose.ThreeD.Scene scene = new Aspose.ThreeD.Scene();
+            AsposeScene scene = new();
+
+            foreach (var shape in shapes) 
+            {
+                Node shapeNode = scene.RootNode.CreateChildNode();
+                InitNode(shapeNode, shape);
+            }
+
+            return scene;
+        }
+
+        private Material GetMaterial(Model.Material m)
+        {
+            return new PbrMaterial()
+            {
+                MetallicFactor = staticSettings.MetallicFactor,
+                //RoughnessFactor = 1,
+                //OcclusionTexture = t,
+                EmissiveColor = new Vector3(m.Color),
+            };
+        }
+
+        private void InitNode(Node node, Shape shape)
+        {
+            //node.Materials.
+            var mesh = CreateMesh(shape, false);
+            PolygonModifier.GenerateNormal(mesh);
+            node.Entity = mesh;
+
+            var (bi, filter) = shape.Materials.DistinctBi();
+
+            foreach(var (m, i) in shape.Materials.Select((m,i)=>(m,i)))
+            {
+                if (filter[i])
+                    node.Materials.Add(GetMaterial(m));
+                
+
+            }
+        }
+
+        public AsposeScene CreateScene(Shape shape)
+        {
+            AsposeScene scene = new AsposeScene();
             
             if (shape.Materials == null)
             {
@@ -43,7 +89,7 @@ namespace View3D.Tools
             return scene;
         }
 
-        private void AddMaterialNode(Aspose.ThreeD.Scene scene, Model.Shape shape, Model.Material material, bool addNormals)
+        private void AddMaterialNode(AsposeScene scene, Shape shape, Model.Material material, bool addNormals)
         {
             Node main = scene.RootNode.CreateChildNode();
             main.Entity = CreateMesh(shape, addNormals);
@@ -68,7 +114,7 @@ namespace View3D.Tools
             //};
         }
 
-        private Mesh CreateMesh(Model.Shape shape, bool addNormals)
+        private Mesh CreateMesh(Shape shape, bool addNormals)
         {
             var mesh = new Mesh();
             mesh.ControlPoints.AddRange(shape.Points);

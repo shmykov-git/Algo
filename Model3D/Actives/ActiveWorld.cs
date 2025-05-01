@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Aspose.ThreeD.Utilities;
+using MessagePack;
 using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using ModelShapes = Model.Libraries.Shapes;
 
 namespace Model3D.Actives;
 public partial class ActiveWorld
@@ -17,6 +20,7 @@ public partial class ActiveWorld
     private List<ActiveShape> activeShapes = new();
     private List<Shape> shapes = new();
     private Net3<ActiveShape> worldNet;
+    private WorldExportState exportState;
 
     public ActiveWorldOptions Options => options;
     public List<ActiveShape> ActiveShapes => activeShapes;
@@ -94,11 +98,48 @@ public partial class ActiveWorld
                 }
             }
         }
+
+        if (options.UseExport)
+        {
+            var metaSize = ModelShapes.Icosahedron.PointsCount;
+            var offset = 0;
+
+            exportState = new WorldExportState
+            { 
+                actives = activeShapes.Select(s =>
+                {
+                    var count = s.Shape.PointsCount;
+                    var size = s.Options.ShowMeta ? metaSize : 1;
+                    var active = new WorldExportState.Active { offset = offset, count = count, size = size, moves = [] };
+                    offset += count * size;
+
+                    return active;
+                }).ToArray()
+            };
+
+            WriteExportState();
+        }
     }
 
     int nStep = 0;
     private void Step()
     {
+        if (options.UseExport)
+        {
+            if (options.Export.FrameFn(nStep))
+            {
+                if (exportState.actives.Length != activeShapes.Count)
+                    throw new NotImplementedException("Dynamic actives export");
+
+                activeShapes.ForEach((a, i) =>
+                    exportState.actives[i].moves
+                        .Add(a.Nodes.Select(n => n.position - n.position0).Select(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray()));
+            }
+
+            if (options.Export.FrameSaveFn(nStep))
+                WriteExportState();
+        }
+
         options.StepNumber = nStep;
 
         activeShapes.ForEach(a =>
@@ -171,6 +212,12 @@ public partial class ActiveWorld
         nStep++;
     }
 
+    public void WriteExportState()
+    {
+        var bytes = MessagePackSerializer.Serialize(exportState);
+        File.WriteAllBytes(options.Export.FileName, bytes);
+    }
+
     public IEnumerable<Shape> Animate()
     {
         Activate();
@@ -186,5 +233,8 @@ public partial class ActiveWorld
 
             (options.OverCalculationMult * options.StepsPerScene).ForEach(_ => Step());
         }
+
+        if (options.UseExport)
+            WriteExportState();
     }
 }

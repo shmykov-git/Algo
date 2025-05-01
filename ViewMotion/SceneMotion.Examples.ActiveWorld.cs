@@ -219,24 +219,29 @@ partial class SceneMotion //ActiveWorld
 
     public Task<Motion> TwoBallFallingToNetMotion()
     {
-        var ball = Shapes.IcosahedronSp1.Perfecto();
+        var ball1 = Shapes.Stone(4, 78, 1, quality: 4).Perfecto(2);
+        var ball2 = Shapes.Stone(4, 81, 1, quality: 4).Perfecto(2);
         var posA = new Vector3(1.5, 3, -0.5);
         var posB = new Vector3(-1, 2, 0.5);
 
         return new[] {
-            ball.Move(posA).ToActiveShape(o =>
+            ball1.Move(posA).ToActiveShape(o =>
             {
                 //o.ShowMeta = true;
                 o.Speed = (posB-posA).ToLen(0.0002);
                 o.Mass = 6;
                 o.AllowTriangulation0  =false;
+                o.Color1 = Color.SaddleBrown;
+                o.Color2 = Color.SaddleBrown;
             }),
-            ball.Move(posB).ToActiveShape(o =>
+            ball2.Move(posB).ToActiveShape(o =>
             {
                 o.Mass = 6;
                 o.Speed = (posA-posB).ToLen(0.0002);
                 //o.ShowMeta = true;
                 o.AllowTriangulation0  =false;
+                o.Color1 = Color.SaddleBrown;
+                o.Color2 = Color.SaddleBrown;
             }),
             Surfaces.Plane(20,20).Perfecto(5).ToOy().RotateOx(Math.PI/24).PutOn().ToActiveShape(o =>
             {
@@ -250,6 +255,8 @@ partial class SceneMotion //ActiveWorld
                 {
                     Dock = ActiveShapeOptions.FixDock.Left | ActiveShapeOptions.FixDock.Right
                 };
+                o.Color1 = Color.SaddleBrown;
+                o.Color2 = Color.SandyBrown;
             }),
         }.ToWorld(o =>
         {
@@ -261,6 +268,13 @@ partial class SceneMotion //ActiveWorld
             o.Interaction.ElasticForce = 1;
             o.Interaction.ClingForce = 0.5;
             o.Interaction.FrictionForce = 0.5;
+            o.UseExport = true;
+            o.Export = new WorldExportOptions
+            {
+                FrameFn = i => (i % 50) == 0,
+                FrameSaveFn = i => (i % 2000) == 0,
+                FileName = "export.dat"
+            };
         }).ToMotion(10);
     }
 
