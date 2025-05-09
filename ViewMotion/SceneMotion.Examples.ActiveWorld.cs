@@ -119,20 +119,23 @@ partial class SceneMotion //ActiveWorld
         //var metaEgg = Shapes.PlaneSphere(20, 20).ToOy();
         var metaEgg = Shapes.IcosahedronSp2;
         var metaBall = Shapes.IcosahedronSp2;
+        Color[] colors = [Color.Brown, Color.Green, Color.Yellow, Color.Blue, Color.Orange, Color.Black, Color.Purple, Color.Pink, Color.Silver, Color.Tan];
 
-        var egg = metaEgg.Perfecto(2).Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p => p.SetY(p.y.Pow(1.2))).Normalize().Perfecto()
-            .ApplyColorGradient(new Vector3(1, 1, 1).Normalize(), Color.Yellow, Color.Yellow, Color.Red);
+        var egg = metaEgg.Perfecto(2).Scale(0.8, 1, 0.8).MoveY(1).TransformPoints(p => p.SetY(p.y.Pow(1.2))).Normalize().Perfecto();
 
-        var eggs = Ranges.Pyramid2(4, MathEx.Sq3_2).Select(v => egg.PutOn().Move(v.x, 0, v.y - 3)).Select(e => e.ToActiveShape(o =>
+        var eggs = Ranges.Pyramid2(4, MathEx.Sq3_2).Select(v => egg.PutOn().Move(v.x, 0, v.y - 3)).Select((e, i) => e.ToActiveShape(o =>
         {
+            o.Color1 = colors[i];
+            o.Color2 = colors[i];
             o.MaterialPower = 2;
             o.Skeleton.Power = 2;
         }));
 
         var ball = metaBall
-            .ApplyColorGradient(Vector3.YAxis, Color.Green, Color.Yellow, Color.Blue)
             .Perfecto(0.8).PutOn().MoveZ(4).ToActiveShape(o =>
             {
+                o.Color1 = Color.Red;
+                o.Color2 = Color.Red;
                 o.Speed = new Vector3(0.002, 0, -0.003);
                 o.RotationSpeedAngle = -0.01;
                 o.RotationSpeedAxis = new Vector3(0, 0, 1).Normalize();
@@ -145,6 +148,8 @@ partial class SceneMotion //ActiveWorld
 
         return actives.ToWorld(o =>
         {
+            o.SceneCount = 1000;
+            o.StepsPerScene = 20;
             o.Ground.ClingForce = 0.1;
             o.Ground.FrictionForce = 10;
             o.Interaction.ClingForce = 0.1;

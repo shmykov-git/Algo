@@ -29,19 +29,19 @@ namespace Model
 
         private Dictionary<int, int[]> _links;
 
-        public Shape()
-        {
-            Task.Run(async () =>
-            {
-                await Task.Delay(10);
+        //public Shape()
+        //{
+        //    Task.Run(async () =>
+        //    {
+        //        await Task.Delay(10);
 
-                if (CompositeShapes.Any(s => !s.HasSingleMaterial || (s.Convexes ?? []).Select(c => c.Length).Distinct().Count() != 1))
-                {
-                    var debug = CompositeShapes.Select(s => $"{s.PointsCount}-({s.Convexes?.GroupBy(c => c.Length).Select(gc => $"{gc.Key}-{gc.Count()}").SJoin(",") ?? "0"}-{s.Materials?.Distinct().Count() ?? 0})").SJoin(", ");
-                    Debug.WriteLine(debug);
-                }
-            });
-        }
+        //        if (CompositeShapes.Any(s => !s.HasSingleMaterial || (s.Convexes ?? []).Select(c => c.Length).Distinct().Count() != 1))
+        //        {
+        //            var debug = CompositeShapes.Select(s => $"{s.PointsCount}-({s.Convexes?.GroupBy(c => c.Length).Select(gc => $"{gc.Key}-{gc.Count()}").SJoin(",") ?? "0"}-{s.Materials?.Distinct().Count() ?? 0})").SJoin(", ");
+        //            Debug.WriteLine(debug);
+        //        }
+        //    });
+        //}
 
         public IEnumerable<Shape> CompositeShapes 
         {

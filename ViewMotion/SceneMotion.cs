@@ -65,30 +65,186 @@ namespace ViewMotion;
 
 partial class SceneMotion
 {
+    class Node /*: INet3Item*/
+    {
+        public int i;
+        public List<int> ns;
+        public List<double> fAs;
+        public Vector3 position;
+        public Vector3 speed = Vector3.Origin;
+        public double speedY = 0;
+        //public double mass = 1;
+        //public bool locked;
+        //public Func<Vector3> PositionFn => () => position;
+    }
+
+    class PointObject
+    {
+        public Vector3 position;
+        public Vector3 speed;
+        public double mass;
+        public double radius;
+    }
+
     public Task<Motion> Scene()
     {
-        //return Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).ToMotion();
+        var sceneCount = 500;
+        var dampingCoef = 0.8;
+        var frictionForce = 0.001;
+        var gravity = new Vector3(0, -0.00001, 0);
+        var stepsPerScene = 40;
+        var rotationAngleX = 0; // Math.PI / 6;
+        var rotationSpeed = 0; // 0.005;
+        var moveY = 0;
+        var move = new Vector3(0, moveY, 0);
+        var fixBottom = false;
+        var useDeformation = false;
+        var color = Color.Green;
 
-        //return Surfaces.Cylinder(5, 2, Convexes.Triangles).Perfecto().ToMeta().ToMotion();
+        var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+        var block = vectorizer.GetPixelShape("b17s").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+        //return block.Perfecto(30).ToMeta().ToMotion(30);
+        if (useDeformation)
+            block = block.Mult(0.03).PullOnSurface(SurfaceFuncs.Hyperboloid).Mult(1 / 0.03);
 
-        //var s = new Shape
-        //{
-        //    Points3 = [new Vector3(1, 2, 3), new Vector3(-3, -2, -1), new Vector3(-1, 1, 1)],
-        //    Convexes = [[0, 1, 2], [0, 2, 1]]
-        //}
+        var bY = block.BorderY;
 
-        //var s = Shapes.Cube.TriangulateByFour().Perfecto().ApplyColor(Color.Red);
+        block = block.RotateOx(rotationAngleX).Move(move);
 
-        //return (100).SelectInterval(0, 2*Math.PI, f=>s.Rotate(f, new Vector3(1, 2, 3))).ToMotion();
+        var ps = block.Points3;
 
-        //var c = Shapes.Icosahedron.Points3.Center();
+        var nodes = block.PointIndices.Select(i => new Node()
+        {
+            i = i,
+            position = ps[i]
+        }).ToArray();
+        nodes.ForEach(n => n.ns = block.Links[n.i].ToList());
+        nodes.ForEach(n => n.fAs = n.ns.Select(j => (n.position - nodes[j].position).Length).ToList());
+        nodes.ForEach(n => n.speed = rotationSpeed * n.position.ZeroY().MultV(Vector3.YAxis));
 
-        //var s = Shapes.Plane(2, 2).Centered().Where(v => v.x < 0 || v.y < 0, false, false).ToLines(30);//.ToMeta(multLines:30, multPoint:10);
+        //var a = 0.933;
+        var b = 1;
+        var c = 0.1;
+        var forceBorder = 0.65;
+        double BlockForceFn(double a, double x)
+        {
+            if (x < forceBorder)
+                x = forceBorder;
 
-        //return (s.ToSpots(0.5, Color.Blue) + s.ToMetaPointsShape(1.5) + Shapes.Coods2WithText()).ToMotion();
+            return c * (x - a) * (x + b) / x.Pow4();
+        };
 
-        //return s.ToNumSpots(0.3).ToMotion();
+        //var bounceCoef = 0.2;
+        Vector3 CalcSpeed(Node n)
+        {
+            var p0 = n.position;
+            Vector3 offset = Vector3.Origin;
 
-        return WorldInteractionMotion();
+            foreach (var (j, num) in n.ns.Select((j, num) => (j, num)))
+            {
+                var sn = nodes[j];
+                var p = sn.position;
+
+                var d = (p - p0).Length;
+                var ds = BlockForceFn(n.fAs[num], d);
+
+                offset += ds * (p - p0) / d;
+            }
+
+            var speed = n.speed + offset * dampingCoef;
+
+            if (IsBottom(n) && speed.y < 0)
+            {
+                n.speedY += -speed.y;
+                speed = speed.SetY(0);
+            }
+            else
+            {
+                n.speedY = 0;
+            }
+
+            return speed;
+        }
+
+        Vector3 CalcBounceSpeedOffset(Node n)
+        {
+            Vector3 offset = Vector3.Origin;
+            var sns = n.ns.Select(j => nodes[j]).Where(IsBottom).ToArray();
+
+            if (sns.Length == 0)
+                return offset;
+
+            var sumY = sns.Select(sn => n.position.y - sn.position.y).Sum();
+
+            foreach (var (sn, i) in sns.Select((v, i) => (v, i)))
+            {
+                offset += (n.position - sn.position).ToLenWithCheck(n.speedY * (n.position.y - sn.position.y) / sumY);
+            }
+
+            return offset;
+        }
+
+        Vector3 CalcBottomSpeedOffset(Node n)
+        {
+            var planeSpeed = n.speed.SetY(0);
+            var frictionOffset = planeSpeed.Length < frictionForce ? -planeSpeed : -planeSpeed.ToLenWithCheck(frictionForce);
+
+            return frictionOffset;
+        }
+
+        bool IsBottom(Node n) => n.position.y <= bY.a;
+        bool CanCalc(Node n) => !fixBottom || n.position.y > bY.a;
+        Vector3 FixY(Vector3 a) => a.y > bY.a ? a : new Vector3(a.x, bY.a, a.z);
+
+
+        void Step()
+        {
+            nodes.Where(CanCalc).ForEach(n => n.speed += gravity);
+            nodes.Where(CanCalc).ForEach(n => n.speed = CalcSpeed(n));
+            //Debug.WriteLine(speedY);
+            //nodes.ForEach(n => n.speed += new Vector3(0, speedY/nodes.Length, 0));
+            nodes.Where(CanCalc).Where(n => !IsBottom(n)).ForEach(n => n.speed += CalcBounceSpeedOffset(n));
+            nodes.Where(CanCalc).Where(n => IsBottom(n)).ForEach(n => n.speed += CalcBottomSpeedOffset(n));
+            nodes.Where(CanCalc).ForEach(n => n.position += n.speed);
+            nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
+        }
+
+        Shape GetBlock(int i)
+        {
+            var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12);
+
+            var s = new Shape
+            {
+                Points3 = ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(),
+                Convexes = block.Convexes.ApplyBi(bi).CleanBi(true)
+            };
+
+            return s;
+        }
+
+        var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(100).MoveY(bY.a).ToLines(20, Color.DarkRed);// Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50);
+        //var coods = Shapes.Coods().Mult(25).MoveY(bY.a).ApplyColor(Color.Black);
+
+        //(1000).ForEach(_ => Step());
+
+        //return GetBlock(0).ToMetaShape3(1, 1, Color.Blue, Color.Red).ToMotion();
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var i = 0; i < sceneCount; i++)
+            {
+                yield return new[]
+                {
+                    GetBlock(i).ApplyColor(color), //.ToMetaShape3(1, 1, Color.Blue, Color.Red),
+                    //coods,
+                    platform
+                }.ToCompositeShape();
+
+
+                (stepsPerScene).ForEach(_ => Step());
+            }
+        }
+
+        return Animate().ToMotion(/*block.Size.Length * 1.5*/);
     }
 }
