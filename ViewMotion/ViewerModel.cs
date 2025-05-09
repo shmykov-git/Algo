@@ -31,6 +31,7 @@ using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
 using Quaternion = Model3D.AsposeModel.Quaternion;
 using Shape = Model.Shape;
+using View3D.Tools.Model;
 
 namespace ViewMotion
 {
@@ -45,6 +46,7 @@ namespace ViewMotion
         private PersistState persistState;
 
         private List<ViewState> viewStates = new();
+        private List<Shape> shapes = new();
         private string frameInfo;
         private double light;
 
@@ -171,10 +173,19 @@ namespace ViewMotion
         public string ExportName => "⇒ Export 3D";
         public ICommand ExportCommand => new Command(() =>
         {
-            var frameShape = GetShapeFromViewState(lastViewState);
-            var staticScene = staticRender.CreateScene(frameShape);
+            //var frameShape = GetShapeFromViewState(lastViewState);
+            var staticScene = staticRender.CreateScene(shapes[FrameNumber]);
             staticScene.Save(staticSettings.FullFileName3D, staticSettings.Format);
             ShowStaticScene(staticSettings.FullFileName3D);
+        }, () => lastViewState != null, SaveRefresh);
+
+        public string ExportAnimateName => "⇒ Export Animated 3D";
+        public ICommand ExportAnimateCommand => new Command(() =>
+        {
+            var (staticScene, animate) = staticRender.CreateAnimatedScene(shapes.ToArray());
+            staticScene.Save(staticSettings.FullFileName3D, staticSettings.Format);
+            ShowStaticScene(staticSettings.FullFileName3D);
+            animate.Save(staticSettings.FullFileNameAnimate);
         }, () => lastViewState != null, SaveRefresh);
 
 
@@ -350,8 +361,8 @@ namespace ViewMotion
         {
             var viewState = GetViewState(frameShape);
 
-            if (motionSettings.AllowFrameHistory)
-                viewStates.Add(viewState);
+            shapes.Add(frameShape);
+            viewStates.Add(viewState);
 
             FrameMaxNumber = viewStates.Count - 1;
             FrameNumber = viewStates.Count - 1;
@@ -364,7 +375,7 @@ namespace ViewMotion
 
         private ViewState GetViewState(Shape frameShape)
         {
-            var viewShapes = frameShape.SplitByMaterial().Select(shape => new ViewShape()
+            ViewShape GetViewShape(Shape shape) => new ViewShape()
             {
                 Positions = new Point3DCollection(shape.Points3.Select(p => p.ToP3D())),
                 TriangleIndices = new Int32Collection(shape.Triangles),
@@ -373,8 +384,13 @@ namespace ViewMotion
                     ? new PointCollection(shape.Convexes.SelectMany(ToDefaultTexturePoints))
                     : new PointCollection(shape.TriangleTexturePoints.Select(p => p.ToP2D())),
                 ModelMaterial = shape.Materials?[0],
-                Material = GetMaterial(shape.Materials?[0])
-            }).ToArray();
+                Material = GetMaterial(shape.Materials?[0]),
+            };
+
+            var viewShapes = frameShape.CompositeShapes
+                .SelectMany(s => s.HasSingleMaterial ? [s] : s.SplitByMaterial())
+                .Select(GetViewShape)
+                .ToArray();
 
             return new ViewState()
             {
@@ -532,6 +548,7 @@ namespace ViewMotion
             public PointCollection TextureCoordinates;
             public Material Material;
             public Model.Material ModelMaterial;
+            public bool useMeshNormals;
         }
 
         private string persistFileName = "persist.json";

@@ -128,9 +128,6 @@ public class ActiveWorldOptions
 
     public WorldDebugOptions Debug { get; set; }
 
-    public bool UseExport { get; set; }
-    public WorldExportOptions Export { get; set; }
-
 
     public class InteractionOptions
     {
@@ -185,31 +182,4 @@ public enum InteractionType
 public class WorldDebugOptions
 {
     public bool DebugPlaneMaterialPenetration { get; set; }
-}
-
-public class WorldExportOptions
-{
-    public Func<int, bool> FrameFn { get; set; } = i => (i % 40) == 0;       // StepPerScene = 10 * SceneCount = 2000
-    public Func<int, bool> FrameSaveFn { get; set; } = i => (i % 2000) == 0;
-    public string FileName { get; set; }
-}
-
-[MessagePackObject]
-public class WorldExportState
-{
-    [Key(0)]
-    public Active[] actives { get; set; }
-
-    [MessagePackObject]
-    public class Active
-    {
-        [Key(0)]
-        public int offset { get; set; }
-        [Key(1)]
-        public int count { get; set; }
-        [Key(2)]
-        public int size { get; set; }
-        [Key(3)]
-        public List<float[][]> moves { get; set; }
-    }
 }

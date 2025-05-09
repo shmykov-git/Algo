@@ -21,6 +21,8 @@ using Model3D;
 using Model3D.Actives;
 using Model.Fourier;
 using Model3D.Tools.Model;
+using System.Windows.Media;
+using Color = System.Drawing.Color;
 
 namespace ViewMotion;
 
@@ -32,7 +34,7 @@ partial class SceneMotion //ActiveWorld
     public Task<Motion> ThreeBallsRace()
     {
         var r = 0.5;
-        var ball = Shapes.IcosahedronSp1.Perfecto(2 * r);
+        var ball = Shapes.IcosahedronSp2.Perfecto(2 * r);
 
         return new[]{
             Surfaces.Slide(40, 10, 0.5, 0.2, 0.5, 0.8, 0.6).Mult(5).MoveX(-4).ToActiveShape(o =>
@@ -50,6 +52,8 @@ partial class SceneMotion //ActiveWorld
             }),
             ball.Move(-4 + r, 3, 0).ToActiveShape(o =>
             {
+                o.Color1 = Color.Blue;
+                o.Color2 = Color.Blue;
                 //o.ShowMeta = true;
                 o.Mass = 4;
                 o.AllowTriangulation0  =false;
@@ -70,6 +74,8 @@ partial class SceneMotion //ActiveWorld
             }),
             ball.Move(-4 + r, 3, 2).ToActiveShape(o =>
             {
+                o.Color1 = Color.Green;
+                o.Color2 = Color.Green;
                 //o.ShowMeta = true;
                 o.Mass = 4;
                 o.AllowTriangulation0  =false;
@@ -90,12 +96,16 @@ partial class SceneMotion //ActiveWorld
             }),
             ball.Move(-4 + r, 3, -2).ToActiveShape(o =>
             {
+                o.Color1 = Color.Red;
+                o.Color2 = Color.Red;
                 //o.ShowMeta = true;
                 o.Mass = 4;
                 o.AllowTriangulation0  =false;
             }),
         }.ToWorld(o =>
         {
+            o.SceneCount = 500;
+            o.StepsPerScene = 50;
             o.InteractionType = InteractionType.ParticleWithPlane;
             o.Interaction.ParticleForce = 5;
             o.Interaction.ElasticForce = 1;
@@ -149,7 +159,7 @@ partial class SceneMotion //ActiveWorld
         {
             FontSize = 100,
             SmoothPointCount = 5,
-        }).Normalize().AddSkeleton(1).Perfecto(2);
+        }).Normalize().TriangulateByFour().AddSkeleton(1).Perfecto(2);
 
         return (new[]
         {
@@ -231,8 +241,8 @@ partial class SceneMotion //ActiveWorld
                 o.Speed = (posB-posA).ToLen(0.0002);
                 o.Mass = 6;
                 o.AllowTriangulation0  =false;
-                o.Color1 = Color.SaddleBrown;
-                o.Color2 = Color.SaddleBrown;
+                o.Color1 = Color.FromArgb(200, Color.Red);
+                o.Color2 = Color.FromArgb(200, Color.Red);
             }),
             ball2.Move(posB).ToActiveShape(o =>
             {
@@ -240,8 +250,8 @@ partial class SceneMotion //ActiveWorld
                 o.Speed = (posA-posB).ToLen(0.0002);
                 //o.ShowMeta = true;
                 o.AllowTriangulation0  =false;
-                o.Color1 = Color.SaddleBrown;
-                o.Color2 = Color.SaddleBrown;
+                o.Color1 = Color.FromArgb(200, Color.Blue);
+                o.Color2 = Color.FromArgb(200, Color.Blue);
             }),
             Surfaces.Plane(20,20).Perfecto(5).ToOy().RotateOx(Math.PI/24).PutOn().ToActiveShape(o =>
             {
@@ -260,6 +270,8 @@ partial class SceneMotion //ActiveWorld
             }),
         }.ToWorld(o =>
         {
+            o.SceneCount = 500;
+            o.StepsPerScene = 50;
             o.Ground.ShowGround = false;
             o.Ground.Y = -10;
             o.Ground.ClingForce = 0.01;
@@ -268,13 +280,6 @@ partial class SceneMotion //ActiveWorld
             o.Interaction.ElasticForce = 1;
             o.Interaction.ClingForce = 0.5;
             o.Interaction.FrictionForce = 0.5;
-            o.UseExport = true;
-            o.Export = new WorldExportOptions
-            {
-                FrameFn = i => (i % 50) == 0,
-                FrameSaveFn = i => (i % 2000) == 0,
-                FileName = "export.dat"
-            };
         }).ToMotion(10);
     }
 
@@ -361,49 +366,61 @@ partial class SceneMotion //ActiveWorld
     {
         var actives = new ActiveShape[]
             {
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(-2).ApplyColorGradientX(Color.White, Color.LightBlue, Color.LightBlue, Color.LightBlue, Color.White)
+                 Shapes.PowerEllipsoid(8).Scale(60, 10, 40).Perfecto(3).AlignY(0).MoveY(0.7).MoveX(-1.5)
+                //Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(0.7).MoveX(-1)
                 .ToActiveShape(o =>
                 {
+                    o.Color1 = Color.Red;
+                    o.Color2 = Color.Red;
                     o.RotationSpeedAxis = Vector3.YAxis;
-                    o.RotationSpeedAngle = 0.0005;
+                    o.RotationSpeedAngle = 0.0003;
                     o.UseSkeleton = true;
                     o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
-                    o.Skeleton.Power = 0.15;
+                    o.Skeleton.Power = 0.2;
+                    o.MaterialPower = 0.5;
                     o.UseBlow = true;
-                    o.BlowPower = 2;
+                    o.BlowPower = 15;
                 }),
-
-                Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(1).MoveX(2).ApplyColorGradientX(Color.White, Color.LightGreen, Color.LightGreen, Color.LightGreen, Color.White)
+                Shapes.PowerEllipsoid(8).Scale(60, 10, 40).Perfecto(3).AlignY(0).MoveY(0.7).MoveX(3.5)
+                //Shapes.Cube.Scale(60, 20, 40).Perfecto(2).SplitPlanes(0.3).AlignY(0).MoveY(0.7).MoveX(3)
                 .ToActiveShape(o =>
                 {
+                    o.Color1 = Color.Blue;
+                    o.Color2 = Color.Blue;
                     o.RotationSpeedAxis = Vector3.YAxis;
                     o.RotationSpeedAngle = 0.0005;
                     o.UseSkeleton = true;
                     o.Skeleton.Type = ActiveShapeOptions.SkeletonType.CenterPoint;
-                    o.Skeleton.Power = 0.15;
+                    o.Skeleton.Power = 0.2;
+                    o.MaterialPower = 0.5;
                     o.UseBlow = true;
-                    o.BlowPower = 2;
-                    o.Speed = new Vector3(-0.003, 0, 0);
+                    o.BlowPower = 15;                    
+                    o.Speed = new Vector3(-0.0035, 0, 0);
                 }),
             };
 
         // list of static shapes
         var statics = new Shape[]
             {
-                vectorizer.GetText("Interaction", 200).Perfecto(7).AlignY(0).MoveZ(-4).ApplyColor(Color.SaddleBrown)
+                //vectorizer.GetText("↭", 500,multX:3, multY:2).TriangulateByFour().Perfecto(2).AlignY(0).MoveZ(-4).ApplyColor(Color.Green)
             };
 
         return (actives, statics).ToWorld(o =>
         {
-            o.InteractionType = InteractionType.ParticleWithPlane; // Point?
-            o.Interaction.ElasticForce = 1;
+            o.SkipSteps = 100;
+            o.SceneCount = 500;
+            o.StepsPerScene = 20;
+            o.InteractionType = InteractionType.EdgeWithPlane; // Point?
+            o.Interaction.ParticleForce = 3;
+            o.Interaction.ElasticForce = 3;
             o.PressurePowerMult = 0.0001;
             o.Ground.ClingForce = 0.1;
             o.Ground.FrictionForce = 0.03;
+            o.Ground.Color = Color.Black;
             o.MaterialThickness = 1;
             o.JediMaterialThickness = 0.5;
             o.Ground.WindPower = 2; // try wind carefully
-            o.Ground.UseWaves = true;
+            o.Ground.UseWaves = false;
             o.Ground.WavesSize = 2;
         }).ToMotion(10);
 

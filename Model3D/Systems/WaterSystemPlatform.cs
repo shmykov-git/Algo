@@ -55,7 +55,7 @@ namespace Model3D.Systems
             var cubeSize = options.SceneSize;
 
             // Visible Scene with logic scene
-            var particle = Shapes.Icosahedron.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
+            var particle = Shapes.IcosahedronSp1.Mult(1.2 * particleRadius).ApplyColor(Color.Blue);
 
             var cube = Shapes.Cube.Scale(cubeSize);
 
@@ -202,17 +202,17 @@ namespace Model3D.Systems
             Shape GetStepShape() => new Shape[]
             {
                 model.ModifyParticleFn == null
-                ? items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position)).ToSingleShape()
+                ? items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMetaPoint(item.Position)).ToSingleShape()
                 : items.Select(item =>
                 {
-                    var p = particle.Rotate(rnd.NextRotation()).Move(item.Position);
+                    var p = particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMetaPoint(item.Position);
                     model.ModifyParticleFn(p);
                     return p;
                 }).ToSingleShape(),
                 
                 model.DebugCollidersNoVisible 
                     ? Shape.Empty 
-                    : model.PlaneModels.Where(m => !m.SkipVisible).Where(m=>!m.Debug || !model.RunCalculations).Select(m => m.VisibleShape).ToSingleShape(),
+                    : model.PlaneModels.Where(m => !m.SkipVisible).Where(m=>!m.Debug || !model.RunCalculations).Select(m => m.VisibleShape).ToCompositeShape(),
 
                 model.DebugColliders
                     ? model.DebugCollidersAsLines
@@ -225,7 +225,7 @@ namespace Model3D.Systems
                     ? animator.NetPlanes.Select(p => Shapes.Tetrahedron.Mult(0.05).Move(p)).ToSingleShape()
                         .ApplyColor(Color.Green)
                     : Shape.Empty,
-            }.ToSingleShape();
+            }.ToCompositeShape();
 
             void EmissionStep(int k)
             {
@@ -260,11 +260,12 @@ namespace Model3D.Systems
 
             yield return firstShape;
 
-            var shapes = (options.SceneMotionSteps).Range().Select(_ =>
+            var shapes = (options.SceneMotionSteps - 1).Range().Select(_ =>
             {
                 (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
-
-                return GetStepShape();
+                var s = GetStepShape();
+                
+                return s;
             });
 
             foreach (var shape in shapes)

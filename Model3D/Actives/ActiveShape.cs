@@ -243,7 +243,7 @@ public class ActiveShape : INet3Item
 
         if (options.ShowMeta)
         {
-            shape = shape.ToMetaShape3(options.MetaPointMult, options.MetaLineMult, options.Color2, options.Color1);
+            shape = shape.ToCompositeMeta(options.Color2, options.Color1, options.MetaPointMult, options.MetaLineMult);
         }
         else
         {

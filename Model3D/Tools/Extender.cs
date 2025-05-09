@@ -53,7 +53,7 @@ namespace Model3D.Tools
             }
 
             var convexes = indPoints.SelectMany(a => OrderEdges(a, net.SelectNeighbors(a.value.ToV2()).Where(b => a.index != b.index && (b.value - a.value).Length < distance).ToArray()).SelectCirclePair((b, c) => new[] { a.index, b.index, c.index })).ToArray();
-            var di = convexes.Select(c => c.OrderBy(v => v).ToArray()).Select(c => (c[0], c[1], c[2])).ToArray().DistinctBi();
+            var di = convexes.Select(c => c.OrderBy(v => v).ToArray()).Select(c => (c[0], c[1], c[2])).ToArray().DistinctOnlyBi();
             convexes = convexes.IndexValue().Where(v => di.filter[v.index]).Select(v => v.value).Select(c=>IsRight(points[c[0]], points[c[1]], points[c[2]]) ? c : new[] { c[1], c[0], c[2] }).ToArray();
 
             return new Shape 

@@ -717,11 +717,11 @@ public partial class Vectorizer
             {
                 var numShapeOdd = shapes.Where((_, i) => getLevel(i).Odd())
                     .Select(s =>
-                        s.ToNumSpots3(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.odd))
+                        s.ToNumSpots(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.odd))
                     .ToSingleShape();
                 var numShapeEven = shapes.Where((_, i) => getLevel(i).Even())
                     .Select(s =>
-                        s.ToNumSpots3(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.even))
+                        s.ToNumSpots(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.even))
                     .ToSingleShape().MoveZ(options.SplitLineLevelsDistance.Value);
 
                 shape = lineShapeEven + lineShapeOdd + numShapeOdd + numShapeEven;
@@ -739,7 +739,7 @@ public partial class Vectorizer
 
                 if (options.ToSpotNumSize.HasValue)
                 {
-                    var numShape = shapes.Select(s => s.ToNumSpots3(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.odd)).ToSingleShape();
+                    var numShape = shapes.Select(s => s.ToNumSpots(options.ToSpotNumSize.Value).ApplyColor(options.NumColors.odd)).ToSingleShape();
 
                     shape = lineShape + numShape;
                 }

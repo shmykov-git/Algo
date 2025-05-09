@@ -53,8 +53,6 @@ class MotionSettings : IDirSettings
         }
     };
 
-    public bool AllowFrameHistory { get; set; } = true;
-
     public string OutputDirectory => throw new ArgumentException(nameof(OutputDirectory));
     public string InputDirectory => Path.Combine(Directory.GetCurrentDirectory(), @"..\..\..\..\View3D\Content");
     public string GetContentFileName(string fileName) => Path.Combine(InputDirectory, fileName);

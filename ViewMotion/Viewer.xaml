@@ -90,6 +90,7 @@
             </DockPanel>
             <Button DockPanel.Dock="Top" Command="{Binding RestoreCameraCommand}" Content="{Binding RestoreCameraName}"/>
             <Button DockPanel.Dock="Top" Command="{Binding ExportCommand}" Content="{Binding ExportName}" Margin="5 50 5 0"/>
+            <Button DockPanel.Dock="Top" Command="{Binding ExportAnimateCommand}" Content="{Binding ExportAnimateName}" />
             <ComboBox  DockPanel.Dock="Top" ItemsSource="{Binding HtmlTemplates}" SelectedIndex="{Binding HtmlIndex, Mode=TwoWay}" />
             <Button DockPanel.Dock="Top" Command="{Binding ExportHtmlCommand}" Content="{Binding ExportHtmlName}"/>
         </DockPanel>

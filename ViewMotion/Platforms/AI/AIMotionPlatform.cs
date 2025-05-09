@@ -290,7 +290,7 @@ internal class AIMotionPlatform
         var topology = trainer.model.GetTopology().Perfecto(3);
 
         return o.topologyNums
-            ? topology.ToNumSpots3(0.5 * mult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, mult, mult)
+            ? topology.ToNumSpots(0.5 * mult).ApplyColor(Color.Black) + topology.ToMeta(Color.Red, Color.Blue, mult, mult)
             : topology.ToMeta(Color.Red, Color.Blue, mult, mult);
     }
 
@@ -300,7 +300,7 @@ internal class AIMotionPlatform
 
         var ss = o.topologyWeightNums
             ? trainer.model.GetTopologyWeights(topologyWeightHeight).ToMeta(Color.Red, Color.Blue, 0.5, 0.5) +
-                trainer.model.GetTopology().ToNumSpots3(0.15, Color.Black)
+                trainer.model.GetTopology().ToNumSpots(0.15, Color.Black)
             : trainer.model.GetTopologyWeights(topologyWeightHeight).ToMeta(Color.Red, Color.Blue, 1, 1);
 
         return ss.ToOy().Mult(2).Move(2, 0, 1);

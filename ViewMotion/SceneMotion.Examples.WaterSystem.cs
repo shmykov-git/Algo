@@ -106,13 +106,18 @@ partial class SceneMotion // WaterSystem
     {
         // video result: https://youtu.be/RRlG2n7Zd2s
 
+        var sp1Color = Color.FromArgb(0, 64, 0);
+        var sp2Color = Color.FromArgb(0, 64, 0);
+        var g1Color = Color.FromArgb(64, 0, 0);
+        var g2Color = Color.FromArgb(0, 64, 0);
+
         var options = new WaterCubeOptions()
         {
             SceneSize = new Vector3(12, 15, 12),
-            ParticleInitCount = 1000,
-            SceneMotionSteps = 999,
-            StepAnimations = 1,
-            PlatformColor = Color.FromArgb(60, 100, 140),
+            ParticleInitCount = 1200,
+            SceneMotionSteps = 500,
+            StepAnimations = 2,
+            PlatformColor = Color.FromArgb(64, 0, 0),
             PlatformType = PlatformType.Square
         };
 
@@ -121,13 +126,14 @@ partial class SceneMotion // WaterSystem
         var cubeSize = options.SceneSize;
         var particleRadius = options.ParticleRadius;
 
-        (Shape sphere, Shape collider) GetHalfSphere(double radius, Vector3 move, double removeLine = 0.5001, Vector3? rotate = null, bool up = true)
+        (Shape sphere, Shape collider) GetHalfSphere(double radius, Vector3 move, Color color, double removeLine = 0.5001, Vector3? rotate = null, bool up = true)
         {
             var sphere = Surfaces.SphereAngle(30, 60, 2 * Math.PI, 0).Mult(0.5).ToOy()
                 .ModifyIf(up, s => s.Where(v => v.y > -removeLine), s => s.Where(v => v.y < removeLine).ReversePlanes().AddNormalVolume(-0.2 / radius))
                 .Mult(radius)
                 .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
                 .Move(move)
+                .TriangulateByFour()
                 .ApplyColor(options.PlatformColor);
 
             var collider = Surfaces.SphereAngle(10, 20, 2 * Math.PI, 0).Mult(0.5).ToOy()
@@ -136,7 +142,7 @@ partial class SceneMotion // WaterSystem
                 .ModifyIf(rotate.HasValue, s => s.RotateY(rotate.Value))
                 .Move(move);
 
-            return (sphere, collider);
+            return (sphere.ApplyColor(color), collider);
         }
 
         Shape GetGutter(Vector3 scale, Vector3 rotation, Vector3 move, double gutterCurvature = 0.4)
@@ -146,21 +152,21 @@ partial class SceneMotion // WaterSystem
                 ? gutterTmp.MoveZ(-2.5)
                 : gutterTmp.MoveZ(-2 / gutterCurvature).ApplyZ(Funcs3Z.CylinderXMR(4 / gutterCurvature))
                     .MoveZ(6 / gutterCurvature - 2.5);
-            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).ApplyColor(options.PlatformColor);
+            var gutter = gutterTmp.Centered().Rotate(rotation).Move(move).TriangulateByFour().ApplyColor(options.PlatformColor);
 
             return gutter;
         }
 
         var gutters = new[]
         {
-            GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2)),
-            GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3))
+            GetGutter(new Vector3(4, 80, 1), new Vector3(0.1, 6, 1), new Vector3(0, cubeSize.y / 2 - 3, -2)).ApplyColor(g1Color),
+            GetGutter(new Vector3(4, 40, 1), new Vector3(-0.1, 6, -1), new Vector3(0, cubeSize.y / 2 - 10, 3)).ApplyColor(g2Color)
         };
 
         var spheres = new[]
         {
-            GetHalfSphere(2.5, new Vector3(0, -cubeSize.y / 2 + 2.5, 0)),
-            GetHalfSphere(4, new Vector3(-2, -cubeSize.y / 2 + 2.5, 0), -0.1, new Vector3(1, 1.5, 0), false)
+            GetHalfSphere(2.5, new Vector3(0, -cubeSize.y / 2 + 2.5, 0), sp1Color),
+            GetHalfSphere(4, new Vector3(-2, -cubeSize.y / 2 + 2.5, 0), sp2Color, -0.1, new Vector3(1, 1.5, 0), false)
         };
 
         var models = new List<WaterCubePlaneModel>
@@ -209,8 +215,8 @@ partial class SceneMotion // WaterSystem
             GutterCurvature = 0,
             GutterRotation = new Vector3(0.05, 6, 1),
             ParticleInitCount = 500,
-            SceneMotionSteps = 100,
-            StepAnimations = 10,
+            SceneMotionSteps = 500,
+            StepAnimations = 2,
             PlatformColor = Color.FromArgb(64, 0, 0),
             SphereColor = Color.FromArgb(64, 0, 0),
             GutterColor = Color.FromArgb(64, 0, 0),

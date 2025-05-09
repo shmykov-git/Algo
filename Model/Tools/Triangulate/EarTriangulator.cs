@@ -92,7 +92,7 @@ namespace Model.Tools.Triangulate
             if (polygon.Points.Length < 3)
                 return Array.Empty<int[]>();
 
-            var bi = polygon.Points.DistinctBi();
+            var bi = polygon.Points.DistinctOnlyBi();
             var nodes = polygon.Points.Select((p, i) => new Node() { ui = bi.bi[i], i = i, p = p }).ToArray();
 
             var size = polygon.Size;

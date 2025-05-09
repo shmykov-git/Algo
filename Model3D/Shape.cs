@@ -10,6 +10,10 @@ using Model3D.Libraries;
 using Model.Libraries;
 using Model.Graphs;
 using System.Diagnostics;
+using Model.Hashes;
+using meta.Tools;
+using System.Drawing;
+using System.Threading.Tasks;
 
 namespace Model
 {
@@ -20,16 +24,84 @@ namespace Model
         public int[][] Convexes;
         public Material[] Materials;
         public Vector2[][] TexturePoints;
+        public List<Shape> Shapes = new();
+        public MetaPoint[] MetaPoints = [];
+
         private Dictionary<int, int[]> _links;
 
+        public Shape()
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(10);
+
+                if (CompositeShapes.Any(s => !s.HasSingleMaterial || (s.Convexes ?? []).Select(c => c.Length).Distinct().Count() != 1))
+                {
+                    var debug = CompositeShapes.Select(s => $"{s.PointsCount}-({s.Convexes?.GroupBy(c => c.Length).Select(gc => $"{gc.Key}-{gc.Count()}").SJoin(",") ?? "0"}-{s.Materials?.Distinct().Count() ?? 0})").SJoin(", ");
+                    Debug.WriteLine(debug);
+                }
+            });
+        }
+
+        public IEnumerable<Shape> CompositeShapes 
+        {
+            get
+            {
+                if (!IsRootEmpty)
+                    yield return this;
+
+                foreach (var shape in Shapes.SelectMany(s => s.CompositeShapes))
+                    yield return shape;
+            }
+        }
+
+        public IEnumerable<Shape> CompositeMaterialShapes
+        {
+            get
+            {
+                foreach (var s in CompositeShapes)
+                {
+                    if (s.HasSingleMaterial)
+                        yield return s;
+                    else
+                        foreach (var sM in s.SplitByMaterial())
+                        {
+                            yield return sM;
+                        }
+                }
+            }
+        }
+
+        public bool IsComposite => Shapes.Count > 0;
+        public bool IsRootEmpty => (Points?.Length ?? 0) == 0;
+        public bool IsEmpty => IsRootEmpty && !IsComposite;
+        public bool HasMetaPoints => MetaPoints.Length > 0;
+        public bool HasSingleMaterial => (Materials?.Distinct().Count() ?? 0) <= 1;
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();
-        public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? new (int, int)[0][] : Convexes.Select(convex => convex.Length == 2 ? new[] { (convex[0], convex[1]) } : convex.SelectCirclePair((i, j) => (i, j)));
+        public IEnumerable<IEnumerable<(int, int)>> ConvexesIndices => Convexes == null ? [] : Convexes.Select(convex => convex.Length == 2 ? [(convex[0], convex[1])] : convex.SelectCirclePair((i, j) => (i, j)));
         public (int i, int j)[] Edges => ConvexesIndices.SelectMany(edges => edges).ToArray();
         public (int i, int j)[] OrderedEdges => ConvexesIndices.SelectMany(edges => edges.Select(e => e.OrderedEdge())).Distinct().ToArray();
         public Dictionary<int, int[]> Links => _links ??= ConvexesIndices.SelectMany(vs => vs.SelectMany(v => new[] { v, v.ReversedEdge() })).Distinct().GroupBy(v => v.Item1).ToDictionary(vv => vv.Key, vv => vv.Select(v => v.Item2).ToArray());
         public Line3[] Lines3 => OrderedEdges.Select(e => new Line3(Points[e.Item1].ToV3(), Points[e.Item2].ToV3())).ToArray();
         public Line2[] Lines2 => OrderedEdges.Select(e => new Line2(Points[e.Item1].ToV2(), Points[e.Item2].ToV2())).ToArray();
+
+        public Shape Clone()
+        {
+            var clone = new Shape()
+            {
+                Points = Points.ToArray(),
+                Convexes = Convexes.ToArray(),
+                Materials = Materials?.ToArray(),
+                TexturePoints = TexturePoints?.ToArray(),
+                MetaPoints = MetaPoints?.ToArray(),
+            };
+
+            if (IsComposite)
+                clone.Shapes = Shapes.Select(s => s.Clone()).ToList();
+
+            return clone;
+        }
 
         public Graph EdgeGraph => new Graph(OrderedEdges);
         public Graph DirectEdgeGraph => new Graph(Edges);
@@ -127,8 +199,8 @@ namespace Model
 
         public static Shape Empty => new Shape()
         {
-            Points = Array.Empty<Vector4>(),
-            Convexes = Array.Empty<int[]>()
+            Points = [],
+            Convexes = []
         };
 
         public double GetRadius()
@@ -329,6 +401,27 @@ namespace Model
             public int i;
             public (int,int)[] edges;
             public HashSet<ConvexNode> ns = new HashSet<ConvexNode>();
+        }
+
+        public class MetaPoint : IEquatable<MetaPoint> 
+        {
+            public Vector4 point;
+            public int[] links;
+
+            public override int GetHashCode()
+            {
+                return point.GetHashCode();
+            }
+
+            public override bool Equals(object obj)
+            {
+                return Equals(obj as MetaPoint);
+            }
+
+            public bool Equals(MetaPoint other)
+            {
+                return point == other.point;
+            }
         }
     }
 }

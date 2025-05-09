@@ -349,20 +349,22 @@ public static class Surfaces
         Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un, bothFaces)
     }.Normalize();
 
-    public static Shape Cylinder(int un, int vn) => new Shape
+    public static Shape Cylinder(int un, int vn, ConvexFunc convexFn = null) => new Shape
     {
         Points3 = new SurfaceFuncInfo
         {
             Fn = SurfaceFuncs.Cylinder,
             UFrom = 0,
             UTo = 2 * Math.PI,
-            UN = un,
+            UN = un - 1,
+            UClosed = true,
             VFrom = 0,
             VTo = vn - 1,
             VN = vn,
+            VClosed = false
         }.GetPoints(),
-        Convexes = Squares(vn, un)
-    }.Normalize();
+        Convexes = convexFn == null ? Convexes.Squares(vn, un - 1, false, true) : convexFn(vn, un - 1, false, true)
+    };
 
     public static Shape ChessCylinder(int un, int vn) => new Shape
     {

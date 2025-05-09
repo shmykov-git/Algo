@@ -1,12 +1,13 @@
 ﻿using System;
+using Model.Libraries;
 
 namespace Model3D.AsposeModel;
 
 public struct Quaternion
 {
-    private const double epsilon = 1e-9;
-    private const double epsilonPow2 = epsilon * epsilon;
-    private const double epsilon1 = 1 - epsilon;
+    private const double Epsilon = Values.Epsilon9;
+    private const double EpsilonPow2 = Epsilon * Epsilon;
+    private const double Epsilon1 = 1 - Epsilon;
 
     public double x;
     public double y;
@@ -30,7 +31,7 @@ public struct Quaternion
     {
         double length = Length;
 
-        if (length > epsilon)
+        if (length > Epsilon)
         {
             return new Quaternion(x / length, y / length, z / length, w / length);
         }
@@ -45,26 +46,29 @@ public struct Quaternion
 
     public static Quaternion FromAngleAxis(double angle, Vector3 axis)
     {
-        axis.Normalize();
-        double halfAngle = angle * 0.5;
-        double sinHalfAngle = Math.Sin(halfAngle);
-        double cosHalfAngle = Math.Cos(halfAngle);
+        Vector3 normalizedAxis = axis.Normalize();
+
+        double halfAngleRad = 0.5 * angle;
+
+        var sin = Math.Sin(halfAngleRad);
+        var cos = Math.Cos(halfAngleRad);
 
         return new Quaternion(
-            axis.x * sinHalfAngle,
-            axis.y * sinHalfAngle,
-            axis.z * sinHalfAngle,
-            cosHalfAngle
-        );
+            normalizedAxis.x * sin,
+            normalizedAxis.y * sin,
+            normalizedAxis.z * sin,
+            cos
+        );    
     }
 
     // same as Aspose, checked
     public static Quaternion FromRotation(Vector3 from, Vector3 to)
     {
-        Vector3 f = from;
-        Vector3 t = to;
-        f.Normalize();
-        t.Normalize();
+        if (from.Length2 < EpsilonPow2 || to.Length2 < EpsilonPow2)
+            return Identity;
+
+        Vector3 f = from.Normalize();
+        Vector3 t = to.Normalize();
 
         double dot = Vector3.Dot(f, t);
         if (dot >= 1.0)
@@ -72,19 +76,18 @@ public struct Quaternion
             return Identity;
         }
 
-        if (dot < -epsilon1)
+        if (dot < -Epsilon1)
         {
             Vector3 orthogonal = new Vector3(1, 0, 0);
             orthogonal = Vector3.Cross(f, orthogonal);
             
-            if (orthogonal.Length < epsilon)
+            if (orthogonal.Length < Epsilon)
             {
                 orthogonal = new Vector3(0, 1, 0);
                 orthogonal = Vector3.Cross(f, orthogonal);
             }
 
-            orthogonal.Normalize();
-            return FromAngleAxis(Math.PI, orthogonal);
+            return FromAngleAxis(Math.PI, orthogonal.Normalize());
         }
 
         Vector3 cross = Vector3.Cross(f, t);
@@ -129,7 +132,7 @@ public struct Quaternion
     {
         double lengthSq = Length2;
 
-        if (lengthSq > epsilonPow2)
+        if (lengthSq > EpsilonPow2)
         {
             double invLengthSq = 1.0 / lengthSq;
             

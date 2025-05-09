@@ -187,14 +187,8 @@ static class MotionExtensions
                 }
 
                 var s = motion.Current;
-                
-                shape = new Shape()
-                {
-                    Points = s.Points.ToArray(),
-                    Convexes = s.Convexes.ToArray(),
-                    Materials = s.Materials?.ToArray(),
-                    TexturePoints = s.TexturePoints?.ToArray(),
-                };
+
+                shape = s.Clone();
 
                 return true;
             }

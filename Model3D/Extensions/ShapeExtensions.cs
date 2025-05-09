@@ -97,14 +97,14 @@ namespace Model3D.Extensions
         public static Shape WhereEllipse4(this Shape shape, double a, double b) =>
             shape.Where(v => (v.x / a).Pow2().Pow2() + (v.y / b).Pow2().Pow2() < 1);
 
-        public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc, bool cleanPoints = true)
+        public static Shape Where(this Shape shape, Func<Vector3, bool> whereFunc, bool cleanPoints = true, bool cleanConvexes = true)
         {
             var pBi = shape.Points3.WhereBi(whereFunc);
 
             var s = new Shape
             {
                 Points3 = pBi.items.ToArray(),
-                Convexes = shape.Convexes.Transform(i => pBi.bi[i]).CleanBi()
+                Convexes = shape.Convexes.Transform(i => pBi.bi[i]).CleanBi(cleanConvexes)
             };
 
             return cleanPoints ? s.CleanPoints() : s;
@@ -297,6 +297,26 @@ namespace Model3D.Extensions
             return shapes[0];
         }
 
+        public static Shape ToCompositeShape(this IEnumerable<Shape> shapeList)
+        {
+            var shapes = shapeList.Where(s => !s.IsEmpty).ToList();
+
+            if (shapes.Count == 0)
+                return Shape.Empty;
+
+            if (shapes.Count == 1)
+                return shapes[0];
+
+            return new Shape
+            {
+                Points = [],
+                Convexes = [],
+                Shapes = shapes
+            };
+        }
+
+        public static Shape ToComposedShape(this Shape shape) => shape.IsComposite ? shape.CompositeShapes.ToSingleShape() : shape;
+
         public static Shape2 ToShape2(this Shape shape)
         {
             return new Shape2
@@ -306,20 +326,31 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ToMetaShape(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
+        public static Shape ToMetaPlaneShape(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
         {
-            return shape.ToSpots(multPoint, pointMaterial).Join(shape.ToPlaneLines(multLines, linesMaterial));
+            return shape.ToPlaneSpots(multPoint, pointMaterial).Join(shape.ToPlaneLines(multLines, linesMaterial));
         }
 
         public static Shape ToMeta(this Shape shape, Color? pointColor = null, Color? linesColor = null, double multPoint = 1, double multLines = 1, Shape spotShape = null)
         {
-            return shape.ToLines(multLines, linesColor ?? Color.Blue) + shape.ToSpots3(multPoint, pointColor ?? Color.Red, spotShape);
+            return shape.ToLines(multLines, linesColor ?? Color.Blue) + shape.ToSpots(multPoint, pointColor ?? Color.Red, spotShape);
+        }
+
+        public static Shape ToCompositeMeta(this Shape shape, Color? pointColor = null, Color? linesColor = null, double multPoint = 1, double multLines = 1, Shape spotShape = null)
+        {
+            var s = new[]
+            {
+                shape.ToLines(multLines, linesColor ?? Color.Blue),
+                shape.ToSpots(multPoint, pointColor ?? Color.Red, spotShape)
+            }.ToCompositeShape();
+
+            return s;
         }
 
         public static Shape ToMetaShape3(this Shape shape, double multPoint = 1, double multLines = 1, Color? pointColor = null, Color? linesColor = null, Shape spotShape = null)
         {
             return shape.ToLines(multLines, linesColor)
-                .Join(shape.ToSpots3(multPoint, pointColor, spotShape));
+                .Join(shape.ToSpots(multPoint, pointColor, spotShape));
         }
 
         public static Shape RemoveConvexes(this Shape shape) => new Shape
@@ -341,21 +372,23 @@ namespace Model3D.Extensions
 
         public static Shape ToMetaShapeWithMaterial3(this Shape shape, double multPoint = 1, double multLines = 1, Material pointMaterial = null, Material linesMaterial = null)
         {
-            return shape.ToSpots3WithMaterial(multPoint, null, pointMaterial).Join(shape.ToLines3WithMaterial(multLines, linesMaterial));
+            return shape.ToSpotsWithMaterial(multPoint, null, pointMaterial).Join(shape.ToLines3WithMaterial(multLines, linesMaterial));
         }
 
-        public static Shape ToSpots(this Shape shape, double mult = 1, Material material = null)
+        public static Shape ToPlaneSpots(this Shape shape, double mult = 1, Material material = null)
         {
             var spot = Polygons.Elipse(1, 1, 10).Mult(0.02 * mult).ToShape2().ToShape3();
+            var n = spot.PointsCount;
 
             return new Shape
             {
                 Points3 = shape.Points3.SelectMany(p => spot.Points3.Select(s => p + s)).ToArray(),
-                Convexes = shape.PointIndices.SelectMany(i => spot.Convexes.Select(convex => convex.Select(j => spot.PointsCount * i + j).ToArray())).ToArray()
+                Convexes = shape.PointIndices.SelectMany(i => spot.Convexes.Select(convex => convex.Select(j => n * i + j).ToArray())).ToArray(),
+                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
             }.ApplyMaterial(material);
         }
 
-        public static Shape ToNumSpots3(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null)
+        public static Shape ToNumSpots(this Shape shape, double mult = 1, Color? spotColor = null, Color? numColor = null)
         {
             spotColor ??= Color.Red;
             numColor ??= Color.Black;
@@ -374,7 +407,7 @@ namespace Model3D.Extensions
                 texts.Add(iText);
             }
 
-            var spots = shape.ToSpots3(mult, spotColor.Value);
+            var spots = shape.ToSpots(mult, spotColor.Value);
 
             return texts.ToSingleShape() + spots;
         }
@@ -404,35 +437,51 @@ namespace Model3D.Extensions
                 }
             }
 
-            var spots = shape.ToSpots3(mult, spotColor.Value);
+            var spots = shape.ToSpots(mult, spotColor.Value);
 
             return shapes.Aggregate((a, b) => a + b) + spots;
         }
 
-        public static Shape ToPoints(this Shape shape, Color? color = null, double mult = 1, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
-        public static Shape ToPoints(this Shape shape, double mult, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToMetaPointsShape(this Shape shape, double mult = 1)
+        {
+            var s = new Shape
+            {
+                Points = shape.MetaPoints.Select(m => m.point).ToArray()
+
+                //Points3 = shape.MetaPoints.Select(m => m.links.Select(i => shape.Points[i]).Center().ToV3()).ToArray()
+            };
+            
+            //var spot = Shapes.Icosahedron + 
+
+            return s.ToSpotsWithMaterial(mult, Shapes.Icosahedron, new Material { Color = Color.Red });
+        }
+
+        public static Shape ToPoints(this Shape shape, Color? color = null, double mult = 1, Shape spotShape = null) => shape.ToSpotsWithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToPoints(this Shape shape, double mult, Color? color = null, Shape spotShape = null) => shape.ToSpotsWithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
 
-        public static Shape ToSpots3(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpots3WithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
+        public static Shape ToSpots(this Shape shape, double mult = 1, Color? color = null, Shape spotShape = null) => shape.ToSpotsWithMaterial(mult, spotShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToShapedSpots3(this Shape shape, Shape pointShape, Color? color = null) =>
-            shape.ToSpots3WithMaterial(50, pointShape, color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpotsWithMaterial(50, pointShape, color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToCubeSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Cube.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpotsWithMaterial(mult, Shapes.Cube.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
 
         public static Shape ToTetrahedronSpots3(this Shape shape, double mult = 1, Color? color = null) =>
-            shape.ToSpots3WithMaterial(mult, Shapes.Tetrahedron.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
+            shape.ToSpotsWithMaterial(mult, Shapes.Tetrahedron.MassCentered(), color.HasValue ? new Material { Color = color.Value } : null);
 
-        public static Shape ToSpots3WithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
+        public static Shape ToSpotsWithMaterial(this Shape shape, double mult = 1, Shape pointShape = null, Material material = null)
         {
             pointShape ??= Shapes.Icosahedron;
             pointShape = pointShape.Mult(0.02 * mult);
+            var n = pointShape.PointsCount;
 
             return new Shape
             {
                 Points3 = shape.Points3.SelectMany(p => pointShape.Points3.Select(s => p + s)).ToArray(),
-                Convexes = shape.PointIndices.SelectMany(i => pointShape.Convexes.Select(convex => convex.Select(j => pointShape.PointsCount * i + j).ToArray())).ToArray()
+                Convexes = shape.PointIndices.SelectMany(i => pointShape.Convexes.Select(convex => convex.Select(j => n * i + j).ToArray())).ToArray(),
+                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -454,8 +503,7 @@ namespace Model3D.Extensions
 
         public static Shape ToLines3WithMaterial(this Shape shape, double mult = 1, Material material = null, bool stretch = true, Shape lineShape = null, bool direct = false)
         {
-            lineShape = lineShape == null ? Surfaces.Cylinder(5, 2) : lineShape.Align(0.5, 0.5, 0);
-
+            lineShape = lineShape == null ? Surfaces.Cylinder(5, 2, Convexes.Triangles) : lineShape.Align(0.5, 0.5, 0);
             var n = lineShape.PointsCount;
 
             var width = 0.003 * mult;
@@ -475,12 +523,26 @@ namespace Model3D.Extensions
                 return line;
             }
 
-            var lines = direct ? shape.Edges.Select(GetLine).ToArray() : shape.OrderedEdges.Select(GetLine).ToArray();
+            var edges = direct ? shape.Edges.ToArray() : shape.OrderedEdges.ToArray();
+            var lines = edges.Select(GetLine).ToArray();
+            var toLinks = edges.Select((e, ii) => (e, ii)).GroupBy(e => e.e.i).ToDictionary(ge => ge.Key, ge => ge.Select(e => e.ii).ToArray());
+            var fromLinks = edges.Select((e, ii) => (e, ii)).GroupBy(e => e.e.j).ToDictionary(ge => ge.Key, ge => ge.Select(e => e.ii).ToArray());
 
             return new Shape
             {
                 Points = lines.SelectMany(line => line.Points).ToArray(),
-                Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray()
+                Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray(),
+                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint 
+                {
+                    point = p,
+                    links = new[]
+                    {
+                        (toLinks.TryGetValue(i, out var toL) ? toL : [])
+                            .SelectMany(j => (n/2).SelectRange(k => j * n + k)),
+                        (fromLinks.TryGetValue(i, out var fromL) ? fromL : [])
+                            .SelectMany(j => (n/2).SelectRange(k => j * n + k + n/2))
+                    }.ManyToArray() 
+                }).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -517,10 +579,24 @@ namespace Model3D.Extensions
 
         public static Shape Join(this Shape shape, Shape another)
         {
+            if (shape.IsComposite || another.IsComposite)
+                throw new Exception("One of the shape is composite. Make it composed first");
+
+            var n = shape.PointsCount;
+
             var newShape = new Shape
             {
                 Points = shape.Points.Concat(another.Points).ToArray(),
-                Convexes = shape.Convexes.Concat(another.Convexes.Select(convex => convex.Select(i => i + shape.PointsCount).ToArray())).ToArray()
+                Convexes = shape.Convexes.Concat(another.Convexes.Select(convex => convex.Select(i => i + n).ToArray())).ToArray(),
+                MetaPoints = new[]
+                {
+                    shape.MetaPoints,
+                    another.MetaPoints.Select(mp => new Shape.MetaPoint { point = mp.point, links = mp.links.Select(i => i + n).ToArray() })
+                }
+                .SelectMany(v => v)
+                .GroupBy(v => v.point)
+                .Select(gv => new Shape.MetaPoint { point = gv.Key, links = gv.SelectMany(v => v.links).ToArray() })
+                .ToArray()
             };
 
             if (shape.Materials != null || another.Materials != null)
@@ -577,7 +653,8 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Select(p => new Vector4(k * p.x, k * p.y, k * p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point * k }).ToArray()
             };
         }
         
@@ -703,7 +780,8 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Select(p => new Vector4(x * p.x, y * p.y, z * p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point.MultV(new Vector3(x, y, z)) }).ToArray()
             };
         }
 
@@ -717,7 +795,8 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Select(p => new Vector4(x + p.x, y + p.y, z + p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point + new Vector4(x, y, z, 0) }).ToArray()
             };
         }
 
@@ -727,7 +806,8 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints
             };
         }
 
@@ -839,7 +919,8 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.Select(p => p + v).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point + v.ToV4() }).ToArray()
             };
         }
 
@@ -849,7 +930,8 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.Select(moveFn).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = moveFn(m.point.ToV3()).ToV4() }).ToArray()
             };
         }
 
@@ -870,7 +952,8 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Select(p => q * p).ToArray(),
                 Convexes = shape.Convexes,
-                Materials = shape.Materials
+                Materials = shape.Materials,
+                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = q*(m.point.ToV3()).ToV4() }).ToArray()
             };
         }
 
@@ -1119,7 +1202,7 @@ namespace Model3D.Extensions
         public static Shape NormalizeWith2D(this Shape shape, bool allowConvexCollapses = false) => Normalize(shape, true, true, allowConvexCollapses);
         public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true, bool allowConvexCollapses = false)
         {
-            var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctBi();
+            var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctOnlyBi();
                         
             var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
             var convexes = shape.Convexes.Transform(i => bi.bi[i])
@@ -1149,6 +1232,13 @@ namespace Model3D.Extensions
                 Points = points, 
                 Convexes = convexes.ToArray()
             };
+        }
+
+        public static Shape ApplyMetaPoint(this Shape shape, Vector3 point)
+        {
+            shape.MetaPoints = [new Shape.MetaPoint { links = (shape.PointsCount).Range().ToArray(), point = point.ToV4() }];
+            
+            return shape;
         }
 
         public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null) =>

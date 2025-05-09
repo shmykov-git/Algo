@@ -1,4 +1,6 @@
-﻿using Model3D.Extensions;
+﻿using Model.Libraries;
+using Model3D.Extensions;
+using Model3D.Libraries;
 using Model3D.Tools.Vectorization;
 using System.Drawing;
 using Shape = Model.Shape;
@@ -20,5 +22,10 @@ public partial class Scene
 
     #endregion
 
-    public Shape GetShape() => vectorizer.GetText("Use scene motion for any scene", 300).Perfecto().ScaleZ(0.1).ApplyColor(Color.Blue); // SceneMotion.cs
+    public Shape GetShape1() => vectorizer.GetText("Use scene motion for any scene", 300).Perfecto().ScaleZ(0.1).ApplyColor(Color.Blue); // SceneMotion.cs
+
+    public Shape GetShape()
+    {
+        return Chess();
+    }
 }

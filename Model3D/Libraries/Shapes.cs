@@ -450,7 +450,7 @@ namespace Model.Libraries
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
 
         public static Shape SquarePlatform(double x = 3, double y = 3, double z = 0.1) => Surfaces.Plane(2, 2)
-            .Perfecto().Scale(x,y,1).AddNormalVolume(z).ToOyM().ApplyColor(Color.Black);
+            .Perfecto().Scale(x,y,1).AddNormalVolume(z).ToOyM().TriangulateByFour().ApplyColor(Color.Black);
 
         public static Shape CirclePlatform(double x = 3, double y = 3, double z = 0.1) => Surfaces.Circle(100, 2)
             .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(Color.Black);
@@ -668,7 +668,7 @@ namespace Model.Libraries
                 _ => throw new NotSupportedException(quality.ToString())
             };
 
-        public static Shape ConvexEllipsoid(double power = 8, int quality = 4, double fi = 0) => Convex(Funcs_3.Ellipsoid(power), quality, fi);
+        public static Shape PowerEllipsoid(double power = 8, int quality = 4, double fi = 0) => Convex(Funcs_3.Ellipsoid(power), quality, fi);
 
         public static Shape Convex(Func_3 fn, int quality = 4, double fi = 0)
         {

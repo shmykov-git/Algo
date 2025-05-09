@@ -542,7 +542,7 @@ namespace View3D
 
             var rnd = new Random(3);
 
-            var tb = Surfaces.Plane(9, 9).ApplyColorChess(black, white).Perfecto(8*l).AddVolumeZ(tbTh*l).ApplyZ(chessFn).Mult(1/l).ToOy();
+            var tb = Surfaces.Plane(9, 9).Perfecto(8 * l).ApplyColorChess(black, white).AddVolumeZ(tbTh * l).ApplyZ(chessFn).Mult(1 / l).ToOy();
             var ns = tb.Normals;
             var ps = tb.Planes.Select(p => p.Center()).ToArray();
             //tb = Surfaces.ParticleWithPlane(9, 9).ApplyColorChess(black, white)
@@ -553,9 +553,9 @@ namespace View3D
                 data.Select(v => v.s
                     .RotateY(ns[ind(v.p)])
                     .Move(ps[ind(v.p)])
-                    .ApplyColor(v.c)).ToSingleShape(),
+                    .ApplyColor(v.c)).ToCompositeShape(),
                 tb
-            }.ToSingleShape();
+            }.ToCompositeShape();
         }
     }
 }

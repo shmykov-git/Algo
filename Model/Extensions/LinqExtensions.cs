@@ -24,6 +24,8 @@ namespace Model.Extensions
     {
         private static ThreadPool threadPool = DI.Get<ThreadPool>();
 
+        public static IEnumerable<(TItem, int)> WithI<TItem>(this IEnumerable<TItem> items) => items.Select((v, i) => (v, i));
+
         public static void ForEach<T>(this IEnumerable<T> list, Action<T> action)
         {
             var enumerator = list.GetEnumerator();
@@ -343,7 +345,14 @@ namespace Model.Extensions
             }
         }
 
-        public static (int[] bi, bool[] filter) DistinctBi<TItem>(this TItem[] items)
+        public static (int[] bi, bool[] filter) DistinctOnlyBi<TItem>(this TItem[] items)
+        {
+            var (_, bi, filter) = Indexer.DistinctBi(items);
+
+            return (bi, filter);
+        }
+
+        public static (TItem[] items, int[] bi, bool[] filter) DistinctBi<TItem>(this TItem[] items)
         {
             return Indexer.DistinctBi(items);
         }

@@ -29,10 +29,10 @@ namespace Model3D.Extensions
             FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
 
         public static Shape ToNumShape(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
-            FourierShapes.SingleSeries(frs.ToArray(), count).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
+            FourierShapes.SingleSeries(frs.ToArray(), count).ToNumSpots(size) + FourierShapes.SingleSeries(frs.ToArray(), count).ToLines(size);
 
         public static Shape ToNumShapeR90(this IEnumerable<Fr> frs, int count = 256, double size = 1) =>
-            FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToNumSpots3(size) + FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToLines(size);
+            FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToNumSpots(size) + FourierShapes.SingleSeries(frs.ToArray(), count).Rotate(-Math.PI / 2).ToLines(size);
 
         public static Shape ToFormulaShape(this IEnumerable<Fr> frs) =>
             FourierShapes.SeriesFormula(frs.ToArray());

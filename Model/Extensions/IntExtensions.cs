@@ -68,9 +68,11 @@ namespace Model.Extensions
             return needReverse ? lists.Select(list => list.Reverse().ToArray()).ToArray() : lists;
         }
 
-        public static int[][] CleanBi(this IEnumerable<int[]> lists)
+        public static int[][] CleanBi(this IEnumerable<int[]> convexes, bool cleanConvexes = true)
         {
-            return lists.Where(list=>!list.Contains(-1)).ToArray();
+            return cleanConvexes
+                ? convexes.Where(convex => !convex.Contains(-1)).ToArray()
+                : convexes.Select(list => list.Where(v => v != -1).ToArray()).ToArray();
         }
 
         public static Dictionary<int, int> BackIndices(this IEnumerable<int> indices)

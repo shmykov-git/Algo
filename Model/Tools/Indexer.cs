@@ -7,10 +7,11 @@ namespace Model.Tools
 {
     public static class Indexer
     {
-        public static (int[] bi, bool[] filter) DistinctBi<TItem>(TItem[] items)
+        public static (TItem[] items, int[] bi, bool[] filter) DistinctBi<TItem>(TItem[] items)
         {
             var iDist = 0;
             var indices = new Dictionary<TItem, int>(items.Length);
+            var res = new List<TItem>();
             var backIndices = new int[items.Length];
             var filter = new bool[items.Length];
 
@@ -24,13 +25,14 @@ namespace Model.Tools
                 else
                 {
                     indices.Add(items[i], iDist);
+                    res.Add(items[i]);
                     backIndices[i] = iDist;
                     filter[i] = true;
                     iDist++;
                 }
             }
 
-            return (backIndices, filter);
+            return (res.ToArray(), backIndices, filter);
         }
 
         public static (int[] bi, List<TItem> items) RemoveBi<TItem>(IEnumerable<TItem> items, IEnumerable<TItem> removeItems)

@@ -1,4 +1,6 @@
 ﻿using System;
+using Model.Extensions;
+using Model.Libraries;
 
 namespace Model3D.AsposeModel;
 
@@ -30,7 +32,15 @@ public struct Vector3
         this.z = z;
     }
 
-    public Vector3 Normalize() => this / Length;
+    public Vector3 Normalize()
+    {
+        var l2 = Length2;
+
+        if ((l2 - 1).Abs() < Values.Epsilon9)
+            return this;
+
+        return this / Math.Sqrt(l2);
+    }
 
     public static double Dot(Vector3 a, Vector3 b)
     {

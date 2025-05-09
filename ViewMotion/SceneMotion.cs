@@ -67,8 +67,28 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        var s = new View3D.Scene(new StaticSettings(), vectorizer);
+        //return Shapes.Cube.Scale(60, 10, 40).Perfecto(2).SplitPlanes(0.3).ToMotion();
 
-        return s.BlackHole().Perfecto().ToMotion();
+        //return Surfaces.Cylinder(5, 2, Convexes.Triangles).Perfecto().ToMeta().ToMotion();
+
+        //var s = new Shape
+        //{
+        //    Points3 = [new Vector3(1, 2, 3), new Vector3(-3, -2, -1), new Vector3(-1, 1, 1)],
+        //    Convexes = [[0, 1, 2], [0, 2, 1]]
+        //}
+
+        //var s = Shapes.Cube.TriangulateByFour().Perfecto().ApplyColor(Color.Red);
+
+        //return (100).SelectInterval(0, 2*Math.PI, f=>s.Rotate(f, new Vector3(1, 2, 3))).ToMotion();
+
+        //var c = Shapes.Icosahedron.Points3.Center();
+
+        //var s = Shapes.Plane(2, 2).Centered().Where(v => v.x < 0 || v.y < 0, false, false).ToLines(30);//.ToMeta(multLines:30, multPoint:10);
+
+        //return (s.ToSpots(0.5, Color.Blue) + s.ToMetaPointsShape(1.5) + Shapes.Coods2WithText()).ToMotion();
+
+        //return s.ToNumSpots(0.3).ToMotion();
+
+        return WorldInteractionMotion();
     }
 }

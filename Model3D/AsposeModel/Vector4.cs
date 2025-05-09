@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Drawing;
+using Model.Libraries;
 
 namespace Model3D.AsposeModel;
 
 public struct Vector4
 {
+    private const double epsilon = Values.Epsilon9;
+    private const double epsilonPow2 = epsilon * epsilon;
+
     public double x;
     public double y;
     public double z;
     public double w;
+
+    public double Length2 => x * x + y * y + z * z + w * w;
+    public double Length => Math.Sqrt(Length2);
 
     public Vector4(double x, double y, double z, double w = 1.0)
     {
@@ -25,6 +32,13 @@ public struct Vector4
         this.z = color.B / 255.0;  // Blue
         this.w = color.A / 255.0;  // Alpha
     }
+
+    public Vector4 MultV(Vector4 b) => new Vector4(x * b.x, y * b.y, z * b.z, w * b.w);
+    public Vector4 MultV(Vector3 b) => new Vector4(x * b.x, y * b.y, z * b.z, w);
+
+    public static bool operator ==(Vector4 a, Vector4 b) => (b - a).Length2 < epsilonPow2;
+
+    public static bool operator !=(Vector4 a, Vector4 b) => !(a == b);
 
     // Унарный минус
     public static Vector4 operator -(Vector4 v)
