@@ -68,6 +68,6 @@ partial class SceneMotion
 {
     public Task<Motion> Scene()
     {
-        return ParquetMotion();
+        return BulletThrowMotion();
     }
 }

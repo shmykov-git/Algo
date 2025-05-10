@@ -242,7 +242,8 @@ partial class SceneMotion // MaterialActiveWorld
         {
             var rnd = new Random();
 
-            var sceneCount = 1000;
+            var sceneCount = 1500;
+            var showEach = 3;
             var n = 50;
             var activeRadius = 5;
             var brokenRadius = 50;
@@ -344,25 +345,33 @@ partial class SceneMotion // MaterialActiveWorld
                 bullet.position += bullet.speed;
             }
 
-            Shape GetBlock(int i) => new Shape
+            Shape GetBlock(int i)
             {
-                Points3 = nodes.Select(n => n.position).ToArray(),
-                Convexes = block.Convexes
-            };
+                var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12);
+
+                var s = new Shape
+                {
+                    Points3 = ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(),
+                    Convexes = block.Convexes.ApplyBi(bi).CleanBi(true)
+                };
+
+                return s;
+            }
 
             var border = Surfaces.Torus(60, 10, 11).Perfecto(37).MoveZ(fixZPos + 0.5).RotateOx(rotate).ApplyColor(Color.SaddleBrown);
-            var bulletShape = Shapes.IcosahedronSp3.Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
+            var bulletShape = Shapes.IcosahedronSp3.ApplyMetaPoint(Vector3.Origin).Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
 
             IEnumerable<Shape> Animate()
             {
                 for (var i = 0; i < sceneCount; i++)
                 {
-                    yield return new[]
-                    {
-                    GetBlock(i).ApplyColor(Color.Blue),//.ToMetaShape3(5, 5, Color.Blue, Color.Green),
-                    bulletShape.Move(bullet.position),
-                    border,
-                }.ToSingleShape();
+                    if (i % showEach == 0)
+                        yield return new[]
+                        {
+                            GetBlock(i).ApplyColor(Color.Blue),//.ToMetaShape3(5, 5, Color.Blue, Color.Green),
+                            bulletShape.Move(bullet.position),
+                            border,
+                        }.ToCompositeShape();
 
                     Step();
                 }

@@ -111,19 +111,21 @@ internal class AIMotionPlatform
                 o.showTopology ? GetTopologyShape(trainer, o).Perfecto(1.8).MoveX(-2) : Shape.Empty,
                 o.showTopologyWeights ? GetTopologyWeightsShape(trainer, o) : Shape.Empty,
                 (o.zN).Range().Select(i => 
-                    pps.Select(ps=>ps[i]).ToArray().ToPointsShape().ToPoints(o.colors[i%o.colors.Length], 0.5, point)
-                ).ToSingleShape().Move(-0.5, -0.5, -0.5).Mult(2),
-                (type switch 
+                    pps.Select(ps=>ps[i]).ToArray().ToPointsShape().Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(o.colors[i%o.colors.Length], 0.5, point)
+                ).ToCompositeShape(),
+                (o.flashSurface 
+                ? (type switch 
                     {
                         0 => boxedShape.ToLines(0.5),
                         1 => (o.zN).Range().Select(i =>
                                 trainData.Select(v=>new Vector3(v.input[0], v.input[1], v.expected[i])).ToArray().ToPointsShape().ToPoints(o.colors[i%o.colors.Length], 0.5)
                               ).ToSingleShape(),
                         _ => Shape.Empty,
-                    }                   
+                    })
+                : boxedShape.ToLines(0.5)
                 ).Move(-0.5, -0.5, -0.5).Mult(2).ApplyColor(Color.Blue),
                 Shapes.Cube.Mult(2).ToLines(Color.Black)
-            }.ToSingleShape();
+            }.ToCompositeShape();
         }
 
         async IAsyncEnumerable<Shape> Animate()
@@ -148,7 +150,8 @@ internal class AIMotionPlatform
                 if (state.isUpChanged)
                     Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().ToGraphString()}]");
 
-                yield return GetShape(o.shapeType(k));
+                if (k % o.showEach == 0)
+                    yield return GetShape(o.shapeType(k));
             }
         }
 
@@ -215,7 +218,7 @@ internal class AIMotionPlatform
                 Points3 = (o.modelN, o.modelN).SelectInterval(o.modelR.from, o.modelR.to, o.modelR.from, o.modelR.to, ModelFn).ToArray(),
                 Convexes = Convexes.Squares(o.modelN, o.modelN)
             }.Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(Color.Red, 0.5),
-            withTrainModel
+            (withTrainModel || !o.flashSurface)
                 ? new Shape()
                 {
                     Points3 = (o.trainN, o.trainN).SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainFn).ToArray(),
@@ -223,7 +226,7 @@ internal class AIMotionPlatform
                 }.Move(-0.5, -0.5, -0.5).Mult(2).ToLines(Color.Blue)
                 : Shape.Empty,
             Shapes.Cube.Mult(2).ToLines(Color.Black)
-        }.ToSingleShape();
+        }.ToCompositeShape();
 
         async IAsyncEnumerable<Shape> Animate()
         {
@@ -247,7 +250,8 @@ internal class AIMotionPlatform
                 if (state.isUpChanged)
                     Debug.WriteLine($"UpGraph: [{trainer.model.GetGraph().ToGraphString()}]");
 
-                yield return GetShape(o.withTrain(k));
+                if (k % o.showEach == 0)
+                    yield return GetShape(o.withTrain(k));
             }
         }
 
