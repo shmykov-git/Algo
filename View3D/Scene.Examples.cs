@@ -112,9 +112,12 @@ namespace View3D
             public double? BlowFactor;
             public double? AngleSpeed;
             public double? GravityPower;
+            public Vector3? GravityPoint;
+            public double? BlackHoleSize;
             public bool NoRotation;
             public bool? TryBeauty;
             public int? InterationsCount;
+            public int? PerStepCount;
             public Color?[] Colors;
         }
 

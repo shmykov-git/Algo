@@ -61,13 +61,15 @@ using ViewMotion.Worlds;
 using Meta.Extensions;
 using View3D;
 using Model3D.Tools.Vectorization;
+using static View3D.Scene;
 
 namespace ViewMotion;
 
 partial class SceneMotion
 {
+
     public Task<Motion> Scene()
     {
-        return BulletThrowMotion();
+        return BlackHoleMotionExample();
     }
 }

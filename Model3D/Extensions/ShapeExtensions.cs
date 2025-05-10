@@ -946,11 +946,13 @@ namespace Model3D.Extensions
 
         public static Shape Rotate(this Shape shape, double angle, Vector3 axis) => shape.Rotate(Quaternion.FromAngleAxis(angle, axis));
 
-        public static Shape Rotate(this Shape shape, Quaternion q)
+        public static Shape Rotate(this Shape shape, Quaternion q, Vector3? center = null)
         {
+            var c = center ?? Vector3.Origin;
+
             return new Shape
             {
-                Points = shape.Points.Select(p => q * p).ToArray(),
+                Points3 = shape.Points3.Select(p => q * (p - c) + c).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
                 MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = q*(m.point.ToV3()).ToV4() }).ToArray()

@@ -402,12 +402,118 @@ partial class SceneMotion
         return Animate().ToMotion(10);
     }
 
-    class Particle : IAnimatorParticleItem
+    public Task<Motion> BlackHoleMotionExample()
+    {
+        var options = new BlackHoleMotionOptions()
+        {
+            Shape = Surfaces.Heart(40, 20),
+            GravityPoint = new Vector3(0, 0, 0),
+            GravityPower = 0.003,
+            AngleSpeed = 0.05,
+            BlackHoleSize = 0.1,
+            NoRotation = false,
+            BlowFactor = 0,
+            BlowRadius = 0,
+            TryBeauty = false,
+            InterationsCount = 500,
+            PerStepCount = 1
+        };
+
+        var blowRadius = options.BlowRadius ?? 1.6;
+        var blowFactor = options.BlowFactor ?? 0.4;
+        var angleSpeed = options.AngleSpeed ?? 0.5;
+        var gravityPower = options.GravityPower ?? 0.7;
+        var gravityPoint = options.GravityPoint ?? new Vector3(8, 0, 0);
+        var useRotation = !options.NoRotation;
+        var iterationsCount = options.InterationsCount ?? 25;
+        var perStepCount = options.PerStepCount ?? 1;
+        var tryBeauty = options.TryBeauty ?? true;
+        var palette = options.Colors ?? new Color?[]
+        {
+                Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White
+        };
+
+        var r = new Random(0);
+        var blowedShape = options.Shape ?? Shapes.Ball;
+
+        IEnumerable<Vector3> GetNativePowerPoint(double power, Vector3 to, Vector3 p)
+        {
+            var v = (to - p).MultV(Vector3.YAxis).ToLen(angleSpeed);
+
+            while (true)
+            {
+                var gForce = (to - p).ToLen(power / (to - p).Length2);
+                v += gForce;
+                p += v;
+
+                yield return p;
+            }
+        }
+
+        var blackHole = Shapes.Ball.Perfecto(options.BlackHoleSize ?? 0.3).ApplyColor(Color.Black).Move(gravityPoint);
+
+        var particles = blowedShape
+            .ApplyColorSphereGradient(Vector3.XAxis, palette.Reverse().ToArray())
+            .MoveX(-1.5)
+            .SplitByConvexes()
+            .Select(s => s.Rotate(Quaternion.FromEulerAngle(new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble())), s.PointCenter).ApplyMetaPoint(s.PointCenter))
+            .ToArray();
+
+        var enumerators = particles.Select(p => GetNativePowerPoint(gravityPower, gravityPoint, p.MetaPoints[0].point.ToV3()).GetEnumerator()).ToArray();
+
+        Shape GetStepShape(int k)
+        {
+            enumerators.ForEach(e => e.MoveNext());
+
+            var shape = new Shape[]
+            {
+                blackHole,
+
+                particles.Select((p, i) => p.Move(enumerators[i].Current))
+                    .ToSingleShape()
+                    .SplitByMaterial()
+                    .ToCompositeShape(),
+
+                //Shapes.CoodsWithText()
+            }.ToCompositeShape();
+
+            return shape;
+        }
+
+        IEnumerable<Shape> Animate()
+        {
+            for (var k = 0; k < iterationsCount; k++)
+            {
+                var shape = GetStepShape(k);
+                yield return shape;
+            }
+        }
+
+        return Animate().ToMotion();
+    }
+
+    private class Particle : IAnimatorParticleItem
     {
         public int i;
         public Vector3 Position { get; set; }
         public Vector3 Speed { get; set; }
         public Color Color;
         public Func<Shape, Shape> ModifyFn;
+    }
+    
+    private class BlackHoleMotionOptions
+    {
+        public Shape Shape;
+        public double? BlowRadius;
+        public double? BlowFactor;
+        public double? AngleSpeed;
+        public double? GravityPower;
+        public Vector3? GravityPoint;
+        public double? BlackHoleSize;
+        public bool NoRotation;
+        public bool? TryBeauty;
+        public int? InterationsCount;
+        public int? PerStepCount;
+        public Color?[] Colors;
     }
 }
