@@ -39,8 +39,8 @@ partial class SceneMotion
         var ps = stoneLogic.Points3;
         var masses = stoneLogic.Masses;
 
-        var rotation0 = new ExQuaternion(0, 0, 1);
-        var rotationSpeed0 = ExQuaternion.Identity;
+        var rotation0 = new ExtendedQuaternion(0, 0, 1);
+        var rotationSpeed0 = ExtendedQuaternion.Identity;
         var projectionBottom0 = stoneLogic.Rotate(rotation0).ProjectionBottomY;
         var position0 = new Vector3(0, -projectionBottom0.y, 0);
 
@@ -131,7 +131,7 @@ partial class SceneMotion
                 var kSpeed = 0.3;
                 var kPos = 3;
 
-                var q = new ExQuaternion(new Vector3(-kSpeed * xz.z * speedY, 0, -kSpeed * xz.x * speedY));
+                var q = new ExtendedQuaternion(new Vector3(-kSpeed * xz.z * speedY, 0, -kSpeed * xz.x * speedY));
                 stone.RotationSpeed *= q;
 
                 stone.PositionSpeed += new Vector3(0, -speedY, 0);
@@ -186,10 +186,10 @@ partial class SceneMotion
         public Shape LogicShape;
         public StoneItem[] Items;
         public double Mass;
-        public ExQuaternion Rotation;
+        public ExtendedQuaternion Rotation;
         public Vector3 Position;
         public Vector3 PositionSpeed;
-        public ExQuaternion RotationSpeed;
+        public ExtendedQuaternion RotationSpeed;
 
         public Vector3 PositionAcceleration;
         //public ExQuaternion RotationAcceleration;
