@@ -70,6 +70,6 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return BlackHoleMotionExample();
+        return Shapes.PowerEllipsoid((0.5, 2, 2), abc:(1, 1, 1)).Adjust()/*.ScaleX(4)*/.Perfecto(5).ToMeta().ToMotion();
     }
 }

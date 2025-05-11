@@ -16,6 +16,7 @@ using Model3D.Tools.Vectorization;
 using Model.Tools;
 using Model3D.Libraries.Functions;
 using System.Net.Security;
+using System.ComponentModel;
 
 namespace Model.Libraries
 {
@@ -668,7 +669,11 @@ namespace Model.Libraries
                 _ => throw new NotSupportedException(quality.ToString())
             };
 
-        public static Shape PowerEllipsoid(double power = 8, int quality = 4, double fi = 0) => Convex(Funcs_3.Ellipsoid(power), quality, fi);
+        public static Shape PowerEllipsoid(double power = 8, int quality = 4, double fi = 0, Vector3? abc = null) => 
+            Convex(Funcs_3.PowerEllipsoid(power, (abc??Vector3.One).x, (abc ?? Vector3.One).y, (abc ?? Vector3.One).z), quality, fi);
+
+        public static Shape PowerEllipsoid((double a, double b, double c) power, int quality = 4, double fi = 0, Vector3? abc = null) =>
+            Convex(Funcs_3.PowerEllipsoid(power.a, power.b, power.c, (abc ?? Vector3.One).x, (abc ?? Vector3.One).y, (abc ?? Vector3.One).z), quality, fi);
 
         public static Shape Convex(Func_3 fn, int quality = 4, double fi = 0)
         {

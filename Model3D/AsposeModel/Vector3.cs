@@ -17,6 +17,7 @@ public struct Vector3
     public static readonly Vector3 XAxis = new Vector3(1, 0, 0);
     public static readonly Vector3 YAxis = new Vector3(0, 1, 0);
     public static readonly Vector3 ZAxis = new Vector3(0, 0, 1);
+    public static readonly Vector3 One = new Vector3(1, 1, 1);
 
     public Vector3(double x, double y, double z)
     {
@@ -113,5 +114,10 @@ public struct Vector3
     public static bool operator !=(Vector3 a, Vector3 b)
     {
         return !a.Equals(b);
+    }
+
+    public static implicit operator Vector3((double x, double y, double z) v)
+    {
+        return new Vector3 { x = v.x, y = v.y, z = v.z };
     }
 }

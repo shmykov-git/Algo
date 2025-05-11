@@ -20,7 +20,7 @@ namespace ViewMotion;
 
 partial class SceneMotion // MaterialActiveWorld
 {
-    public Task<Motion> MaterialActiveWorld() => new MaterialSceneMotionExample(vectorizer).MaterialActiveWorld();
+    public Task<Motion> MaterialActiveWorld() => new MaterialSceneMotionExample(vectorizer).Scene();
     public Task<Motion> BulletCatchMotion() => new BulletCatchMotionExample().Scene();
     public Task<Motion> BulletThrowMotion() => new BulletThrowMotionExample().Scene();
 
@@ -54,7 +54,7 @@ partial class SceneMotion // MaterialActiveWorld
             public double radius;
         }
 
-        public Task<Motion> MaterialActiveWorld()
+        public Task<Motion> Scene()
         {
             var sceneCount = 500;
             var dampingCoef = 0.8;
