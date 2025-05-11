@@ -1,6 +1,4 @@
-﻿using Model3D.AsposeModel;
-
-namespace Model3D.Libraries;
+﻿namespace Model3D.Libraries;
 
 public static class ExVector3
 {

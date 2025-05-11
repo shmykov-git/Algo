@@ -6,7 +6,7 @@ using Model.Extensions;
 using Model3D.Extensions;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Model3D.AsposeModel.Vector3;
+using Vector3 = Model3D.Vector3;
 using Shape = Model.Shape;
 using Model3D.Voxels;
 

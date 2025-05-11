@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using Model3D.AsposeModel;
-using MessagePack;
 using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
-using ModelShapes = Model.Libraries.Shapes;
 
 namespace Model3D.Actives;
 public partial class ActiveWorld

@@ -1,7 +1,7 @@
 ﻿using AI.Model;
-using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
+using Model3D;
 
 namespace AI.NBrain;
 

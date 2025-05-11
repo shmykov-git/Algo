@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
 using System;
 using System.Collections.Concurrent;
 using System.Drawing;

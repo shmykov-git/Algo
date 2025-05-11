@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
 using Model3D.Extensions;
 using System.Collections.Generic;
 using System.Linq;

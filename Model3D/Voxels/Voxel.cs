@@ -1,5 +1,4 @@
 ﻿using System;
-using Model3D.AsposeModel;
 
 namespace Model3D.Voxels;
 

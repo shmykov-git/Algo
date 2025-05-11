@@ -2,7 +2,7 @@
 using Model3D.Extensions;
 using System;
 using Model.Graphs;
-using Vector3 = Model3D.AsposeModel.Vector3;
+using Vector3 = Model3D.Vector3;
 
 namespace Model3D.Tools
 {

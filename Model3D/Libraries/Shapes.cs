@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model3D.Extensions;
 using System;
 using System.Drawing;
@@ -17,6 +16,7 @@ using Model.Tools;
 using Model3D.Libraries.Functions;
 using System.Net.Security;
 using System.ComponentModel;
+using Model3D;
 
 namespace Model.Libraries
 {

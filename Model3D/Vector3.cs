@@ -2,7 +2,7 @@
 using Model.Extensions;
 using Model.Libraries;
 
-namespace Model3D.AsposeModel;
+namespace Model3D;
 
 public struct Vector3
 {

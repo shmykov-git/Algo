@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
 

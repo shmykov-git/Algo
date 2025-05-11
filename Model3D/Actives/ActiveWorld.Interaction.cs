@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using Model3D.AsposeModel;
 using MathNet.Numerics;
 using Meta.Libraries;
 using Model.Extensions;

@@ -1,6 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model3D;
-using System.Diagnostics;
+﻿using Model3D;
 using System.Drawing;
 using System.Threading.Tasks;
 using ViewMotion.Models;

@@ -1,5 +1,5 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
+using Model3D;
 
 namespace View3D.Libraries
 {

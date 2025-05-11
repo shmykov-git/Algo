@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Model3D.AsposeModel;
 
 namespace Model3D.Extensions
 {

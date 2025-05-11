@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Model3D.AsposeModel;
 using MathNet.Numerics;
 using Meta;
 using Model;

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Model3D.AsposeModel;
 using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;

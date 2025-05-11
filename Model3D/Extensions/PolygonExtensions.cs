@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using Model3D.AsposeModel;
 using Meta.Extensions;
 using Model;
 using Model.Extensions;
@@ -10,7 +7,6 @@ using Model.Libraries;
 using Model.Tools;
 using Model.Tools.Triangulate;
 using Model3D.Tools.Model;
-using Vector2 = Model.Vector2;
 
 namespace Model3D.Extensions
 {

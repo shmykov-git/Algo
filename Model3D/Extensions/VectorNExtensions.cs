@@ -1,12 +1,11 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Vector2 = Model.Vector2;
-using Vector3 = Model3D.AsposeModel.Vector3;
+using Vector3 = Model3D.Vector3;
 using Model.Libraries;
 using Model.Hashes;
 

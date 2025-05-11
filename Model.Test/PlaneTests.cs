@@ -1,4 +1,3 @@
-using Model3D.AsposeModel;
 using FluentAssertions;
 using Model.Libraries;
 using Model3D;

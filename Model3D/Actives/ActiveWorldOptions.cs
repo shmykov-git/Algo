@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Model3D.AsposeModel;
 using MessagePack;
 using Meta.Extensions;
 using Model;

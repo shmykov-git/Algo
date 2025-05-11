@@ -9,7 +9,6 @@ using Meta;
 using Model3D.Libraries;
 using System.Diagnostics;
 using Model.Libraries;
-using Model3D.AsposeModel;
 
 namespace Model3D.Extensions;
 

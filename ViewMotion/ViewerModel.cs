@@ -5,23 +5,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using Model3D.AsposeModel;
-using ColorPicker;
 using ColorPicker.Models;
 using meta.Extensions;
-using Meta.Extensions;
 using Model.Extensions;
 using Model3D.Extensions;
 using View3D;
 using View3D.Tools;
-using ViewMotion;
 using ViewMotion.Annotations;
 using ViewMotion.Commands;
 using ViewMotion.Extensions;
@@ -29,9 +23,10 @@ using ViewMotion.Libraries;
 using ViewMotion.Models;
 using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
-using Quaternion = Model3D.AsposeModel.Quaternion;
+using Quaternion = Model3D.Quaternion;
 using Shape = Model.Shape;
 using View3D.Tools.Model;
+using Model3D;
 
 namespace ViewMotion
 {

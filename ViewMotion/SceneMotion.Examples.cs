@@ -3,7 +3,6 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
@@ -456,10 +455,10 @@ partial class SceneMotion
             .ApplyColorSphereGradient(Vector3.XAxis, palette.Reverse().ToArray())
             .MoveX(-1.5)
             .SplitByConvexes()
-            .Select(s => s.Rotate(Quaternion.FromEulerAngle(new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble())), s.PointCenter).ApplyMetaPoint(s.PointCenter))
+            .Select(s => s.Rotate(Quaternion.FromEulerAngle(new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble())), s.PointCenter).ApplyMasterPoint(s.PointCenter))
             .ToArray();
 
-        var enumerators = particles.Select(p => GetNativePowerPoint(gravityPower, gravityPoint, p.MetaPoints[0].point.ToV3()).GetEnumerator()).ToArray();
+        var enumerators = particles.Select(p => GetNativePowerPoint(gravityPower, gravityPoint, p.MasterPoints[0].point.ToV3()).GetEnumerator()).ToArray();
 
         Shape GetStepShape(int k)
         {

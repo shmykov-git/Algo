@@ -1,14 +1,7 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using System;
-using System.Linq;
-using MathNet.Numerics;
-using Model.Fourier;
-using Model.Libraries;
-using Vector2 = Model.Vector2;
-using System.Diagnostics;
 using Shape = Model.Shape;
 
 namespace Model3D.Libraries;

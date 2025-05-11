@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Model3D.AsposeModel;
 using Model.Interfaces;
 
 namespace Model3D.Systems.Model

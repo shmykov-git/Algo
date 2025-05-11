@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Model3D.AsposeModel;
 using Meta.Extensions;
 using Model;
 using Model.Extensions;
@@ -14,6 +13,7 @@ using Model.Libraries;
 using Model3D.Actives;
 using Model3D.Extensions;
 using ViewMotion.Models;
+using Model3D;
 
 namespace ViewMotion.Extensions;
 

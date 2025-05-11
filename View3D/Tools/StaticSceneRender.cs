@@ -1,9 +1,7 @@
 ﻿using Aspose.ThreeD;
-using Aspose.ThreeD.Animation;
 using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
-using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
@@ -17,11 +15,8 @@ using AsposeScene = Aspose.ThreeD.Scene;
 using AsposeMaterial = Aspose.ThreeD.Shading.Material;
 using Material = Model.Material;
 using Shape = Model.Shape;
-using MessagePack;
 using View3D.Tools.Model;
-using meta.Tools;
 using System.Data;
-using Model3D;
 using Model.Libraries;
 
 namespace View3D.Tools;
@@ -46,7 +41,7 @@ public class StaticSceneRender
             MetallicFactor = staticSettings.MetallicFactor,
             //RoughnessFactor = 1,
             //OcclusionTexture = t,
-            EmissiveColor = new Vector3(new Model3D.AsposeModel.Vector4(m.Color).ToAspose()),
+            EmissiveColor = new Vector3(new Model3D.Vector4(m.Color).ToAspose()),
         };
 
         materials.Add(m, material);
@@ -89,10 +84,10 @@ public class StaticSceneRender
                 index = frame0.Convexes.SelectMany(c => c).Select(i => (ushort)i).ToArray()
             };
             
-            if (frames[0].HasMetaPoints)
+            if (frames[0].HasMasterPoints)
             {
-                mesh.moves = frames.Select(f => f.MetaPoints.Select((mp, i) => mp.point - frame0.MetaPoints[i].point).SelectMany(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray()).ToArray();
-                mesh.links = frame0.MetaPoints.Select(mp => mp.links).ToArray();
+                mesh.moves = frames.Select(f => f.MasterPoints.Select((mp, i) => mp.point - frame0.MasterPoints[i].point).SelectMany(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray()).ToArray();
+                mesh.links = frame0.MasterPoints.Select(mp => mp.links).ToArray();
             }
             else
             {

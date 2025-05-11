@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-using Model3D.Systems;
-using Vector3 = Model3D.AsposeModel.Vector3;
+﻿using MsQuaternion = System.Numerics.Quaternion;
 
 namespace Model3D
 {
@@ -10,40 +8,40 @@ namespace Model3D
     // todo: есть отличия в реализации операций умножений кватернионов или кватернионов на вектор, q2 = q*q - невалидная операция в библиотеке Aspose
     public struct ExQuaternion
     {
-        public static readonly ExQuaternion Identity = new(Quaternion.Identity);
+        public static readonly ExQuaternion Identity = new(MsQuaternion.Identity);
         
-        private Quaternion q;
+        private MsQuaternion q;
 
-        public Model3D.AsposeModel.Quaternion Q => new(q.W, q.X, q.Y, q.Z);
+        public MsQuaternion Q => new(q.W, q.X, q.Y, q.Z);
 
-        private ExQuaternion(Quaternion q)
+        private ExQuaternion(MsQuaternion q)
         {
             this.q = q;
         }
 
         public ExQuaternion(double x, double y, double z)
         {
-            q = Quaternion.CreateFromYawPitchRoll((float)y, (float)x, (float)z);
+            q = MsQuaternion.CreateFromYawPitchRoll((float)y, (float)x, (float)z);
         }
 
         public ExQuaternion(Vector3 v)
         {
-            q = Quaternion.CreateFromYawPitchRoll((float)v.y, (float)v.x, (float)v.z);
+            q = MsQuaternion.CreateFromYawPitchRoll((float)v.y, (float)v.x, (float)v.z);
         }
 
-        public ExQuaternion Normalize() => new(Quaternion.Normalize(q));
+        public ExQuaternion Normalize() => new(MsQuaternion.Normalize(q));
 
         private static System.Numerics.Vector3 ToNV3(Vector3 v) => new System.Numerics.Vector3((float)v.x, (float)v.y, (float)v.z);
         private static Vector3 ToV3(System.Numerics.Vector3 v) => new Vector3(v.X, v.Y, v.Z);
 
         public static ExQuaternion operator *(double x, ExQuaternion q)
         {
-            return new ExQuaternion(Quaternion.Multiply(q.q, (float)x));
+            return new ExQuaternion(MsQuaternion.Multiply(q.q, (float)x));
         }
 
         public static ExQuaternion operator *(ExQuaternion q, double x)
         {
-            return new ExQuaternion(Quaternion.Multiply(q.q, (float)x));
+            return new ExQuaternion(MsQuaternion.Multiply(q.q, (float)x));
         }
 
         public static ExQuaternion operator *(ExQuaternion a, ExQuaternion b)
@@ -56,9 +54,9 @@ namespace Model3D
             return ToV3(System.Numerics.Vector3.Transform(ToNV3(v), q.q));
         }
 
-        public static implicit operator Model3D.AsposeModel.Quaternion(ExQuaternion q)
+        public static implicit operator Quaternion(ExQuaternion q)
         {
-            return new Model3D.AsposeModel.Quaternion(q.q.W, q.q.X, q.q.Y, q.q.Z);
+            return new Model3D.Quaternion(q.q.W, q.q.X, q.q.Y, q.q.Z);
         }
 
         public override string ToString() => q.ToString();

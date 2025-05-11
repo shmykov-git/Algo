@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Libraries;
 using System;
 using Model;

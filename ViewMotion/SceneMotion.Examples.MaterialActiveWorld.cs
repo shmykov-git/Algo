@@ -5,7 +5,7 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Model3D.AsposeModel.Vector3;
+using Vector3 = Model3D.Vector3;
 using Model.Tools;
 using System.Linq;
 using System.Collections.Generic;
@@ -359,7 +359,7 @@ partial class SceneMotion // MaterialActiveWorld
             }
 
             var border = Surfaces.Torus(60, 10, 11).Perfecto(37).MoveZ(fixZPos + 0.5).RotateOx(rotate).ApplyColor(Color.SaddleBrown);
-            var bulletShape = Shapes.IcosahedronSp3.ApplyMetaPoint(Vector3.Origin).Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
+            var bulletShape = Shapes.IcosahedronSp3.ApplyMasterPoint(Vector3.Origin).Perfecto(2 * bullet.radius).ApplyColor(Color.Red);
 
             IEnumerable<Shape> Animate()
             {

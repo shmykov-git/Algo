@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using System;
+﻿using System;
 using Model.Extensions;
 using Model.Libraries;
 using Vector2 = Model.Vector2;

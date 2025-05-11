@@ -2,7 +2,6 @@
 using System.Linq;
 using Model;
 using Model.Tools;
-using Model3D.AsposeModel;
 using Model3D.Extensions;
 using Model.Extensions;
 using System.Diagnostics;

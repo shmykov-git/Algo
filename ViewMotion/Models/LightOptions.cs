@@ -1,5 +1,5 @@
 ﻿using System.Windows.Media;
-using Model3D.AsposeModel;
+using Model3D;
 
 namespace ViewMotion.Models;
 

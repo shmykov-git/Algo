@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using Model3D.AsposeModel;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
@@ -202,10 +201,10 @@ namespace Model3D.Systems
             Shape GetStepShape() => new Shape[]
             {
                 model.ModifyParticleFn == null
-                ? items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMetaPoint(item.Position)).ToSingleShape()
+                ? items.Select(item => particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMasterPoint(item.Position)).ToSingleShape()
                 : items.Select(item =>
                 {
-                    var p = particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMetaPoint(item.Position);
+                    var p = particle.Rotate(rnd.NextRotation()).Move(item.Position).ApplyMasterPoint(item.Position);
                     model.ModifyParticleFn(p);
                     return p;
                 }).ToSingleShape(),

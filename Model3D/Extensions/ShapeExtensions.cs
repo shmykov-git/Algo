@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
@@ -384,7 +383,7 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.SelectMany(p => spot.Points3.Select(s => p + s)).ToArray(),
                 Convexes = shape.PointIndices.SelectMany(i => spot.Convexes.Select(convex => convex.Select(j => n * i + j).ToArray())).ToArray(),
-                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
+                MasterPoints = shape.Points.Select((p, i) => new Shape.MasterPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -442,17 +441,13 @@ namespace Model3D.Extensions
             return shapes.Aggregate((a, b) => a + b) + spots;
         }
 
-        public static Shape ToMetaPointsShape(this Shape shape, double mult = 1)
+        public static Shape ToMasterPointsShape(this Shape shape, double mult = 1)
         {
             var s = new Shape
             {
-                Points = shape.MetaPoints.Select(m => m.point).ToArray()
-
-                //Points3 = shape.MetaPoints.Select(m => m.links.Select(i => shape.Points[i]).Center().ToV3()).ToArray()
+                Points = shape.MasterPoints.Select(m => m.point).ToArray()
             };
             
-            //var spot = Shapes.Icosahedron + 
-
             return s.ToSpotsWithMaterial(mult, Shapes.Icosahedron, new Material { Color = Color.Red });
         }
 
@@ -481,7 +476,7 @@ namespace Model3D.Extensions
             {
                 Points3 = shape.Points3.SelectMany(p => pointShape.Points3.Select(s => p + s)).ToArray(),
                 Convexes = shape.PointIndices.SelectMany(i => pointShape.Convexes.Select(convex => convex.Select(j => n * i + j).ToArray())).ToArray(),
-                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
+                MasterPoints = shape.Points.Select((p, i) => new Shape.MasterPoint { point = p, links = (n).SelectRange(j => n * i + j).ToArray() }).ToArray()
             }.ApplyMaterial(material);
         }
 
@@ -532,7 +527,7 @@ namespace Model3D.Extensions
             {
                 Points = lines.SelectMany(line => line.Points).ToArray(),
                 Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray(),
-                MetaPoints = shape.Points.Select((p, i) => new Shape.MetaPoint 
+                MasterPoints = shape.Points.Select((p, i) => new Shape.MasterPoint 
                 {
                     point = p,
                     links = new[]
@@ -588,14 +583,14 @@ namespace Model3D.Extensions
             {
                 Points = shape.Points.Concat(another.Points).ToArray(),
                 Convexes = shape.Convexes.Concat(another.Convexes.Select(convex => convex.Select(i => i + n).ToArray())).ToArray(),
-                MetaPoints = new[]
+                MasterPoints = new[]
                 {
-                    shape.MetaPoints,
-                    another.MetaPoints.Select(mp => new Shape.MetaPoint { point = mp.point, links = mp.links.Select(i => i + n).ToArray() })
+                    shape.MasterPoints,
+                    another.MasterPoints.Select(mp => new Shape.MasterPoint { point = mp.point, links = mp.links.Select(i => i + n).ToArray() })
                 }
                 .SelectMany(v => v)
                 .GroupBy(v => v.point)
-                .Select(gv => new Shape.MetaPoint { point = gv.Key, links = gv.SelectMany(v => v.links).ToArray() })
+                .Select(gv => new Shape.MasterPoint { point = gv.Key, links = gv.SelectMany(v => v.links).ToArray() })
                 .ToArray()
             };
 
@@ -654,7 +649,7 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => new Vector4(k * p.x, k * p.y, k * p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point * k }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = m.point * k }).ToArray()
             };
         }
         
@@ -781,7 +776,7 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => new Vector4(x * p.x, y * p.y, z * p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point.MultV(new Vector3(x, y, z)) }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = m.point.MultV(new Vector3(x, y, z)) }).ToArray()
             };
         }
 
@@ -796,7 +791,7 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => new Vector4(x + p.x, y + p.y, z + p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point + new Vector4(x, y, z, 0) }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = m.point + new Vector4(x, y, z, 0) }).ToArray()
             };
         }
 
@@ -807,7 +802,7 @@ namespace Model3D.Extensions
                 Points = shape.Points.Select(p => new Vector4(p.x, p.y, p.z, p.w)).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints
+                MasterPoints = shape.MasterPoints
             };
         }
 
@@ -920,7 +915,7 @@ namespace Model3D.Extensions
                 Points3 = shape.Points3.Select(p => p + v).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = m.point + v.ToV4() }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = m.point + v.ToV4() }).ToArray()
             };
         }
 
@@ -931,7 +926,7 @@ namespace Model3D.Extensions
                 Points3 = shape.Points3.Select(moveFn).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = moveFn(m.point.ToV3()).ToV4() }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = moveFn(m.point.ToV3()).ToV4() }).ToArray()
             };
         }
 
@@ -955,7 +950,7 @@ namespace Model3D.Extensions
                 Points3 = shape.Points3.Select(p => q * (p - c) + c).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MetaPoints = shape.MetaPoints.Select(m => new Shape.MetaPoint { links = m.links, point = q*(m.point.ToV3()).ToV4() }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = q*(m.point.ToV3()).ToV4() }).ToArray()
             };
         }
 
@@ -1236,9 +1231,9 @@ namespace Model3D.Extensions
             };
         }
 
-        public static Shape ApplyMetaPoint(this Shape shape, Vector3 point)
+        public static Shape ApplyMasterPoint(this Shape shape, Vector3 point)
         {
-            shape.MetaPoints = [new Shape.MetaPoint { links = (shape.PointsCount).Range().ToArray(), point = point.ToV4() }];
+            shape.MasterPoints = [new Shape.MasterPoint { links = (shape.PointsCount).Range().ToArray(), point = point.ToV4() }];
             
             return shape;
         }

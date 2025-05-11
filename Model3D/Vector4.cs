@@ -2,7 +2,7 @@
 using System.Drawing;
 using Model.Libraries;
 
-namespace Model3D.AsposeModel;
+namespace Model3D;
 
 public struct Vector4
 {
@@ -27,10 +27,10 @@ public struct Vector4
 
     public Vector4(Color color)
     {
-        this.x = color.R / 255.0;  // Red
-        this.y = color.G / 255.0;  // Green
-        this.z = color.B / 255.0;  // Blue
-        this.w = color.A / 255.0;  // Alpha
+        x = color.R / 255.0;  // Red
+        y = color.G / 255.0;  // Green
+        z = color.B / 255.0;  // Blue
+        w = color.A / 255.0;  // Alpha
     }
 
     public Vector4 MultV(Vector4 b) => new Vector4(x * b.x, y * b.y, z * b.z, w * b.w);

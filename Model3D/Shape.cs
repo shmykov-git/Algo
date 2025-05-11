@@ -1,5 +1,4 @@
-﻿using Model3D.AsposeModel;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model3D.Extensions;
 using System;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ namespace Model
         public Material[] Materials;
         public Vector2[][] TexturePoints;
         public List<Shape> Shapes = new();
-        public MetaPoint[] MetaPoints = [];
+        public MasterPoint[] MasterPoints = [];
 
         private Dictionary<int, int[]> _links;
 
@@ -75,7 +74,7 @@ namespace Model
         public bool IsComposite => Shapes.Count > 0;
         public bool IsRootEmpty => (Points?.Length ?? 0) == 0;
         public bool IsEmpty => IsRootEmpty && !IsComposite;
-        public bool HasMetaPoints => MetaPoints.Length > 0;
+        public bool HasMasterPoints => MasterPoints.Length > 0;
         public bool HasSingleMaterial => (Materials?.Distinct().Count() ?? 0) <= 1;
         public int PointsCount => Points.Length;
         public IEnumerable<int> PointIndices => Points.Index();
@@ -94,7 +93,7 @@ namespace Model
                 Convexes = Convexes.ToArray(),
                 Materials = Materials?.ToArray(),
                 TexturePoints = TexturePoints?.ToArray(),
-                MetaPoints = MetaPoints?.ToArray(),
+                MasterPoints = MasterPoints?.ToArray(),
             };
 
             if (IsComposite)
@@ -403,7 +402,7 @@ namespace Model
             public HashSet<ConvexNode> ns = new HashSet<ConvexNode>();
         }
 
-        public class MetaPoint : IEquatable<MetaPoint> 
+        public class MasterPoint : IEquatable<MasterPoint> 
         {
             public Vector4 point;
             public int[] links;
@@ -415,10 +414,10 @@ namespace Model
 
             public override bool Equals(object obj)
             {
-                return Equals(obj as MetaPoint);
+                return Equals(obj as MasterPoint);
             }
 
-            public bool Equals(MetaPoint other)
+            public bool Equals(MasterPoint other)
             {
                 return point == other.point;
             }

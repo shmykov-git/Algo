@@ -12,7 +12,6 @@ using Model;
 using Model.Extensions;
 using Model.Fourier;
 using Model.Libraries;
-using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
@@ -25,9 +24,6 @@ using ViewMotion.Extensions;
 using ViewMotion.Libraries;
 using ViewMotion.Models;
 using Item = Model3D.Systems.WaterSystemPlatform.Item;
-using Quaternion = Model3D.AsposeModel.Quaternion;
-using Vector2 = Model.Vector2;
-using Vector3 = Model3D.AsposeModel.Vector3;
 using Model.Tools;
 using System.Drawing.Text;
 using System.Threading.Tasks.Sources;
@@ -70,6 +66,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        return Shapes.PowerEllipsoid((0.5, 2, 2), abc:(1, 1, 1)).Adjust()/*.ScaleX(4)*/.Perfecto(5).ToMeta().ToMotion();
+        return BlackHoleMotionExample();
+
+        //return Shapes.PowerEllipsoid((0.5, 2, 2), abc:(1, 1, 1)).Adjust()/*.ScaleX(4)*/.Perfecto(5).ToMeta().ToMotion();
     }
 }

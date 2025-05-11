@@ -1,7 +1,7 @@
-﻿using Model3D.AsposeModel;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model3D.Libraries;
 using System.Linq;
+using Model3D;
 
 namespace Model
 {
