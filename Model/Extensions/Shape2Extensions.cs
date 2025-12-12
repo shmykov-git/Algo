@@ -64,13 +64,13 @@ namespace Model.Extensions
             return new Shape2
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Select(c => c.Reverse().ToArray()).ToArray()
+                Convexes = shape.Convexes.Select(c => c.ReverseLinq().ToArray()).ToArray()
             };
         }
         public static Shape2 Reverse(this Shape2 shape)
         {
-            var points = shape.Points.Reverse().ToArray();
-            var convexes = shape.Convexes.Reverse().ToArray();
+            var points = shape.Points.ReverseLinq().ToArray();
+            var convexes = shape.Convexes.ReverseLinq().ToArray();
 
             return new Shape2
             {

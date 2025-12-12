@@ -452,7 +452,7 @@ partial class SceneMotion
         var blackHole = Shapes.Ball.Perfecto(options.BlackHoleSize ?? 0.3).ApplyColor(Color.Black).Move(gravityPoint);
 
         var particles = blowedShape
-            .ApplyColorSphereGradient(Vector3.XAxis, palette.Reverse().ToArray())
+            .ApplyColorSphereGradient(Vector3.XAxis, palette.ReverseLinq().ToArray())
             .MoveX(-1.5)
             .SplitByConvexes()
             .Select(s => s.Rotate(Quaternion.FromEulerAngle(new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble())), s.PointCenter).ApplyMasterPoint(s.PointCenter))

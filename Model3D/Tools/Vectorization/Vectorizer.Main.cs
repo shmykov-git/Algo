@@ -496,7 +496,7 @@ public partial class Vectorizer
         return tree.Where(v => v.childLevel.IsOdd()).Select(v =>
             (
                 v.main == null ? null : tree.FirstOrDefault(vv => vv.child == v.main).main,
-                v.childLevel % 4 == 3 ? v.child.ToArray().Reverse().ToList() : v.child,
+                v.childLevel % 4 == 3 ? v.child.ToArray().ReverseLinq().ToList() : v.child,
                 (v.childLevel + 1) / 2
             )
         ).ToList();

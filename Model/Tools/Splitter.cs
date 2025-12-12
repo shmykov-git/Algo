@@ -461,7 +461,7 @@ namespace Model.Tools
 
                     Debug.WriteLine($"metaA:({eA.meta.SJoin(", ")}| {ee[0].len}), metaB:({eB.meta.SJoin(", ")}| {ee[0].len})");
 
-                    return (ee[0].ps.Concat(ee[1].ps.Reverse()).ToArray(), ee[0].len, ee[1].len, ee[0].info.taken, ee[1].info.taken, new[]{ee[0].info, ee[1].info});
+                    return (ee[0].ps.Concat(ee[1].ps.ReverseLinq()).ToArray(), ee[0].len, ee[1].len, ee[0].info.taken, ee[1].info.taken, new[]{ee[0].info, ee[1].info});
                 }
                 else
                 {
@@ -470,7 +470,7 @@ namespace Model.Tools
 
                     Debug.WriteLine($"metaA:({eA.meta.SJoin(", ")}| {rsA.len}), metaB:({eB.meta.SJoin(", ")}| {rsB.len})");
 
-                    return (rsA.ps.Concat(rsB.ps.Reverse()).ToArray(), rsA.len, rsB.len, rsA.infos.Any(v=>v.taken), rsB.infos.Any(v => v.taken), rsA.infos.Concat(rsB.infos).ToArray());
+                    return (rsA.ps.Concat(rsB.ps.ReverseLinq()).ToArray(), rsA.len, rsB.len, rsA.infos.Any(v=>v.taken), rsB.infos.Any(v => v.taken), rsA.infos.Concat(rsB.infos).ToArray());
                 }
             }
 
@@ -660,7 +660,7 @@ namespace Model.Tools
 
             Debug.WriteLine($"Check split: {set.Count == 0} {values.Count}");
 
-            Vector2[] CondReverse(Vector2[] points, bool reverce) => reverce ? points.Reverse().ToArray() : points;
+            Vector2[] CondReverse(Vector2[] points, bool reverce) => reverce ? points.ReverseLinq().ToArray() : points;
 
             var polygons = values.Values.OrderBy(v=>v[0].num)
                 .Select(value => new Polygon()

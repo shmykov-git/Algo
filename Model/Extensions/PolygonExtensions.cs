@@ -18,7 +18,7 @@ namespace Model.Extensions
         public static Polygon PutInside(this Polygon polygon, Polygon insidePolygon, bool skipReverse = false)
         {
             var points = polygon.Points;
-            var insidePoints = skipReverse ? insidePolygon.Points : insidePolygon.Points.Reverse().ToArray();
+            var insidePoints = skipReverse ? insidePolygon.Points : insidePolygon.Points.ReverseLinq().ToArray();
 
             var indexes = points.Index();
             var insideIndexes = insidePoints.Index();
@@ -137,7 +137,7 @@ namespace Model.Extensions
         {
             return new Polygon
             {
-                Points = polygon.Points.Reverse().ToArray(),
+                Points = polygon.Points.ReverseLinq().ToArray(),
             };
         }
 

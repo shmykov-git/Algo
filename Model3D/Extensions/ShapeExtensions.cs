@@ -184,11 +184,11 @@ namespace Model3D.Extensions
                     shape.Convexes,
                     (levelCount).SelectRange(lvl => lvl + 1).Select(lvl => new IEnumerable<int[]>[]
                     {
-                        (lvl == levelCount) ? shape.Convexes.Select(convex=>convex.Reverse().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
+                        (lvl == levelCount) ? shape.Convexes.Select(convex=>convex.ReverseLinq().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
                         perimeters.SelectMany(p=> p.SelectCirclePair((i,j)=> 
                         { 
                             var pc = new int[] { j + ln * (lvl-1), j + ln * lvl, i + ln * lvl, i + ln * (lvl-1) };
-                            return reverseBorder ? pc.Reverse().ToArray() : pc;
+                            return reverseBorder ? pc.ReverseLinq().ToArray() : pc;
                         })),
                     }.SelectMany(v=>v)).SelectMany(v=>v)
                 }.SelectMany(v => v).ToArray()
@@ -208,8 +208,8 @@ namespace Model3D.Extensions
 
                 Convexes = shape.Convexes.SelectMany(convex => new int[][]
                 {
-                    up ? convex.Reverse().ToArray() : convex,
-                    (up ? convex : convex.Reverse()).Select(i => i + shape.Points.Length).ToArray()
+                    up ? convex.ReverseLinq().ToArray() : convex,
+                    (up ? convex : convex.ReverseLinq()).Select(i => i + shape.Points.Length).ToArray()
                 }).ToArray() //.Concat(convex.SelectCirclePair((gi, j) => new int[] { gi, gi + shape0.Points.Length, j + shape0.Points.Length, j }).ToArray())).ToArray(),
             };
 
@@ -677,8 +677,8 @@ namespace Model3D.Extensions
             {
                 materials = new[]
                 {
-                    up ? shape.Materials : shape.Materials.Reverse(),
-                    up ? shape.Materials : shape.Materials.Reverse(),
+                    up ? shape.Materials : shape.Materials.ReverseLinq(),
+                    up ? shape.Materials : shape.Materials.ReverseLinq(),
                     up ? edges.Select(e=>shape.Materials[e.cI]) : edges.Select(e=>shape.Materials[e.cI]).Reverse()
                 }.ManyToArray();
             }
@@ -1006,7 +1006,7 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Select(c=>c.Reverse().ToArray()).ToArray(),
+                Convexes = shape.Convexes.Select(c=>c.ReverseLinq().ToArray()).ToArray(),
                 Materials = shape.Materials
             };
         }

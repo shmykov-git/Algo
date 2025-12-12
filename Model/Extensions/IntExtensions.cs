@@ -65,7 +65,7 @@ namespace Model.Extensions
 
         public static IEnumerable<int[]> ReverseConvexes(this IEnumerable<int[]> lists, bool needReverse = true)
         {
-            return needReverse ? lists.Select(list => list.Reverse().ToArray()).ToArray() : lists;
+            return needReverse ? lists.Select(list => list.ReverseLinq().ToArray()).ToArray() : lists;
         }
 
         public static int[][] CleanBi(this IEnumerable<int[]> convexes, bool cleanConvexes = true)

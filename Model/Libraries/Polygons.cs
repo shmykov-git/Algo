@@ -23,7 +23,7 @@ namespace Model.Libraries
                 To = 1,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         };
 
         public static Polygon FourierSeries(int count, Func2 fourierFn) => new Polygon
@@ -35,7 +35,7 @@ namespace Model.Libraries
                 To = 1,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         };
 
         public static Polygon Flower(double a, int n, int count) => new Polygon
@@ -47,7 +47,7 @@ namespace Model.Libraries
                 To = Math.PI,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         };
 
         public static Polygon Heart(double a, double b, int count) => new Polygon
@@ -59,7 +59,7 @@ namespace Model.Libraries
                 To = 2 * Math.PI,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         }.Scale((a, b));
 
         public static Polygon Circle(double r, int count) => new Polygon
@@ -71,7 +71,7 @@ namespace Model.Libraries
                 To = 2 * Math.PI,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         };
 
         public static Polygon Elipse(double a, double b, int count) => new Polygon
@@ -83,7 +83,7 @@ namespace Model.Libraries
                 To = 2 * Math.PI,
                 N = count,
                 Closed = true
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         }.Mult(0.9 * 0.5 / Math.Max(a, b));
 
         public static Polygon Sinus(double amplitude, double thikness, double n, int count) => new Polygon
@@ -94,7 +94,7 @@ namespace Model.Libraries
                 From = -n * 2 * Math.PI,
                 To = n * 2 * Math.PI,
                 N = count,
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         }.Mult(0.9).Move((Math.PI / 4, n * Math.PI)).ScaleToOne((n * 2 * Math.PI, n * 2 * Math.PI)).Move((-0.5, -0.5));
 
         public static Polygon Polygon5 => new Polygon
@@ -115,7 +115,7 @@ namespace Model.Libraries
                 From = n * 2 * Math.PI + Math.PI / 2,
                 To = -n * 2 * Math.PI + Math.PI / 2,
                 N = count,
-            }.GetPoints().Reverse().ToArray()
+            }.GetPoints().ReverseLinq().ToArray()
         }.Mult(0.7).ScaleToOne((n * 4 * Math.PI, n * 4 * Math.PI));
 
         public static Polygon Polygon4 => new Polygon

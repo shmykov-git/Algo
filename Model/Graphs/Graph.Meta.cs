@@ -10,16 +10,16 @@ namespace Model.Graphs
         public static int[] JoinMetas(int[] a, int[] b)
         {
             if (a[0] == b[0])
-                return a[1..].Reverse().Concat(b).ToArray();
+                return a[1..].ReverseLinq().Concat(b).ToArray();
 
             if (a[^1] == b[0])
                 return a[..^1].Concat(b).ToArray();
 
             if (a[0] == b[^1])
-                return a[1..].Reverse().Concat(b.Reverse()).ToArray();
+                return a[1..].ReverseLinq().Concat(b.ReverseLinq()).ToArray();
 
             if (a[^1] == b[^1])
-                return a[..^1].Concat(b.Reverse()).ToArray();
+                return a[..^1].Concat(b.ReverseLinq()).ToArray();
 
             throw new ArgumentException("Cannot join metas");
         }

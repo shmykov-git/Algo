@@ -210,7 +210,7 @@ namespace View3D
                     .SplitByConvexes()
                     .Select(GetShape)
                     .ToSingleShape()
-                    .ApplyColorSphereGradient(gravityPoint, palette.Reverse().ToArray()),
+                    .ApplyColorSphereGradient(gravityPoint, palette.ReverseLinq().ToArray()),
 
                 //Shapes.CoodsWithText,
             }.ToSingleShape();

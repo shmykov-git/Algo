@@ -139,7 +139,7 @@ namespace Model3D.Extensions
 
                 Convexes = new[]
                 {
-                    triangulatedShape.Convexes.Select(c => c.Reverse().ToArray()),
+                    triangulatedShape.Convexes.Select(c => c.ReverseLinq().ToArray()),
                     triangulatedShape.Convexes.Transform(v => v + nn),
                     polygon.Points.Index().Reverse().SelectCirclePair((i, j) => new[] { i, i + nn, j + nn, j }).ToArray()
                 }.ManyToArray()
@@ -155,8 +155,8 @@ namespace Model3D.Extensions
             var points = new[]
             {
                 polygon.Points[..(i+1)],
-                joinPolygon.Points[..(j+1)].Reverse(),
-                joinPolygon.Points[j..].Reverse(),
+                joinPolygon.Points[..(j+1)].ReverseLinq(),
+                joinPolygon.Points[j..].ReverseLinq(),
                 polygon.Points[i..]
             }.SelectMany(v => v).ToArray();
 

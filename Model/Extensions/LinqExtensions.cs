@@ -399,6 +399,7 @@ namespace Model.Extensions
         public static List<TItem> ToVerySingleList<TItem>(this IEnumerable<IEnumerable<IEnumerable<TItem>>> manyItems) =>
             manyItems.SelectMany(v => v).SelectMany(v => v).ToList();
 
+        public static IEnumerable<TItem> ReverseLinq<TItem>(this TItem[] items) => ((IEnumerable<TItem>)items).Reverse();
         public static IEnumerable<TItem> ReverseList<TItem>(this List<TItem> items) => ((IEnumerable<TItem>)items).Reverse();
 
         public static async Task<TOut[]> SelectInParallelAsync<TIn, TOut>(this TIn[] items, Func<TIn, TOut> processFn)
