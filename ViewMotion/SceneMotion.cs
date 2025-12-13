@@ -70,12 +70,12 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var s = Shapes.ChristmasTree().TriangulateByFour().ToOy().Perfecto();
+        var s = Shapes.ChristmasTree().TriangulateByFour().ToOy().Perfecto().ApplyColor(Color.Green);
         var plane = new Plane(new Vector3(0, 0, 0), new Vector3(0.25, 1, 0), new Vector3(0.25, 0, 1));
 
         var ps = s.Points3;
         var planeFn = plane.Fn;
-        var planeLineFn = plane.LineIntersectionFn;
+        var intersectionFn = plane.IntersectionFn;
         var pBi = ps.WhereBi(x => planeFn(x) < 0);
         var ssPs = pBi.items.ToArray();
         var ssConvexes = s.Convexes.Transform(i => pBi.bi[i]).CleanBi();
@@ -127,7 +127,7 @@ partial class SceneMotion
 
         Vector3 GetP((int i, int j) e)
         {
-            return planeLineFn(new Line(ps[e.i], ps[e.j])) ?? throw new ArgumentNullException();
+            return intersectionFn(ps[e.i], ps[e.j]) ?? throw new ArgumentNullException();
         }
 
         (int i, Vector3 p) GetEdgePair((int i, int j) e)
@@ -169,9 +169,6 @@ partial class SceneMotion
         }
 
         var sssPs = ssPs.Concat(newPs.Values.Select(v => v.p)).ToArray();
-
-        //var center = newPs.Values.Select(p=>p.p).Center();
-        //var iC = ssPs.Length + newPs.Count;
         var planeEdges = planeConvexes.Select(c => (c, e: c.Where(i => i != -1).ToArray())).Select(a => (a.c, e: (a.e[0], a.e[1]).OrderedEdge())).ToArray();
         var planeGraph = new Graph(planeEdges.Select(p => p.e));
         var groups = planeGraph.FullVisit().Select((group, i) => (g: group.Select(g => g.i).ToHashSet(), i)).ToArray();
@@ -190,10 +187,9 @@ partial class SceneMotion
         {
             Points3 = ssPs.Concat(newPs.Values.Select(v => v.p)).Concat(centers).ToArray(),
             Convexes = ssConvexes.Concat(newConvexes).Concat(planeConvexes).ToArray(),
+            Materials = ssConvexes.Index().Select(i => s.Materials[0]).Concat(newConvexes.Index().Select(_ => s.Materials[0])).Concat(planeConvexes.Index().Select(_=>Materials.GetByColor(Color.Red))).ToArray()
         }; 
 
-        // не один центр, а набор
-
-        return (ss.ToPoints(Color.Blue, 0.5) + ss.ApplyColor(Color.Black) + s.ToLines(Color.Red, 0.5)).ToMotion();
+        return (/*ss.ToPoints(Color.Blue, 0.3) +*/ ss + s.ToLines(Color.Blue, 0.1)).ToMotion();
     }
 }
