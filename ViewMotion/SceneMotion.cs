@@ -75,29 +75,32 @@ partial class SceneMotion
         //var s = Shapes.ChristmasTree().TriangulateByFour().ToOy().Perfecto().ApplyColor(Color.Green);
         var plane = new Plane(new Vector3(0, 0, 0), new Vector3(1, 1, 0), new Vector3(0, 1, 1));
 
-        var shape = Shapes.IcosahedronSp1.Perfecto();
+        var shape = Shapes.CylinderR(20,m:10).ToOy().Perfecto();
 
-        var cubeA = shape.ApplyColor(Color.Blue).Cut(plane.Flip(), Color.Red);
-        var cubeB = shape.ApplyColor(Color.Blue).Cut(plane, Color.Red);
+        var cubeA = shape.ApplyColor(Color.Blue).Cut(plane, Color.Red);
+        var cubeB = shape.ApplyColor(Color.Blue).Cut(plane.Flip(), Color.Red);
 
         //return (cubeA + cubeB.MoveY(0.1)).ToMeta().ToMotion();
 
         return new[]
         {
-            cubeA.MoveY(0.6).ToActiveShape(o =>
+            cubeA.MoveY(0.55).ToActiveShape(o =>
                 {
-                    o.MaterialPower = 5;
+                    o.MaterialPower = 1;
+                    o.Skeleton.Power = 3;
                     o.Mass = 1;
                 }),
-            cubeB.MoveY(0.8).ToActiveShape(o =>
+            cubeB.MoveY(0.51).ToActiveShape(o =>
                 {
-                    o.MaterialPower = 5;
+                    o.MaterialPower = 1;
+                    o.Skeleton.Power = 3;
                     o.Mass = 1;
                 }),
         }.ToWorld(o =>
         {
-            o.Ground.GravityPower = 5;
-            o.Interaction.ParticleForce = 5;
+            o.Ground.GravityPower = 1;
+            o.Interaction.ParticleForce = 1;
+            o.Interaction.FrictionForce = 0.3;
         }).ToMotion();
     }
 }
