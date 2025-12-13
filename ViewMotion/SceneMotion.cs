@@ -70,8 +70,8 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var s = Surfaces.Shamrock(120, 20).TriangulateByFour().Perfecto();
-        var plane = new Plane(new Vector3(-0.1, 0, 0), new Vector3(0.25, 1, 0), new Vector3(0.25, 0, 1));
+        var s = Shapes.ChristmasTree().TriangulateByFour().ToOy().Perfecto();
+        var plane = new Plane(new Vector3(0, 0, 0), new Vector3(0.25, 1, 0), new Vector3(0.25, 0, 1));
 
         var ps = s.Points3;
         var planeFn = plane.Fn;
