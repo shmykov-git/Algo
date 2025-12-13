@@ -662,5 +662,7 @@ namespace Model.Extensions
                 hasCurrent = false;
             }
         }
+
+        public static IEnumerable<T> ApplyBi<T>(this IEnumerable<T> list, int[] bi) => list.Where((_, i) => bi[i] != -1);
     }
 }

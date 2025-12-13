@@ -1763,5 +1763,7 @@ namespace Model3D.Extensions
             Points = shape.Points,
             Convexes = convexes
         };
+
+        public static Shape Cut(this Shape shape, Plane plane, Color? cutColor = null) => Cutter.PlaneCut(shape, plane, cutColor);
     }
 }

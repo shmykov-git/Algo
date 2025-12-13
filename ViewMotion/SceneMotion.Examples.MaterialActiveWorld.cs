@@ -184,7 +184,7 @@ partial class SceneMotion // MaterialActiveWorld
                 var s = new Shape
                 {
                     Points3 = ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(),
-                    Convexes = block.Convexes.ApplyBi(bi).CleanBi(true)
+                    Convexes = block.Convexes.ApplyConvexBi(bi).CleanBi(true)
                 };
 
                 return s;
@@ -352,7 +352,7 @@ partial class SceneMotion // MaterialActiveWorld
                 var s = new Shape
                 {
                     Points3 = ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(),
-                    Convexes = block.Convexes.ApplyBi(bi).CleanBi(true)
+                    Convexes = block.Convexes.ApplyConvexBi(bi).CleanBi(true)
                 };
 
                 return s;

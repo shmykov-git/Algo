@@ -107,7 +107,7 @@ namespace Model3D.Tools
 
             var (bi, pointIndices) = points.Index().RemoveBi(excluded.Select(n => n.i));
             var newPoints = pointIndices.Select(i => points[i]).ToArray();
-            var newConvexes = convexes.Concat(joinedConvexes).ApplyBi(bi);
+            var newConvexes = convexes.Concat(joinedConvexes).ApplyConvexBi(bi);
             var rightConvexes = newConvexes.Select(c=>IsRight(newPoints[c[0]], newPoints[c[1]], newPoints[c[2]]) ? c : c.Reverse().ToArray()).ToArray();
             
             var resultShape = new Shape

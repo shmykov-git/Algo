@@ -151,5 +151,7 @@ namespace Model3D
             this.b = b;
             this.c = c;
         }
+
+        public Plane Flip() => new Plane(b, a, c);
     }
 }
