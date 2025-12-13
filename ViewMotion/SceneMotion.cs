@@ -70,10 +70,10 @@ partial class SceneMotion
 
     public Task<Motion> Scene()
     {
-        var s = Shapes.Icosahedron.Perfecto()/*.Where(v => v.x < 0.3)*/;
-        var ps = s.Points3;
+        var s = Surfaces.Shamrock(120, 20).TriangulateByFour().Perfecto();
+        var plane = new Plane(new Vector3(-0.1, 0, 0), new Vector3(0.25, 1, 0), new Vector3(0.25, 0, 1));
 
-        var plane = new Plane(new Vector3(0.25, 0, 0), new Vector3(0.25, 1, 0), new Vector3(0.25, 0, 1));
+        var ps = s.Points3;
         var planeFn = plane.Fn;
         var planeLineFn = plane.LineIntersectionFn;
         var pBi = ps.WhereBi(x => planeFn(x) < 0);
@@ -123,6 +123,7 @@ partial class SceneMotion
         var cutConvexInfos = convexInfos.Where(v => v.cut).ToArray();
         var newPs = new Dictionary<(int i, int j), (int i, Vector3 p)>();
         var newConvexes = new List<int[]>();
+        var centerConvexes = new List<int[]>();
 
         Vector3 GetP((int i, int j) e)
         {
@@ -153,6 +154,8 @@ partial class SceneMotion
             {
                 int[] newC = [pBi.bi[info.convex[0]], pairA.i, pairB.i];
                 newConvexes.Add(newC);
+                int[] newCC = [-1, pairB.i, pairA.i];
+                centerConvexes.Add(newCC);
             }
             else // outside
             {
@@ -160,18 +163,22 @@ partial class SceneMotion
                 int[] newC2 = [pairA.i, pBi.bi[info.convex[1]], pBi.bi[info.convex[2]]];
                 newConvexes.Add(newC1);
                 newConvexes.Add(newC2);
+                int[] newCC = [-1, pairA.i, pairB.i];
+                centerConvexes.Add(newCC);
             }
         }
 
+        var center = newPs.Values.Select(p=>p.p).Center();
+        var iC = ssPs.Length + newPs.Count;
+        centerConvexes.ForEach(cc => cc.ForEach((c, i) => { if (c == -1) cc[i] = iC; }));
+
         var ss = new Shape
         {
-            Points3 = ssPs.Concat(newPs.Values.Select(v => v.p)).ToArray(),
-            Convexes = ssConvexes.Concat(newConvexes).ToArray(),
+            Points3 = ssPs.Concat(newPs.Values.Select(v => v.p)).Concat([center]).ToArray(),
+            Convexes = ssConvexes.Concat(newConvexes).Concat(centerConvexes).ToArray(),
         }; 
 
-        // добавить точки,
-        // заменить конвексы,
-        // триангулировать
+        // не один центр, а набор
 
         return (ss.ToPoints(Color.Blue, 0.5) + ss.ApplyColor(Color.Black) + s.ToLines(Color.Red, 0.5)).ToMotion();
     }
