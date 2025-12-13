@@ -123,7 +123,7 @@ partial class SceneMotion
         var cutConvexInfos = convexInfos.Where(v => v.cut).ToArray();
         var newPs = new Dictionary<(int i, int j), (int i, Vector3 p)>();
         var newConvexes = new List<int[]>();
-        var centerConvexes = new List<int[]>();
+        var planeConvexes = new List<int[]>();
 
         Vector3 GetP((int i, int j) e)
         {
@@ -154,8 +154,8 @@ partial class SceneMotion
             {
                 int[] newC = [pBi.bi[info.convex[0]], pairA.i, pairB.i];
                 newConvexes.Add(newC);
-                int[] newCC = [-1, pairB.i, pairA.i];
-                centerConvexes.Add(newCC);
+                int[] newPC = [-1, pairB.i, pairA.i];
+                planeConvexes.Add(newPC);
             }
             else // outside
             {
@@ -163,19 +163,33 @@ partial class SceneMotion
                 int[] newC2 = [pairA.i, pBi.bi[info.convex[1]], pBi.bi[info.convex[2]]];
                 newConvexes.Add(newC1);
                 newConvexes.Add(newC2);
-                int[] newCC = [-1, pairA.i, pairB.i];
-                centerConvexes.Add(newCC);
+                int[] newPC = [-1, pairA.i, pairB.i];
+                planeConvexes.Add(newPC);
             }
         }
 
-        var center = newPs.Values.Select(p=>p.p).Center();
-        var iC = ssPs.Length + newPs.Count;
-        centerConvexes.ForEach(cc => cc.ForEach((c, i) => { if (c == -1) cc[i] = iC; }));
+        var sssPs = ssPs.Concat(newPs.Values.Select(v => v.p)).ToArray();
+
+        //var center = newPs.Values.Select(p=>p.p).Center();
+        //var iC = ssPs.Length + newPs.Count;
+        var planeEdges = planeConvexes.Select(c => (c, e: c.Where(i => i != -1).ToArray())).Select(a => (a.c, e: (a.e[0], a.e[1]).OrderedEdge())).ToArray();
+        var planeGraph = new Graph(planeEdges.Select(p => p.e));
+        var groups = planeGraph.FullVisit().Select((group, i) => (g: group.Select(g => g.i).ToHashSet(), i)).ToArray();
+        var centers = groups.Select(g => g.g.Select(i => sssPs[i]).Center()).ToArray();
+
+        planeEdges.ForEach(pe => pe.c.ForEach((c, i) => 
+        {
+            if (c == -1)
+            {
+                var g = groups.First(g => g.g.Contains(pe.e.i));
+                pe.c[i] = sssPs.Length + g.i;
+            }
+        }));
 
         var ss = new Shape
         {
-            Points3 = ssPs.Concat(newPs.Values.Select(v => v.p)).Concat([center]).ToArray(),
-            Convexes = ssConvexes.Concat(newConvexes).Concat(centerConvexes).ToArray(),
+            Points3 = ssPs.Concat(newPs.Values.Select(v => v.p)).Concat(centers).ToArray(),
+            Convexes = ssConvexes.Concat(newConvexes).Concat(planeConvexes).ToArray(),
         }; 
 
         // не один центр, а набор
