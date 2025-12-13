@@ -30,6 +30,33 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion //ActiveWorld
 {
+    public Task<Motion> ExampleOfWorld()
+    {
+        var b = Shapes.IcosahedronSp2.Perfecto();
+        var c = Shapes.NativeCube.Perfecto(1).Scale(3, 1, 3).SplitPlanes(0.5);
+
+        return new[]
+        {
+            (4).SelectCirclePoints((i, x, y) => b.Move(0.8*x,0.5, 0.8*y).ToActiveShape(o =>
+            {
+                o.MaterialPower = 10;
+                o.Color1= Color.Black;
+                o.Color2= Color.GhostWhite;
+                o.Mass = 1;
+            })),
+            [
+                c/*.Rotate(0.3)*/.PutOn(1.5)/*.MoveX(-0.3)*/.ToActiveShape(o =>
+                {
+                    o.MaterialPower = 10;
+                    o.Mass = 0.1;
+                })
+            ]
+        }.ToSingleArray().ToWorld(o =>
+        {
+            o.Ground.GravityPower = 1;
+        }).ToMotion();
+    }
+
     public Task<Motion> ThreeBallsRace()
     {
         var r = 0.5;
