@@ -30,6 +30,57 @@ namespace ViewMotion;
 /// </summary>
 partial class SceneMotion //ActiveWorld
 {
+    public Task<Motion> CutCylinders()
+    {
+        var plane = new Plane(new Vector3(0, 1.3, 0), new Vector3(1, 1.5, 0), new Vector3(0, 1.5, 1));
+
+        var cylinder = Shapes.CylinderR(12, m: 5).ToOy().Perfecto(2).PutOn();
+
+        var shapes = new[]
+        {
+            cylinder.Move(-1, 0, -1).ApplyColor(Color.DarkBlue),
+            cylinder.Move(-1, 0, 0).ApplyColor(Color.DarkBlue),
+            cylinder.Move(-1, 0, 1).ApplyColor(Color.DarkBlue),
+
+            cylinder.Move(0, 0, -1).ApplyColor(Color.DarkRed),
+            cylinder.Perfecto(3).PutOn().ApplyColor(Color.Black),
+            cylinder.Move(0, 0, 1).ApplyColor(Color.DarkRed),
+
+            cylinder.Move(1, 0, -1).ApplyColor(Color.DarkGreen),
+            cylinder.Move(1, 0, 0).ApplyColor(Color.DarkGreen),
+            cylinder.Move(1, 0, 1).ApplyColor(Color.DarkGreen),
+        };
+
+        var cutShapes = shapes
+            .SelectMany(s => new[]
+            {
+                s.Cut(plane).MoveY(0.05),
+                s.Cut(plane.Flip())
+            })
+            .ToArray();
+
+        //return cutShapes.ToSingleShape().ToMotion();
+
+        var aShapes = cutShapes
+            .Select(s => s.ToActiveShape(o =>
+            {
+                o.MaterialPower = 1;
+                o.Skeleton.Power = 10;
+                o.Mass = 1;
+            }))
+            .ToArray();
+
+        return aShapes.ToWorld(o =>
+        {
+            o.SceneCount = 1000;
+            o.Ground.GravityPower = 2;
+            o.Ground.ShowGround = false;
+            o.Ground.FrictionForce = 0.03;
+            o.Interaction.ParticleForce = 1;
+            o.Interaction.FrictionForce = 0.03;
+        }).ToMotion();
+    }
+
     public Task<Motion> ExampleOfWorld()
     {
         var b = Shapes.IcosahedronSp2.Perfecto();

@@ -63,15 +63,35 @@ partial class SceneMotion // MaterialActiveWorld
             var stepsPerScene = 40;
             var rotationAngleX = 0; // Math.PI / 6;
             var rotationSpeed = 0; // 0.005;
-            var moveY = 0;
+            var moveY = 3;
             var move = new Vector3(0, moveY, 0);
             var fixBottom = false;
             var useDeformation = false;
             var color = Color.Green;
 
-            var blockLine = (3).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-            var block = vectorizer.GetPixelShape("hh1").Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
+            // <points>
+            //var points = vectorizer.GetPixelShape("hh1").Points3;
+
+            var size = (x:30, y:30);
+            var h = 12;
+            var f = 2;
+            var f2 = 2;
+
+            var leg = (f, h, f).SelectRange((i, j, k) => new Vector3(i - (f - 1)*0.5, j-h, k - (f-1)*0.5)).ToShape();
+            var points = new[]
+            {
+                (size.x, f2, size.y).SelectRange((i, j, k) => new Vector3(i - 0.5*(size.x-1), j, k - 0.5*(size.y-1))).ToShape(),
+                leg.Move(0.5*size.x-3, 0, 0.5*size.y-3),
+                leg.Move(-0.5*size.x+3, 0, 0.5*size.y-3),
+                leg.Move(0.5*size.x-3, 0, -0.5*size.y+3),
+                leg.Move(-0.5*size.x+3, 0, -0.5*size.y+3),
+            }.ToSingleShape().Points3;
+            // </points>
+
+            var blockLine = (1).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+            var block = points.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
             //return block.Perfecto(30).ToMeta().ToMotion(30);
+
             if (useDeformation)
                 block = block.Mult(0.03).PullOnSurface(SurfaceFuncs.Hyperboloid).Mult(1 / 0.03);
 
