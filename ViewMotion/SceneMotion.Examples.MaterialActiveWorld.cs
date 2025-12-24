@@ -204,7 +204,7 @@ partial class SceneMotion // MaterialActiveWorld
 
             Shape GetBlock(int i)
             {
-                var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12);
+                var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12); // todo: get surface
 
                 var s = new Shape
                 {
@@ -212,7 +212,7 @@ partial class SceneMotion // MaterialActiveWorld
                     Convexes = block.Convexes.ApplyConvexBi(bi).CleanBi(true)
                 };
 
-                return s;
+                return s.ToMeta();
             }
 
             var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(100).MoveY(bY.a).ToLines(20, Color.DarkRed);// Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50);
