@@ -69,35 +69,40 @@ partial class SceneMotion // MaterialActiveWorld
             var useDeformation = false;
             var color = Color.Green;
 
-            // <points>
-            //var points = vectorizer.GetPixelShape("hh1").Points3;
+            // <Material shape>
+            //var mShape = vectorizer.GetPixelShape("hh1").Centered();
 
-            var size = (x:30, y:30);
-            var h = 12;
-            var f = 2;
-            var f2 = 2;
+            var size = (x:30, y:30); // top size
+            var lh = 10;             // leg height
+            var d = 3;               // leg shift
 
-            var leg = (f, h, f).SelectRange((i, j, k) => new Vector3(i - (f - 1)*0.5, j-h, k - (f-1)*0.5)).ToShape();
-            var points = new[]
+            var tf = 2;              // top thickness
+            var lf = 2;              // leg thickness
+
+            var leg = (tf, lh, tf).SelectRange((i, j, k) => new Vector3(i, j - lh, k)).ToShape();
+            var top = (size.x, lf, size.y).SelectRange((i, j, k) => new Vector3(i, j, k)).ToShape();
+
+            var mShape = new[]
             {
-                (size.x, f2, size.y).SelectRange((i, j, k) => new Vector3(i - 0.5*(size.x-1), j, k - 0.5*(size.y-1))).ToShape(),
-                leg.Move(0.5*size.x-3, 0, 0.5*size.y-3),
-                leg.Move(-0.5*size.x+3, 0, 0.5*size.y-3),
-                leg.Move(0.5*size.x-3, 0, -0.5*size.y+3),
-                leg.Move(-0.5*size.x+3, 0, -0.5*size.y+3),
-            }.ToSingleShape().Points3;
-            // </points>
+                top,
+                leg.Move(d, 0, d),
+                leg.Move(size.x - d - lf, 0, d),
+                leg.Move(d, 0, size.y - d - lf),
+                leg.Move(size.x - d - lf, 0, size.y - d - lf),
+            }.ToSingleShape().Centered();
+            // </Material shape>
 
             var blockLine = (1).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
-            var block = points.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D().Centered();
-            //return block.Perfecto(30).ToMeta().ToMotion(30);
+            var block = mShape.Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D();
 
             if (useDeformation)
-                block = block.Mult(0.03).PullOnSurface(SurfaceFuncs.Hyperboloid).Mult(1 / 0.03);
+                block = block.ToOyM().Mult(0.01).PullOnSurface(SurfaceFuncs.Hyperboloid).ToOy().Mult(1 / 0.01);
 
             var bY = block.BorderY;
 
             block = block.RotateOx(rotationAngleX).Move(move);
+
+            //return (block.Perfecto(30).ToMeta() + Shapes.CoodsWithText().Mult(10)).ToMotion(30);
 
             var ps = block.Points3;
 
