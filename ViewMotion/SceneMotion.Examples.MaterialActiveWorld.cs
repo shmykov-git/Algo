@@ -212,7 +212,7 @@ partial class SceneMotion // MaterialActiveWorld
                     Convexes = block.Convexes.ApplyConvexBi(bi).CleanBi(true)
                 };
 
-                return s.ToMeta();
+                return s;
             }
 
             var platform = Surfaces.Plane(10, 10).ToOy().Perfecto(100).MoveY(bY.a).ToLines(20, Color.DarkRed);// Shapes.CirclePlatformWithLines(platformColor:Color.FromArgb(64,0,0)).Mult(50);
