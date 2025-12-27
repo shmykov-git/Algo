@@ -13,7 +13,7 @@ namespace Model.Libraries
         public static Shape2 Triangles2(double tileLen) => ShiftParquet(tileLen, Tiles.Triangles2);
         public static Shape2 Hexagon(double tileLen) => ShiftParquet(tileLen, Tiles.Hexagon);
         public static Shape2 PentagonalKershner8Native(double tileLen, double angleD, double dx = 1, double dy = 1, bool normalize = true) => ShiftParquet(tileLen, Tiles.PentagonalKershner8(angleD), dx, dy, normalize);
-        
+
         public static Shape2 PentagonalKershner8(int n, int m, double angleD = 1.7, bool normalize = true)
         {
             var tileLen = 0.2;
@@ -26,7 +26,7 @@ namespace Model.Libraries
             var shape = paruet.Mult(mult).Rotate(-angle);
 
             var dY = Rotates2.Rotate(-angle) * shiftY * mult;
-            var planeShape = (m).SelectRange(i => shape.Move(i*dY)).Aggregate((a, b) => a.Join(b));
+            var planeShape = (m).SelectRange(i => shape.Move(i * dY)).Aggregate((a, b) => a.Join(b));
 
             return normalize ? planeShape.Normalize() : planeShape;
         }
@@ -48,7 +48,7 @@ namespace Model.Libraries
                 Points = points.Centered(),
                 Convexes = convexes
             };
-            
+
             return normalize ? s.Normalize() : s;
         }
 

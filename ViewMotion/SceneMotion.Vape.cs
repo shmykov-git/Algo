@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Model.Extensions;
+using Model3D.Extensions;
+using Model3D.Vapes;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Model.Extensions;
-using Model3D.Extensions;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Model3D.Vector3;
 using Shape = Model.Shape;
-using Model3D.Voxels;
+using Vector3 = Model3D.Vector3;
 
 namespace ViewMotion;
 
@@ -60,7 +60,7 @@ partial class SceneMotion
             }
         };
 
-        var vapeA = new Vape(world, pointsA.Select(p => new Voxel
+        var vapeA = new Vape(world, pointsA.Select(p => new VapeVoxel
         {
             position = p,
             speed = Vector3.Origin,
@@ -70,7 +70,7 @@ partial class SceneMotion
             position = new Vector3(0, 0, 1)
         };
 
-        var vapeB = new Vape(world, pointsB.Select(p => new Voxel
+        var vapeB = new Vape(world, pointsB.Select(p => new VapeVoxel
         {
             position = p,
             speed = new Vector3(0, 0, 0.01),

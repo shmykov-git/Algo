@@ -1,24 +1,21 @@
-﻿using System.Collections.Generic;
-using System;
-using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MathNet.Numerics;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
+using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems;
 using Model3D.Systems.Model;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
+using View3D.Libraries;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
 using static Model3D.Systems.WaterSystemPlatform;
-using Model3D.Tools;
-using MathNet.Numerics;
-using View3D.Libraries;
-using Model3D;
-using Model3D.Actives;
-using Model.Fourier;
 
 namespace ViewMotion;
 /// <summary>

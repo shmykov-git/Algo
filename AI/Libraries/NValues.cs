@@ -1,6 +1,4 @@
 ﻿using AI.Exceptions;
-using Model;
-using Model.Extensions;
 
 namespace AI.Libraries;
 

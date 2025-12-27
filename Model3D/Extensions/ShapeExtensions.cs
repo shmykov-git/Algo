@@ -1,26 +1,20 @@
-﻿using Model;
+﻿using MathNet.Numerics;
+using Meta;
+using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Libraries;
 using Model.Tools;
+using Model3D.Actives;
 using Model3D.Libraries;
 using Model3D.Tools;
+using Model3D.Tools.Vectorization;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
-using MathNet.Numerics;
-using Meta;
-using Model.Graphs;
 using View3D.Libraries;
 using Vector2 = Model.Vector2;
-using Model3D.Actives;
-using System.Runtime.CompilerServices;
-using static Model3D.ShapeTreeFractal;
-using Model3D.Tools.Vectorization;
-using System.Text;
 
 namespace Model3D.Extensions
 {
@@ -55,8 +49,8 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points,
-                Convexes = cs.SelectMany(v=>v).ToArray(),
-                Materials = shape.Materials?.SelectMany((m, i) => (cs[i].Length).SelectRange(_=>m)).ToArray()
+                Convexes = cs.SelectMany(v => v).ToArray(),
+                Materials = shape.Materials?.SelectMany((m, i) => (cs[i].Length).SelectRange(_ => m)).ToArray()
             };
         }
 
@@ -151,7 +145,7 @@ namespace Model3D.Extensions
         public static (Shape main, Shape cut) SplitR(this Shape shape,
             params (double x, double y, double r)[] areas)
         {
-            var conds = areas.Select(a => (Func<Vector3, bool>) (v => (v - new Vector3(a.x, a.y, 0)).Length > a.r)).ToArray();
+            var conds = areas.Select(a => (Func<Vector3, bool>)(v => (v - new Vector3(a.x, a.y, 0)).Length > a.r)).ToArray();
             var main = shape.Where(v => conds.All(fn => fn(v)));
             var cut = shape.Where(v => conds.Any(fn => !fn(v)));
 
@@ -185,8 +179,8 @@ namespace Model3D.Extensions
                     (levelCount).SelectRange(lvl => lvl + 1).Select(lvl => new IEnumerable<int[]>[]
                     {
                         (lvl == levelCount) ? shape.Convexes.Select(convex=>convex.ReverseLinq().Select(i=>i+ln*lvl).ToArray()) : new int[0][],
-                        perimeters.SelectMany(p=> p.SelectCirclePair((i,j)=> 
-                        { 
+                        perimeters.SelectMany(p=> p.SelectCirclePair((i,j)=>
+                        {
                             var pc = new int[] { j + ln * (lvl-1), j + ln * lvl, i + ln * lvl, i + ln * (lvl-1) };
                             return reverseBorder ? pc.ReverseLinq().ToArray() : pc;
                         })),
@@ -396,13 +390,13 @@ namespace Model3D.Extensions
 
             var points = shape.Points3;
             var dic = points.Select((p, i) => (p, i)).GroupBy(v => v.p).ToDictionary(gp => gp.Key, gp => 0);
-            
+
             var textSize = 100;
 
             foreach (var (i, p) in shape.Points3.IndexValue())
             {
                 var k = dic[p]++;
-                var iText = vectorizer.GetText(i.ToString(), textSize, scale:false).Mult(0.1*mult/textSize).Move(p).Move(mult*new Vector3(0, 0.11 * k, 0)).ApplyColor(numColor.Value);
+                var iText = vectorizer.GetText(i.ToString(), textSize, scale: false).Mult(0.1 * mult / textSize).Move(p).Move(mult * new Vector3(0, 0.11 * k, 0)).ApplyColor(numColor.Value);
                 texts.Add(iText);
             }
 
@@ -416,7 +410,7 @@ namespace Model3D.Extensions
             spotColor ??= Color.Red;
             numColor ??= Color.DarkGreen;
             fiveColor ??= Color.Black;
-            
+
             var shapes = new List<Shape>();
 
             foreach (var (i, p) in shape.Points3.IndexValue())
@@ -424,7 +418,7 @@ namespace Model3D.Extensions
                 var n = i % 5;
                 if (n > 0)
                 {
-                    var circle = Polygons.Elipse(1, 1, n).ToShape2().ToShape3().Mult(0.1* mult).MassCentered().ToMetaShape3(0.5, 1).Move(p).Move(0, 0, 0.1).ApplyColor(numColor.Value);
+                    var circle = Polygons.Elipse(1, 1, n).ToShape2().ToShape3().Mult(0.1 * mult).MassCentered().ToMetaShape3(0.5, 1).Move(p).Move(0, 0, 0.1).ApplyColor(numColor.Value);
                     shapes.Add(circle);
                 }
 
@@ -447,7 +441,7 @@ namespace Model3D.Extensions
             {
                 Points = shape.MasterPoints.Select(m => m.point).ToArray()
             };
-            
+
             return s.ToSpotsWithMaterial(mult, Shapes.Icosahedron, new Material { Color = Color.Red });
         }
 
@@ -489,7 +483,7 @@ namespace Model3D.Extensions
 
         public static Shape ToDirectLines(this Shape shape, double mult = 1, Color? color = null)
         {
-            var lineShape = Surfaces.Cylinder(5, 2) + Surfaces.ConeM(5, 2).Scale(3,3,0.2).MoveZ(0.6).WithBackPlanes();
+            var lineShape = Surfaces.Cylinder(5, 2) + Surfaces.ConeM(5, 2).Scale(3, 3, 0.2).MoveZ(0.6).WithBackPlanes();
 
             return shape.ToLines3WithMaterial(mult, color.HasValue ? Materials.GetByColor(color.Value) : null, true, lineShape, true);
         }
@@ -511,8 +505,8 @@ namespace Model3D.Extensions
                 var ab = b - a;
                 var q = Quaternion.FromRotation(Vector3.ZAxis, ab.Normalize());
 
-                var line = stretch 
-                    ? lineShape.Scale(width, width, 0.8*width + ab.Length).Move(0, 0, -0.4 * width).Transform(p => q * p).Move(a)
+                var line = stretch
+                    ? lineShape.Scale(width, width, 0.8 * width + ab.Length).Move(0, 0, -0.4 * width).Transform(p => q * p).Move(a)
                     : lineShape.Scale(width, width, ab.Length).Transform(p => q * p).Move(a);
 
                 return line;
@@ -527,7 +521,7 @@ namespace Model3D.Extensions
             {
                 Points = lines.SelectMany(line => line.Points).ToArray(),
                 Convexes = lines.Index().SelectMany(i => lines[i].Convexes.Transform(c => c + i * n)).ToArray(),
-                MasterPoints = shape.Points.Select((p, i) => new Shape.MasterPoint 
+                MasterPoints = shape.Points.Select((p, i) => new Shape.MasterPoint
                 {
                     point = p,
                     links = new[]
@@ -536,7 +530,7 @@ namespace Model3D.Extensions
                             .SelectMany(j => (n/2).SelectRange(k => j * n + k)),
                         (fromLinks.TryGetValue(i, out var fromL) ? fromL : [])
                             .SelectMany(j => (n/2).SelectRange(k => j * n + k + n/2))
-                    }.ManyToArray() 
+                    }.ManyToArray()
                 }).ToArray()
             }.ApplyMaterial(material);
         }
@@ -652,7 +646,28 @@ namespace Model3D.Extensions
                 MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = m.point * k }).ToArray()
             };
         }
-        
+
+        public static HashSet<Voxel> ToVoxels(this Shape shape, double thickness = 1)
+        {
+            var vs = new HashSet<Voxel>();
+            VoxelHelper.AppendShape(vs, shape, thickness);
+            return vs;
+        }
+
+        public static Shape ToShape(this HashSet<Voxel> voxels)
+        {
+            var cube = Shapes.PerfectCube;
+            return voxels.Select(v => cube.Move(v.i, v.j, v.k)).ToSingleShape().Normalize();
+        }
+
+        public static Shape ToPointShape(this HashSet<Voxel> voxels)
+        {
+            return new Shape
+            {
+                Points3 = voxels.Select(v => v.ToVector()).ToArray()
+            };
+        }
+
         public static Shape Multiplicate(this Shape shape, Func<Shape, Shape>[] funcs)
         {
             return funcs.Select(fn => fn(shape)).ToSingleShape();
@@ -765,7 +780,7 @@ namespace Model3D.Extensions
         public static Shape ScaleZ(this Shape shape, double mult) => Scale(shape, 1, 1, mult);
 
         public static Shape Boxed(this Shape shape, Vector3 scale, Vector3 center) => shape.Scale(scale).Move(center);
-        public static Shape BackScale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(1/v.x, 1/v.y, 1/v.z).Move(center);
+        public static Shape BackScale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(1 / v.x, 1 / v.y, 1 / v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v, Vector3 center) => shape.Move(-center).Scale(v.x, v.y, v.z).Move(center);
         public static Shape Scale(this Shape shape, Vector3 v) => shape.Scale(v.x, v.y, v.z);
         public static Shape ScaleToCenter(this Shape shape, Vector3 v) => shape.Scale(v, shape.PointCenter);
@@ -839,15 +854,17 @@ namespace Model3D.Extensions
                 .Convexes
                 .Select(convex => convex.SelectCirclePair((i, j) => new
                 {
-                    i, j,
+                    i,
+                    j,
                     Line = new Line3(shape.Points[i].ToV3(), shape.Points[j].ToV3())
                 }).ToArray())
-                .SelectWithIndex((infos, index) => infos.Select(info=> new
+                .SelectWithIndex((infos, index) => infos.Select(info => new
                 {
-                    info.i, info.j, 
-                    info.Line, 
+                    info.i,
+                    info.j,
+                    info.Line,
                     Ind = shape.Points.Length + index,
-                    LongLine = infos.OrderByDescending(c=>c.Line.Len).First().Line
+                    LongLine = infos.OrderByDescending(c => c.Line.Len).First().Line
                 }).ToArray()).ToArray();
 
 
@@ -950,7 +967,7 @@ namespace Model3D.Extensions
                 Points3 = shape.Points3.Select(p => q * (p - c) + c).ToArray(),
                 Convexes = shape.Convexes,
                 Materials = shape.Materials,
-                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = q*(m.point.ToV3()).ToV4() }).ToArray()
+                MasterPoints = shape.MasterPoints.Select(m => new Shape.MasterPoint { links = m.links, point = q * (m.point.ToV3()).ToV4() }).ToArray()
             };
         }
 
@@ -1006,7 +1023,7 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Select(c=>c.ReverseLinq().ToArray()).ToArray(),
+                Convexes = shape.Convexes.Select(c => c.ReverseLinq().ToArray()).ToArray(),
                 Materials = shape.Materials
             };
         }
@@ -1120,7 +1137,7 @@ namespace Model3D.Extensions
 
         public static Graph ToGraph(this Shape shape)
         {
-            return new Graph(shape.OrderedEdges);
+            return new Graph(shape.Points.Length, shape.OrderedEdges);
         }
 
         public static Shape ToMaze(this Shape shape, int seed = 0, MazeType type = MazeType.SimpleRandom, (int i, int j)[] exits = null, bool openExits = true)
@@ -1186,7 +1203,7 @@ namespace Model3D.Extensions
             var r = shape.GetRadius();
             return shape.Mult(0.5 / r);
         }
-        
+
         public static Shape ToLine2Shape(this Shape shape)
         {
             return new Shape
@@ -1200,7 +1217,7 @@ namespace Model3D.Extensions
         public static Shape Normalize(this Shape shape, bool allow2D = false, bool allowSinglePoints = true, bool allowConvexCollapses = false)
         {
             var bi = shape.Points3.Select(p => p.ToVc3D()).ToArray().DistinctOnlyBi();
-                        
+
             var points = shape.Points.Where((_, i) => bi.filter[i]).ToArray();
             var convexes = shape.Convexes.Transform(i => bi.bi[i])
                 .Select(convex => convex.OrderSafeDistinct().ToArray());
@@ -1214,19 +1231,19 @@ namespace Model3D.Extensions
             {
                 var pointWithLinks = convexes.SelectMany(c => c).ToHashSet();
                 var (linkBi, filtered) = points.Index().WhereBi(pointWithLinks.Contains);
-                
+
                 points = filtered.Select(i => points[i]).ToArray();
                 convexes = convexes.Transform(i => linkBi[i]);
             }
 
             if (allowConvexCollapses)
             {
-                convexes = convexes.Select(c => c.NormalizeConvex().HashedConvex()).Distinct().Select(v=>v.Item).ToArray();
+                convexes = convexes.Select(c => c.HashedConvex()).Distinct().Select(v => v.Item).ToArray();
             }
 
             return new Shape()
             {
-                Points = points, 
+                Points = points,
                 Convexes = convexes.ToArray()
             };
         }
@@ -1234,12 +1251,12 @@ namespace Model3D.Extensions
         public static Shape ApplyMasterPoint(this Shape shape, Vector3 point)
         {
             shape.MasterPoints = [new Shape.MasterPoint { links = (shape.PointsCount).Range().ToArray(), point = point.ToV4() }];
-            
+
             return shape;
         }
 
         public static Shape ApplyMaterial(this Shape shape, Material material, Func<Vector3, bool> filterFn = null) =>
-            shape.ApplyMaterial(material == null ? null : (_,_) => material, filterFn);
+            shape.ApplyMaterial(material == null ? null : (_, _) => material, filterFn);
 
         public static Shape ApplyMaterial(this Shape shape, Func<int[], int, Material> materialFn, Func<Vector3, bool> filterFn = null)
         {
@@ -1273,7 +1290,7 @@ namespace Model3D.Extensions
         }
 
         public static Shape ApplyColor(this Shape shape, Func<int[], Color> colorFn) =>
-            shape.ApplyMaterial((c,_) => Materials.GetByColor(colorFn(c)));
+            shape.ApplyMaterial((c, _) => Materials.GetByColor(colorFn(c)));
 
         public static Shape ApplyColor(this Shape shape, Func<int[], int, Color> colorFn) =>
             shape.ApplyMaterial((c, i) => Materials.GetByColor(colorFn(c, i)));
@@ -1297,13 +1314,13 @@ namespace Model3D.Extensions
         }
 
         public static Shape ApplyColorGradientX(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.x, colors);
-        public static Shape ApplyColorGradientX(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.y,v.z), colors);
+        public static Shape ApplyColorGradientX(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.y, v.z), colors);
 
         public static Shape ApplyColorGradientY(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.y, colors);
-        public static Shape ApplyColorGradientY(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x,v.z), colors);
+        public static Shape ApplyColorGradientY(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x, v.z), colors);
 
         public static Shape ApplyColorGradientZ(this Shape shape, params Color?[] colors) => shape.ApplyColorGradient(v => v.z, colors);
-        public static Shape ApplyColorGradientZ(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x,v.y), colors);
+        public static Shape ApplyColorGradientZ(this Shape shape, Func3Z gradientFn, params Color?[] colors) => shape.ApplyColorGradient(v => gradientFn(v.x, v.y), colors);
 
         public static Shape ApplyColorGradient(this Shape shape, Vector3 a, params Color?[] colors) =>
             ApplyColorGradient(shape, b => a.MultS(b.ToV3()), colors);
@@ -1312,7 +1329,7 @@ namespace Model3D.Extensions
             ApplyColorGradient(shape, b => b.ToV3().Length, colors);
 
         public static Shape ApplyColorSphereGradient(this Shape shape, Vector3 center, params Color?[] colors) =>
-            ApplyColorGradient(shape, b => (b.ToV3()- center).Length, colors);
+            ApplyColorGradient(shape, b => (b.ToV3() - center).Length, colors);
 
         public static Shape ApplyColorSphereRGradient(this Shape shape, double radius, Vector3 center, params Color?[] colors) =>
             ApplyColorGradient(shape, b => (b.ToV3() - center).Length, 0, radius, colors);
@@ -1324,8 +1341,8 @@ namespace Model3D.Extensions
         {
             var centers = shape.Convexes.Select(convex => convex.Select(i => shape.Points[i]).Center()).ToArray();
 
-            var min = from??centers.Min(valueFn);
-            var max = to??centers.Max(valueFn);
+            var min = from ?? centers.Min(valueFn);
+            var max = to ?? centers.Max(valueFn);
             max += (max - min) * 0.00001;
 
             Vector4 GetColor(double z, Color current)
@@ -1333,7 +1350,7 @@ namespace Model3D.Extensions
                 var n = colors.Length - 1;
                 var k = (z - min) / (max - min); // [0, 1)
                 var j = (int)(k * n);
-                if (j >= colors.Length-1)
+                if (j >= colors.Length - 1)
                     j = colors.Length - 2;
                 var fromColor = colors[j] ?? current;
                 var toColor = colors[j + 1] ?? current;
@@ -1342,7 +1359,7 @@ namespace Model3D.Extensions
                 return new Vector4(fromColor) + (new Vector4(toColor) - new Vector4(fromColor)) * kk;
             }
 
-            shape.Materials = centers.Index().Select(i => GetColor(valueFn(centers[i]), shape.Materials?[i].Color??default)).Select(color => Materials.GetByColor(color)).ToArray();
+            shape.Materials = centers.Index().Select(i => GetColor(valueFn(centers[i]), shape.Materials?[i].Color ?? default)).Select(color => Materials.GetByColor(color)).ToArray();
 
             return shape;
         }
@@ -1401,7 +1418,7 @@ namespace Model3D.Extensions
             return new Shape()
             {
                 Points = shape.Points,
-                Convexes = shape.Convexes.Where(c => filterFn(c.Select(i=>ps[i]).ToArray(), new Plane(ps[c[0]], ps[c[1]], ps[c[2]]))).ToArray(),
+                Convexes = shape.Convexes.Where(c => filterFn(c.Select(i => ps[i]).ToArray(), new Plane(ps[c[0]], ps[c[1]], ps[c[2]]))).ToArray(),
             }.CleanPoints();
         }
 
@@ -1420,7 +1437,7 @@ namespace Model3D.Extensions
         public static Shape FilterGraphConvexes(this Shape shape, Func<int, int, bool> distanceFilterFn, int iConvex = 0)
         {
             var g = shape.ConvexGraph;
-            var d = g.DistanceMap(iConvex);            
+            var d = g.DistanceMap(iConvex);
 
             var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => distanceFilterFn(v.i, d[v.i])).Select(v => v.i).ToHashSet();
 
@@ -1448,7 +1465,7 @@ namespace Model3D.Extensions
 
         public static Shape FilterConvexes(this Shape shape, Func<int[], int, bool> filterFn)
         {
-            var inds = shape.Convexes.Select((c,i)=>(c,i)).Where(v=>filterFn(v.c, v.i)).Select(v=>v.i).ToHashSet();
+            var inds = shape.Convexes.Select((c, i) => (c, i)).Where(v => filterFn(v.c, v.i)).Select(v => v.i).ToHashSet();
 
             return new Shape()
             {
@@ -1464,9 +1481,9 @@ namespace Model3D.Extensions
             // Even - четные
             var convexes =
                 shape.Convexes.SelectMany(convex => (convex.Length == 3 || convex.Length.IsEven())
-                    ? convex.SelectCircleTriple((i, j, k) => new[] {i, j, k}).Odds()
-                    : convex.SelectCircleTriple((i, j, k) => new[] {i, j, k}).Odds()
-                        .Concat(new[] {new[] {convex[0], convex[1], convex[3]}})).ToArray();
+                    ? convex.SelectCircleTriple((i, j, k) => new[] { i, j, k }).Odds()
+                    : convex.SelectCircleTriple((i, j, k) => new[] { i, j, k }).Odds()
+                        .Concat(new[] { new[] { convex[0], convex[1], convex[3] } })).ToArray();
 
             return new Shape()
             {
@@ -1487,13 +1504,13 @@ namespace Model3D.Extensions
 
             return new Polygon()
             {
-                Points = inds.Select(i=>ps[i]).ToArray()
+                Points = inds.Select(i => ps[i]).ToArray()
             };
         }
 
         public static Shape Smooth(this Shape shape) => new Shape()
         {
-            Points3 = shape.Points3.SelectCircleTriple((a,b,c)=>(a+b+c)/3).ToArray(),
+            Points3 = shape.Points3.SelectCircleTriple((a, b, c) => (a + b + c) / 3).ToArray(),
             Convexes = shape.Convexes,
             Materials = shape.Materials
         };
@@ -1514,7 +1531,7 @@ namespace Model3D.Extensions
 
         public static Shape[] SplitByConvexes(this Shape shape, bool withVolume = true)
         {
-            return shape.Convexes.Select((c,i) => new Shape()
+            return shape.Convexes.Select((c, i) => new Shape()
             {
                 Points = c.Select(i => shape.Points[i]).ToArray(),
                 Convexes = withVolume
@@ -1527,7 +1544,7 @@ namespace Model3D.Extensions
                     {
                         c.Index().ToArray()
                     },
-                Materials = shape.Materials == null ? null : (withVolume ? new[]{shape.Materials[i], shape.Materials[i] } : new[] { shape.Materials[i] })
+                Materials = shape.Materials == null ? null : (withVolume ? new[] { shape.Materials[i], shape.Materials[i] } : new[] { shape.Materials[i] })
             }).ToArray();
         }
 
@@ -1540,7 +1557,7 @@ namespace Model3D.Extensions
                 Points = shape.Points,
                 Convexes = perimeters
                     .Where(p => !filterPointsCount.HasValue || p.Length >= filterPointsCount.Value)
-                    .SelectMany(p => p.SelectCirclePair((i, j) => new[] {i, j})).ToArray()
+                    .SelectMany(p => p.SelectCirclePair((i, j) => new[] { i, j })).ToArray()
             };
         }
 
@@ -1710,10 +1727,10 @@ namespace Model3D.Extensions
             var r2 = radius.Pow2();
             var bPs = b.Points3;
             var docks = a.Points3
-                .SelectMany((ap, i) => bPs.Select((bp, j) => (bp, j, r2: (ap - bp).Length2)).Where(v => v.r2 < r2).Select(v => (j:v.j, i, v.r2)))
-                .GroupBy(v=>v.j)
-                .Select(gv=>(j:gv.Key, i:gv.MinBy(v=>v.r2).i))
-                .ToDictionary(v=>v.j, v=>v.i);
+                .SelectMany((ap, i) => bPs.Select((bp, j) => (bp, j, r2: (ap - bp).Length2)).Where(v => v.r2 < r2).Select(v => (j: v.j, i, v.r2)))
+                .GroupBy(v => v.j)
+                .Select(gv => (j: gv.Key, i: gv.MinBy(v => v.r2).i))
+                .ToDictionary(v => v.j, v => v.i);
 
             var bi = bPs.Index().WhereBi(i => !docks.ContainsKey(i));
             var materials = (a.Materials ?? new Material[0]).Concat(b.Materials ?? new Material[0]).ToArray();
@@ -1722,13 +1739,13 @@ namespace Model3D.Extensions
             {
                 Points3 = a.Points3.Concat(bi.items.Select(j => bPs[j])).ToArray(),
                 Convexes = a.Convexes.Concat(b.Convexes.Transform(i => bi.bi[i] < 0 ? docks[i] : bi.bi[i] + a.PointsCount)).ToArray(),
-                Materials = (a.Materials != null && b.Materials !=null) ? a.Materials.Concat(b.Materials).ToArray() : null,
+                Materials = (a.Materials != null && b.Materials != null) ? a.Materials.Concat(b.Materials).ToArray() : null,
             };
         }
 
         public static Shape DockSingle(this IEnumerable<Shape> shapeList, double radius = 0.05) => shapeList.Aggregate((a, b) => a.DockSingle(b, radius));
 
-        public static Shape AddConvexPoint(this Shape shape, int convexNum, Vector3 p, bool keepSelectedConvexes = false, bool reverseDir = false) => 
+        public static Shape AddConvexPoint(this Shape shape, int convexNum, Vector3 p, bool keepSelectedConvexes = false, bool reverseDir = false) =>
             shape.AddConvexPoint((c, i) => i == convexNum, p, keepSelectedConvexes, reverseDir);
 
         public static Shape AddConvexPoint(this Shape shape, Func<int[], int, bool> selectorFn, Vector3 p, bool keepSelectedConvexes = false, bool reverseDir = false)

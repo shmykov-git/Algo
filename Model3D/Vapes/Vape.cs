@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Model.Extensions;
-using Model3D.Extensions;
 
-namespace Model3D.Voxels;
+namespace Model3D.Vapes;
 
 /// <summary>
 /// Voxel shape
@@ -15,11 +13,11 @@ public class Vape
 {
     public VapeWorld World { get; }
     public Vector3 position;
-    public Net3<Voxel> net;
-    public List<Voxel> activeVoxelRoots = null;
+    public Net3<VapeVoxel> net;
+    public List<VapeVoxel> activeVoxelRoots = null;
     public Dictionary<(int, int), VoxelEdge> edges = new();
     //public List<VoxelEdge> edges;
-    public Dictionary<Voxel, List<VoxelEdge>> edgeDic;
+    public Dictionary<VapeVoxel, List<VoxelEdge>> edgeDic;
 
 
     //public Vape(VapeWorld world, IEnumerable<Voxel> voxels)
@@ -28,7 +26,7 @@ public class Vape
     //    CreateByVoxels(voxels);
     //}
 
-    public Vape(VapeWorld world, IEnumerable<Voxel> voxels)
+    public Vape(VapeWorld world, IEnumerable<VapeVoxel> voxels)
     {
         this.World = world;
 
@@ -44,7 +42,7 @@ public class Vape
     {
         this.World = world;
 
-        CreateByVoxels(points.Select(p => new Voxel
+        CreateByVoxels(points.Select(p => new VapeVoxel
         {
             gi = world.voxelCount++, // multithreading?
             position = p,
@@ -52,7 +50,7 @@ public class Vape
         }));
     }
 
-    private void CreateByVoxels(IEnumerable<Voxel> voxelsEnumerator)
+    private void CreateByVoxels(IEnumerable<VapeVoxel> voxelsEnumerator)
     {
         var voxels = voxelsEnumerator.ToArray();
 
@@ -61,22 +59,22 @@ public class Vape
 
         var c = voxels.Select(v => v.position).Center(); // todo: mass center
 
-        voxels.ForEach(v => 
+        voxels.ForEach(v =>
         {
             v.position -= c;
             v.vape = this;
         });
 
         position = c;
-        net = new Net3<Voxel>(voxels, World.Options.VoxelSize, true, new Vector3(2, 2, 2));
+        net = new Net3<VapeVoxel>(voxels, World.Options.VoxelSize, true, new Vector3(2, 2, 2));
 
         edges = new();
         edgeDic = voxels.ToDictionary(v => v, _ => new List<VoxelEdge>());
 
-        void CreateEdge(Voxel a, Voxel b)
+        void CreateEdge(VapeVoxel a, VapeVoxel b)
         {
             var key = (a.gi, b.gi).OrderedEdge();
-            
+
             if (edges.TryGetValue(key, out var edge))
                 return;
 

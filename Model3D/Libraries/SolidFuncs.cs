@@ -1,8 +1,4 @@
-﻿using Model.Extensions;
-using Model.Libraries;
-using System;
-using Model;
-using Vector2 = Model.Vector2;
+﻿using System;
 
 namespace Model3D.Libraries
 {

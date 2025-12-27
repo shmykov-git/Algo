@@ -1,5 +1,5 @@
-﻿using System;
-using MapsterMapper;
+﻿using MapsterMapper;
+using System;
 
 namespace Model.Extensions;
 

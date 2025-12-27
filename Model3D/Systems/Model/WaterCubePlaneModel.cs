@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Model;
+﻿using Model;
 using Model3D.Tools;
+using System;
+using System.Collections.Generic;
 
 namespace Model3D.Systems.Model
 {

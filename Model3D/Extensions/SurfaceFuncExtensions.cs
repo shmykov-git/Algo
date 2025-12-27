@@ -1,6 +1,5 @@
-﻿using System;
-using Model.Extensions;
-using Model3D.Libraries;
+﻿using Model3D.Libraries;
+using System;
 
 namespace Model3D.Extensions
 {

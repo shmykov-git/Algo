@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model3D.Extensions
 {
@@ -20,9 +20,9 @@ namespace Model3D.Extensions
             {
                 var sizeX = s.SizeX;
                 var res = s.Move(dx, 0, 0);
-                
+
                 if (delimiterShape != null && !isLast)
-                    res += delimiterShape.Move(dx+ sizeX + distance / 2, 0, 0);
+                    res += delimiterShape.Move(dx + sizeX + distance / 2, 0, 0);
 
                 dx += sizeX + distance + delLen;
 
@@ -53,7 +53,7 @@ namespace Model3D.Extensions
             return shapes.Aggregate(Shape.Empty, (a, b) =>
             {
                 i = (i + 1) % dirs.Length;
-                
+
                 if (b == null)
                     return a;
 

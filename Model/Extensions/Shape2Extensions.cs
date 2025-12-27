@@ -101,7 +101,7 @@ namespace Model.Extensions
 
         public static Shape2 ScaleToOne(this Shape2 shape, Vector2 aSize)
         {
-            return shape.Scale(aSize, (1,1));
+            return shape.Scale(aSize, (1, 1));
         }
 
         public static Shape2 Scale(this Shape2 shape, Vector2 aSize, Vector2 bSize)

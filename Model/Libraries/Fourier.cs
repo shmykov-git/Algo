@@ -27,7 +27,7 @@ namespace Model.Libraries
             var d = ExpC(m.c, k);
 
             var r = a + ((d - a) * (b - a) / (b - a).Len2) * (b - a);
-            
+
             return r;
         }
 

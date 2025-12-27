@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace Model
 {
@@ -183,7 +182,7 @@ namespace Model
         {
             var x = Math.Round((decimal)this.x / EpsilonM) * EpsilonM;
             var y = Math.Round((decimal)this.y / EpsilonM) * EpsilonM;
-            
+
             return HashCode.Combine(x, y);
         }
 

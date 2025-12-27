@@ -1,9 +1,7 @@
 ﻿using Model;
 using Model.Extensions;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using View.Extensions;
 
@@ -89,12 +87,12 @@ namespace View
 
         private void FillPolygon(Graphics g, Shape2 shape, int[] part, Brush brush)
         {
-            g.FillPolygon(brush, part.Select(i=> shape[i].ToPoint()).ToArray());
+            g.FillPolygon(brush, part.Select(i => shape[i].ToPoint()).ToArray());
         }
 
         private void DrawNet(Graphics g, Shape2 shape, Pen pen)
         {
-            foreach (var edge in shape.Convexes.SelectMany(convex => convex.SelectCirclePair((i, j)=>(i,j))))
+            foreach (var edge in shape.Convexes.SelectMany(convex => convex.SelectCirclePair((i, j) => (i, j))))
             {
                 var a = shape[edge.i];
                 var b = shape[edge.j];
@@ -113,7 +111,7 @@ namespace View
         private void DrawPointLabels(Graphics g, Shape2 polygon, Brush brush)
         {
             var font = new Font("Arial", 10);
-            for (var i=0; i<polygon.Points.Length; i++)
+            for (var i = 0; i < polygon.Points.Length; i++)
             {
                 var p = polygon[i];
                 g.DrawString(i.ToString(), font, brush, p.ToPoint());
@@ -144,7 +142,7 @@ namespace View
 
         private void btnPlus_Click(object sender, System.EventArgs e)
         {
-            debugCount = debugCount == baseShape.Convexes.Length-1 ? baseShape.Convexes.Length - 1 : debugCount + 1;
+            debugCount = debugCount == baseShape.Convexes.Length - 1 ? baseShape.Convexes.Length - 1 : debugCount + 1;
             Refresh();
         }
     }

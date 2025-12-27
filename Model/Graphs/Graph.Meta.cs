@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Model.Extensions;
+using System;
 using System.Linq;
-using Model.Extensions;
 
 namespace Model.Graphs
 {
@@ -48,7 +47,7 @@ namespace Model.Graphs
 
             while (true)
             {
-                var n = nodes.FirstOrDefault(n => n.edges.Count == 2 && n.edges.GroupBy(e=>e.e).Count() == 2);
+                var n = nodes.FirstOrDefault(n => n.edges.Count == 2 && n.edges.GroupBy(e => e.e).Count() == 2);
 
                 if (n == null)
                     break;

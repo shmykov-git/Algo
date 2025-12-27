@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using Model;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Graphs;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Material = Model.Material;
 using Shape = Model.Shape;
 
@@ -171,7 +168,7 @@ public class ActiveShape : INet3Item
                 var lockFn = FixFn(point, direction, distance);
                 nodes.Where(n => lockFn(n.position)).ForEach(n => n.locked = true);
             }
-            
+
             var b = Model.borders0;
 
             if (options.Fix.Dock.HasFlag(ActiveShapeOptions.FixDock.Point))
@@ -220,7 +217,7 @@ public class ActiveShape : INet3Item
                 });
             }
         }
-        
+
         staticNormModel = staticModel.Normalize();
     }
 
@@ -235,9 +232,9 @@ public class ActiveShape : INet3Item
         {
             Points3 = options.Skeleton.ShowPoints || !options.UseSkeleton
                 ? nodes.Select(n => n.position).ToArray()
-                : nodes.Where(n=>!IsSkeletonPoint(n.i)).Select(n => n.position).ToArray(),
+                : nodes.Where(n => !IsSkeletonPoint(n.i)).Select(n => n.position).ToArray(),
             Convexes = shape0.Convexes,
-            Materials = staticNormModel.Convexes.Length == (shape0.Materials?.Length??0) ? shape0.Materials : null,
+            Materials = staticNormModel.Convexes.Length == (shape0.Materials?.Length ?? 0) ? shape0.Materials : null,
         };
 
         if (options.ShowMeta)

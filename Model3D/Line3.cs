@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Model3D.Extensions;
 
 namespace Model3D
 {

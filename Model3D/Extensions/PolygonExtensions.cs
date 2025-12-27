@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using Meta.Extensions;
+﻿using Meta.Extensions;
 using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
 using Model.Tools.Triangulate;
 using Model3D.Tools.Model;
+using System;
+using System.Linq;
 
 namespace Model3D.Extensions
 {
     public static class PolygonExtensions
-    {        
+    {
         public static Shape MakeShape(this Polygon polygon, bool triangulate = false)
         {
             return polygon.Fill(triangulate).ToShape3();
@@ -63,7 +63,7 @@ namespace Model3D.Extensions
             {
                 ZVolume = volume
             };
-            
+
             if (volume == null && !triangulate)
                 options.TriangulationStrategy = TriangulationStrategy.None;
 
@@ -160,7 +160,7 @@ namespace Model3D.Extensions
                 polygon.Points[i..]
             }.SelectMany(v => v).ToArray();
 
-            return new Polygon() {Points = points};
+            return new Polygon() { Points = points };
         }
 
         public static Polygon ComposeOthersToFirst(this Polygon[] polygons)
@@ -169,13 +169,13 @@ namespace Model3D.Extensions
 
             return polygons.Compose(internals).First();
         }
-       
+
         public static Polygon[] Compose(this Polygon[] polygons, (int main, int child)[] map, bool skipReverse = false)
         {
             // тут ошибка
             var getLevel = map.GetMapLevelFn();
 
-            var excepts = map.Where(v=>getLevel(v.child).Even()).Select(v => v.child).ToHashSet();
+            var excepts = map.Where(v => getLevel(v.child).Even()).Select(v => v.child).ToHashSet();
             var includes = map.GroupBy(v => v.main).ToDictionary(gv => gv.Key, gv => gv.Select(v => v.child).ToArray());
 
             Polygon JoinPolygons(Polygon[] polygs)
@@ -205,12 +205,12 @@ namespace Model3D.Extensions
                 .Where(v => !excepts.Contains(v.num))
                 .Select(v =>
                 {
-                    if (!includes.TryGetValue(v.num, out int[] takeList)) 
+                    if (!includes.TryGetValue(v.num, out int[] takeList))
                         return v.p;
 
                     var innerPolygons = takeList.Select(i => skipReverse ? polygons[i] : polygons[i].Reverse());
 
-                    return JoinPolygons(new []{ v.p }.Concat(innerPolygons).ToArray());
+                    return JoinPolygons(new[] { v.p }.Concat(innerPolygons).ToArray());
                 })
                 .ToArray();
         }
@@ -218,6 +218,6 @@ namespace Model3D.Extensions
         public static Polygon[] ComposeObsolet(this Polygon[] polygons, (int takeI, int incJ)[] internals)
             => polygons.Compose(internals.Select(v => v.Reverse()).ToArray());
 
-        
+
     }
 }

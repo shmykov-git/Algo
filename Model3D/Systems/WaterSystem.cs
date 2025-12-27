@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MathNet.Numerics;
+﻿using MathNet.Numerics;
 using Meta;
 using Model;
 using Model.Extensions;
@@ -14,10 +7,13 @@ using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems.Model;
 using Model3D.Tools.Model;
-using View3D.Libraries;
-using Vector2 = Model.Vector2;
-using Item = Model3D.Systems.WaterSystemPlatform.Item;
 using Model3D.Tools.Vectorization;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using View3D.Libraries;
+using Item = Model3D.Systems.WaterSystemPlatform.Item;
 
 namespace Model3D.Systems
 {
@@ -57,7 +53,7 @@ namespace Model3D.Systems
                 .Where(v => v.y < 0.3)
                 .Where(v =>
                 {
-                    var nAlfa = (int) (30 * Math.Atan2(v.x.Abs(), v.z.Abs()) / (Math.PI / 2));
+                    var nAlfa = (int)(30 * Math.Atan2(v.x.Abs(), v.z.Abs()) / (Math.PI / 2));
 
                     if (nAlfa == 7 || nAlfa == 22)
                         return v.y > -0.75;
@@ -70,7 +66,7 @@ namespace Model3D.Systems
             var torus = TorusModify(Surfaces.Torus(240, 40, 8)).AddNormalVolume(0.2)
                 .ApplyColor(Color.Black)
                 .ApplyColorSphereRGradient(10, new Vector3(0, -sceneSize.y / 2 + 3, 0), ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, ballColor, null, null, null);
-                
+
             var torusCollider = TorusModify(Surfaces.Torus(120, 20, 8)).AddNormalVolume(0.2)/*.ReversePlanes()*/;
 
             var stoneCount = 8;
@@ -233,9 +229,12 @@ namespace Model3D.Systems
             var ballCollider = Shapes.IcosahedronSp3.Perfecto(9).Move(-3, -5, 3).ResizeByNormals(0.3);
 
             var text = vectorizer.GetText("I'll be back", new TextShapeOptions()
-                {
-                    FontSize = 300, FontName = "Royal Inferno", SmoothAngleScalar = 0.71, SmoothOutLevel = 2
-                }).Perfecto(10).ScaleZ(0.3)
+            {
+                FontSize = 300,
+                FontName = "Royal Inferno",
+                SmoothAngleScalar = 0.71,
+                SmoothOutLevel = 2
+            }).Perfecto(10).ScaleZ(0.3)
                 .ToOxM().Move(-3, 0, 0)
                 .Where(v => (v - new Vector3(-3, -5, 3)).Length >= 4.8).ApplyColor(darkColor).WithBackPlanes(darkColor);
 

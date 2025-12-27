@@ -1,11 +1,11 @@
 ﻿using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
 using System.Linq;
-using Model.Graphs;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
@@ -28,7 +28,8 @@ namespace Model3D.Tools
             (int i, int j)? GetBound((int i, int j)[] a, (int i, int j)[] b)
             {
                 return a.SelectMany(v1 => b.Select(v2 => (v1, v2))).Where(v => v.v1 == v.v2).Select(v => ((int, int)?)v.v1).FirstOrDefault();
-            };
+            }
+            ;
 
             bool IsHole((int i, int j)[] holes, int i, int j)
             {
@@ -116,7 +117,7 @@ namespace Model3D.Tools
 
             var n = shape.Points.Length;
 
-            exits = exits?.Select(v => (v.i < 0 ? n + v.i : v.i, v.j < 0 ? n + v.j : v.j)).Select(v=>v.OrderedEdge()).ToArray();
+            exits = exits?.Select(v => (v.i < 0 ? n + v.i : v.i, v.j < 0 ? n + v.j : v.j)).Select(v => v.OrderedEdge()).ToArray();
 
             if (exits != null && openExits)
                 bounds = bounds.Concat(exits).ToList();

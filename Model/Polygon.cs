@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using Model.Extensions;
+﻿using Model.Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using Model.Fourier;
 
 namespace Model
 {
@@ -15,7 +14,7 @@ namespace Model
         public IEnumerable<Line2> Lines => Points.SelectCirclePair((a, b) => new Line2(a, b));
 
         public double Len => Points.Length > 1 ? Points.SelectCirclePair((a, b) => (b - a).Len).Sum() : 0;
-        
+
         public double Square
         {
             get
@@ -31,7 +30,7 @@ namespace Model
             var perimeters = this.ToPerimeter(pointPrecession);
             var len = perimeters.Sum(p => p.Len);
             var square = perimeters.Sum(p => p.Square.Abs());
-            
+
             var perfect = 4 * Math.PI * square / len.Pow2();
 
             return perfect;
@@ -41,7 +40,7 @@ namespace Model
         public double MinLinesLen => Points.Length > 1 ? Lines.Min(l => l.Len) : 0;
 
         public (Vector2 a, Vector2 b) Border => Points.Length > 0
-            ? 
+            ?
             (
                 new Vector2(Points.Min(p => p.x), Points.Min(p => p.y)),
                 new Vector2(Points.Max(p => p.x), Points.Max(p => p.y))

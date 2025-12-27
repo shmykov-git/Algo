@@ -1,29 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using MathNet.Numerics;
+using Model;
+using Model.Bezier;
+using Model.Extensions;
+using Model.Fourier;
+using Model.Libraries;
+using Model3D;
+using Model3D.Extensions;
+using Model3D.Libraries;
+using Model3D.Tools;
+using Model3D.Tools.Model;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using Model;
-using Model.Extensions;
-using Model.Libraries;
-using Model3D.Extensions;
-using Model3D.Libraries;
-using Model3D.Systems;
-using Model3D.Systems.Model;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using static Model3D.Systems.WaterSystemPlatform;
-using Model3D.Tools;
-using MathNet.Numerics;
-using View3D.Libraries;
-using Model3D;
-using Model3D.Actives;
-using Model.Fourier;
-using System.Diagnostics;
-using System.CodeDom;
-using Model.Bezier;
 using Vector2 = Model.Vector2;
-using Model3D.Tools.Model;
 
 namespace ViewMotion;
 /// <summary>
@@ -231,7 +225,7 @@ partial class SceneMotion
         var planeN = 48;
         var planeSize = 3.0;
         var itemSize = planeSize / (planeN - 1);
-        var plane = Parquets.PentagonalKershner8(planeN / 4, planeN / 4, 1.7, false).ToShape3().Perfecto(planeSize).RotateOz(Math.PI/4);
+        var plane = Parquets.PentagonalKershner8(planeN / 4, planeN / 4, 1.7, false).ToShape3().Perfecto(planeSize).RotateOz(Math.PI / 4);
         //var plane = Parquets.Hexagons(planeN, planeN, 1, false).ToShape3().Perfecto(planeSize);
         //var plane = Shapes.Plane(planeN, planeN, Convexes.Squares).SplitByConvexes(false).ToSingleShape().Perfecto(planeSize);
         var ps = plane.Points3;
@@ -252,7 +246,8 @@ partial class SceneMotion
             var disFn = plane.ConvexDistanceFn(i);
 
             return p => insFn(prFn(p)) ? Math.Max(0, disFn(p)) : 0;
-        };
+        }
+        ;
 
         Shape GetShape(double v)
         {
@@ -270,9 +265,9 @@ partial class SceneMotion
                 {
                     var z = iMps.Select(iMp => modelPoints[iMp]).Max(p => fns[iC](p));
                     c.ForEach(i => dynPlane.Points[i] = ps[i].SetZ(z).ToV4());
-                }                
+                }
             });
-            
+
             var s = new[]
             {
                 dynPlane.FilterConvexPlanes((ps, _)=> !ps.Any(p=>p.z>0)).Normalize().ToLines(1, Color.Blue),
@@ -303,7 +298,7 @@ partial class SceneMotion
     {
         var c1 = Color.DarkOrange;
         var c2 = Color.Black;
-        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol", multY:1.1).Centered().Mult(3);
+        var txt = vectorizer.GetTextLine("все будет заведись", "Gogol", multY: 1.1).Centered().Mult(3);
         var n = 200;
 
         IEnumerable<Shape> Animate()
@@ -499,7 +494,7 @@ partial class SceneMotion
         public Color Color;
         public Func<Shape, Shape> ModifyFn;
     }
-    
+
     private class BlackHoleMotionOptions
     {
         public Shape Shape;

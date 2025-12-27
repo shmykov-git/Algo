@@ -33,7 +33,7 @@ public class BezierOptions : PolygonOptions
     /// Point goes to angle with less angle only
     /// </summary>
     public double AllowedAngle { get; set; } = 0.75 * Math.PI;
-    
+
     /// <summary>
     /// Point goes to angle with less factor only
     /// </summary>

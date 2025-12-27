@@ -1,6 +1,4 @@
-﻿using AI.Model;
-
-namespace AI.NBrain.Activators;
+﻿namespace AI.NBrain.Activators;
 
 public class LineActivator : NActivator
 {

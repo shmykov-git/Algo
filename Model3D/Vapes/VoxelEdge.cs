@@ -1,11 +1,11 @@
-﻿namespace Model3D.Voxels;
+﻿namespace Model3D.Vapes;
 
 public class VoxelEdge
 {
-    public Voxel a;
-    public Voxel b;
+    public VapeVoxel a;
+    public VapeVoxel b;
 
-    public Voxel another(Voxel v) => a == v ? b : a;
+    public VapeVoxel another(VapeVoxel v) => a == v ? b : a;
     public double materialPower => 0.5 * (a.material.power + b.material.power);
     public double materialPowerRadius => 0.5 * (a.material.powerRadius + b.material.powerRadius);
     public double materialDestroyRadius => 0.5 * (a.material.destroyRadius + b.material.destroyRadius);

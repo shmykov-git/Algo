@@ -1,5 +1,4 @@
 ﻿using Model.Extensions;
-using Model.Libraries;
 using NUnit.Framework;
 using System;
 using System.Linq;
@@ -39,7 +38,7 @@ namespace Model.Test
 
             var x = 2.0;
             var dx = 0.1;
-            while(fn(x) > 0.000000000000001)
+            while (fn(x) > 0.000000000000001)
             {
                 var y1 = fn(x);
                 var y2 = fn(x + dx);

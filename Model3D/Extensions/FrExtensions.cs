@@ -1,13 +1,9 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Threading.Tasks;
-using Meta;
+﻿using Meta;
 using Model;
 using Model.Extensions;
 using Model.Fourier;
 using Model3D.Tools.Vectorization;
+using System.Drawing;
 
 namespace Model3D.Extensions
 {

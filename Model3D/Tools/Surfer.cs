@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using Model;
+using Model.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using Model;
-using Model.Extensions;
-using Model.Graphs;
-using Model.Libraries;
-using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
 {
@@ -17,8 +10,8 @@ namespace Model3D.Tools
     {
         public static Shape FindSurface(Func<Vector3, bool> solidFn, double precision = 0.002)
         {
-            var bound0 = (i:FindBoundI(solidFn, precision), j:0, k:0);
-            var siblings = new[] {(1, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0), (0, -1, 0), (0, 0, -1)};
+            var bound0 = (i: FindBoundI(solidFn, precision), j: 0, k: 0);
+            var siblings = new[] { (1, 0, 0), (0, 1, 0), (0, 0, 1), (-1, 0, 0), (0, -1, 0), (0, 0, -1) };
             (int i, int j, int k) Add((int i, int j, int k) a, (int i, int j, int k) b) => (a.i + b.i, a.j + b.j, a.k + b.k);
             (int i, int j, int k) Sub((int i, int j, int k) a, (int i, int j, int k) b) => (a.i - b.i, a.j - b.j, a.k - b.k);
             (int i, int j, int k) Mult((int i, int j, int k) a, (int i, int j, int k) b) => (a.i * b.i, a.j * b.j, a.k * b.k);
@@ -32,7 +25,7 @@ namespace Model3D.Tools
 
             var net = new HashSet<(int i, int j, int k)>();
             IEnumerable<(int i, int j, int k)> NetSiblings((int i, int j, int k) a) => Siblings(a).Where(s => net.Contains(s));
-            
+
             IEnumerable<(int i, int j, int k)> OrthogonalNetSiblings((int i, int j, int k) a, (int i, int j, int k) b)
             {
                 var ab = Sub(b, a);
@@ -90,7 +83,7 @@ namespace Model3D.Tools
             while (stack.Count > 0)
             {
                 var p = stack.Pop();
-                
+
                 if (net.Contains(p) || !IsBound(p))
                     continue;
 
@@ -99,7 +92,7 @@ namespace Model3D.Tools
             }
 
             var ps = new Vector3[net.Count];
-            var psInd = net.Select((p, i) => (p, i)).ToDictionary(v=>v.p, v=>v.i);
+            var psInd = net.Select((p, i) => (p, i)).ToDictionary(v => v.p, v => v.i);
             psInd.ForEach(v => ps[v.Value] = ToCenterV3(v.Key));
 
             // найти первые 2 вершины, далее присоединять одну и отказываться от одной из 2х, повторить
@@ -119,7 +112,7 @@ namespace Model3D.Tools
             //    ((1, 0, 0), (0, 0, 1)),
             //    ((1, 0, 0), (0, -1, 0)),
             //    ((1, 0, 0), (0, 0, -1)),
-                
+
             //    ((-1, 0, 0), (0, 1, 0)),
             //    ((-1, 0, 0), (0, 0, 1)),
             //    ((-1, 0, 0), (0, -1, 0)),
@@ -132,7 +125,7 @@ namespace Model3D.Tools
             //};
 
             //var zr = new Vector3(0, 0, 0);
-            
+
             //var convexes = pdDic.SelectMany(voxel =>
             //    pairs
             //        .Select(pr => (a: Add(voxel.Key, pr.a), b: Add(voxel.Key, pr.b)))
@@ -142,11 +135,11 @@ namespace Model3D.Tools
             //    .ToArray();
 
             // todo: убрать лишние
-            var convexes = net.SelectMany(a => NetSiblings(a).SelectMany(b => OrthogonalNetSiblings(a, b).Select(c=>(a,b,c))))
-                .Select(v => new[]{ psInd[v.a], psInd[v.b], psInd[v.c] })
+            var convexes = net.SelectMany(a => NetSiblings(a).SelectMany(b => OrthogonalNetSiblings(a, b).Select(c => (a, b, c))))
+                .Select(v => new[] { psInd[v.a], psInd[v.b], psInd[v.c] })
                 .ToArray();
-                    //.Select(pr => (pdDic[pr.a], pdDic[pr.b]).OrderedEdge()))
-                    //.Distinct();
+            //.Select(pr => (pdDic[pr.a], pdDic[pr.b]).OrderedEdge()))
+            //.Distinct();
 
             return new Shape()
             {
@@ -158,7 +151,7 @@ namespace Model3D.Tools
         private static int FindBoundI(Func<Vector3, bool> solidFn, double precision)
         {
             var i = 0;
-            
+
             while (solidFn(new Vector3(precision * i, 0, 0)))
                 i++;
 

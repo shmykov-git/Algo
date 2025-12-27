@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Aspose.ThreeD.Entities;
 using Shape = Model.Shape;
 
 namespace ViewMotion.Models;

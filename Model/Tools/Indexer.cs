@@ -1,5 +1,4 @@
 ﻿using System;
-using Model.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +14,7 @@ namespace Model.Tools
             var backIndices = new int[items.Length];
             var filter = new bool[items.Length];
 
-            for (var i=0; i<items.Length; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (indices.TryGetValue(items[i], out int index))
                 {

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using Meta;
+﻿using Meta;
 using Model.Extensions;
 using Model.Fourier;
 using Model.Tools;
 using Model3D.Extensions;
 using Model3D.Tools.Vectorization;
+using System;
+using System.Drawing;
+using System.Globalization;
+using System.Linq;
 
 namespace Model.Libraries
 {
@@ -26,7 +26,7 @@ namespace Model.Libraries
                 .Rotate(Math.PI / 2).Perfecto();
 
         public static Shape Polygon(int n, double a = 0.1, int count = 100, bool fill = true) =>
-            Polygons.FourierSeries(count, (n-1, 6*a/(n-1)), (-1, 1))
+            Polygons.FourierSeries(count, (n - 1, 6 * a / (n - 1)), (-1, 1))
                 .Condition(fill, p => p.Fill()).TurnOut().ToShape3()
                 .Rotate(Math.PI / 2).Perfecto();
 
@@ -88,8 +88,8 @@ namespace Model.Libraries
             var fromJ = -10;
             var toI = 10;
 
-            var lenI = (int)(2/step) + 1;
-            var lenJ = (int)(2/step) + 1;
+            var lenI = (int)(2 / step) + 1;
+            var lenJ = (int)(2 / step) + 1;
 
             Fr[] Apply(int i, int j)
             {
@@ -123,7 +123,7 @@ namespace Model.Libraries
 
         public static Shape Sun(double a = 0.1, double b = 0.2, int count = 200) => Series3(-12, 10, a, b, count, true);
 
-        public static Shape Fire(double a = 0.15, double b = 0.22, int k = 0, int count = 200, bool fill = true) => Series3(-(8+k), 7+k, a, b, count, fill);
+        public static Shape Fire(double a = 0.15, double b = 0.22, int k = 0, int count = 200, bool fill = true) => Series3(-(8 + k), 7 + k, a, b, count, fill);
         public static Shape Crown(double a = 0.1, double b = 0.2, int count = 200) => Series3(-5, 4, a, b, count, true);
 
         public static Shape SeriesFormula(Fr[] fShape)
@@ -132,7 +132,7 @@ namespace Model.Libraries
             var bold = 6;
             var font = "Libertinus Math";
 
-            var e = vectorizer.GetTextObsolet("e", n, font, 1 , 1, false).Mult(1d/n).ToLines(bold);
+            var e = vectorizer.GetTextObsolet("e", n, font, 1, 1, false).Mult(1d / n).ToLines(bold);
             var pref = vectorizer.GetTextObsolet("f(t) =", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
             var interval = vectorizer.GetTextObsolet(", t ∈ [0, 2π]", n, font, 1, 1, false).Mult(1d / n).Move(0, -0.1, 0).ToLines(bold);
 
@@ -151,19 +151,19 @@ namespace Model.Libraries
 
                 if (tail.HasText())
                     sx = sx.HasText() ? $"{sx} {tail}" : tail;
-                
+
                 return sx;
             }
 
             var koffs = fShape.GroupMembers()
                 .SelectWithIndex((k, ind) =>
-                vectorizer.GetTextObsolet($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) + 
-                e + 
+                vectorizer.GetTextObsolet($"{FormatV(k.r, "", ind > 0)}", n, font, 1, 1, false).Mult(0.7d / n).AlignX(1).Move(-0.1, 0.1, 0).ToLines(bold) +
+                e +
                 vectorizer.GetTextObsolet($"{FormatV(k.n + k.dn, "it")}", n, font, 1, 1, false).Mult(0.5 / n).Move(1, 0.6, 0).ToLines(bold))
-                .Select(s=>s.AlignX(0));
+                .Select(s => s.AlignX(0));
 
-            var f = new[] {pref, koffs.CompoundOx(0.3)}.CompoundOx(0.5);
-            var txt = new[] { f, interval}.CompoundOx(0);
+            var f = new[] { pref, koffs.CompoundOx(0.3) }.CompoundOx(0.5);
+            var txt = new[] { f, interval }.CompoundOx(0);
 
             return txt.Mult(0.1);
         }

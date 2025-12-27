@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Model3D.Voxels;
+namespace Model3D.Vapes;
 
-public class Voxel : INet3Item
+public class VapeVoxel : INet3Item
 {
     //<tmp>
     public int i;

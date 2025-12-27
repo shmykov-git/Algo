@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model3D.Systems
 {
@@ -61,10 +59,12 @@ namespace Model3D.Systems
 
         private static Func<Vector2, Vector2> GetAffin2Fn((double a, double b, double c, double d, double e, double f, double p) w)
         {
-            var m = new Matrix2 
-            { 
-                a00 = w.a, a01 = w.b, 
-                a10 = w.c, a11 = w.d 
+            var m = new Matrix2
+            {
+                a00 = w.a,
+                a01 = w.b,
+                a10 = w.c,
+                a11 = w.d
             };
             var l = new Vector2(w.e, w.f);
 

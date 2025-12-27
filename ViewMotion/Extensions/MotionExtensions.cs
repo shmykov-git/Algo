@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using Model;
+using Model.Extensions;
+using Model3D;
+using Model3D.Actives;
+using Model3D.Extensions;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Meta.Extensions;
-using Model;
-using Model.Extensions;
-using Model.Libraries;
-using Model3D.Actives;
-using Model3D.Extensions;
 using ViewMotion.Models;
-using Model3D;
 
 namespace ViewMotion.Extensions;
 
@@ -140,7 +136,7 @@ static class MotionExtensions
         (new[] { shape.ToActiveShape() }, new Shape[0]).ToWorld(modifyFn);
 
     public static ActiveWorld ToWorld(this ActiveShape active, Action<ActiveWorldOptions>? modifyFn = null) =>
-        (new[] {active}, new Shape[0]).ToWorld(modifyFn);
+        (new[] { active }, new Shape[0]).ToWorld(modifyFn);
 
     public static ActiveWorld ToWorld(this IEnumerable<ActiveShape> actives, Action<ActiveWorldOptions>? modifyFn = null) =>
         (actives.ToArray(), new Shape[0]).ToWorld(modifyFn);
@@ -206,7 +202,8 @@ static class MotionExtensions
                         break;
                 }
             }
-        }) {IsBackground = true};
+        })
+        { IsBackground = true };
 
         th.Start();
 
@@ -233,7 +230,7 @@ static class MotionExtensions
         return new Motion
         {
             Options = options,
-            CameraMotionOptions= options.CameraMotionOptions,
+            CameraMotionOptions = options.CameraMotionOptions,
             CameraDistance = options.CameraDistance,
             Shape = shape,
             Step = Step

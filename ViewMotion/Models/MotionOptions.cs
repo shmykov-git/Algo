@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Meta.Extensions;
+﻿using Meta.Extensions;
 using Model;
+using System;
+using System.Threading.Tasks;
 
 namespace ViewMotion.Models;
 
@@ -16,6 +16,6 @@ class MotionOptions
 
     public CameraMotionOptions CameraMotionOptions { get; set; }
     public double? CameraDistance { get; set; }
-    public Shape StartShape { get; set; } 
+    public Shape StartShape { get; set; }
     public TimeSpan? StepDelay { get; set; }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Tools
@@ -42,7 +41,7 @@ namespace Model3D.Tools
                 {
                     perimeter.Add(way.b.i);
                     way = GetWay(points[way.a.i], points[way.b.i], way.b, way.e);
-                    
+
                     if (--stopper == 0)
                         Debugger.Break();
 
@@ -57,7 +56,7 @@ namespace Model3D.Tools
             while (true)
             {
                 var cleanEdges = graph.edges.Where(e => e.a.edges.Count == 1 || e.b.edges.Count == 1).ToArray();
-                
+
                 if (cleanEdges.Length == 0)
                     break;
 

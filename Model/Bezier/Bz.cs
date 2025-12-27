@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Model.Extensions;
+using System;
 using System.Linq;
 using System.Numerics;
-using Model.Extensions;
 
 namespace Model.Bezier;
 
@@ -87,7 +87,7 @@ public class Bz
             return false;
 
         var correctSide =
-            line1.AB.MultS(c - line1.B).Sgn() == 1 && 
+            line1.AB.MultS(c - line1.B).Sgn() == 1 &&
             line2.AB.MultS(line2.B - c).Sgn() == 1;
 
         return correctSide;

@@ -1,6 +1,5 @@
-﻿using System;
-using Model3D.Libraries;
-using ViewMotion.Platforms.AI.Func;
+﻿using Model3D.Libraries;
+using System;
 
 namespace ViewMotion.Platforms.AI.Func.T21;
 

@@ -1,13 +1,11 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
+using System;
+using System.Linq;
 
 namespace Model3D.Actives;
+
 public partial class ActiveWorld // Rules
 {
     private double materialInteractionForceBorder = 0.2;
@@ -91,7 +89,7 @@ public partial class ActiveWorld // Rules
         }
 
         if (options.UsePowerLimit)
-            if (materialForce.Length2 > options.PowerLimit* options.PowerLimit)
+            if (materialForce.Length2 > options.PowerLimit * options.PowerLimit)
                 materialForce = materialForce.ToLen(options.PowerLimit);
 
         return materialForce;
@@ -136,7 +134,7 @@ public partial class ActiveWorld // Rules
         var rCenterOffset = angleV.Normalize().MultS(r);
         var rotationCenter = a.Model.center + angleV.ToLenWithCheck(rCenterOffset);
         var rotationRadiusV = rotationCenter - n.position;
-        
+
         if (rotationRadiusV.Length2 < Epsilon2)
             return Vector3.Origin;
 
@@ -181,9 +179,9 @@ public partial class ActiveWorld // Rules
     Vector3 CalcSpaceForce(Node n) => (options.MassCenter.MassCenter - n.position).ToLenWithCheck(options.MassCenter.GravityConst * options.MassCenter.GravityPower / options.OverCalculationMult / (n.position - options.MassCenter.MassCenter).Length2);
 
     bool IsBottom(Node n) => n.position.y <= options.Ground.Y;
-    
+
     bool NoLock(Node n) => !n.locked;
-    
+
     Vector3 FixY(Vector3 a) => a.y > options.Ground.Y ? a : new Vector3(a.x, options.Ground.Y, a.z);
 
     Vector3 GetPlanePointK(Plane plane, Vector3 p)
@@ -204,14 +202,14 @@ public partial class ActiveWorld // Rules
 
 
     #region Plane interaction
-    
+
     double GetPlaneForceByDistance(double distance) => PlaneInteractionAcceleration(1, options.MaterialThickness + options.JediMaterialThickness, options.MaterialThickness + options.JediMaterialThickness + distance);
 
     Vector3 GetPlaneFrictionForce(Vector3 slidingSpeed)
     {
         var force = options.PlaneConst * options.Interaction.FrictionForce;
 
-        if (slidingSpeed.Length2 < force* force)
+        if (slidingSpeed.Length2 < force * force)
             return -slidingSpeed;
 
         return slidingSpeed.ToLenWithCheck(-force, Values.Epsilon12);

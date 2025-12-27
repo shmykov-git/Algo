@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model;
-using Model.Extensions;
-using Model3D.Extensions;
-using Model3D.Tools;
 
 namespace Model3D
 {
@@ -56,15 +54,15 @@ namespace Model3D
         public Vector3[] NetField => netData.SelectMany((a, i) =>
             a.SelectMany((b, j) => b.Select((c, k) => clusterSize * new Vector3(i + 0.5, j + 0.5, k + 0.5) + from))).ToArray();
 
-        public TNetItem[] NetItems => data.Select(item=>item.Value).ToArray();
+        public TNetItem[] NetItems => data.Select(item => item.Value).ToArray();
 
         public (int i, int j, int k) GetIndex(Vector3 v) => (
-            (int) ((v.x - from.x) / clusterSize),
-            (int) ((v.y - from.y) / clusterSize),
-            (int) ((v.z - from.z) / clusterSize));
+            (int)((v.x - from.x) / clusterSize),
+            (int)((v.y - from.y) / clusterSize),
+            (int)((v.z - from.z) / clusterSize));
 
-        public bool IsGood((int i, int j, int k) v) => 
-            v.i >= 0 && v.i < nx && 
+        public bool IsGood((int i, int j, int k) v) =>
+            v.i >= 0 && v.i < nx &&
             v.j >= 0 && v.j < ny &&
             v.k >= 0 && v.k < nz;
 
@@ -181,7 +179,7 @@ namespace Model3D
             {
                 var list = netData[v.index.i][v.index.j][v.index.k];
                 list.Remove(v.item);
-                
+
                 if (IsGood(v.newIndex))
                 {
                     v.item.Index = v.newIndex;

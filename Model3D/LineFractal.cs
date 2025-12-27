@@ -1,7 +1,4 @@
-﻿using Model;
-using Model3D.Extensions;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Model3D
 {
@@ -30,7 +27,7 @@ namespace Model3D
         public Line3[] CreateFractal(Line3[] lines, int count)
         {
             var levelLines = lines;
-            for(var i = 0; i<count; i++)
+            for (var i = 0; i < count; i++)
             {
                 levelLines = levelLines.SelectMany(l => GetFractalLines(l)).ToArray();
             }

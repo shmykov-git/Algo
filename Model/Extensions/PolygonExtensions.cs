@@ -1,8 +1,8 @@
-﻿using Model.Tools;
+﻿using Model.Libraries;
+using Model.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Libraries;
 
 namespace Model.Extensions
 {
@@ -78,12 +78,12 @@ namespace Model.Extensions
 
         public static Polygon Scale(this Polygon polygon, Vector2 bSize)
         {
-            return polygon.Scale((1,1), bSize);
+            return polygon.Scale((1, 1), bSize);
         }
 
         public static Polygon ScaleToOne(this Polygon polygon, Vector2 aSize)
         {
-            return polygon.Scale(aSize, (1,1));
+            return polygon.Scale(aSize, (1, 1));
         }
 
         public static Polygon Scale(this Polygon polygon, Vector2 aSize, Vector2 bSize)
@@ -183,7 +183,7 @@ namespace Model.Extensions
             var c = polygon.Points.Center();
 
             var centerDistance = isClosed
-                ? polygon.Points.SelectCirclePair((a, b) => Angle.LeftDirection(a,c,b)).Sum()
+                ? polygon.Points.SelectCirclePair((a, b) => Angle.LeftDirection(a, c, b)).Sum()
                 : polygon.Points.SelectPair((a, b) => Angle.LeftDirection(a, c, b)).Sum();
 
             return centerDistance < 0;
@@ -226,7 +226,7 @@ namespace Model.Extensions
                 .Where(v => v != Vector2.Zero)
                 .ToArray();
 
-            return new Polygon() {Points = ps};
+            return new Polygon() { Points = ps };
         }
 
         public static Polygon ToGradientPointsPolygon(this Polygon polygon)
@@ -255,7 +255,7 @@ namespace Model.Extensions
 
             var points = polygon.Points.Select(p => p + (delta * rnd.NextDouble(), delta * rnd.NextDouble())).ToArray();
 
-            return new Polygon() {Points = points};
+            return new Polygon() { Points = points };
         }
 
         public static Polygon SmoothOut(this Polygon polygon, int repeatCount = 1, double angleFactor = -1, Func<Vector2, bool> conditionFn = null)

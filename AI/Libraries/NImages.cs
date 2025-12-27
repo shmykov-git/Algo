@@ -56,10 +56,10 @@ public static class NImages
             var j = rnd.Next(n - smileN - 2 * shiftN) - shiftJ + shiftN;
             img.AddBitmap((i, j), bitmap);
 
-            return new NImageInfo { i = k, pos = (i + shiftI, j + shiftJ), img = img};
+            return new NImageInfo { i = k, pos = (i + shiftI, j + shiftJ), img = img };
         }
 
-        for (int i = 0; i< count;i++)
+        for (int i = 0; i < count; i++)
         {
             yield return GetImage(i);
         }

@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model.Libraries;
+using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Model.Extensions;
-using Model.Libraries;
-using Model3D.Extensions;
 
 namespace Model3D.Tools
 {
@@ -74,7 +74,7 @@ namespace Model3D.Tools
         public Vector3[] NetField => net?.NetField;
         public Vector3[] NetParticles => net?.NetItems.OfType<Particle>().Select(p => p.Item.Position).ToArray();
         public Vector3[] NetPlanes => net?.NetItems.OfType<Plane>().Select(p => p.Position).ToArray();
-        
+
         private bool HasNet => options.NetSize.HasValue && options.NetTo.HasValue && options.NetFrom.HasValue;
 
         private void InitNet()
@@ -225,7 +225,7 @@ namespace Model3D.Tools
 
                 return acc;
             }
-            
+
             // no repulsion power
             return zeroV3;
         }
@@ -254,7 +254,7 @@ namespace Model3D.Tools
                         GetNeighbors(a.Item.Position)
                             .Where(b => a != b)
                             .Select(b => GetAttractionAcceleration(a.Item.Position, b.PositionFn())).Sum());
-                
+
                 attractionAccelerations.ForEach((a, i) => particles[i].StepState.Acceleration += a);
             }
 
@@ -305,7 +305,7 @@ namespace Model3D.Tools
                         GetNeighbors(a.Item.Position)
                             .OfType<Particle>()
                             .Where(b => a != b)
-                            .Select(b => (b, ab: b.Item.Position - a.Item.Position, speed:b.ItemBase.Speed))
+                            .Select(b => (b, ab: b.Item.Position - a.Item.Position, speed: b.ItemBase.Speed))
                             .Where(v => v.ab.Length2 < dParticleMin2)
                             .Select(v => (move: -v.ab.ToLen(dParticleMin - v.ab.Length), v.speed))
                             .ToArray()))
@@ -351,8 +351,8 @@ namespace Model3D.Tools
                 var planeCollisions = particles.SelectInParallel(a => (particle: a, infos:
                         GetNeighbors(a.Item.Position)
                             .OfType<Plane>()
-                            .GroupBy(p=>p.Item)
-                            .Select(gp=>gp.First())
+                            .GroupBy(p => p.Item)
+                            .Select(gp => gp.First())
                             .Select(b => (b, ab: b.ProjectionFn(a.Item.Position) - a.Item.Position))
                             .Select(v => (v.b, v.ab, closing: v.b.Normal.MultS(v.ab) < 0, plane: v.b))
                             .Where(v => v.closing ? v.ab.Length2 < v.b.Coeffs.dMin2 : v.ab.Length2 < planeBackwardThickness2)

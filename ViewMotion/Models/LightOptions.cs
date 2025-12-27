@@ -1,5 +1,5 @@
-﻿using System.Windows.Media;
-using Model3D;
+﻿using Model3D;
+using System.Windows.Media;
 
 namespace ViewMotion.Models;
 

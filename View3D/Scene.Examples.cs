@@ -1,8 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
-using MathNet.Numerics;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model.Fourier;
 using Model.Libraries;
@@ -12,7 +8,9 @@ using Model3D.Libraries;
 using Model3D.Systems;
 using Model3D.Systems.Model;
 using Model3D.Tools;
-using Model3D.Tools.Model;
+using System;
+using System.Drawing;
+using System.Linq;
 using View3D.Libraries;
 
 namespace View3D
@@ -136,12 +134,12 @@ namespace View3D
 
             var blowRadius = options.BlowRadius ?? 1.6;
             var blowFactor = options.BlowFactor ?? 0.4;
-            var angleSpeed = options.AngleSpeed??0.5;
-            var gravityPower = options.GravityPower??0.7;
+            var angleSpeed = options.AngleSpeed ?? 0.5;
+            var gravityPower = options.GravityPower ?? 0.7;
             var gravityPoint = new Vector3(8, 0, 0);
             var useRotation = !options.NoRotation;
-            var iterationsCount = options.InterationsCount??25;
-            var tryBeauty = options.TryBeauty??true;
+            var iterationsCount = options.InterationsCount ?? 25;
+            var tryBeauty = options.TryBeauty ?? true;
             var palette = options.Colors ?? new Color?[]
             {
                 Color.DarkRed, Color.DarkRed, Color.Red, Color.Red, Color.DarkGoldenrod, Color.White
@@ -156,7 +154,7 @@ namespace View3D
 
                 for (var i = 0; i < count; i++)
                 {
-                    var gForce = (to-p).ToLen(power / (to - p).Length2);
+                    var gForce = (to - p).ToLen(power / (to - p).Length2);
                     v += gForce;
                     p += v;
                 }
@@ -188,10 +186,10 @@ namespace View3D
                 var center = s.PointCenter;
                 var dir = center.Normalize();
                 var rot = new Vector3(r.NextDouble(), r.NextDouble(), r.NextDouble());
-                var dist = blowRadius * (1 + blowFactor * (r.NextDouble()-1));
+                var dist = blowRadius * (1 + blowFactor * (r.NextDouble() - 1));
 
                 var point = (1 + dist) * dir;
-                var powerPoint = tryBeauty 
+                var powerPoint = tryBeauty
                     ? GetBeautyPowerPoint(gravityPower, gravityPoint, point, iterationsCount)
                     : GetNativePowerPoint(gravityPower, gravityPoint, point, iterationsCount);
 
@@ -236,15 +234,15 @@ namespace View3D
 
             var data = new (Shape s, Vector3 shift, Func<Shape, Vector3> speed, Func<Shape, Shape> modifyFn, Color color)[]
             {
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch), 
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch),
                     new Vector3(-2.5, 0, 0),
-                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis), 
+                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis),
                     s=>s,
                     Color.Black),
-                
-                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1), 
+
+                (Shapes.Cube.SplitPlanes(0.1).ScaleY(cubeStretch).Rotate(1, 1, 1),
                     new Vector3(2.5, 0, 0),
-                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)), 
+                    s => 0.5 * s.PointCenter.MultV(Vector3.YAxis.Rotate(1, 1, 1)),
                     s=>s.Rotate(1,1,1),
                     Color.Black),
             };
@@ -415,8 +413,8 @@ namespace View3D
         public Shape GoldMe(Shape shape = null, bool addSpheres = true, bool addPrice = true)
         {
             shape ??= Mazes.CrateKershner8Maze(0.008, 1.7, -1.09, 5).Mult(3)
-                .Transform(TransformFuncs3.Flower(0.5, 0.5, 5)).Mult(0.1/0.2).ToLines(0.1/0.2);
-            
+                .Transform(TransformFuncs3.Flower(0.5, 0.5, 5)).Mult(0.1 / 0.2).ToLines(0.1 / 0.2);
+
             var spheres = Shape.Empty;
 
             if (addSpheres)
@@ -459,7 +457,7 @@ namespace View3D
 
             return new[]
             {
-                p, 
+                p,
                 s,
 
                 //Shapes.CoodsNet

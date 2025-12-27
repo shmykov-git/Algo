@@ -18,7 +18,7 @@ namespace Model
             double n = (Closed ? N : (N - 1));
             var step = (To - From) / n;
 
-            return Enumerable.Range(0, N).Select(i => Fn(From + step * n * TFn(i/n))).ToArray();
+            return Enumerable.Range(0, N).Select(i => Fn(From + step * n * TFn(i / n))).ToArray();
         }
     }
 }

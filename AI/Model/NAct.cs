@@ -1,6 +1,6 @@
 ﻿namespace AI.Model;
 
-public enum NAct 
+public enum NAct
 {
     Line,
     Sigmoid,

@@ -3,21 +3,21 @@ using Aspose.ThreeD.Entities;
 using Aspose.ThreeD.Shading;
 using Aspose.ThreeD.Utilities;
 using Model.Extensions;
+using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using View3D.Extensions;
-using AsposeScene = Aspose.ThreeD.Scene;
+using View3D.Tools.Model;
 using AsposeMaterial = Aspose.ThreeD.Shading.Material;
+using AsposeScene = Aspose.ThreeD.Scene;
 using Material = Model.Material;
 using Shape = Model.Shape;
-using View3D.Tools.Model;
-using System.Data;
-using Model.Libraries;
 
 namespace View3D.Tools;
 
@@ -83,7 +83,7 @@ public class StaticSceneRender
                 points0 = frame0.Points.SelectMany(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray(),
                 index = frame0.Convexes.SelectMany(c => c).Select(i => (ushort)i).ToArray()
             };
-            
+
             if (frames[0].HasMasterPoints)
             {
                 mesh.moves = frames.Select(f => f.MasterPoints.Select((mp, i) => mp.point - frame0.MasterPoints[i].point).SelectMany(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray()).ToArray();
@@ -95,7 +95,7 @@ public class StaticSceneRender
                 mesh.moves = frames.Select(f => frame0.Points.Select((p0, i) => f.Points[i] - p0).SelectMany(p => new[] { (float)p.x, (float)p.y, (float)p.z }).ToArray()).ToArray();
             }
 
-            for(var i = 0; i < mesh.moves.Length; i++)
+            for (var i = 0; i < mesh.moves.Length; i++)
             {
                 if (mesh.moves[i].All(m => m.Abs() < Values.Epsilon9))
                     mesh.moves[i] = [];
@@ -116,7 +116,7 @@ public class StaticSceneRender
             animateMeshes.Add(GetAnimateMesh(meshIndex, frames));
             meshIndex++;
         }
-        
+
         return (scene, new Animate { meshes = animateMeshes });
     }
 
@@ -143,7 +143,7 @@ public class StaticSceneRender
     {
         AsposeScene scene = new();
 
-        foreach (var s in shape.CompositeMaterialShapes) 
+        foreach (var s in shape.CompositeMaterialShapes)
         {
             Node node = scene.RootNode.CreateChildNode();
             InitSingleMaterialNode(node, s);
@@ -186,7 +186,7 @@ public class StaticSceneRender
     public AsposeScene CreateScene1(Shape shape)
     {
         AsposeScene scene = new AsposeScene();
-        
+
         if (shape.Materials == null)
         {
             AddMaterialNode(scene, shape, defaultMaterial, staticSettings.AddNormalsWhenNoMaterial);
@@ -234,7 +234,7 @@ public class StaticSceneRender
 
         }
 
-        foreach (var convex in shape.Convexes.Where(c=>c.Length>=3))
+        foreach (var convex in shape.Convexes.Where(c => c.Length >= 3))
         {
             mesh.CreatePolygon(convex);
         }

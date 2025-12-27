@@ -1,13 +1,12 @@
 ﻿using Model;
 using Model.Extensions;
+using Model.Hashes;
+using Model.Libraries;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Vector2 = Model.Vector2;
-using Vector3 = Model3D.Vector3;
-using Model.Libraries;
-using Model.Hashes;
 
 namespace Model3D.Extensions
 {
@@ -245,8 +244,8 @@ namespace Model3D.Extensions
             return new Shape
             {
                 Points3 = vectors.ToArray(),
-                Convexes = isClosed 
-                    ? vectors.Index().SelectCirclePair((i, j) => new[] {i,j}).ToArray()
+                Convexes = isClosed
+                    ? vectors.Index().SelectCirclePair((i, j) => new[] { i, j }).ToArray()
                     : vectors.Index().SelectPair((i, j) => new[] { i, j }).ToArray()
             };
         }
@@ -305,6 +304,6 @@ namespace Model3D.Extensions
         public static Vector3 GetPlaneNormal(this Vector3 center, Vector3 a, Vector3 b) => (a - center).MultV(b - center);
         public static double GetVolume0(this Vector3 c, Vector3 a, Vector3 b) => c.MultS(c.GetPlaneNormal(a, b));
 
-        public static Hashed<Vector3> ToHashed(this Vector3 v, double equalityRadius = Values.Epsilon9) => new Hashed<Vector3>(v, a => a.GetHashCode(), (a, b) => (b - a).Length2 < equalityRadius * equalityRadius);    
+        public static Hashed<Vector3> ToHashed(this Vector3 v, double equalityRadius = Values.Epsilon9) => new Hashed<Vector3>(v, a => a.GetHashCode(), (a, b) => (b - a).Length2 < equalityRadius * equalityRadius);
     }
 }

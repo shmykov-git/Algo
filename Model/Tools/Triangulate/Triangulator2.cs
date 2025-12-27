@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Model.Extensions;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Model.Extensions;
 
 namespace Model.Tools.Triangulate
 {

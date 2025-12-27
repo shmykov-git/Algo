@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Graphs;
 using Model.Tools;
 using Model3D.Libraries;
-using Vector3 = Model3D.Vector3;
+using System;
+using System.Linq;
 
 namespace Model3D.Tools
 {
@@ -13,7 +12,7 @@ namespace Model3D.Tools
         private readonly SurfaceFunc surfaceFunc;
         private readonly Vector2[] uvPoints;
 
-        public SurfaceDyno(SurfaceFunc surfaceFunc, Vector2[] uvPoints, (int i, int j)[] connections, Func<Graph.Node, DynoFunc> ruleFn) 
+        public SurfaceDyno(SurfaceFunc surfaceFunc, Vector2[] uvPoints, (int i, int j)[] connections, Func<Graph.Node, DynoFunc> ruleFn)
             : base(uvPoints.Select(p => surfaceFunc(p.x, p.y)).ToArray(), connections, ruleFn)
         {
             this.surfaceFunc = surfaceFunc;

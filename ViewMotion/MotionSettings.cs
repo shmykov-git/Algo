@@ -1,12 +1,9 @@
-﻿using System;
+﻿using Model.Interfaces;
+using Model3D;
+using System;
 using System.IO;
 using System.Windows.Media;
-using Model.Extensions;
-using Model.Interfaces;
-using Model3D.Extensions;
-using ViewMotion.Annotations;
 using ViewMotion.Models;
-using Model3D;
 
 namespace ViewMotion;
 

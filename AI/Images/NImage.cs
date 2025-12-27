@@ -1,11 +1,11 @@
-﻿using System.Diagnostics;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Text;
-using AI.Extensions;
+﻿using AI.Extensions;
 using AI.Libraries;
 using Mapster;
 using Model.Extensions;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace AI.Images;
 
@@ -32,7 +32,7 @@ public class NImage
         var m = values.Length;
         var n = values[0].Length;
         ps = new int[m, n];
-        
+
         for (var i = 0; i < m; i++)
             for (var j = 0; j < n; j++)
             {
@@ -44,7 +44,7 @@ public class NImage
     {
         this.options = options?.Adapt<NImageOptions>() ?? new();
         ps = new int[m, n];
-        
+
         if (color != 0)
         {
             for (var i = 0; i < m; i++)
@@ -98,16 +98,16 @@ public class NImage
         }
     }
 
-    public int this[(int i, int j) v] 
+    public int this[(int i, int j) v]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => ps[v.i,v.j];
+        get => ps[v.i, v.j];
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        set 
-        { 
-            if (IsValid(v)) 
-                ps[v.i, v.j] = value; 
-        }  
+        set
+        {
+            if (IsValid(v))
+                ps[v.i, v.j] = value;
+        }
     }
 
     public Func<int, int, int> pixelFn => options.BorderType switch
@@ -137,10 +137,10 @@ public class NImage
     public int PaddingPixel(int i, int j) => 0 <= i && i < m && 0 <= j && j < n ? ps[i, j] : 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static (byte a, byte r, byte g, byte b) ToArgb(int c) => 
-       ((byte)((0xFF000000 & c) >> 24), 
-        (byte)((0xFF0000 & c) >> 16), 
-        (byte)((0xFF00 & c) >> 8), 
+    public static (byte a, byte r, byte g, byte b) ToArgb(int c) =>
+       ((byte)((0xFF000000 & c) >> 24),
+        (byte)((0xFF0000 & c) >> 16),
+        (byte)((0xFF00 & c) >> 8),
         (byte)(0xFF & c));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,10 +179,10 @@ public class NImage
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToColor((int a, int r, int g, int b) argb) => (argb.a << 24) + (argb.r << 16) + (argb.g << 8) + argb.b;
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public (int a, int r, int g, int b) GetColor((int i, int j) v) => ToArgb(this[v]);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetGray((int i, int j) v) => ToGray(this[v]);
 

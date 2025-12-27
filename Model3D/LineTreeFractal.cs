@@ -1,6 +1,4 @@
-﻿using Model;
-using Model3D.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Model3D
@@ -35,7 +33,7 @@ namespace Model3D
             fractal.AddRange(lines);
 
             var levelLines = lines;
-            for(var i = 0; i<count; i++)
+            for (var i = 0; i < count; i++)
             {
                 levelLines = levelLines.SelectMany(l => GetFractalLines(l)).ToArray();
                 fractal.AddRange(levelLines);

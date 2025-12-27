@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Model.Extensions;
+using System.Collections.Generic;
 using System.Linq;
-using Model.Extensions;
 
 namespace Model.Graphs
 {
@@ -15,7 +15,7 @@ namespace Model.Graphs
 
             public int[] meta
             {
-                get => _meta ?? new[] {a.i, b.i};
+                get => _meta ?? new[] { a.i, b.i };
                 set => _meta = value;
             }
 

@@ -1,18 +1,18 @@
-﻿using Model;
+﻿using MathNet.Numerics;
+using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
+using Model3D.Tools.Model;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using MathNet.Numerics;
-using Model.Graphs;
-using Model3D.Tools.Model;
 using Shape = Model.Shape;
-using System.Drawing.Imaging;
 
 namespace Model3D.Tools.Vectorization;
 

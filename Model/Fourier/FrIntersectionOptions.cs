@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Model.Fourier
+﻿namespace Model.Fourier
 {
     public enum FrStrategy
     {

@@ -35,7 +35,7 @@ namespace Model3D
         }
 
         public static Rule BaseRule => new Rule
-        { 
+        {
             Point = new Vector3(0, 0, 0),
             Direction = new Vector3(0, 0, 1),
             Scale = 1

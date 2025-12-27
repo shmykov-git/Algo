@@ -27,7 +27,7 @@ namespace Model.Libraries
             return v => heartFn(v).Scale((1.0 / 64, 1.0 / 48)) + new Vector2(0, 0.1);
         }
 
-        public static Func2 Flower(int n, double a) => t => (a * new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t)))/ (a+1);
+        public static Func2 Flower(int n, double a) => t => (a * new Vector2(Math.Sin(t), Math.Cos(t)) * Math.Sin(n * t / 2).Abs() + new Vector2(Math.Sin(t), Math.Cos(t))) / (a + 1);
 
         public static Func2 Bz(Vector2[][] ps, bool closed = false) => ps.ToBz(closed);
 

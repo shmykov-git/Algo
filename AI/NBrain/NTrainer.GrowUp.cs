@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using AI.Exceptions;
+﻿using AI.Exceptions;
 using AI.Extensions;
 using AI.Model;
-using meta.Extensions;
 using Model.Extensions;
-using Model.Graphs;
+using System.Diagnostics;
 
 namespace AI.NBrain;
 
@@ -49,7 +46,7 @@ public partial class NTrainer
     private GraphInfo GetGraphInfo((int i, int j)[][] graph, int[] lvs)
     {
         var g = graph;
-        var n = graph.SelectMany().Select(e => Math.Max(e.i, e.j)).Max() + 1;  
+        var n = graph.SelectMany().Select(e => Math.Max(e.i, e.j)).Max() + 1;
         var lvMax = lvs.Max();
         var lvN = lvMax + 1;
         var nns = (lvN).Range().Select(lv => (n).Range().Where(i => lvs[i] == lv).ToArray()).ToArray();
@@ -67,7 +64,7 @@ public partial class NTrainer
         var csJ = (lvN).Range().Select(k =>
             k == 0
             ? inputs.Select(j => (c: 0, j)).ToArray()
-            : g[k-1].Where(IsLevelLink).GroupBy(e => e.j).Select(gv => (c: gv.Count(), j: gv.Key)).OrderBy(v => (v.j, v.c)).ToArray()
+            : g[k - 1].Where(IsLevelLink).GroupBy(e => e.j).Select(gv => (c: gv.Count(), j: gv.Key)).OrderBy(v => (v.j, v.c)).ToArray()
             ).ToArray();
         var csJC = csJ.Select(l => l.OrderBy(v => (v.c, v.j)).ToArray()).ToArray();
 
@@ -263,7 +260,7 @@ public partial class NTrainer
 
             // fill level nodes
             if (graph.nns[lv].Length < upGraph.nns[lv].Length)
-            {                
+            {
                 (var canAddN, a, b) = GetLevelPairN(lv);
 
                 if (!canAddN)
@@ -376,8 +373,9 @@ public partial class NTrainer
             } while (a.IsLinked(b));
 
             return (a, b);
-        };
-        
+        }
+        ;
+
         var lv = nns.Count - 2;
 
         while (lv < options.UpTopology.Length - 1)
@@ -388,7 +386,7 @@ public partial class NTrainer
             if (nns[lv].Count < options.UpTopology[lv])
             {
                 var (a, b) = GetLevelPairN(lv);
-                
+
                 if (a.IsLinked(b))
                     model.MarkUnwantedE(a, b);
 

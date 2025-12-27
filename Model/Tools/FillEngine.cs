@@ -1,10 +1,6 @@
 ﻿using Model.Extensions;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model.Tools
 {
@@ -62,7 +58,7 @@ namespace Model.Tools
             while (vertices.Count > 2 && n++ < maxCircles)
             {
                 var validateCount = 0;
-                while(!IsLeftTrio(t) && validateCount++ < vertices.Count)
+                while (!IsLeftTrio(t) && validateCount++ < vertices.Count)
                     t = NextTrio(t);
 
                 if (validateCount == vertices.Count)

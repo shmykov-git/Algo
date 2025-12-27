@@ -1,9 +1,7 @@
 ﻿using Model.Extensions;
-using Model3D.Libraries;
-using System;
-using System.Drawing;
-using System.Linq;
 using Model3D;
+using Model3D.Libraries;
+using System.Linq;
 
 namespace Model
 {
@@ -28,7 +26,7 @@ namespace Model
 
             double vn = (VClosed ? VN : (VN - 1));
             var vstep = (VTo - VFrom) / vn;
-            
+
             if (ConvexTransformFn == null)
                 return (VN, UN).SelectRange((v, u) => Fn(UFrom + ustep * u, VFrom + vstep * v)).ToArray();
             else

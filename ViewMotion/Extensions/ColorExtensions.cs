@@ -1,5 +1,5 @@
-﻿using System.Windows.Media;
-using ColorPicker.Models;
+﻿using ColorPicker.Models;
+using System.Windows.Media;
 
 namespace ViewMotion.Extensions;
 

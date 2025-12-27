@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
-using Model.Tools;
-using Model3D.Extensions;
+﻿using Model;
 using Model.Extensions;
-using System.Diagnostics;
 using Model.Graphs;
 using Model.Libraries;
+using Model.Tools;
+using Model3D.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model3D;
 
@@ -32,13 +31,13 @@ public class SupperShape
             .SelectMany(c => c.Select(i => (i, c)))
             .GroupBy(v => v.i)
             .Select(gv => (i: gv.Key, cs: gv.Select(v => v.c).ToArray()))
-            .Select(v=> new Node
+            .Select(v => new Node
             {
                 i = v.i,
                 p0 = ps[v.i],
                 cs = v.cs,
                 d = -v.cs.Select(GetN).Center().Normalize(),
-            })            
+            })
             .OrderBy(v => v.i)
             .ToArray();
 
@@ -63,14 +62,14 @@ public class SupperShape
 
         var radius2 = radius.Pow2();
 
-        Vector3 GetRadiusPoint(Node a)=> nodes.Where(n => !n.isGrouped).Where(b => (a.p - b.p).Length2 < radius2).Select(b => b.p).Center();
+        Vector3 GetRadiusPoint(Node a) => nodes.Where(n => !n.isGrouped).Where(b => (a.p - b.p).Length2 < radius2).Select(b => b.p).Center();
 
-        while (nodes.Any(n=>!n.isGrouped))
+        while (nodes.Any(n => !n.isGrouped))
         {
-            foreach(var n in nodes.Where(n=>!n.isGrouped)) 
-            { 
+            foreach (var n in nodes.Where(n => !n.isGrouped))
+            {
                 var p = GetRadiusPoint(n);
-                
+
                 if (n.p.EqualsV(p))
                     n.isGrouped = true;
                 else

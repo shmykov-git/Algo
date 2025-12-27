@@ -1,5 +1,5 @@
-﻿using System;
-using Model.Extensions;
+﻿using Model.Extensions;
+using System;
 
 namespace Model.Libraries
 {
@@ -9,11 +9,11 @@ namespace Model.Libraries
     {
         public static Func1 NormalDistribution() => x => Math.Exp(-x * x) / Math.Sqrt(Math.PI);
 
-        public static Func1 ParametricNormDistribution(double mu, double sigma) 
+        public static Func1 ParametricNormDistribution(double mu, double sigma)
         {
             var fi = NormalDistribution();
 
-            return x => fi((x - mu) / sigma) / sigma; 
+            return x => fi((x - mu) / sigma) / sigma;
         }
 
         public static Func1 MagicWand(double w = 0.3, double a = 1.3, double b = 1.3, double c = 2) => t =>

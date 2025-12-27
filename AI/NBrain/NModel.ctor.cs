@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using AI.Libraries;
-using AI.Model;
-using AI.NBrain.Activators;
-using Model;
+﻿using AI.Model;
 using Model.Extensions;
 
 namespace AI.NBrain;

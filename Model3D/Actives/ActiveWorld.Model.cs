@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model.Libraries;
+using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography;
-using Model.Extensions;
-using Model.Hashes;
-using Model.Libraries;
-using Model3D.Extensions;
 using Plane3 = Model3D.Plane;
 
 namespace Model3D.Actives;
@@ -77,7 +75,7 @@ public partial class ActiveWorld
         {
             pointPackFn = _ => new Pack
             {
-                k = new[] {1.0},
+                k = new[] { 1.0 },
                 mass = mass,
                 speed = speed,
             };
@@ -118,7 +116,7 @@ public partial class ActiveWorld
         // </dynamic>
 
         #region debug
-        private static double __speedMax; 
+        private static double __speedMax;
         Vector3 debugSpeed(Vector3 value)
         {
             if (double.IsNaN(value.x) || double.IsInfinity(value.x))
@@ -250,7 +248,7 @@ public partial class ActiveWorld
         }
 
         public Plane3 collidePlane => new Plane3(ni.collidePosition, nj.collidePosition, nk.collidePosition);
-        
+
         public Func<Vector3, double, bool> IsInsideFn(Vector3 n) => (x, d) => c.Select(i => nodes[i].collidePosition + nodes[i].nDir * d).SelectCirclePair((a, b) => (a - x).MultS((b - a).MultV(n)).Sgn()).Sum().Abs() == c.Length;
         public Func<Vector3, Vector3[]> EdgeNearPointsFn => x => c.Select(i => nodes[i].collidePosition).SelectCirclePair((a, b) => a + (b - a) * ((b - a).MultS(x - a) / (b - a).Length2)).ToArray();
     }

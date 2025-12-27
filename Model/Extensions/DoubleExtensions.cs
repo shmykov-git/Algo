@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Model.Libraries;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Model.Libraries;
 
 namespace Model.Extensions
 {

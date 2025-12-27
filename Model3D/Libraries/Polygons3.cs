@@ -33,9 +33,9 @@ namespace Model3D.Libraries
         {
             Points = new Func3Info
             {
-                Fn = Funcs3.Cloud(1,3),
+                Fn = Funcs3.Cloud(1, 3),
                 From = 0,
-                To = 8*Math.PI,
+                To = 8 * Math.PI,
                 N = count,
                 Closed = true
             }.GetPoints()

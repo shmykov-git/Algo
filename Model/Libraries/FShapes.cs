@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Fourier;
+using System;
+using System.Linq;
 
 namespace Model.Libraries
 {

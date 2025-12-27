@@ -105,7 +105,7 @@ public static class Minimizer
             fn = x =>
             {
                 var f = func(x);
-                Debug.WriteLine($"Gold {++count}: ({x}, {f}) ab={b-a:F6}");
+                Debug.WriteLine($"Gold {++count}: ({x}, {f}) ab={b - a:F6}");
 
                 return f;
             };
@@ -147,7 +147,7 @@ public static class Minimizer
             (fa, fx1, fx2, fb) = (fa, fx2, fb, fn(b));
         }
 
-        while((b-a) > epsilon)
+        while ((b - a) > epsilon)
         {
             if (fa > fb)
             {
@@ -158,7 +158,7 @@ public static class Minimizer
                         MoreThenB();
                         yield return (b, fb);
 
-                        if (maxDx.HasValue && (b-x2) > maxDx)
+                        if (maxDx.HasValue && (b - x2) > maxDx)
                         {
                             MoreThenX1LessThenB();
                             yield return (x2, fx2);
@@ -221,7 +221,7 @@ public static class Minimizer
             }
         }
     }
-    
+
     public static double MinimizeSimple(double x0, double dx0, double epsilon, Func<double, double> fn)
     {
         //todo: optimization

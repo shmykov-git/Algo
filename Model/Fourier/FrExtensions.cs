@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Mapster;
+using Model.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Mapster;
-using MathNet.Numerics;
-using Model.Extensions;
 
 namespace Model.Fourier
 {
@@ -13,7 +12,7 @@ namespace Model.Fourier
         public static Fr[] RadiusPerfecto(this IEnumerable<Fr> frs, double r = 1)
         {
             var rr = frs.Sum(fr => fr.r.Abs());
-            
+
             return frs.Select(fr => fr * (r / rr)).ToArray();
         }
 
@@ -41,7 +40,7 @@ namespace Model.Fourier
         {
             var frsCopy = frs.Adapt<Fr[]>();
             frsCopy.ForEach(fr => fr.dis = (double)dis);
-            
+
             return frsCopy.ToArray();
         }
 

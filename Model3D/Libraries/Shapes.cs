@@ -1,22 +1,19 @@
-﻿using Model.Extensions;
+﻿using Meta;
+using Model.Extensions;
+using Model.Fourier;
+using Model.Tools;
+using Model3D;
 using Model3D.Extensions;
-using System;
-using System.Drawing;
-using System.Linq;
-using Meta;
 using Model3D.Libraries;
+using Model3D.Libraries.Functions;
 using Model3D.Systems;
 using Model3D.Tools.Model;
-using View3D.Libraries;
-using Model.Fourier;
-using System.Diagnostics;
-using System.Security.Cryptography;
 using Model3D.Tools.Vectorization;
-using Model.Tools;
-using Model3D.Libraries.Functions;
-using System.Net.Security;
-using System.ComponentModel;
-using Model3D;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using View3D.Libraries;
 
 namespace Model.Libraries
 {
@@ -35,7 +32,7 @@ namespace Model.Libraries
             (
                 (
                     (Surfaces.Cylinder(n, 2) + Surfaces.Circle(n, 2)).Scale(lineR, lineR, lineLn) +
-                    (Surfaces.Circle(n, 2) + Surfaces.ConeM(n, 2).Move(0,0,1)).Scale(arrowR, arrowR, arrowLn).Move(0, 0, lineLn)
+                    (Surfaces.Circle(n, 2) + Surfaces.ConeM(n, 2).Move(0, 0, 1)).Scale(arrowR, arrowR, arrowLn).Move(0, 0, lineLn)
                 )
             ).Normalize();
 
@@ -43,8 +40,8 @@ namespace Model.Libraries
         (
             (Surfaces.Cylinder(n, m) +
              Surfaces.Circle(n, 2) +
-             Surfaces.CircleM(n, 2).Move(0, 0, m-1))
-            .Scale(lineR, lineR, lineLn/(m-1))
+             Surfaces.CircleM(n, 2).Move(0, 0, m - 1))
+            .Scale(lineR, lineR, lineLn / (m - 1))
         ).Normalize();
 
         public static Shape LineCoods => new Shape
@@ -99,7 +96,7 @@ namespace Model.Libraries
 
         public static Shape Coods2(double mult = 1, Color? color = null)
         {
-            var a = ArrowR(10, mult + 0.1, 0.005).Move(0, 0, -0.1).ApplyColor(color??Color.Red);
+            var a = ArrowR(10, mult + 0.1, 0.005).Move(0, 0, -0.1).ApplyColor(color ?? Color.Red);
 
             return a.Rotate(Rotates.Z_X) + a.Rotate(Rotates.Z_Y);
         }
@@ -113,9 +110,9 @@ namespace Model.Libraries
         {
             Coods(mult, color),
             IcosahedronSp2.Mult(0.02).ApplyColor(color ?? Color.Red),
-            vectorizer.GetText("x", 100, "Georgia").Align(1, 1, 0).Mult(0.02 + 0.01 * mult).Move(mult - 0.01, -0.03, 0).ApplyColor(color ?? Color.Red),
-            vectorizer.GetText("y", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Move(0.03, mult - 0.02, 0).ApplyColor(color ?? Color.Red),
-            vectorizer.GetText("z", 100, "Georgia").Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Rotate(Rotates.Z_X).Move(0, -0.03, mult).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("x", 100, "Georgia", multX:1.2, multY:2).Align(1, 1, 0).Mult(0.02 + 0.01 * mult).Move(mult - 0.01, -0.03, 0).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("y", 100, "Georgia", multX:1.2, multY:2).Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Move(0.03, mult - 0.02, 0).ApplyColor(color ?? Color.Red),
+            vectorizer.GetText("z", 100, "Georgia", multX:1.2, multY:2).Align(0, 1, 0).Mult(0.02 + 0.01 * mult).Rotate(Rotates.Z_X).Move(0, -0.03, mult).ApplyColor(color ?? Color.Red),
         }.ToSingleShape();
 
         public static Shape Coods2WithText(double mult = 1, Color? color = null, Color? netColor = null) => new[]
@@ -157,9 +154,9 @@ namespace Model.Libraries
             new Shape()
             {
                 Points3 = (n).SelectRange(i => new Vector3(i, 0, 0)).ToArray(),
-                Convexes = (n).SelectRange(i=>i).SelectPair((i,j)=> new[] {i, j}).ToArray()
+                Convexes = (n).SelectRange(i => i).SelectPair((i, j) => new[] { i, j }).ToArray()
             };
-            
+
 
         public static Shape Tetrahedron => new Shape
         {
@@ -183,8 +180,8 @@ namespace Model.Libraries
 
         public static Shape PerfectCube => new Shape
         {
-            Points3 = new Vector3[]
-            {
+            Points3 =
+            [
                 new Vector3(0, 0, 0),
                 new Vector3(0, 0, 1),
                 new Vector3(0, 1, 0),
@@ -193,16 +190,16 @@ namespace Model.Libraries
                 new Vector3(1, 0, 1),
                 new Vector3(1, 1, 0),
                 new Vector3(1, 1, 1),
-            },
-            Convexes = new int[][]
-            {
-                new[]{0, 1, 3, 2},
-                new[]{1, 5, 7, 3},
-                new[]{4, 6, 7, 5},
-                new[]{0, 2, 6, 4},
-                new[]{0, 4, 5, 1},
-                new[]{2, 3, 7, 6}
-            }
+            ],
+            Convexes =
+            [
+                [0, 1, 3, 2],
+                [1, 5, 7, 3],
+                [4, 6, 7, 5],
+                [0, 2, 6, 4],
+                [0, 4, 5, 1],
+                [2, 3, 7, 6],
+            ]
         };
 
         public static Shape CubeT => new Shape
@@ -255,22 +252,23 @@ namespace Model.Libraries
                 new Vector3(1, 1, 1),
                 new Vector3(0.5, 0.5, 0.5),
             },
-            Convexes = new int[][]
-            {
-                new[]{0, 1, 3, 2},
-                new[]{1, 5, 7, 3},
-                new[]{5, 4, 6, 7},
-                new[]{4, 0, 2, 6},
-                new[]{0, 4, 5, 1},
-                new[]{2, 3, 7, 6},
-                new int[] {8, 0},
-                new int[] {8, 1},
-                new int[] {8, 2},
-                new int[] {8, 3},
-                new int[] {8, 4},
-                new int[] {8, 5},
-                new int[] {8, 6},
-                new int[] {8, 7}            }
+            Convexes =
+            [
+                [0, 1, 3, 2],
+                [1, 5, 7, 3],
+                [4, 6, 7, 5],
+                [4, 0, 2, 6],
+                [0, 4, 5, 1],
+                [2, 3, 7, 6],
+                [8, 0],
+                [8, 1],
+                [8, 2],
+                [8, 3],
+                [8, 4],
+                [8, 5],
+                [8, 6],
+                [8, 7]
+            ]
         };
 
         public static Shape NativeCube => new Shape
@@ -451,14 +449,14 @@ namespace Model.Libraries
         public static Shape PlaneByTriangles(int m, int n) => Parquets.Triangles(m, n).ToShape3().Adjust();
 
         public static Shape SquarePlatform(double x = 3, double y = 3, double z = 0.1) => Surfaces.Plane(2, 2)
-            .Perfecto().Scale(x,y,1).AddNormalVolume(z).ToOyM().TriangulateByFour().ApplyColor(Color.Black);
+            .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOyM().TriangulateByFour().ApplyColor(Color.Black);
 
         public static Shape CirclePlatform(double x = 3, double y = 3, double z = 0.1) => Surfaces.Circle(100, 2)
             .Perfecto().Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(Color.Black);
 
         public static Shape CirclePlatformWithLines(double x = 3, double y = 3, double z = 0.1, int nLine = 10, Color? platformColor = null, Color? lineColor = null) =>
-            Surfaces.Circle(100, 2).Mult(0.5).Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(platformColor??Color.Black)
-            + Surfaces.Circle(nLine + 1, 2).Mult(0.5).Scale(x, y, 1).ToOy().ToLines(1, lineColor??Color.Red);
+            Surfaces.Circle(100, 2).Mult(0.5).Scale(x, y, 1).AddNormalVolume(z).ToOy().ApplyColor(platformColor ?? Color.Black)
+            + Surfaces.Circle(nLine + 1, 2).Mult(0.5).Scale(x, y, 1).ToOy().ToLines(1, lineColor ?? Color.Red);
 
         public static Shape HeartPlatform(double x = 3, double y = 3, double z = 0.1) => Polygons.Heart(1, 1, 100)
             .ToShape(1).Centered().Scale(2.3 * x, 2.3 * y, z).ToOy().MoveY(-z / 2)
@@ -476,13 +474,13 @@ namespace Model.Libraries
 
         public static Shape ButterflyPlatform(double x = 3, double y = 3, double z = 0.1) =>
             vectorizer.GetContentShape("b7", new ShapeOptions()
-                {
-                    PolygonLevelStrategy = LevelStrategy.TopLevel,
-                })
+            {
+                PolygonLevelStrategy = LevelStrategy.TopLevel,
+            })
                 .Scale(1.3 * x, 1.3 * y, z).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape Butterfly2Platform(double x = 3, double y = 3, double z = 0.1) =>
-            vectorizer.GetContentShape("b7", volume:z)
+            vectorizer.GetContentShape("b7", volume: z)
                 .Scale(1.3 * x, 1.3 * y, 1).ToOy().MoveY(-z / 2).ApplyColor(Color.Black);
 
         public static Shape WorldPlatform(double x = 3, double y = 3, double z = 0.1) => vectorizer.GetContentShape(
@@ -500,7 +498,7 @@ namespace Model.Libraries
         public static Shape ChristmasTree(int n = 6, int m = 12, double radiusRatio = 0.3, double height = 2, double power = 1.7, double downPower = 1, double topPower = 0.7)
         {
             var r1 = 8;
-            var r2 = r1* radiusRatio;
+            var r2 = r1 * radiusRatio;
 
             var n2 = 2 * n;
 
@@ -569,11 +567,11 @@ namespace Model.Libraries
             var aTo = to ?? 2 * Math.PI;
             var curve = (m - 1) * Math.PI / (n * (aTo - aFrom));
 
-            var ps = (n).SelectClosedInterval(2 * Math.PI, a => 
+            var ps = (n).SelectClosedInterval(2 * Math.PI, a =>
             {
                 var fn = Funcs3.SphereSpiral(curve, a - aFrom * curve);
-                
-                return (m).SelectInterval(aFrom, aTo, t => fn(t)); 
+
+                return (m).SelectInterval(aFrom, aTo, t => fn(t));
             }).ManyToArray(); // todo: CircleMatrixShift
 
             return new Shape
@@ -669,8 +667,8 @@ namespace Model.Libraries
                 _ => throw new NotSupportedException(quality.ToString())
             };
 
-        public static Shape PowerEllipsoid(double power = 8, int quality = 4, double fi = 0, Vector3? abc = null) => 
-            Convex(Funcs_3.PowerEllipsoid(power, (abc??Vector3.One).x, (abc ?? Vector3.One).y, (abc ?? Vector3.One).z), quality, fi);
+        public static Shape PowerEllipsoid(double power = 8, int quality = 4, double fi = 0, Vector3? abc = null) =>
+            Convex(Funcs_3.PowerEllipsoid(power, (abc ?? Vector3.One).x, (abc ?? Vector3.One).y, (abc ?? Vector3.One).z), quality, fi);
 
         public static Shape PowerEllipsoid((double a, double b, double c) power, int quality = 4, double fi = 0, Vector3? abc = null) =>
             Convex(Funcs_3.PowerEllipsoid(power.a, power.b, power.c, (abc ?? Vector3.One).x, (abc ?? Vector3.One).y, (abc ?? Vector3.One).z), quality, fi);

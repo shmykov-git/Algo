@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using meta.Extensions;
-using Model.Tools;
 
 namespace Model.Extensions;
 
@@ -21,7 +19,7 @@ public static class ArrayExtensions
             return res;
         }
 
-        values.Select((v, i) => (v, j: (int)Math.Round((len - 1.0) * i/ (values.Length - 1))))
+        values.Select((v, i) => (v, j: (int)Math.Round((len - 1.0) * i / (values.Length - 1))))
         .ForEach(v => res[v.j] = v.v);
 
         return res;

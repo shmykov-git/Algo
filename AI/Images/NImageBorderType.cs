@@ -3,5 +3,5 @@
 public enum NImageBorderType
 {
     Padding,
-    Mirror    
+    Mirror
 }

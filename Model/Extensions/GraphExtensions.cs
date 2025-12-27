@@ -1,9 +1,9 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using Model.Graphs;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using MathNet.Numerics;
-using Model.Graphs;
 
 namespace Model.Extensions
 {
@@ -97,10 +97,10 @@ namespace Model.Extensions
             {
                 var circle = ExcludePathGraph(main);
                 res.Add(circle);
-                
-                Debug.WriteLine(string.Join(", ", circle.Select(n=>$"{n.i}")));
+
+                Debug.WriteLine(string.Join(", ", circle.Select(n => $"{n.i}")));
                 main.WriteToDebug();
-                Debug.WriteLine($"{(IsCorrect(main) ? "Correct" : "Incorrect")} {main.nodes.Where(n=>n.edges.Count==1).Select(n=>n.i).SJoin()}");
+                Debug.WriteLine($"{(IsCorrect(main) ? "Correct" : "Incorrect")} {main.nodes.Where(n => n.edges.Count == 1).Select(n => n.i).SJoin()}");
 
                 if (!IsCorrect(main))
                     Debugger.Break();

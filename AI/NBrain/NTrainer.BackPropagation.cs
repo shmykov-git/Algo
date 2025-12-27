@@ -4,7 +4,7 @@ using Model.Libraries;
 
 namespace AI.NBrain;
 
-public partial class NTrainer 
+public partial class NTrainer
 {
     private void LearnBackPropagationOutput(N n, double fExpected)
     {

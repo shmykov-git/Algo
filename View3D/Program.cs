@@ -1,13 +1,13 @@
-﻿using Model;
-using System;
-using System.Diagnostics;
-using Meta;
+﻿using Meta;
 using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
+using Model;
 using Model.Interfaces;
 using Model3D.Tools;
-using View3D.Tools;
 using Model3D.Tools.Vectorization;
+using System;
+using System.Diagnostics;
+using View3D.Tools;
 
 namespace View3D
 {
@@ -23,7 +23,7 @@ namespace View3D
                 .AddSingleton<Scene>()
                 .AddSingleton<Vectorizer>()
                 .AddSingleton<ThreadPool>());
-            
+
             using var serviceProvider = DI.Build();
 
             var settings = DI.Get<StaticSettings>();
@@ -46,10 +46,10 @@ namespace View3D
                 process.StartInfo.FileName = settings.FullFileName3D;
                 process.Start();
             }
-            catch(PolygonFillException)
+            catch (PolygonFillException)
             {
                 Console.WriteLine($"Incorrect construction. Use View (2D) to fix it!");
-            }            
+            }
         }
     }
 }

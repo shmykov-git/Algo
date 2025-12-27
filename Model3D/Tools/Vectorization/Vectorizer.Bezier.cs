@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks.Dataflow;
-using Mapster;
-using MathNet.Numerics;
-using Meta.Model;
+﻿using Meta.Model;
 using Model;
 using Model.Bezier;
 using Model.Extensions;
 using Model.Libraries;
 using Model.Tools;
 using Model3D.Tools.Model;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 
 namespace Model3D.Tools.Vectorization;
 
@@ -116,9 +112,9 @@ public partial class Vectorizer // Bezier
         Vector2[] GetMoveCompensatedPoints(int level, Vector2[] ps0, Vector2[] ps1)
         {
             var n = ps1.Length;
-            var moves = (n).Range().Select(i=> ps1[i] - ps0[i]).SelectCircleGroup(level, moves => moves.Center()).ToArray();
+            var moves = (n).Range().Select(i => ps1[i] - ps0[i]).SelectCircleGroup(level, moves => moves.Center()).ToArray();
 
-            return (n).Range().Select(i => ps1[i] - options.SmoothingMoveCompensationLength * moves[(i + level/2) % n]).ToArray();
+            return (n).Range().Select(i => ps1[i] - options.SmoothingMoveCompensationLength * moves[(i + level / 2) % n]).ToArray();
         }
 
         var algoPoints = GetAnglePoints(options.SmoothingAlgoLevel);
@@ -237,7 +233,7 @@ public partial class Vectorizer // Bezier
             (HashSet<int> set, int maxFactor)[] plan = [(musts, 75), (allows, 75), (musts, 95), (allows, 95), (musts, 100)];
 
             // todo: angles - только int, factor из словаря
-            while (musts.Count > 0 || angles.Any(a=>a.factor <= options.PointIgnoreFactor))
+            while (musts.Count > 0 || angles.Any(a => a.factor <= options.PointIgnoreFactor))
             {
                 var (j, jFactor) = angles[jA];
 
@@ -253,7 +249,7 @@ public partial class Vectorizer // Bezier
                     continue;
                 }
 
-                jA++;   
+                jA++;
 
                 if (jA == angles.Count)
                 {
@@ -268,7 +264,7 @@ public partial class Vectorizer // Bezier
         }
 
         var lps = GetLps();
-        
+
         if (options.DebugProcess)
             Debug.WriteLine($"Bezier line points count: {lps.Length}");
 
@@ -355,7 +351,7 @@ public partial class Vectorizer // Bezier
                 var bFn = GetBFn(u, v);
                 var bFnPs = (pn).SelectInterval(t => bFn(t)).ToArray();
 
-                return ps.Select(p1=>bFnPs.Min(p2=>(p2-p1).Len2)).Sum(); // todo: optimize
+                return ps.Select(p1 => bFnPs.Min(p2 => (p2 - p1).Len2)).Sum(); // todo: optimize
             }
 
             var x0 = new double[] { 1, 1 };

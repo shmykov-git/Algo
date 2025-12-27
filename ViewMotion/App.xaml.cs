@@ -1,13 +1,11 @@
-﻿using System.Threading;
-using System.Windows;
-using Aspose.ThreeD;
-using Mapster;
+﻿using Aspose.ThreeD;
 using Meta;
-using Meta.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using Model.Interfaces;
 using Model3D.Tools;
 using Model3D.Tools.Vectorization;
+using System.Threading;
+using System.Windows;
 using View3D.Tools;
 
 namespace ViewMotion;

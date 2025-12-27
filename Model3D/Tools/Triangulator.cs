@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
-using Model.Extensions;
+﻿using Model;
+using System.Collections.Generic;
 
 namespace Model3D.Tools
 {
@@ -36,7 +34,7 @@ namespace Model3D.Tools
         //            }
         //        }
 
-                
+
 
 
         //        if (IsLeft(trio))

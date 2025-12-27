@@ -1,8 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using Model.Interfaces;
+using System;
 using System.IO;
 using System.Linq;
-using Model.Interfaces;
 
 namespace Model3D.Tools
 {

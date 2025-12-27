@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 
 namespace Model3D.Actives;
+
 public partial class ActiveWorld
 {
     private readonly ActiveWorldOptions options;
@@ -33,7 +34,7 @@ public partial class ActiveWorld
     public void AddShape(Shape shape) => shapes.Add(shape);
     public void AddShapes(IEnumerable<Shape> ss) => shapes.AddRange(ss);
 
-    
+
     private void Activate()
     {
         if (options.Ground != null && options.UseGround && options.Ground.ShowGround)
@@ -49,7 +50,7 @@ public partial class ActiveWorld
                 options.OnStep += w =>
                 {
                     var t = w.Options.StepNumber * 0.0001;
-                    w.Shapes[^1] = ground.ToOyM().Mult(1/options.Ground.WavesSize).ApplyZ(Funcs3Z.ActiveWaves(t)).Mult(options.Ground.WavesSize).ToOy();
+                    w.Shapes[^1] = ground.ToOyM().Mult(1 / options.Ground.WavesSize).ApplyZ(Funcs3Z.ActiveWaves(t)).Mult(options.Ground.WavesSize).ToOy();
                 };
             }
         }
@@ -66,7 +67,7 @@ public partial class ActiveWorld
 
         activeShapes.ForEach(a =>
         {
-            a.Activate();            
+            a.Activate();
             a.Model.volume0 = GetActiveShapeVolume(a);
         });
 
@@ -114,7 +115,7 @@ public partial class ActiveWorld
             worldNet.Update();
 
             foreach (var a in activeShapes)
-            {                
+            {
                 if (a.Options.UseInteractions)
                     a.Model.net.Update();
             }
@@ -140,7 +141,7 @@ public partial class ActiveWorld
             }
 
             if (a.Options.UseMaterialDamping)
-            {                
+            {
                 a.Model.speed = a.NoSkeletonNodes.Select(n => n.speed).Center();
                 a.Model.angleSpeed = GetActiveShapeAngleSpeed(a);
                 a.NoSkeletonNodes.Where(NoLock).ForEach(n => n.speed += CalcMaterialDampingForce(a, n));

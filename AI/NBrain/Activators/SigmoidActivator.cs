@@ -1,5 +1,4 @@
 ﻿using AI.Libraries;
-using AI.Model;
 
 namespace AI.NBrain.Activators;
 

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Drawing;
-using System.Text.Json;
-using Meta.Extensions;
-using Microsoft.VisualBasic.CompilerServices;
+﻿using Meta.Extensions;
 using Model;
+using System;
+using System.Drawing;
 
 namespace Model3D.Tools.Model
 {
@@ -31,7 +29,7 @@ namespace Model3D.Tools.Model
 
     public class ShapeOptions : SolidOptions
     {
-        public bool UseLineDirection = false;                                           
+        public bool UseLineDirection = false;
         public double? SplitLineLevelsDistance = null;          // move even and odd polygons to the distance
         public double? SplitAllPolygonsDistance = null;         // move all polygons to the distance
         public double? ToSpotNumSize = null;

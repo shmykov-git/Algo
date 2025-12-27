@@ -79,6 +79,6 @@
             im = v.rm.im
         };
 
-        public override string ToString() => im == 0 ? $"({n+dn}, {r}){(dis == 0 ? "" : $"[{dis}]")}" : $"({n + dn}, ({r}, {im})){(dis == 0 ? "" : $"[{dis}]")}";
+        public override string ToString() => im == 0 ? $"({n + dn}, {r}){(dis == 0 ? "" : $"[{dis}]")}" : $"({n + dn}, ({r}, {im})){(dis == 0 ? "" : $"[{dis}]")}";
     }
 }

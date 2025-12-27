@@ -1,7 +1,5 @@
 ﻿using AI.Libraries;
 using AI.Model;
-using Model.Extensions;
-using static Model3D.Actives.ActiveWorld;
 
 namespace AI.NBrain.Activators;
 
@@ -30,7 +28,7 @@ public abstract class NActivator
     public NActivator(NModel model)
     {
         this.model = model;
-        
+
         alfa = model.options.Alfa;
         nu = model.options.Nu;
         power = model.options.Power;

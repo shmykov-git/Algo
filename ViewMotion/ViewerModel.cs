@@ -1,4 +1,9 @@
-﻿using System;
+﻿using ColorPicker.Models;
+using meta.Extensions;
+using Model.Extensions;
+using Model3D;
+using Model3D.Extensions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,12 +15,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using ColorPicker.Models;
-using meta.Extensions;
-using Model.Extensions;
-using Model3D.Extensions;
 using View3D;
 using View3D.Tools;
+using View3D.Tools.Model;
 using ViewMotion.Annotations;
 using ViewMotion.Commands;
 using ViewMotion.Extensions;
@@ -25,8 +27,6 @@ using Light = System.Windows.Media.Media3D.Light;
 using LightType = ViewMotion.Models.LightType;
 using Quaternion = Model3D.Quaternion;
 using Shape = Model.Shape;
-using View3D.Tools.Model;
-using Model3D;
 
 namespace ViewMotion
 {
@@ -95,7 +95,7 @@ namespace ViewMotion
             CalculateFrames(motion);
         }
 
-        public string[] Animations => new[] {"No animation", "Fly around", "Fly far around", "Fly near around", "Fly around before"};
+        public string[] Animations => new[] { "No animation", "Fly around", "Fly far around", "Fly near around", "Fly around before" };
 
         public int AnimationIndex { get; set; }
 
@@ -157,7 +157,7 @@ namespace ViewMotion
                 if (l.LightType == LightType.Ambient)
                     return;
 
-                var newL = l.With(ll=>ll.Direction *= q);
+                var newL = l.With(ll => ll.Direction *= q);
                 Lights[i].Content = GetLight(newL);
             });
         }
@@ -192,14 +192,14 @@ namespace ViewMotion
         {
             var frameShape = GetShapeFromViewState(lastViewState).Perfecto();
             var sceneHtmlFileName = Path.Combine(staticSettings.InputHtmlDirectory, $"{HtmlTemplates[HtmlIndex]}Template.html");
-            
+
             frameShape.CreateHtml(new HtmlOptions()
             {
                 TemplateFilePath = sceneHtmlFileName,
                 HtmlFilePath = staticSettings.FullFileNameHtml,
                 Background = BackgroundColor.ToDColor()
             });
-            
+
             ShowStaticScene(staticSettings.FullFileNameHtml);
         }, () => lastViewState != null, SaveRefresh);
 
@@ -237,13 +237,13 @@ namespace ViewMotion
             }
         }
 
-        public Color BackgroundColor 
-        { 
-            get => _bc; set 
-            { 
+        public Color BackgroundColor
+        {
+            get => _bc; set
+            {
                 _bc = value;
-                OnPropertyChanged(nameof(BackgroundColorBrush)); 
-            } 
+                OnPropertyChanged(nameof(BackgroundColorBrush));
+            }
         }
 
         public Brush[] SavedColorBrushes => persistState.SavedColorStates.Select(c => new SolidColorBrush(c.FromState())).ToArray();
@@ -261,7 +261,7 @@ namespace ViewMotion
             if (isPlaying)
                 isPlaying = false;
             else
-                Play();            
+                Play();
         }
 
         public string CalcName => isCalculating ? "■ Stop Calculation" : "► Calculate";
@@ -301,7 +301,7 @@ namespace ViewMotion
         private Dictionary<Model.Material, Material> materials = new();
         private bool isControlPanelVisible = true;
 
-        private Model.Material defaultMaterial = new() {Color = System.Drawing.Color.Black};
+        private Model.Material defaultMaterial = new() { Color = System.Drawing.Color.Black };
         public Material GetMaterial(Model.Material? m)
         {
             m ??= defaultMaterial;
@@ -397,10 +397,10 @@ namespace ViewMotion
         {
             return viewState.ViewShapes.Select(s =>
             {
-                var ss= new Shape()
+                var ss = new Shape()
                 {
                     Points3 = s.Positions.Select(p => new Vector3(p.X, p.Y, p.Z)).ToArray(),
-                    Convexes = s.TriangleIndices.SelectByTriple().Select(t => new[] {t.a, t.b, t.c}).ToArray(),
+                    Convexes = s.TriangleIndices.SelectByTriple().Select(t => new[] { t.a, t.b, t.c }).ToArray(),
                     Materials = (s.TriangleIndices.Count / 3).SelectRange(_ => s.ModelMaterial)
                         .ToArray(), //todo: check null
                     TexturePoints = null, //todo: not supported
@@ -457,11 +457,11 @@ namespace ViewMotion
             do
             {
                 IEnumerable<ViewState> states = viewStates;
-                
+
                 if (IsReverseReplay)
                     states = states.Concat(states.Reverse());
 
-                foreach (var (shape, i) in states.Select((s,i)=>(s,i)).ToArray())
+                foreach (var (shape, i) in states.Select((s, i) => (s, i)).ToArray())
                 {
                     frameNum = i < viewStates.Count ? i : 2 * viewStates.Count - i - 1;
                     ShowFrame(frameNum, viewStates.Count);
@@ -490,7 +490,7 @@ namespace ViewMotion
                     {
                         isCalculating = false;
                         CanCalc = false;
-                    }   
+                    }
                 }
                 else
                 {
@@ -565,7 +565,7 @@ namespace ViewMotion
                     Colors.White.ToState(),
                 };
 
-            var st = str?.FromJson<PersistState>() ?? new PersistState() 
+            var st = str?.FromJson<PersistState>() ?? new PersistState()
             {
                 BackgroundColorState = Colors.White.ToState(),
                 BackgroundSecondColorState = Colors.White.ToState(),
@@ -580,7 +580,7 @@ namespace ViewMotion
 
             return st;
         }
-        
+
         private void SavePersistState(PersistState persistState)
         {
             File.WriteAllText(persistFileName, persistState.ToJson());

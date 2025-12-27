@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Model.Extensions;
 
 namespace Model.Graphs
 {
@@ -156,7 +155,7 @@ namespace Model.Graphs
                 if (n == to)
                     break;
 
-                foreach (var nn in n.edges.Select(e=>e.Another(n)).Where(node=>!closeSet.Contains(node)))
+                foreach (var nn in n.edges.Select(e => e.Another(n)).Where(node => !closeSet.Contains(node)))
                 {
                     UpdateOpenSetItem(n, nn);
                 }

@@ -1,11 +1,10 @@
 ﻿using Model;
 using Model.Extensions;
+using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
-using System.Linq;
-using Model.Graphs;
-using Model3D.Libraries;
 using System;
+using System.Linq;
 
 namespace Model3D
 {
@@ -59,7 +58,7 @@ namespace Model3D
 
                 var q = Quaternion.FromRotation(Vector3.ZAxis, n);
                 var s = shape.Scale(scale * size).Mult(mult).Rotate(q).Move(c);
-                
+
                 return s;
             }
 
@@ -76,7 +75,7 @@ namespace Model3D
                 var nB = graph.Nodes.First(nI => nI == num(hs[1].b.i, hs[1].b.j, hs[1].b.k));
                 var gPath = new Graph(holes);
                 var path = gPath.FindPath(nA, nB);
-                mazePath = path.SelectPair((nA, nB)=>nA.ToEdge(nB)).Select(e => GetWall(points[e.a.i], points[e.b.i], brick, pathScale)).Aggregate((a, b) => a + b);
+                mazePath = path.SelectPair((nA, nB) => nA.ToEdge(nB)).Select(e => GetWall(points[e.a.i], points[e.b.i], brick, pathScale)).Aggregate((a, b) => a + b);
             }
 
             if (closed)
@@ -88,9 +87,9 @@ namespace Model3D
                 var wallM1 = (n, l).SelectRange((j, k) => ohs.Contains((-1, j, k)) ? Shape.Empty : GetWall(new Vector3(0, j, k), new Vector3(-1, j, k), brick, wallScale)).Aggregate((a, b) => a + b);
                 var wallM2 = (n, l).SelectRange((j, k) => ohs.Contains((m, j, k)) ? Shape.Empty : GetWall(new Vector3(m - 1, j, k), new Vector3(m, j, k), brick, wallScale)).Aggregate((a, b) => a + b);
                 maze = maze + (wallL1 + wallL2 + wallN1 + wallN2 + wallM1 + wallM2);
-                
+
                 mazeHoles += hs.Select(h => GetWall(new Vector3(h.a.i, h.a.j, h.a.k), new Vector3(h.b.i, h.b.j, h.b.k), brick, holeScale)).Aggregate((a, b) => a + b);
-                
+
                 if (hs.Length == 2)
                 {
                     mazePath += hs.Select(h => GetWall(new Vector3(h.a.i, h.a.j, h.a.k), new Vector3(h.b.i, h.b.j, h.b.k), brick, pathScale)).Aggregate((a, b) => a + b);

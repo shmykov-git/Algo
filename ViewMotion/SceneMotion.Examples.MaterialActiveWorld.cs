@@ -1,20 +1,19 @@
-﻿using System.Threading.Tasks;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Libraries;
+using Model.Tools;
+using Model3D;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using Model3D.Tools.Vectorization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Model3D.Vector3;
-using Model.Tools;
-using System.Linq;
-using System.Collections.Generic;
-using Shape = Model.Shape;
 using Color = System.Drawing.Color;
-using Model3D.Tools.Vectorization;
-using Model3D;
-using System;
-using static ViewMotion.SceneMotion.MaterialSceneMotionExample;
+using Shape = Model.Shape;
+using Vector3 = Model3D.Vector3;
 
 namespace ViewMotion;
 
@@ -56,44 +55,74 @@ partial class SceneMotion // MaterialActiveWorld
 
         public Task<Motion> Scene()
         {
-            var sceneCount = 500;
+            var sceneCount = 300;
             var dampingCoef = 0.8;
             var frictionForce = 0.001;
             var gravity = new Vector3(0, -0.00001, 0);
             var stepsPerScene = 40;
             var rotationAngleX = 0; // Math.PI / 6;
             var rotationSpeed = 0; // 0.005;
-            var moveY = 3;
+            var moveY = 4;
             var move = new Vector3(0, moveY, 0);
             var fixBottom = false;
             var useDeformation = false;
             var color = Color.Green;
+            var smooth = 0;
 
             // <Material shape>
             //var mShape = vectorizer.GetPixelShape("hh1").Centered();
+            //var bSize = 3;
 
-            var size = (x:30, y:30); // top size
-            var lh = 10;             // leg height
-            var d = 3;               // leg shift
+            //var s = Shapes.ChristmasTree().ToOy().Mult(20);
+            //var s = Surfaces.Heart(10, 20).Perfecto(40);
+            var s = Surfaces.MobiusStrip(20, 40).Perfecto(40);
+            //var s = Shapes.Cube.Mult(20).Centered().Rotate(0.2, (1,2,3));
+            //var s = new Shape() { Points3 = [(-1, -2, -2), (2, 3, 2)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(-1, -1, 0), (1, 1, 0)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(-1, -1, -1), (1, 1, 1)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(-3, 1, 0), (3, -1, 0)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(-2.5, 1.5, 0.5), (3.5, -0.5, 0.5)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(3.5, -0.5, 0.5), (-2.5, 1.5, 0.5)], Convexes = [[0, 1]] };
+            //var s = new Shape() { Points3 = [(-2, 0, 0), (2, 0, 0)], Convexes = [[0, 1]] };
+            var vs = s.ToVoxels();
+            var mShape = vs.ToPointShape();
 
-            var tf = 2;              // top thickness
-            var lf = 2;              // leg thickness
+            //return (vs.ToShape().ApplyColor(Color.Blue)/*.ToMeta()*/ + s.ToLines(Color.Green, 10) + Shapes.CoodsWithText().Mult(3)).ToMotion();
+            //var size = (x: 20, y: 20); // top size
+            //var lh = 5;             // leg height
+            //var d = 2;               // leg shift
 
-            var leg = (tf, lh, tf).SelectRange((i, j, k) => new Vector3(i, j - lh, k)).ToShape();
-            var top = (size.x, lf, size.y).SelectRange((i, j, k) => new Vector3(i, j, k)).ToShape();
+            //var tf = 1;              // top thickness
+            //var lf = 1;              // leg thickness
 
-            var mShape = new[]
-            {
-                top,
-                leg.Move(d, 0, d),
-                leg.Move(size.x - d - lf, 0, d),
-                leg.Move(d, 0, size.y - d - lf),
-                leg.Move(size.x - d - lf, 0, size.y - d - lf),
-            }.ToSingleShape().Centered();
+            //var leg = (lf, lh, lf).SelectRange((i, j, k) => new Vector3(i, j - lh, k)).ToShape();
+            //var top = (size.x, tf, size.y).SelectRange((i, j, k) => new Vector3(i, j, k)).ToShape();
+
+            //var mShape = new[]
+            //{
+            //    top,
+            //    leg.Move(d, 0, d),
+            //    leg.Move(size.x - d - tf, 0, d),
+            //    leg.Move(d, 0, size.y - d - tf),
+            //    leg.Move(size.x - d - tf, 0, size.y - d - tf),
+            //}.ToSingleShape().Centered();
+
+            var bSize = 1;
             // </Material shape>
 
-            var blockLine = (1).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+            var blockLine = (bSize).SelectRange(z => Shapes.PerfectCubeWithCenter.MoveZ(z)).ToSingleShape().NormalizeWith2D();
             var block = mShape.Points3.Select(p => blockLine.Move(p)).ToSingleShape().NormalizeWith2D();
+
+            //var shadowCube = Shapes.PerfectCubeWithCenter.Normalize(false, true, true);
+            //var shadowLine = (bSize).SelectRange(z => shadowCube.MoveZ(z)).ToSingleShape().NormalizeWith2D();
+            //var shadow = mShape.Points3.Select(p => shadowLine.Move(p)).ToSingleShape().NormalizeWith2D();
+            //var sG = shadow.ToGraph();
+            //var sBi = sG.nodes.WhereBi(n => 3 <= n.edges.Count && n.edges.Count <= 6); // !!!
+            ////var convexes = shadow.TriangulateByFour().Convexes;
+            //var convexes = shadow.Convexes.CleanupBi(sBi.bi);
+            //convexes = new Shape() { Points = shadow.Points, Convexes = convexes }.TriangulateByFour().Convexes;
+
+            //return new Shape { Points = block.Points.ApplyBi(sBi.bi).ToArray(), Convexes = convexes }.ToMeta().ToMotion(100);
 
             if (useDeformation)
                 block = block.ToOyM().Mult(0.01).PullOnSurface(SurfaceFuncs.Hyperboloid).ToOy().Mult(1 / 0.01);
@@ -125,7 +154,8 @@ partial class SceneMotion // MaterialActiveWorld
                     x = forceBorder;
 
                 return c * (x - a) * (x + b) / x.Pow4();
-            };
+            }
+            ;
 
             //var bounceCoef = 0.2;
             Vector3 CalcSpeed(Node n)
@@ -202,14 +232,21 @@ partial class SceneMotion // MaterialActiveWorld
                 nodes.Where(CanCalc).ForEach(n => n.position = FixY(n.position));
             }
 
+            var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12); // todo: get surface
+            var convexes = block.Convexes.CleanupBi(bi);
+
             Shape GetBlock(int i)
             {
-                var (bi, ns) = nodes.WhereBi(n => n.ns.Count <= 12); // todo: get surface
-
                 var s = new Shape
                 {
-                    Points3 = ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(),
-                    Convexes = block.Convexes.ApplyConvexBi(bi).CleanBi(true)
+                    Points3 = smooth switch
+                    {
+                        0 => ns.Select(n => n.position).ToArray(),
+                        1 => ns.Select(n => n.ns.Where(i => bi[i] != -1).Select(i => nodes[i].position).Center()).ToArray(), //.SetY(n.position.y)
+                        2 => ns.Select(n => n.ns.Where(i => bi[i] != -1).SelectMany(i => ns[bi[i]].ns.Where(j => bi[j] != -1)).Select(i => nodes[i].position).Center()).ToArray(),
+                        _ => throw new NotImplementedException(),
+                    },
+                    Convexes = convexes
                 };
 
                 return s;
@@ -238,7 +275,7 @@ partial class SceneMotion // MaterialActiveWorld
                 }
             }
 
-            return Animate().ToMotion(/*block.Size.Length * 1.5*/);
+            return Animate().ToMotion(block.Size.Length * 1.5);
         }
     }
 

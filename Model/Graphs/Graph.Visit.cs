@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Model.Extensions;
+using Model.Libraries;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Extensions;
-using Model.Libraries;
 
 namespace Model.Graphs
 {
@@ -11,12 +10,12 @@ namespace Model.Graphs
         public int[] DistanceMap(int i = 0) => DistanceMap(nodes[i]);
         public int[] DistanceMap(Node node)
         {
-            var map = (nodes.Count).SelectRange(_=>-1).ToArray();
+            var map = (nodes.Count).SelectRange(_ => -1).ToArray();
 
             var visited = new bool[nodes.Count];
             var queue = new Queue<(Node n, int d)>(nodes.Count);
 
-            queue.Enqueue((node,0));
+            queue.Enqueue((node, 0));
 
             do
             {
@@ -57,7 +56,7 @@ namespace Model.Graphs
 
                     foreach (var sn in n.n.Siblings)
                         if (n.d < distance)
-                            queue.Enqueue((sn,n.d+1));
+                            queue.Enqueue((sn, n.d + 1));
                 }
             } while (queue.Count > 0);
 

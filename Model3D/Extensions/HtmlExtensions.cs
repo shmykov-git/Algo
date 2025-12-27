@@ -1,14 +1,13 @@
-﻿using System.Drawing;
-using System;
-using Model;
-using System.Linq;
+﻿using Model;
 using Model.Extensions;
-using System.IO;
-using System.Collections.Generic;
-using Meta;
-using Model3D.Libraries;
-using System.Diagnostics;
 using Model.Libraries;
+using Model3D.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 
 namespace Model3D.Extensions;
 
@@ -83,7 +82,7 @@ function get_scene_group() {{
     }
 
     private static string Get_get_shape_n_mesh(Shape shape, int n, Color? defaultColor = default, bool wireframe = false, float exp = 1E4f)
-    {        
+    {
         List<Material> materials;
         (int mI, int[] ts)[] materialIndices;
         var hasMaterial = shape.Materials?.Any(m => m != null) ?? false;
@@ -97,7 +96,7 @@ function get_scene_group() {{
                     m.m = Materials.GetByColor(defaultColor ?? Color.Black);
             });
             materials = mIndices.Select(m => m.m).ToList();
-            materialIndices = mIndices.Select(m => (mI: materials.IndexOf(m.m), m.ts)).OrderBy(v=>v.mI).ToArray();
+            materialIndices = mIndices.Select(m => (mI: materials.IndexOf(m.m), m.ts)).OrderBy(v => v.mI).ToArray();
         }
         else
         {
@@ -107,8 +106,8 @@ function get_scene_group() {{
         }
 
         var ps = shape.Points3.Select(p => p.ToFloat()).SelectMany(p => new[] { p.x, p.y, p.z }).Select(v => CutFloat(v, exp)).ToArray();
-        var indices = materialIndices.SelectMany(m=>m.ts).ToArray();
-            
+        var indices = materialIndices.SelectMany(m => m.ts).ToArray();
+
         return $@"  
 function get_shape_{n}_mesh() {{
   const materials = []
@@ -166,7 +165,7 @@ function get_shape_{n}_mesh() {{
             Shapes.PerfectCube
                 .Centered()
                 .Scale(v.size.x, v.size.y, v.size.z)
-                .ModifyIf(rotate, s=> s.Rotate(v.q))
+                .ModifyIf(rotate, s => s.Rotate(v.q))
                 .Move(v.center.x, v.center.y, v.center.z)
                 ).ToSingleShape();
 
@@ -181,7 +180,7 @@ function get_shape_{n}_mesh() {{
             else
                 return $"[{cutSize}, {cutCenter}]";
         }
-        
+
         Debug.WriteLine($"[{data.Select(GetItem).SJoin(", ")}]");
 
         return checkShape;

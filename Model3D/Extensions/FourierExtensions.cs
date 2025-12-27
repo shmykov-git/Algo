@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Model;
-using Model.Extensions;
+﻿using Model;
 using Model.Fourier;
 using Model.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model3D.Extensions
 {
     public static class FourierExtensions
     {
-        public static Shape ToSingleConvexShape(this IEnumerable<Fr> frs, int count = 256, bool radiusPerfecto = false, decimal? dis = null) => radiusPerfecto 
-            ? frs.ToArray().DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)).RadiusPerfecto().ToPolygon(count).ToSingleConvexShape() 
+        public static Shape ToSingleConvexShape(this IEnumerable<Fr> frs, int count = 256, bool radiusPerfecto = false, decimal? dis = null) => radiusPerfecto
+            ? frs.ToArray().DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)).RadiusPerfecto().ToPolygon(count).ToSingleConvexShape()
             : frs.ToArray().DoIf(dis != null, v => v.ApplyDiscrete(dis.Value)).ToPolygon(count).ToSingleConvexShape();
 
         public static Polygon ToPolygon(this IEnumerable<Fr> frs, int count = 256) => Polygons.FourierSeries(count, frs.GroupMembers());

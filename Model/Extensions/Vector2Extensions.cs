@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Model.Extensions
@@ -16,8 +15,8 @@ namespace Model.Extensions
             {
                 Points = ps,
                 Convexes = closed
-                    ? ps.Index().SelectCirclePair((i, j) => new[] {i, j}).ToArray()
-                    : ps.Index().SelectPair((i, j) => new[] {i, j}).ToArray()
+                    ? ps.Index().SelectCirclePair((i, j) => new[] { i, j }).ToArray()
+                    : ps.Index().SelectPair((i, j) => new[] { i, j }).ToArray()
             };
         }
 
@@ -34,12 +33,12 @@ namespace Model.Extensions
         {
             var sum = Vector2.Zero;
             var count = 0;
-            foreach(var v in vectors)
+            foreach (var v in vectors)
             {
                 sum += v;
                 count++;
             }
-            
+
             return sum / count;
         }
 
@@ -121,9 +120,9 @@ namespace Model.Extensions
             var bOrt = b.Normal;
             var angle = Math.PI / 2 - Math.Acos(a.Normed * bOrt.Normed);
             var isAcute = a * b > 0;
-            
+
             //angle.BreakNaN();
-            
+
             return isAcute ? angle : angle.Sgn() * Math.PI - angle;
         }
     }

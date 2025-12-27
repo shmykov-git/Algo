@@ -1,7 +1,6 @@
 ﻿using AI.Extensions;
 using AI.Libraries;
 using AI.Model;
-using AI.NBrain.Activators;
 using Model.Extensions;
 
 namespace AI.NBrain;
@@ -13,7 +12,7 @@ public partial class NTrainer
     private NGroup[] groups;
     private double alfa;
     private double nu;
-    
+
     public NModel model;
 
     public NTrainer(NOptions options)
@@ -57,7 +56,7 @@ public partial class NTrainer
             : NFuncs.GetBaseWeight(options.Weight0.a, options.Weight0.b);
 
         var graph = options.Graph;
-        var gns = graph.SelectMany(l=>l.SelectMany(e=>new[] { e.i, e.j })).Distinct().ToArray();
+        var gns = graph.SelectMany(l => l.SelectMany(e => new[] { e.i, e.j })).Distinct().ToArray();
         var n = gns.Max() + 1;
 
         if (gns.Length != n)

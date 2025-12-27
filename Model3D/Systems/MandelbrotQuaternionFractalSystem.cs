@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 
 using ComplexQuaternion = Model4D.ComplexQuaternion;
 namespace Model3D.Systems;
@@ -8,7 +7,7 @@ public static class MandelbrotQuaternionFractalSystem
 {
     private static int MandelbrotDistance(ComplexQuaternion c, int maxIterations)
     {
-        Func<ComplexQuaternion, ComplexQuaternion> GetFn(ComplexQuaternion cc) => z => z*z*z*z*z + cc;
+        Func<ComplexQuaternion, ComplexQuaternion> GetFn(ComplexQuaternion cc) => z => z * z * z * z * z + cc;
         bool IsOutside(ComplexQuaternion z) => z.Len2 > 4;
 
         var fn = GetFn(c);

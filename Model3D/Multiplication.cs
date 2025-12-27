@@ -1,5 +1,4 @@
 ﻿using Model3D;
-using System;
 
 namespace Model
 {

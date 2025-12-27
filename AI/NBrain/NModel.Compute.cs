@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using AI.Exceptions;
+﻿using AI.Exceptions;
 using AI.Model;
 using Model.Extensions;
 
@@ -105,7 +104,7 @@ public partial class NModel
     {
         if (isComputing)
             throw new NotImplementedException("Cannot compute same model in parallel");
-        
+
         isComputing = true;
 
         Queue<N> computeQueue = new();
@@ -127,7 +126,7 @@ public partial class NModel
                 continue;
 
             if (n.isInput || n.backEs.All(e => e.a.computed))
-            {                
+            {
                 if (n.act.IsLayerActivator)
                 {
                     if (!n.preComputed)

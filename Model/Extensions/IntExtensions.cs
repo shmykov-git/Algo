@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Model.Hashes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Hashes;
 
 namespace Model.Extensions
 {

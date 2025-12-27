@@ -10,7 +10,7 @@ namespace Model.Trees
 
         public Node CreateNode(Node node = null, TItem value = default)
         {
-            var newNode = new Node()  { Value = value };
+            var newNode = new Node() { Value = value };
 
             if (node == null)
             {
@@ -31,13 +31,13 @@ namespace Model.Trees
 
         public IEnumerable<(Node node, int level)> LeftVisit()
         {
-            IEnumerable<(Node,int)> Visit(Node node, int level)
+            IEnumerable<(Node, int)> Visit(Node node, int level)
             {
                 yield return (node, level);
-                
+
                 if (node.Children != null)
                 {
-                    foreach (var v in node.Children.SelectMany(c=>Visit(c, level+1)))
+                    foreach (var v in node.Children.SelectMany(c => Visit(c, level + 1)))
                         yield return v;
                 }
             }

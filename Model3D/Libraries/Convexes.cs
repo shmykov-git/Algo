@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Model.Extensions;
+using System;
 using System.Linq;
-using Model.Extensions;
 
 namespace Model3D.Libraries;
 
@@ -16,7 +16,7 @@ public static class Convexes
     public static int[][] Hedgehog(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, triangleMaps, (i, j) => (i + j) % 2);
     public static int[][] ChessHedgehog(int m, int n, bool mClosed = false, bool nClosed = false) =>
-        GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2*(i%2) + j%2);
+        GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2 * (i % 2) + j % 2);
 
     public static int[][] ChessHedgehogBoth(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, hedgehogTriangleMaps, (i, j) => 2 * (i % 2) + j % 2, true);
@@ -40,10 +40,10 @@ public static class Convexes
     public static int[][] Squares(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps);
     public static int[][] ShiftedSquares(int m, int n, bool mClosed = false, bool nClosed = false) =>
-        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => j<n-2 ? 1 : -1);
+        GetConvexes(m, n, mClosed, nClosed, squareMaps, (i, j) => j < n - 2 ? 1 : -1);
     public static int[][] SquaresReverse(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, null, false, true);
-    public static int[][] SquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) => 
+    public static int[][] SquaresBoth(int m, int n, bool mClosed = false, bool nClosed = false) =>
         GetConvexes(m, n, mClosed, nClosed, squareMaps, null, true);
 
     public static int[][] Triangles(int m, int n, bool mClosed = false, bool nClosed = false) =>
@@ -119,11 +119,11 @@ public static class Convexes
         var mm = mClosed ? m : m - 1;
         var nn = nClosed ? n : n - 1;
 
-        var convexes = (mm, nn).SelectRange((i, j) => fn(i, j) >= 0 
+        var convexes = (mm, nn).SelectRange((i, j) => fn(i, j) >= 0
             ? maps[fn(i, j)].Select(line => line.Select(mp => num(i + mp.i, j + mp.j)).ToArray())
             : new int[0][]).ManyToArray();
 
-        convexes = both 
+        convexes = both
             ? convexes.Concat(convexes.ReverseConvexes()).ToArray()
             : convexes;
 

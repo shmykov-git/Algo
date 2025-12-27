@@ -17,7 +17,7 @@ public static class Surfaces
             UFrom = 0,
             UTo = 1,
             UN = un,
-            VFrom = -gutterBend * Math.PI/2,
+            VFrom = -gutterBend * Math.PI / 2,
             VTo = -Math.PI + gutterBend * Math.PI / 2,
             VN = vn,
         }.GetPoints(),
@@ -30,7 +30,7 @@ public static class Surfaces
         {
             Fn = SurfaceFuncs.APowerB,
             UFrom = from,
-            UTo =  to,
+            UTo = to,
             UN = un,
             VFrom = from,
             VTo = to,
@@ -43,7 +43,7 @@ public static class Surfaces
     {
         Points3 = new SurfaceFuncInfo
         {
-            Fn = SurfaceFuncs.NormalDistribution(mu, sigma, new Model.Vector2(-un * mult/2, -vn * mult/2)),
+            Fn = SurfaceFuncs.NormalDistribution(mu, sigma, new Model.Vector2(-un * mult / 2, -vn * mult / 2)),
             UFrom = 0,
             UTo = un * mult,
             UN = un,
@@ -136,7 +136,7 @@ public static class Surfaces
         {
             Fn = SurfaceFuncs.Sphere,
             UFrom = 0,
-            UTo = 2*Math.PI,
+            UTo = 2 * Math.PI,
             UN = un,
             VFrom = from,
             VTo = to,
@@ -197,11 +197,11 @@ public static class Surfaces
         Points3 = new SurfaceFuncInfo
         {
             Fn = SurfaceFuncs.Sphere,
-            UFrom = - Math.PI * 0.2,
-            UTo = - Math.PI*0.8,
+            UFrom = -Math.PI * 0.2,
+            UTo = -Math.PI * 0.8,
             UN = un,
             VFrom = Math.PI * 0.2,
-            VTo = Math.PI*0.8,
+            VTo = Math.PI * 0.8,
             VN = vn,
         }.GetPoints(),
         Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
@@ -213,7 +213,7 @@ public static class Surfaces
         {
             Fn = SurfaceFuncs.Sphere,
             UFrom = 0,
-            UTo = - Math.PI,
+            UTo = -Math.PI,
             UN = un,
             VFrom = 0,
             VTo = Math.PI,
@@ -243,7 +243,7 @@ public static class Surfaces
         {
             Fn = SurfaceFuncs.Shamrock,
             UFrom = 0,
-            UTo = 4 * Math.PI * ui / (un-1),
+            UTo = 4 * Math.PI * ui / (un - 1),
             UN = un,
             VFrom = -Math.PI,
             VTo = Math.PI,
@@ -265,7 +265,7 @@ public static class Surfaces
             VN = vn,
         }.GetPoints(),
         Convexes = triangulate ? Triangles(vn, un) : Squares(vn, un)
-    }.ModifyIf(normalize, s=>s.Normalize());
+    }.ModifyIf(normalize, s => s.Normalize());
 
     public static Shape ShellC(int m, int n, int nToSpins = 2, ConvexFunc? convexesFn = null, bool mClosed = false, bool nClosed = false, bool normalize = true) => new Shape
     {
@@ -280,8 +280,8 @@ public static class Surfaces
             VN = m,
         }.GetPoints(),
         Convexes = (convexesFn ?? Convexes.Squares).Invoke(m, n, mClosed, nClosed)
-    }.Mult(1.0/m).ModifyIf(normalize, s => s.Normalize());
-   
+    }.Mult(1.0 / m).ModifyIf(normalize, s => s.Normalize());
+
     public static Shape Shell2(int un, int vn, double vFromSpin = -0.5, double vToSpin = 0.5, double uFromSpins = 0, double uToSpins = 2, bool triangulate = false) => new Shape
     {
         Points3 = new SurfaceFuncInfo
@@ -333,7 +333,7 @@ public static class Surfaces
         {
             Fn = SurfaceFuncs.MobiusStrip,
             UFrom = 0,
-            UTo = 2*Math.PI,
+            UTo = 2 * Math.PI,
             UN = un,
             VFrom = -1,
             VTo = 1,
@@ -501,8 +501,8 @@ public static class Surfaces
             UFrom = 0,
             UTo = 2 * Math.PI,
             UN = un,
-            VFrom = (Math.PI).Pow(1/a),
-            VTo = ((2*l+1.5) * Math.PI).Pow(1/a),
+            VFrom = (Math.PI).Pow(1 / a),
+            VTo = ((2 * l + 1.5) * Math.PI).Pow(1 / a),
             VN = vn,
         }.GetPoints(),
         Convexes = (convexFunc ?? Convexes.Squares).Invoke(vn, un, false, true)

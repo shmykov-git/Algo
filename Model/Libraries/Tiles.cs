@@ -110,7 +110,7 @@ namespace Model.Libraries
 
             var exteriorAngles = new[] { 0, Math.PI - angleB, Math.PI - angleC, Math.PI - angleD, Math.PI - angleE };
 
-            double GetExteriorAngle(int k) => (k+1).SelectRange(i => exteriorAngles[i]).Sum();
+            double GetExteriorAngle(int k) => (k + 1).SelectRange(i => exteriorAngles[i]).Sum();
             Vector2 GetPoint(int k) => (k).SelectRange(i => new Vector2(Math.Cos(GetExteriorAngle(i)), Math.Sin(GetExteriorAngle(i)))).Sum();
 
             var points = exteriorAngles.Index().Select(GetPoint).ToArray();
@@ -153,6 +153,6 @@ namespace Model.Libraries
                 Convexes = tileShape.Convexes
             };
         }
-         
+
     }
 }

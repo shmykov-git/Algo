@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Model;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Libraries;
-using Model3;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Model3D
 {
@@ -32,7 +29,7 @@ namespace Model3D
         public Vector3 Normal => ca.MultV(cb);
         public Vector3 NOne => Normal.Normalize();
         public Vector3 Center => (a + b + c) / 3;
-        public double Size => Math.Max((b-a).Length, Math.Max((c-a).Length, (c-b).Length));
+        public double Size => Math.Max((b - a).Length, Math.Max((c - a).Length, (c - b).Length));
 
         public SurfaceFunc PointsFn
         {

@@ -9,7 +9,7 @@ namespace Model3D
     public struct ExtendedQuaternion
     {
         public static readonly ExtendedQuaternion Identity = new(MsQuaternion.Identity);
-        
+
         private MsQuaternion q;
 
         public MsQuaternion Q => new(q.W, q.X, q.Y, q.Z);

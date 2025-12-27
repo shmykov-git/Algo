@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using Model.Graphs;
+using System;
 using System.Linq;
-using Model;
-using Model.Extensions;
-using Model.Graphs;
-using Model.Tools;
-using Model3D.Extensions;
-using Vector3 = Model3D.Vector3;
 
 namespace Model3D.Tools
 {

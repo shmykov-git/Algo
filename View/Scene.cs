@@ -3,9 +3,6 @@
 using Model;
 using Model.Extensions;
 using Model.Libraries;
-using Model.Tools;
-using System;
-using System.Linq;
 
 namespace View
 {
@@ -52,7 +49,7 @@ namespace View
                     Convexes = e.IntersectConvexes,
                 };
                 isValid = false;
-            }            
+            }
 #else
             bool isFilled = true;
             Shape2 shape = poligon.ToShape2();

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Model.Extensions
 {
@@ -135,7 +134,7 @@ namespace Model.Extensions
 
         public static IEnumerable<T> SelectMiddleRange<T>(this int range, Func<int, T> selectFn)
         {
-            return Enumerable.Range(0, range).Select(i => selectFn(i - range/2));
+            return Enumerable.Range(0, range).Select(i => selectFn(i - range / 2));
         }
 
         public static (int i, int j) OrderedEdge(this (int i, int j) e)

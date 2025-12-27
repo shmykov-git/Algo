@@ -34,7 +34,7 @@ namespace Model
             return (iTo - iFrom + 1, jTo - jFrom + 1).Range().Select(v => (v.i + iFrom, v.j + jFrom));
         }
 
-        public Net(IEnumerable<(TNetKey key, TNetValue value)> keyValues, double step) : this(keyValues.Select(kv=>kv.key), step)
+        public Net(IEnumerable<(TNetKey key, TNetValue value)> keyValues, double step) : this(keyValues.Select(kv => kv.key), step)
         {
             AddRange(keyValues);
         }

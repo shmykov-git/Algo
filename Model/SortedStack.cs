@@ -31,14 +31,14 @@ namespace Model
 
             data.RemoveAt(index);
             dataValues.RemoveAt(index);
-            
+
             return true;
         }
 
         public void Push(T item, double value)
         {
             var position = dataValues.BinarySearch(value);
-            
+
             if (position < 0)
                 position = ~position;
 
@@ -90,7 +90,7 @@ namespace Model
         public IEnumerator<T> GetEnumerator()
         {
             var i = 0;
-            while (i<Count)
+            while (i < Count)
                 yield return this[i++];
         }
 

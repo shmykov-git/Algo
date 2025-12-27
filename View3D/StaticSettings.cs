@@ -1,7 +1,7 @@
 ﻿using Aspose.ThreeD;
+using Model.Interfaces;
 using System.Collections.Generic;
 using System.IO;
-using Model.Interfaces;
 
 namespace View3D
 {

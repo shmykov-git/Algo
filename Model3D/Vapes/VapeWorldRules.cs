@@ -1,6 +1,6 @@
 ﻿using Model.Extensions;
 
-namespace Model3D.Voxels;
+namespace Model3D.Vapes;
 
 public static class VapeWorldRules
 {

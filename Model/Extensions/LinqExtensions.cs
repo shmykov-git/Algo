@@ -1,16 +1,11 @@
-﻿using Model.Tools;
+﻿using Meta;
+using Model.Tools;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Meta;
-using Meta.Tools;
 using ThreadPool = Meta.Tools.ThreadPool;
-using System.Runtime.CompilerServices;
-using Model.Trees;
-using System.Collections.Concurrent;
 
 namespace Model.Extensions
 {
@@ -99,7 +94,7 @@ namespace Model.Extensions
                 yield return func(enumerator.Current, i++);
         }
 
-       
+
         /// <summary>
         /// Четные
         /// </summary>
@@ -142,7 +137,7 @@ namespace Model.Extensions
             var i = 0;
             var prevT = default(T);
             var first = default(T);
-            
+
             foreach (var t in list)
             {
                 if (i++ == 0)
@@ -151,7 +146,7 @@ namespace Model.Extensions
                     yield return func(prevT, t);
                 prevT = t;
             }
-            
+
             if (i > 1)
                 yield return func(prevT, first);
         }
@@ -162,7 +157,7 @@ namespace Model.Extensions
             {
                 action(a, b);
                 return true;
-            }));
+            })) ;
         }
 
         public static T[] CircleArrayShift<T>(this IEnumerable<T> list, int shift) => list.ToArray().CircleShift(shift);
@@ -193,7 +188,7 @@ namespace Model.Extensions
             if (i == 1)
             {
                 yield return func(firstT, firstT, firstT);
-            } 
+            }
             else
             {
                 yield return func(prevPrevT, prevT, firstT);
@@ -335,7 +330,7 @@ namespace Model.Extensions
         public static IEnumerable<T> OrderSafeDistinct<T>(this IEnumerable<T> list) where T : IEquatable<T>
         {
             var values = new HashSet<T>();
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 if (values.Contains(item))
                     continue;
@@ -374,7 +369,7 @@ namespace Model.Extensions
 
         public static IEnumerable<(TItem a, TItem b)> SelectCross<TItem>(this (List<TItem> aItems, List<TItem> bItems) items) =>
             items.SelectCross((a, b) => (a, b));
-        
+
         public static void ForCross<TItem1, TItem2>(this (TItem1[] aItems, TItem2[] bItems) items, Action<TItem1, TItem2> action) =>
             items.SelectCross().ForEach(v => action(v.a, v.b));
 
@@ -435,7 +430,7 @@ namespace Model.Extensions
                         {
                             if (allCompleted)
                                 return;
-                            
+
                             lock (e)
                             {
                                 if (allCompleted)
@@ -477,7 +472,7 @@ namespace Model.Extensions
                     (m).ForEach(j => results[k + j] = processFn(items[k + j]));
                     completed[i] = true;
 
-                    if (completed.All(v=>v))
+                    if (completed.All(v => v))
                         e.Set();
                 });
             });
@@ -590,7 +585,7 @@ namespace Model.Extensions
 
         public static IEnumerable<TItem> While<TItem>(this IEnumerable<TItem> values, Func<TItem, bool> continueCondition)
         {
-            foreach(var item in values)
+            foreach (var item in values)
             {
                 if (continueCondition(item))
                     yield return item;
@@ -644,8 +639,8 @@ namespace Model.Extensions
                 while (await e.MoveNextAsync())
                 {
                     hasCurrent = true;
-                    
-                    while(hasCurrent)
+
+                    while (hasCurrent)
                         await Task.Delay(1);
                 }
 
@@ -656,7 +651,7 @@ namespace Model.Extensions
             {
                 while (!hasCurrent)
                     Thread.Sleep(1);
-                
+
                 yield return e.Current;
 
                 hasCurrent = false;

@@ -135,7 +135,7 @@ namespace Model
 
         private void FindField(PointInfo[] points, List<int> visits)
         {
-            foreach(var i in visits)
+            foreach (var i in visits)
             {
                 if (points[i].visited)
                     continue;

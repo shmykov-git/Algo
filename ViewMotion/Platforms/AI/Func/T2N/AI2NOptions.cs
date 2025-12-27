@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Model;
+using System;
 using System.Drawing;
-using Model;
-using ViewMotion.Platforms.AI.Func;
 
 namespace ViewMotion.Platforms.AI.Func.T2N;
 

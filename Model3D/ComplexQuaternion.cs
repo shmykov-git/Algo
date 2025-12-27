@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using MathNet.Numerics;
+﻿using MathNet.Numerics;
+using System.Numerics;
 
 namespace Model4D;
 

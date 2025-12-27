@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Model.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Model.Extensions;
-using Model.Libraries;
 
 namespace Model.Graphs
 {
@@ -34,14 +33,14 @@ namespace Model.Graphs
 
             this.edges = edges.Select(e =>
             {
-                var edge = new Edge() 
+                var edge = new Edge()
                 {
                     a = nodes[e.i],
                     b = nodes[e.j]
                 };
 
                 edge.a.edges.Add(edge);
-                
+
                 if (edge.b != edge.a)
                     edge.b.edges.Add(edge);
 
@@ -55,7 +54,7 @@ namespace Model.Graphs
 
             foreach (var e in node.edges.ToArray())
                 RemoveEdge(e);
-            
+
             nodes.Remove(node);
         }
 
@@ -73,13 +72,13 @@ namespace Model.Graphs
             var b = new Node { i = j, edges = new List<Edge>() };
             nodes.Add(a);
             nodes.Add(b);
-            
+
             return AddEdge(a, b);
         }
 
         public Edge AddEdge(Node a, Node b)
         {
-            var e = new Edge() {a = a, b = b};
+            var e = new Edge() { a = a, b = b };
             AddEdge(e);
 
             return e;
@@ -88,9 +87,9 @@ namespace Model.Graphs
         public void AddEdge(Edge edge)
         {
             edges.Add(edge);
-            
+
             edge.a.edges.Add(edge);
-            
+
             if (edge.b != edge.a)
                 edge.b.edges.Add(edge);
         }

@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
 using Model3D.Systems.Model;
 using Model3D.Tools;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
 
 namespace Model3D.Systems
 {
@@ -208,9 +208,9 @@ namespace Model3D.Systems
                     model.ModifyParticleFn(p);
                     return p;
                 }).ToSingleShape(),
-                
-                model.DebugCollidersNoVisible 
-                    ? Shape.Empty 
+
+                model.DebugCollidersNoVisible
+                    ? Shape.Empty
                     : model.PlaneModels.Where(m => !m.SkipVisible).Where(m=>!m.Debug || !model.RunCalculations).Select(m => m.VisibleShape).ToCompositeShape(),
 
                 model.DebugColliders
@@ -263,7 +263,7 @@ namespace Model3D.Systems
             {
                 (options.StepAnimations / options.EmissionAnimations).ForEach(EmissionStep);
                 var s = GetStepShape();
-                
+
                 return s;
             });
 

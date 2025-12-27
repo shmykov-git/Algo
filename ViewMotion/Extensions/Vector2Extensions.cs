@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using Model;
+﻿using Model;
+using System.Windows;
 
 namespace ViewMotion.Extensions;
 

@@ -1,21 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using Model;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model3D.Extensions;
-using static Model.Graphs.Graph;
-using static Model3D.Actives.ActiveWorld;
-using Vector3 = Model3D.Vector3;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace Model3D.Voxels;
+namespace Model3D.Vapes;
 
 public class VapeWorld
 {
     public VapeWorldOptions Options { get; }
     public List<Vape> vapes = new List<Vape>();
-    public List<Voxel> voxels = new List<Voxel>();
+    public List<VapeVoxel> voxels = new List<VapeVoxel>();
     private double interactionRadius;
     private double linkRadius;
     public int voxelCount;
@@ -37,7 +31,7 @@ public class VapeWorld
     {
         public bool isActive;
         public bool visited;
-        public Voxel voxel;
+        public VapeVoxel voxel;
         //public Vector3 acc = Vector3.Origin;
         public Vector3 acc = Vector3.Origin;
 
@@ -85,7 +79,7 @@ public class VapeWorld
             a.acc += acc;
         }
 
-        ProcVoxel GetPV(Voxel voxel)
+        ProcVoxel GetPV(VapeVoxel voxel)
         {
             if (procVoxels.TryGetValue(voxel.gi, out var pv))
                 return pv;
@@ -108,11 +102,11 @@ public class VapeWorld
                 }
         }
 
-        while(stack.TryPop(out var pA))
+        while (stack.TryPop(out var pA))
         {
             if (pA.visited)
                 continue;
-            
+
             pA.visited = true;
             var vapeA = pA.voxel.vape;
 
@@ -121,8 +115,8 @@ public class VapeWorld
 
             foreach (var vapeB in vapes) // todo: Vape world net
             {
-                var closeVoxels = vapeB.net.SelectItemsByRadius(pA.voxel.gposition-vapeB.position, Options.VoxelSize).Where(b => pA.voxel != b && !links.Any(l => l.b == b)).ToArray();
-                
+                var closeVoxels = vapeB.net.SelectItemsByRadius(pA.voxel.gposition - vapeB.position, Options.VoxelSize).Where(b => pA.voxel != b && !links.Any(l => l.b == b)).ToArray();
+
                 //if (closeVoxels.Length > 0)
                 //    Debugger.Break();
 
@@ -149,12 +143,12 @@ public class VapeWorld
 
         vapes.ForEach(v => v.activeVoxelRoots = null);
 
-        foreach(var (vape, activeVoxelRoots) in procVoxels.Values.Where(v => v.isActive).GroupBy(r=>r.voxel.vape).Select(gv=>(gv.Key, gv.Select(v=>v.voxel).ToList())))
+        foreach (var (vape, activeVoxelRoots) in procVoxels.Values.Where(v => v.isActive).GroupBy(r => r.voxel.vape).Select(gv => (gv.Key, gv.Select(v => v.voxel).ToList())))
         {
             vape.activeVoxelRoots = activeVoxelRoots;
         }
 
     }
 
-    
+
 }

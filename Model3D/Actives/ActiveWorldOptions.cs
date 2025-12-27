@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using MessagePack;
-using Meta.Extensions;
+﻿using Meta.Extensions;
 using Model;
-using Model3D.Extensions;
+using System;
+using System.Drawing;
 
 namespace Model3D.Actives;
 
@@ -19,7 +16,7 @@ public class ActiveShapeOptions
     public ActiveWorldOptions WorldOptions { get; set; }
 
     public Shape Docked { get; set; }
-    public ShapeType Type { get; set; }  
+    public ShapeType Type { get; set; }
     public int StepNumber { get; set; }
     public bool ShowMeta { get; set; }
     public bool AllowTriangulation0 { get; set; }
@@ -114,7 +111,7 @@ public class ActiveWorldOptions
     public double PlaneConst { get; set; }
     public double PressurePower { get; set; }
     public double PressurePowerMult { get; set; }
-    public bool AllowModifyStatics {  get; set; }
+    public bool AllowModifyStatics { get; set; }
     public InteractionType InteractionType { get; set; }
     public InteractionOptions Interaction { get; set; }
     public bool UseGround { get; set; }
@@ -135,7 +132,7 @@ public class ActiveWorldOptions
         public int SelfInteractionGraphDistance { get; set; }
         public double ParticleForce { get; set; }
         public Vector3 InteractionAreaScale { get; set; }
-        public bool UseVolumeMass {  get; set; }
+        public bool UseVolumeMass { get; set; }
         public double FrictionForce { get; set; }
         public double ClingForce { get; set; }
         //public double ClingForce { get; set; }

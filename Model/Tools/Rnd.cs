@@ -53,7 +53,7 @@ namespace Model.Tools
         {
             var sum = 0.0;
 
-            for(var i=0; i<probabilities.Count; i++)
+            for (var i = 0; i < probabilities.Count; i++)
             {
                 sum += probabilities[i];
 

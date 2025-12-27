@@ -1,6 +1,5 @@
-﻿using AI.Libraries;
+﻿namespace AI.Model;
 
-namespace AI.Model;
 public class NOptions
 {
     public int Seed { get; set; } = 0;                                  // use the same randomizing process to repeat creation and learning

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 
 namespace meta.Extensions;
+
 public static class JsonExtensions
 {
     public static T? FromJson<T>(this string json)

@@ -1,8 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
-using AI.Model;
+﻿using AI.Model;
 using AI.NBrain;
 using AI.NBrain.Activators;
+using System.Collections.Concurrent;
 
 namespace AI.Extensions;
 

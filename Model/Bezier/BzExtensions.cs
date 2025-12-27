@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using Meta.Model;
+﻿using Meta.Model;
 using Model.Extensions;
 using Model.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace Model.Bezier;
 
@@ -71,7 +68,7 @@ public static class BzExtensions
         var any = 0;
         var right = 0;
         var left = Math.PI;
-        var up = Math.PI/2;
+        var up = Math.PI / 2;
         var down = -Math.PI / 2;
         var aOut = az.la;
         var bIn = bz.a;
@@ -96,7 +93,7 @@ public static class BzExtensions
         {
             var aLine = az.OutLine();
             var lr = aLine.IsLeft(bIn) ? 'L' : 'R';
-            
+
             return (lr, d.x, d.y) switch
             {
                 ('L', 1, 1) => (any, down),

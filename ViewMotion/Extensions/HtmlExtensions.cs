@@ -1,14 +1,10 @@
-﻿using System;
+﻿using Meta;
+using Model;
+using Model3D.Extensions;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Meta;
-using Model;
 using View3D;
-using Model3D.Extensions;
 
 namespace ViewMotion.Extensions;
 

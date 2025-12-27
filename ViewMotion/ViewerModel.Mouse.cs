@@ -1,10 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Windows.Input;
-using Model.Extensions;
-using Model3D.Extensions;
-using View3D.Extensions;
+﻿using Model.Extensions;
 using Model3D;
+using Model3D.Extensions;
+using System.Windows.Input;
 
 namespace ViewMotion;
 
@@ -69,7 +66,7 @@ partial class ViewerModel
 
         camera.Position = center + (camera.Position - center) * q;
         camera.LookDirection *= q;
-        
+
         if (camera.RotateUpDirection)
             camera.UpDirection *= q;
 
@@ -84,7 +81,7 @@ partial class ViewerModel
         var dx = -motionSettings.CameraOptions.LookDirection.MultV(motionSettings.CameraOptions.UpDirection).ToLen(x);
         var dy = motionSettings.CameraOptions.UpDirection.ToLen(y);
 
-        var move = pr*power * (dx + dy);
+        var move = pr * power * (dx + dy);
         motionSettings.CameraOptions.Position += move;
 
         RefreshCamera();

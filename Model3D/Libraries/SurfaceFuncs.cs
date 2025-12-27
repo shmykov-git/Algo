@@ -1,7 +1,7 @@
-﻿using Model.Extensions;
+﻿using Model;
+using Model.Extensions;
 using Model.Libraries;
 using System;
-using Model;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Libraries
@@ -24,7 +24,7 @@ namespace Model3D.Libraries
 
             return (double u, double v) =>
             {
-                var p = points[(int) u];
+                var p = points[(int)u];
                 var f = fn(v);
 
                 return new Vector3(p.x * f.x, p.y, p.x * f.y);
@@ -55,14 +55,14 @@ namespace Model3D.Libraries
         public static SurfaceFunc WaveX(double t, double w) => (double u, double v) => new Vector3(u, v, Math.Cos((t + 0.5 * u) * w));
         public static SurfaceFunc WaveXY(double t, double w) => (double u, double v) => new Vector3(u, v, Math.Cos((t + 0.5 * (u + v)) * w));
 
-        public static SurfaceFunc WaveFi(double t, double w) => (double r, double fi) => new Vector3(r*Math.Sin(fi), r * Math.Cos(fi), Math.Sin((t + r) * w));
+        public static SurfaceFunc WaveFi(double t, double w) => (double r, double fi) => new Vector3(r * Math.Sin(fi), r * Math.Cos(fi), Math.Sin((t + r) * w));
 
         public static SurfaceFunc NormalDistribution(double mu, double sigma, Model.Vector2? shift = null)
         {
             Model.Vector2 zero = (0, 0);
-            var fi =  Funcs.ParametricNormDistribution(mu, sigma);
+            var fi = Funcs.ParametricNormDistribution(mu, sigma);
 
-            return (double u, double v) => new Vector3(u, v, 100*fi((new Model.Vector2(u, v) + shift?? zero).Len));
+            return (double u, double v) => new Vector3(u, v, 100 * fi((new Model.Vector2(u, v) + shift ?? zero).Len));
         }
 
         public static SurfaceFunc Slide(double slope, double height, double width = 0.2, double? hillHeight = null) =>
@@ -79,7 +79,7 @@ namespace Model3D.Libraries
                 {
                     var xy = heart2(u);
 
-                    return new Vector3(xy.x*Math.Sin(v), xy.y * Math.Sin(v), 0.1*Math.Cos(v));
+                    return new Vector3(xy.x * Math.Sin(v), xy.y * Math.Sin(v), 0.1 * Math.Cos(v));
                 };
             }
         }
@@ -90,7 +90,7 @@ namespace Model3D.Libraries
         public static SurfaceFunc CylinderYm => (double u, double v) => new Vector3(Math.Cos(u), v, -Math.Sin(u));
         public static SurfaceFunc CylinderABYm(double a, double b) => (double u, double v) => new Vector3(a * Math.Cos(u), v, -b * Math.Sin(u));
         public static SurfaceFunc Circle => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), 0);
-        public static SurfaceFunc Spiral => (double u, double v) => new Vector3(v*Math.Cos(u), v*Math.Sin(u), u);
+        public static SurfaceFunc Spiral => (double u, double v) => new Vector3(v * Math.Cos(u), v * Math.Sin(u), u);
         public static SurfaceFunc Cone => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), 1);
         public static SurfaceFunc ConeM => (double u, double v) => v * new Vector3(Math.Cos(u), Math.Sin(u), -1);
 

@@ -1,14 +1,6 @@
-﻿using System.Diagnostics;
-using System.Drawing;
-using System.Runtime.CompilerServices;
-using AI.Images;
-using AI.Libraries;
-using AI.Model;
-using MathNet.Numerics.Distributions;
-using meta.Extensions;
-using Model;
+﻿using AI.Images;
 using Model.Extensions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Drawing;
 
 namespace AI.Extensions;
 
@@ -29,7 +21,7 @@ public static class NImageExtensions
     {
         var a = image.pixels.Min();
         var b = image.pixels.Max();
-        image.ModifyEachCij((c, i, j) => NImage.FromGray((int)Math.Round(255.0*(c - a)/(b - a))));
+        image.ModifyEachCij((c, i, j) => NImage.FromGray((int)Math.Round(255.0 * (c - a) / (b - a))));
         return image;
     }
 
@@ -125,7 +117,7 @@ public static class NImageExtensions
         return image;
     }
 
-    public static NImage ApplyAvgFilter(this NImage image, int[][] matrix) => 
+    public static NImage ApplyAvgFilter(this NImage image, int[][] matrix) =>
         ApplyFilter(image, matrix, matrix.AbsSum());
 
     public static NImage ApplyFilter(this NImage image, int[][] matrix, int divisor = 1)
@@ -136,7 +128,7 @@ public static class NImageExtensions
         var maxValue = (n, n).SelectRange((i, j) => matrix[i][j].Abs()).Sum() / divisor;
         var hasSign = (n, n).Range().Any(v => matrix[v.i][v.j] < 0);
 
-        var resImg = new NImage(image.m, image.n, image.options.With(o=> { o.MaxValue *= maxValue; o.HasSign |= hasSign; }));
+        var resImg = new NImage(image.m, image.n, image.options.With(o => { o.MaxValue *= maxValue; o.HasSign |= hasSign; }));
 
         for (var i = 0; i < image.m; i++)
             for (var j = 0; j < image.n; j++)
@@ -167,7 +159,7 @@ public static class NImageExtensions
         var resN = image.n * s.m / s.n + ((image.n * s.m) % s.n > 0 ? s.m : 0);
         var resImg = new NImage(resM, resN, image.options);
         var pixelFn = image.pixelFn;
-        
+
         for (var (sI, ssI) = (0, 0); sI < image.m; (sI, ssI) = (sI + s.n, ssI + 1))
             for (var (sJ, ssJ) = (0, 0); sJ < image.n; (sJ, ssJ) = (sJ + s.n, ssJ + 1))
             {

@@ -34,10 +34,10 @@ public class TrainState
 
     public (double error, double distance, double[][] outputs) ComputeBestModelDataset(NBoxed[] data, double distanceScale = 1)
     {
-        var outputs = data.Select(t => 
-        { 
-            bestModel.ComputeOutputs(t.input); 
-            return bestModel.output.Select(n => n.f).ToArray(); 
+        var outputs = data.Select(t =>
+        {
+            bestModel.ComputeOutputs(t.input);
+            return bestModel.output.Select(n => n.f).ToArray();
         }).ToArray();
 
         var sumError = data.Select(t => (outputs[t.i], t.expected).SelectBoth((x1, x2) => (x2 - x1).Pow2()).Sum()).Sum();

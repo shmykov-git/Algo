@@ -1,4 +1,3 @@
-using System;
 using Model.Extensions;
 using Model.Libraries;
 using NUnit.Framework;

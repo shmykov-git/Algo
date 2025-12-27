@@ -10,7 +10,7 @@ public partial class NTrainer
     private bool needBlFill = false;
     bool isLevelUp;
     private TrainState state = new();
-    
+
     public async Task<TrainState> Train()
     {
         if (state.epoch == 0)
@@ -21,7 +21,7 @@ public partial class NTrainer
         state.bestErrorChanged = false;
         state.isUpChanged = false;
         state.isLevelUp = false;
-        
+
         for (var i = 0; i < options.EpochPerTrain; i++)
         {
             if (options.AllowGrowing)
@@ -104,11 +104,11 @@ public partial class NTrainer
                 MakeLevelBelieved();
 
             (var isUp, isLevelUp) = GrowUp();
-            
+
             state.epochToGrowUp = state.upLevelChangesCount > 0
                 ? (isLevelUp ? options.EpochAfterLevelGrowUp : options.EpochAfterGrowUp)
                 : 0;
-            
+
             if (isUp)
             {
                 state.isUp = true;
@@ -125,14 +125,14 @@ public partial class NTrainer
     {
         if (options.AllowBelief)
             InitBeliefMatrix();
-        
+
         var data = options.TrainData.ToArray();
         var pN = options.ParallelCount;
         var pNs = (pN).Range().ToArray();
         NModel[] models = [model];
         var es = model.es.ToArray();
         var symmetryLen = (int)Math.Round(options.SymmetryFactor * data.Length / pN);
-        
+
         if (symmetryLen == 0)
             symmetryLen = 1;
 
@@ -146,8 +146,8 @@ public partial class NTrainer
                     e.sumDw = 0;
                 });
             }
-            
-            var res = model.blLv > 0 
+
+            var res = model.blLv > 0
                 ? TrainCase(models[mI], t.i, blMatrix[t.i], t.expected)
                 : TrainCase(models[mI], t.i, t.input, t.expected);
 
@@ -169,7 +169,7 @@ public partial class NTrainer
         double sumError = 0;
         double sumDistance = 0;
 
-        for (var k =0; k< data.Length / pN; k++)
+        for (var k = 0; k < data.Length / pN; k++)
         {
             if (k % symmetryLen == 0)
             {
@@ -225,7 +225,7 @@ public partial class NTrainer
         model.ComputeTrainCase(tLayerInput);
         var trainError = model.output.Select(n => (tExpected[n.ii] - n.f).Pow2()).Sum();
         var trainDistance = model.output.Select(n => (tExpected[n.ii] - n.f).Abs()).Sum();
-        
+
         //if (state.epoch % 100 == 0)
         //{
         //    ShowCheckImage(num, tLayerInput, (model.output[0].f, model.output[1].f));
@@ -235,17 +235,17 @@ public partial class NTrainer
 
         if (needBlFill && options.AllowBelief)
             model.nns[model.blLv].ForEach(n => blMatrix[num][n.ii] = n.f);
-        
+
         // learn cleanup
         Queue<N> learnQueue = new Queue<N>(model.unbelievedCapacity);
 
         // skip no compute nodes to finish learn process in any cases
         model.unbelievedNs.ForEach(n => { n.learned = n.es.Count == 0; });
 
-        model.output.ForEach((n, i) => 
+        model.output.ForEach((n, i) =>
         {
             LearnBackPropagationOutput(n, tExpected[i]);
-            
+
             n.learned = true;
         });
 

@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Extensions;
 using Model.Graphs;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
-using Vector3 = Model3D.Vector3;
+using System.Linq;
 
 namespace Model3D.Tools
 {
@@ -37,7 +34,7 @@ namespace Model3D.Tools
                 return position + move;
             }
 
-            var d = new SphereDyno(plane.Points3, plane.OrderedEdges, _=> GravityFn);
+            var d = new SphereDyno(plane.Points3, plane.OrderedEdges, _ => GravityFn);
 
             d.Animate(frameCount);
 
@@ -78,7 +75,7 @@ namespace Model3D.Tools
 
             //var rules = plane.Points.Index().Select(_ => (DynoFunc)GravityFn).ToArray();
 
-            DynoFunc GetRule(Graph.Node n) 
+            DynoFunc GetRule(Graph.Node n)
             {
                 if (n.edges.Count < 6)
                     return (DynoFunc)NothingFn;

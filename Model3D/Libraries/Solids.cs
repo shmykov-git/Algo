@@ -4,7 +4,6 @@ using Model.Libraries;
 using Model3D.Extensions;
 using System;
 using System.Linq;
-using static Model.SuperShape2;
 
 namespace Model3D.Libraries;
 
@@ -35,6 +34,6 @@ public static class Solids
         int GetNum(int u, int v, int l) => ln * (vn * u + v) + l;
         (int i, int j, int k) GetShift(int m) => (m & 1, (m >> 1) & 1, (m >> 2) & 1);
 
-        return (un - 1, vn - 1, ln - 1).SelectRange((u, v, l) => convexes.Select(cs => cs.Select(GetShift).Select(s => GetNum(u + s.i, v + s.j, l + s.k)).ToArray()).ToArray()).SelectMany(v=>v).ToArray();
+        return (un - 1, vn - 1, ln - 1).SelectRange((u, v, l) => convexes.Select(cs => cs.Select(GetShift).Select(s => GetNum(u + s.i, v + s.j, l + s.k)).ToArray()).ToArray()).SelectMany(v => v).ToArray();
     }
 }

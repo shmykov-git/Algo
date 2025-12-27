@@ -6,5 +6,5 @@ public class NImageOptions
     public int MaxValue { get; set; } = 1;
     public bool HasSign { get; set; } = false;
 
-    public NImageBorderType BorderType { get; set; } = NImageBorderType.Padding;   
+    public NImageBorderType BorderType { get; set; } = NImageBorderType.Padding;
 }

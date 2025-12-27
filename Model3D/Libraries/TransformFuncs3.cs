@@ -1,7 +1,6 @@
-﻿using System;
-using Model.Extensions;
+﻿using Model.Extensions;
 using Model.Libraries;
-using Vector2 = Model.Vector2;
+using System;
 
 namespace Model3D.Libraries
 {
@@ -98,7 +97,7 @@ namespace Model3D.Libraries
         public static TransformFunc3 CylinderWrapZR(double r) => WrapCylinderZ(r, Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 CylinderWrapZR(Func1 rF) => WrapCylinderZ(rF, Funcs2.Circle(), Funcs2.VerticalLine());
         public static TransformFunc3 Flower(double a, double b, int n) => WrapSphereZ(Funcs2.Flower(n, b), Funcs2.Torus(a));
-        
+
         public static TransformFunc3 RotateX(double turn = 1, double fluency = 1) => v =>
         {
             var fi = turn * Math.Atan2(v.y.Abs(), fluency * v.x);

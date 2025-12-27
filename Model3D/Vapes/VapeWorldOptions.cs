@@ -1,4 +1,4 @@
-﻿namespace Model3D.Voxels;
+﻿namespace Model3D.Vapes;
 
 public class VapeWorldOptions
 {
@@ -7,6 +7,6 @@ public class VapeWorldOptions
     public double InactiveSpeed { get; set; }
 
     //<debug>
-    public int stepFuncExecCount; 
+    public int stepFuncExecCount;
     //</debug>
 }

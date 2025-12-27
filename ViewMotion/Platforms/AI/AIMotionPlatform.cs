@@ -1,23 +1,22 @@
-﻿using System;
-using System.Drawing;
-using System.Threading.Tasks;
+﻿using AI.Extensions;
+using AI.Model;
+using AI.NBrain;
 using Model.Extensions;
 using Model.Libraries;
 using Model3D.Extensions;
 using Model3D.Libraries;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 using ViewMotion.Extensions;
 using ViewMotion.Models;
-using Vector3 = Model3D.Vector3;
-using System.Linq;
-using System.Diagnostics;
-using System.Collections.Generic;
-using AI.Model;
-using Shape = Model.Shape;
-using AI.NBrain;
-using AI.Extensions;
-using System.Windows;
 using ViewMotion.Platforms.AI.Func.T21;
 using ViewMotion.Platforms.AI.Func.T2N;
+using Shape = Model.Shape;
+using Vector3 = Model3D.Vector3;
 
 namespace ViewMotion.Platforms.AI;
 
@@ -54,7 +53,8 @@ internal class AIMotionPlatform
             .SelectInterval(o.trainR.from, o.trainR.to, o.trainR.from, o.trainR.to, TrainPoints)
             .Where(ps => ps.Length > 0)
             .Select((ps, i) => new NBoxed
-            { i = i,
+            {
+                i = i,
                 input = new double[] { ps[0].x, ps[0].y },
                 expected = ps.Select(p => p.z).ToArray()
             })
@@ -109,11 +109,11 @@ internal class AIMotionPlatform
                 o.showError ? GetErrorShape(state).MoveY(-1.2) : Shape.Empty,
                 o.showTopology ? GetTopologyShape(trainer, o).Perfecto(1.8).MoveX(-2) : Shape.Empty,
                 o.showTopologyWeights ? GetTopologyWeightsShape(trainer, o) : Shape.Empty,
-                (o.zN).Range().Select(i => 
+                (o.zN).Range().Select(i =>
                     pps.Select(ps=>ps[i]).ToArray().ToPointsShape().Move(-0.5, -0.5, -0.5).Mult(2).ToPoints(o.colors[i%o.colors.Length], 0.5, point)
                 ).ToCompositeShape(),
-                (o.flashSurface 
-                ? (type switch 
+                (o.flashSurface
+                ? (type switch
                     {
                         0 => boxedShape.ToLines(0.5),
                         1 => (o.zN).Range().Select(i =>

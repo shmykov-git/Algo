@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace Meta.Libraries;
@@ -21,7 +21,7 @@ public static class Debugs
         {
             var now = DateTime.UtcNow;
 
-            foreach (var action in actions.ToArray()) 
+            foreach (var action in actions.ToArray())
             {
                 if (action.Value.t > now)
                     continue;
@@ -59,9 +59,9 @@ public static class Debugs
         if (percent > maxPercent && fFn())
         {
             maxPercent = percent;
-            
+
             var debugValue = $"{string.Format(str, $"{percent} %")} ({count})";
-            
+
             if (useDelay)
                 DoInTime(str, () => Debug.WriteLine(debugValue), now + interval);
             else

@@ -1,14 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using MathNet.Numerics;
-using Meta.Libraries;
+﻿using Meta.Libraries;
 using Model.Extensions;
 using Model3D.Extensions;
-using static Model3D.Actives.ActiveWorld;
+using System;
+using System.Linq;
 
 namespace Model3D.Actives;
 
@@ -112,7 +106,7 @@ public partial class ActiveWorld // Interaction
             if (a.Options.UseSelfInteractions)
             {
                 // todo
-            }    
+            }
         }
 
         ApplyPointCollideValues();
@@ -205,7 +199,7 @@ public partial class ActiveWorld // Interaction
                     var pEdgeNearPointsFn = pb.EdgeNearPointsFn;
 
                     var aNearNodes = a.Model.net.SelectItemsByRadius(pCenter - a.Model.center, pSize);
-                    
+
                     foreach (var na in aNearNodes)
                     {
                         var isStrikeDir = !na.hasnDir || na.nDir.MultS(nOne) < 0;
@@ -229,22 +223,22 @@ public partial class ActiveWorld // Interaction
 
                     var aNoCollideNodes = aNearNodes.Where(na => na.collideCount == 0).ToHashSet();
 
-                    foreach(var ea in aNoCollideNodes.SelectMany(na=>na.edges.Where(ea=> aNoCollideNodes.Contains(ea.nj))))
+                    foreach (var ea in aNoCollideNodes.SelectMany(na => na.edges.Where(ea => aNoCollideNodes.Contains(ea.nj))))
                     {
                         var (hasCrossPoint, crossPoint) = pLineCrossFn(ea.positionI, ea.positionJ).SplitNullable();
-                        
+
                         if (!hasCrossPoint)
                             continue;
 
                         var isInsideCollideConvex = pIsPointInsideFn(crossPoint, 0);
-                        
+
                         if (isInsideCollideConvex)
                         {
                             var distanceI = pDistanceFn(ea.positionI);
                             var distanceJ = pDistanceFn(ea.positionJ);
                             var downPoint = distanceI < distanceJ ? ea.positionI : ea.positionJ;
                             var edgePoint = pEdgeNearPointsFn(crossPoint).MinBy(p => p.Length2);
-                            
+
                             var (hasV, vCollidePoint) = (downPoint - crossPoint).ProjWithCheck(edgePoint - crossPoint);
 
                             if (hasV)

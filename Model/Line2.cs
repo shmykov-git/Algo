@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Model
 {
@@ -54,7 +53,7 @@ namespace Model
 
         public static implicit operator Line2((Vector2 a, Vector2 b) l)
         {
-            return new Line2 (l.a, l.b);
+            return new Line2(l.a, l.b);
         }
     }
 }

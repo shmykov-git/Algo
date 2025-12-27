@@ -57,7 +57,7 @@ namespace Model.Test
 
             foreach (var (a, b, expected) in data)
             {
-               fn(a, b).Should().Be(expected); 
+                fn(a, b).Should().Be(expected);
             }
         }
     }

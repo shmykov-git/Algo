@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Model.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Model.Extensions;
 using Vector2 = Model.Vector2;
 
 namespace Model3D.Systems
@@ -10,7 +10,7 @@ namespace Model3D.Systems
     {
         private static int MandelbrotDistance(Complex power, Complex c, int maxIterations)
         {
-            Func<Complex, Complex> GetFn(Complex power, Complex c) => z => Complex.Pow(z, power)  + c;
+            Func<Complex, Complex> GetFn(Complex power, Complex c) => z => Complex.Pow(z, power) + c;
             bool IsOutside(Complex z) => z.Real * z.Real + z.Imaginary * z.Imaginary > 4;
 
             var fn = GetFn(power, c);
@@ -34,7 +34,7 @@ namespace Model3D.Systems
             while (MandelbrotDistance(power, c, maxIterations) == 0)
                 c += step;
 
-            return (c-step, c);
+            return (c - step, c);
         }
 
         public static Vector2[] GetPoints((double re, double im) power, double precision, int maxIterations = 1000, double insideCoff = 0.99,
@@ -67,7 +67,7 @@ namespace Model3D.Systems
                     //if (isDInside)
                     //    throw new ApplicationException("Loop");
                     //else
-                        return (v.a, c);
+                    return (v.a, c);
                 }
             }
 
@@ -80,7 +80,7 @@ namespace Model3D.Systems
             {
                 v = NextPoint(v);
                 var p = v.a + insideCoff * (v.b - v.a);
-                
+
                 res.Add(p);
 
                 if (limit-- == 0)

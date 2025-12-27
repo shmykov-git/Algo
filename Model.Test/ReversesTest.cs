@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using AI.Model;
+﻿using AI.Model;
 using AI.NBrain;
 using FluentAssertions;
 using Model.Extensions;
 using NUnit.Framework;
+using System;
+using System.Linq;
 
 namespace Model.Test
 {
@@ -148,7 +148,7 @@ namespace Model.Test
             // 4-7, 8-9, 9-10, 7-9, 6-7
             // 2-5, 6-7, 7-8, 5-7, 4-5 --- 2-5, 6-8, 4-7 -- 2-5, 6-7, 4-8
             (int, int)[][] gR = [[(0, 2), (0, 3), (0, 5), (0, 6), (0, 7), (0, 9), (0, 10), (1, 2), (1, 3), (1, 4), (1, 5), (1, 7), (1, 8), (1, 9), (1, 10)]];
-            
+
             var trainer = new NTrainer(new NOptions { Graph = gA });
             trainer.Init();
             var model = trainer.model;

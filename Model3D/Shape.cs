@@ -1,18 +1,12 @@
 ﻿using Model.Extensions;
+using Model.Graphs;
+using Model.Libraries;
+using Model3D;
 using Model3D.Extensions;
+using Model3D.Libraries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model3D;
-using static Model.SuperShape2;
-using Model3D.Libraries;
-using Model.Libraries;
-using Model.Graphs;
-using System.Diagnostics;
-using Model.Hashes;
-using meta.Tools;
-using System.Drawing;
-using System.Threading.Tasks;
 
 namespace Model
 {
@@ -42,7 +36,7 @@ namespace Model
         //    });
         //}
 
-        public IEnumerable<Shape> CompositeShapes 
+        public IEnumerable<Shape> CompositeShapes
         {
             get
             {
@@ -109,11 +103,11 @@ namespace Model
         {
             get
             {
-                var nodes = Convexes.Select((c, i) => new ConvexNode { i = i, edges = c.SelectCirclePair((i,j)=>(i,j).OrderedEdge()).ToArray() }).ToArray();
+                var nodes = Convexes.Select((c, i) => new ConvexNode { i = i, edges = c.SelectCirclePair((i, j) => (i, j).OrderedEdge()).ToArray() }).ToArray();
 
                 void SetNodes(ConvexNode[] ns)
                 {
-                    ns.ForEach(a => ns.Where(b => a != b).ForEach(b=>a.ns.Add(b)));
+                    ns.ForEach(a => ns.Where(b => a != b).ForEach(b => a.ns.Add(b)));
                 }
 
                 nodes.SelectMany(n => n.edges.Select(e => (n, e)))
@@ -158,7 +152,7 @@ namespace Model
         public (Material m, int[] ts)[] TrianglesWithMaterials => Convexes
             .Select((c, cI) => (t: TriangleSchemaList(c.Length).Select(i => c[i]).ToArray(), m: Materials[cI]))
             .GroupBy(v => v.m)
-            .Select(gv => (gv.Key, gv.SelectMany(v=>v.t).ToArray()))
+            .Select(gv => (gv.Key, gv.SelectMany(v => v.t).ToArray()))
             .ToArray();
 
         public IEnumerable<Vector2> TriangleTexturePoints => TexturePoints?.SelectMany(c => TriangleSchemaList(c.Length).Select(i => c[i]));
@@ -363,7 +357,7 @@ namespace Model
             var ps = ConvexPoints(iConvex);
             var n = ConvexNormal(iConvex);
 
-            return x => x - n * (n.MultS(x - ps[2])/n.Length2);
+            return x => x - n * (n.MultS(x - ps[2]) / n.Length2);
         }
 
         public Func<Vector3, Vector3, Vector3?> IntersectConvexFn(int iConvex)
@@ -398,11 +392,11 @@ namespace Model
         private class ConvexNode
         {
             public int i;
-            public (int,int)[] edges;
+            public (int, int)[] edges;
             public HashSet<ConvexNode> ns = new HashSet<ConvexNode>();
         }
 
-        public class MasterPoint : IEquatable<MasterPoint> 
+        public class MasterPoint : IEquatable<MasterPoint>
         {
             public Vector4 point;
             public int[] links;

@@ -18,8 +18,8 @@ public static class Accelerations
 
         return x => x < a
             ? b * x * x
-            : x < 1 - a 
-                ? k * x + k2 
+            : x < 1 - a
+                ? k * x + k2
                 : -b * (x - 1) * (x - 1) + 1;
     }
 }

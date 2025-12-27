@@ -1,4 +1,4 @@
-﻿namespace Model3D.Voxels;
+﻿namespace Model3D.Vapes;
 
 public class VoxelMaterial
 {
